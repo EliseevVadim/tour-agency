@@ -10,9 +10,21 @@
         "production": "mix --production"
     },
     "devDependencies": {
+        "@popperjs/core": "^2.11.8",
         "axios": "^0.21",
+        "bootstrap": "^5.3.8",
         "laravel-mix": "^6.0.6",
         "lodash": "^4.17.19",
-        "postcss": "^8.1.14"
+        "postcss": "^8.1.14",
+        "sass": "^1.93.2",
+        "sass-loader": "^12.1.0",
+        "vue": "2.7.16",
+        "vue-loader": "^15.11.1",
+        "vue-template-compiler": "^2.7.16"
+    },
+    "dependencies": {
+        "autoprefixer": "^10.4.21",
+        "jquery": "^3.7.1",
+        "popper.js": "^1.16.1"
     }
 }
