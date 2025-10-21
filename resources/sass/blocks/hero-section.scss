@@ -1,0 +1,54 @@
+.hero-section {
+    .hero-surf {
+        right: 0;
+        bottom: -90px;
+    }
+
+    .hero-top-bar {
+        padding-top: 35px;
+
+        .navbar-toggler-icon {
+            background-image: url("/img/hamburger.svg");
+            width: 42px;
+        }
+    }
+
+    .hero-content {
+        margin-top: 120px;
+        margin-bottom: 58px;
+    }
+
+    .hero-top-bar-left {
+        flex: 1 1;
+        justify-content: space-between;
+
+        @media (min-width: 576px) {
+            justify-content: flex-start;
+        }
+
+        .navbar-toggler {
+            padding-top: 0;
+            border: none;
+            background: none;
+            outline: none;
+        }
+
+        .logo-container {
+            .logo {
+                @media (max-width: 575px) {
+                    width: 100px;
+                }
+            }
+
+            .logo-subtitle {
+                font-size: 18px;
+                font-family: 'Bewlay Br1', arial, serif;
+                color: #ffffff;
+
+                @media (min-width: 576px) {
+                    font-size: 26px;
+                }
+            }
+        }
+    }
+}

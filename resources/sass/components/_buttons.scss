@@ -1,0 +1,43 @@
+.btn-cta {
+    display: inline-block;
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+    border: none;
+    outline: none;
+
+    height: 54px;
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    color: $btn-cta-text-color;
+    font-size: 1.1rem;
+
+    background: linear-gradient(90deg, $btn-cta-gradient-start 0%, $btn-cta-gradient-end 100%);
+
+    box-shadow: 0 4px 10px rgba(255, 69, 0, 0.4);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+    text-decoration: none;
+
+    &:hover {
+        background: linear-gradient(90deg, $btn-cta-hover-color-start 0%, $btn-cta-hover-color-end 100%);
+        box-shadow: 0 6px 15px rgba(255, 69, 0, 0.6);
+        color: $btn-cta-text-color;
+    }
+    &:focus {
+        outline: none;
+    }
+    &:active {
+        box-shadow: 0 2px 5px rgba(255, 69, 0, 0.6);
+    }
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .btn-cta__icon {
+        margin-right: 0.5rem;
+        font-size: 1.2rem;
+    }
+}
