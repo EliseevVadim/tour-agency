@@ -1,6 +1,8 @@
 require('./bootstrap');
 
 import Vue from 'vue';
+import SsrCarousel from 'vue-ssr-carousel'
+import ssrCarouselCss from 'vue-ssr-carousel/index.css'
 
 Vue.component('app-footer', require('./client/components/Fragments/Footer.vue').default);
 Vue.component('app-header', require('./client/components/Fragments/Header.vue').default);
@@ -20,6 +22,8 @@ Vue.component('training-promo', require('./client/components/Promotions/Training
 Vue.component('benefits-section', require('./client/components/Benefits.vue').default);
 Vue.component('travel-directions', require('./client/components/TravelDirectionsSection.vue').default);
 Vue.component('first-screen', require('./client/components/HeroSection.vue').default);
+
+Vue.component('ssr-carousel', SsrCarousel);
 
 const app = new Vue({
     el: '#app',
