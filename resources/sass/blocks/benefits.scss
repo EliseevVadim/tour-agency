@@ -1,0 +1,114 @@
+:root {
+    --color-heading: #333;
+    --color-text: #555;
+    --color-number-outline: #e82c26;
+    --font-family-main: sans-serif;
+}
+
+.benefits-section {
+    position: relative;
+    padding: 62px 119px 71px 41px;
+    background-color: #f8f8f8;
+    overflow: hidden;
+}
+
+.benefits-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 5;
+}
+
+.benefits-title {
+    margin-bottom: 34px;
+}
+
+.benefits-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.benefits-list li {
+    margin-bottom: 60px;
+}
+
+.benefits-item {
+    position: relative;
+}
+
+.item-number {
+    font-size: 69px;
+    font-weight: 900;
+    font-style: normal;
+    line-height: 0.83;
+    color: white;
+    -webkit-text-stroke: none;
+    text-stroke: none;
+
+    text-shadow: -1px -1px 0 $color-ta-red,
+    1px -1px 0 $color-ta-red,
+    -1px 1px 0 $color-ta-red,
+    1px 1px 0 $color-ta-red;
+}
+
+.item-heading {
+    font-size: 1.57rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.item-content {
+    position: absolute;
+    top: 50%;
+    left: 29px;
+}
+
+.item-content p {
+    font-size: 1.57rem;
+    line-height: 0.83;
+    font-weight: 500;
+}
+
+@media (max-width: 1023px) {
+    .item-content {
+        padding-left: 45px;
+    }
+
+    .item-heading {
+        font-size: 1.3rem;
+    }
+
+    .leaf-background {
+        width: 150px;
+        height: 150px;
+        top: 20px;
+        left: -70px;
+    }
+}
+
+
+/* --- Мобильные устройства (до 767px) --- */
+@media (max-width: 767px) {
+    .benefits-section {
+        padding: 40px 15px;
+    }
+
+    .benefits-title {
+        font-size: 1.6rem;
+        margin-bottom: 30px;
+    }
+
+    .item-content {
+        padding-left: 0;
+    }
+
+    .item-heading {
+        margin-top: 0;
+        font-size: 1.2rem;
+    }
+
+    .item-content p {
+        font-size: 0.95rem;
+    }
+}

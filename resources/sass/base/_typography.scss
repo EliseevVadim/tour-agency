@@ -13,6 +13,7 @@ h1 {
 
 h2 {
     font-size: 2.23rem;
+    font-weight: bold;
     margin-bottom: 0;
 }
 
@@ -28,4 +29,10 @@ p {
 
 .fw-800 {
     font-weight: 800;
+}
+
+@media (max-width: 1023px) {
+    h2 {
+        font-size: 1.8rem;
+    }
 }
