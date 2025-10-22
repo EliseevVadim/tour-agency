@@ -15,8 +15,6 @@
     font-size: 1.1rem;
 
     background: linear-gradient(90deg, $btn-cta-gradient-start 0%, $btn-cta-gradient-end 100%);
-
-    box-shadow: 0 4px 10px rgba(255, 69, 0, 0.4);
     transition: background 0.3s ease, box-shadow 0.3s ease;
     text-decoration: none;
 
@@ -25,12 +23,15 @@
         box-shadow: 0 6px 15px rgba(255, 69, 0, 0.6);
         color: $btn-cta-text-color;
     }
+
     &:focus {
         outline: none;
     }
+
     &:active {
         box-shadow: 0 2px 5px rgba(255, 69, 0, 0.6);
     }
+
     &:disabled {
         opacity: 0.6;
         cursor: not-allowed;
@@ -40,4 +41,13 @@
         margin-right: 0.5rem;
         font-size: 1.2rem;
     }
+}
+
+.btn-open {
+    font-size: 1.56rem;
+    padding: 0;
+    width: 220px;
+    height: 49px;
+    align-content: center;
+    font-weight: 500;
 }
