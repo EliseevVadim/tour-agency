@@ -1,0 +1,51 @@
+.ssr-carousel-arrows {
+  .carousel-left-icon, .carousel-right-icon {
+    width: 49px;
+    height: 49px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s;
+
+    &:before {
+      content: "❯";
+      color: black;
+      font-size: 26px;
+    }
+
+    &:not(.disabled):hover {
+      &:before {
+        color: #ffffff;
+      }
+    }
+
+    &.disabled {
+      opacity: 50%;
+    }
+  }
+
+  .carousel-left-icon {
+    &:before {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+.ssr-carousel-dots {
+  margin-top: 31px !important;
+}
+
+.ssr-carousel-dot-icon {
+  width: 13px !important;
+  height: 13px !important;
+  background-color: #b9b9b9 !important;
+  border: none !important;
+  opacity: 1 !important;
+}
+
+[aria-disabled] > .ssr-carousel-dot-icon {
+  background-color: #eb2d26 !important;
+  border: none;
+}

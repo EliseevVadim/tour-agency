@@ -1,0 +1,36 @@
+.travel-directions-section {
+    position: relative;
+
+    .line-gradient-background {
+        width: 100%;
+        height: 71px;
+        background-image: linear-gradient(to right, #dd0024, #fb6228);
+        position: absolute;
+        top: 50%;
+    }
+
+    .coconut-background {
+        position: absolute;
+        width: 167px;
+        height: 161px;
+        right: -75px;
+        top: -110px;
+        background: url('/img/coconut.png') no-repeat center center / cover;
+        z-index: 10;
+        pointer-events: none;
+        transform: scaleX(-1);
+    }
+
+    .travel-directions-title {
+        margin-bottom: 50px;
+    }
+
+    .travel-card__image-container {
+        border-radius: 27px;
+        overflow: hidden;
+    }
+
+    .travel-card__background-image {
+        width: 100%;
+    }
+}
