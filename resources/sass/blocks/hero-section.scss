@@ -32,23 +32,5 @@
             background: none;
             outline: none;
         }
-
-        .logo-container {
-            .logo {
-                @media (max-width: 575px) {
-                    width: 100px;
-                }
-            }
-
-            .logo-subtitle {
-                font-size: 18px;
-                font-family: 'Bewlay Br1', arial, serif;
-                color: #ffffff;
-
-                @media (min-width: 576px) {
-                    font-size: 26px;
-                }
-            }
-        }
     }
 }
