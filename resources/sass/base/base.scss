@@ -1,3 +1,7 @@
+.container, .container-fluid, .container-xxl, .container-xl, .container-lg, .container-md, .container-sm {
+    --bs-gutter-x: 2.5rem;
+}
+
 .logo-container {
     .logo {
         @media (max-width: 575px) {
@@ -13,5 +17,17 @@
         @media (min-width: 576px) {
             font-size: 26px;
         }
+    }
+}
+
+#app {
+    min-width: 400px;
+    width: 100%;
+    max-width: 1920px;
+}
+
+@media (max-width: 400px) {
+    body {
+
     }
 }

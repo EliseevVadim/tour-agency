@@ -1,5 +1,7 @@
 .tour-section {
     padding-top: 40px;
+    padding-left: 0;
+    padding-right: 0;
 
     h2 {
         font-weight: bold;
@@ -12,35 +14,8 @@
     }
 
     .ssr-carousel-arrows {
-        .tour-carousel-left-icon, .tour-carousel-right-icon {
-            width: 49px;
-            height: 49px;
-            background-color: rgba(255, 255, 255, 0.7);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.2s;
-            &:before {
-                content: "❯";
-                color: black;
-                font-size: 20px;
-            }
-            &:not(.disabled):hover{
-                &:before {
-                    color: #ffffff;
-                }
-            }
-            &.disabled {
-                opacity: 50%;
-            }
-        }
         .tour-carousel-left-icon {
             margin-left: 15px;
-
-            &:before {
-                transform: rotate(180deg);
-            }
         }
         .tour-carousel-right-icon {
             margin-right: 15px;

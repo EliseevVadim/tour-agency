@@ -6,7 +6,7 @@
         <div class=" container-fluid overflow-hidden">
             <h2 class="travel-directions-title text-center">Наши направления:</h2>
 
-            <ssr-carousel show-arrows show-dots slidesPerPage='1' overflow-visible
+            <ssr-carousel show-arrows show-dots :slidesPerPage="1" overflow-visible
                           paginate-by-slide peek-right='3%' peek-left='3%' gutter='30'
                           :responsive='responsive'>
 

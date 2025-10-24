@@ -1,6 +1,7 @@
 <template>
     <section class="benefits-section">
-        <div class="benefits-container">
+        <div class="skewed-background"></div>
+        <div class="benefits-container container-fluid container-xl">
             <h2 class="benefits-title text-center">Для наших путешественников:</h2>
 
             <ul class="benefits-list">

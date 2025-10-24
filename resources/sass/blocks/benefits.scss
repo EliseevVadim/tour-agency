@@ -1,22 +1,23 @@
-:root {
-    --color-heading: #333;
-    --color-text: #555;
-    --color-number-outline: #e82c26;
-    --font-family-main: sans-serif;
-}
-
 .benefits-section {
     position: relative;
-    padding: 62px 119px 71px 41px;
     background-color: #f8f8f8;
     overflow: hidden;
+
+    .skewed-background {
+        width: 100%;
+        height: 100%;
+        background-color: #f3f3f3;
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 93%);
+        position: absolute;
+        left: 0;
+    }
 }
 
 .benefits-container {
-    max-width: 1000px;
-    margin: 0 auto;
+    padding-right: 119px;
+    padding-top: 62px;
+    padding-bottom: 51px;
     position: relative;
-    z-index: 5;
 }
 
 .benefits-title {
@@ -90,13 +91,12 @@
 
 /* --- Мобильные устройства (до 767px) --- */
 @media (max-width: 767px) {
-    .benefits-section {
-        padding: 40px 15px;
+    .benefits-container {
+        padding: 25px 0 0;
     }
 
-    .benefits-title {
-        font-size: 1.6rem;
-        margin-bottom: 30px;
+    .benefits-section {
+        padding: 0 15px 40px;
     }
 
     .item-content {

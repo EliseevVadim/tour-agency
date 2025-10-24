@@ -1,5 +1,5 @@
 <template>
-    <section class="team-section">
+    <section class="team-section container">
         <h2 class="team-section-title text-center">Наша команда:</h2>
         <ssr-carousel show-dots :slidesPerPage="1">
             <div v-for="(slide, slideIndex) in slides" :key="slideIndex" class="carousel-slide">

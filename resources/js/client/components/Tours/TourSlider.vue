@@ -2,18 +2,15 @@
     <section class="container-fluid container-xl tour-section">
         <h2>Туры дня:</h2>
         <div class="tour-slider">
-            <ssr-carousel show-arrows
-                          :gutter="25"
-                          feather
-                          peek="20"
+            <ssr-carousel show-arrows feather :peek='20'
                           :slides-per-page='1'
                           paginate-by-slide
                           :responsive='responsive'>
                 <template #back-arrow='{ disabled }'>
-                    <span class="tour-carousel-left-icon" :class="{'disabled': disabled}"></span>
+                    <span class="carousel-left-icon tour-carousel-left-icon" :class="{'disabled': disabled}"></span>
                 </template>
                 <template #next-arrow='{ disabled }'>
-                    <span class="tour-carousel-right-icon" :class="{'disabled': disabled}"></span>
+                    <span class="carousel-right-icon tour-carousel-right-icon" :class="{'disabled': disabled}"></span>
                 </template>
 
                     <tour-card v-for="tour in tours"
@@ -62,11 +59,11 @@ export default {
             ],
             responsive: [
                 {
-                    minWidth: 768,
+                    minWidth: 500,
                     slidesPerPage: 2,
                 },
                 {
-                    minWidth: 1024,
+                    minWidth: 675,
                     slidesPerPage: 3,
                 },
                 {

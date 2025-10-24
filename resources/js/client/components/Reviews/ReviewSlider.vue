@@ -1,25 +1,27 @@
 <template>
-    <section class="reviews-section container-fluid container-xl">
-        <h2 class="reviews-title text-center">Отзывы клиентов:</h2>
-        <div class="reviews-slider">
-            <ssr-carousel show-arrows :slides-per-page='1'
-                          paginate-by-slide overflow-visible peek-right='7%' gutter='30'
-                          :responsive='responsive'>
-                <template #back-arrow='{ disabled }'>
-                    <span class="reviews-carousel-left-icon" :class="{'disabled': disabled}"></span>
-                </template>
-                <template #next-arrow='{ disabled }'>
-                    <span class="reviews-carousel-right-icon" :class="{'disabled': disabled}"></span>
-                </template>
+    <section class="reviews-section">
+        <div class="container-fluid overflow-hidden">
+            <h2 class="reviews-title text-center">Отзывы клиентов:</h2>
+            <div class="reviews-slider">
+                <ssr-carousel show-arrows :slides-per-page='1'
+                              paginate-by-slide overflow-visible peek-right='10%' gutter='29'
+                              :responsive='responsive'>
+                    <template #back-arrow='{ disabled }'>
+                        <span class="reviews-carousel-left-icon" :class="{'disabled': disabled}"></span>
+                    </template>
+                    <template #next-arrow='{ disabled }'>
+                        <span class="reviews-carousel-right-icon" :class="{'disabled': disabled}"></span>
+                    </template>
 
-                <review-card v-for="review in reviews"
-                             :key="review.id"
-                             :name="review.name"
-                             :location="review.location"
-                             :text="review.text"
-                             :background-image="review.backgroundImage"
-                             :profile-image="review.profileImage"/>
-            </ssr-carousel>
+                    <review-card v-for="review in reviews"
+                                 :key="review.id"
+                                 :name="review.name"
+                                 :location="review.location"
+                                 :text="review.text"
+                                 :background-image="review.backgroundImage"
+                                 :profile-image="review.profileImage"/>
+                </ssr-carousel>
+            </div>
         </div>
     </section>
 </template>

@@ -1,5 +1,6 @@
 .travel-directions-section {
     position: relative;
+    padding-top: 104px;
 
     .line-gradient-background {
         width: 100%;
@@ -11,14 +12,13 @@
 
     .coconut-background {
         position: absolute;
-        width: 167px;
-        height: 161px;
-        right: -75px;
-        top: -110px;
+        width: 91px;
+        height: 150px;
+        right: 0;
+        top: 0;
         background: url('/img/coconut.png') no-repeat center center / cover;
         z-index: 10;
         pointer-events: none;
-        transform: scaleX(-1);
     }
 
     .travel-directions-title {

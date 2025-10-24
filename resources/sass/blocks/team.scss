@@ -1,7 +1,5 @@
 .team-section {
     padding-top: 108px;
-    padding-left: 41px;
-    padding-right: 41px;
 
     .ssr-carousel-mask {
         padding: 31px 4px 6px;
@@ -19,35 +17,49 @@
     gap: 20px;
 }
 
-.team-member:not(.empty-slot) {
+.team-member-content {
+    overflow: hidden;
+    height: 168px;
     position: relative;
-    width: calc(19% - 20px);
     background-color: white;
     border-radius: 24px;
     box-shadow: 0 0 16.7px 1.3px rgba(0, 0, 0, 0.15);
-    padding-bottom: 27px;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 74px 14px 27px;
     text-align: center;
     box-sizing: border-box;
-    border-bottom: 5px solid $color-ta-red;
+
+    &:after {
+        content: "";
+        height: 5px;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: $color-ta-red;
+    }
 }
 
 .team-member {
+    position: relative;
+    width: calc(20% - 20px);
+
     img {
+        z-index: 1;
         width: 94px;
         height: 94px;
         border-radius: 50%;
         object-fit: cover;
-        transform: translate(-50%, -32%);
+        top: -10%;
+        left: 50%;
+        transform: translate(-50%, -10%);
         position: absolute;
+
     }
 
     h3 {
         line-height: 0.83;
         font-weight: bold;
-        margin-bottom: 22px;
-        margin-top: 74px;
+        margin-bottom: 12px;
     }
 
     p {
@@ -55,45 +67,60 @@
         font-weight: normal;
         line-height: 0.84;
     }
+
     &.top-row {
         margin-bottom: 39px;
+    }
+}
+
+@media (max-width: 1023px) {
+    .team-member-content {
+        p {
+            font-size: 0.95rem;
+        }
+    }
+}
+
+@media (max-width: 992px) {
+    .team-section {
+        padding-top: 25px;
     }
 }
 
 @media (max-width: 768px) {
     .team-member {
         width: calc(50% - 20px);
-    }
 
-    .team-member img {
-        width: 80px;
-        height: 80px;
-    }
+        img {
+            width: 80px;
+            height: 80px;
+        }
 
-    .team-member h3 {
-        font-size: 16px;
-    }
+        h3 {
+            font-size: 16px;
+        }
 
-    .team-member p {
-        font-size: 14px;
+        p {
+            font-size: 14px;
+        }
     }
 }
 
 @media (max-width: 480px) {
     .team-member {
         width: calc(100% - 20px);
-    }
 
-    .team-member img {
-        width: 100px;
-        height: 100px;
-    }
+        img {
+            width: 100px;
+            height: 100px;
+        }
 
-    .team-member h3 {
-        font-size: 18px;
-    }
+        h3 {
+            font-size: 18px;
+        }
 
-    .team-member p {
-        font-size: 16px;
+        p {
+            font-size: 16px;
+        }
     }
 }
