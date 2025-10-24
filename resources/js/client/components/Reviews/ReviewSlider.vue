@@ -7,10 +7,10 @@
                               paginate-by-slide overflow-visible peek-right='10%' gutter='29'
                               :responsive='responsive'>
                     <template #back-arrow='{ disabled }'>
-                        <span class="reviews-carousel-left-icon" :class="{'disabled': disabled}"></span>
+                        <span class="carousel-left-icon reviews-carousel-left-icon" :class="{'disabled': disabled}"></span>
                     </template>
                     <template #next-arrow='{ disabled }'>
-                        <span class="reviews-carousel-right-icon" :class="{'disabled': disabled}"></span>
+                        <span class="carousel-right-icon reviews-carousel-right-icon" :class="{'disabled': disabled}"></span>
                     </template>
 
                     <review-card v-for="review in reviews"
@@ -74,6 +74,13 @@ export default {
                 }
             ],
             responsive: [
+                {
+                    minWidth: 270,
+                    slidesPerPage: 1,
+                    center: true,
+                    peek: 20,
+                    gutter: 15
+                },
                 {
                     minWidth: 768,
                     slidesPerPage: 2,

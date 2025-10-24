@@ -56,6 +56,13 @@ export default {
             ],
             responsive: [
                 {
+                    minWidth: 270,
+                    slidesPerPage: 1,
+                    center: true,
+                    peek: 0,
+                    gutter: 20
+                },
+                {
                     minWidth: 768,
                     slidesPerPage: 2,
                 },

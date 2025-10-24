@@ -19,7 +19,7 @@
                 </div>
                 <div class="footer-right-column col-lg-4">
                     <div class="social-icons">
-                        <a href="#" class="social social-youtube">
+                        <a href="https://youtube.com/@put_club" target="_blank" class="social social-youtube">
                             <svg fill="#ffffff" xmlns="http://www.w3.org/2000/svg"
                                  viewBox="-271 311.2 256 179.8" xml:space="preserve" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                 <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -27,7 +27,7 @@
                                     d="M-59.1,311.2h-167.8c0,0-44.1,0-44.1,44.1v91.5c0,0,0,44.1,44.1,44.1h167.8c0,0,44.1,0,44.1-44.1v-91.5 C-15,355.3-15,311.2-59.1,311.2z M-177.1,450.3v-98.5l83.8,49.3L-177.1,450.3z"></path> </g></svg>
                         </a>
 
-                        <a href="#" class="social social-vk">
+                        <a href="https://vk.com/put_club" target="_blank" class="social social-vk">
                             <svg fill="#ffffff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff">
                                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                 <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -38,7 +38,7 @@
                             </svg>
                         </a>
 
-                        <a href="#" class="social social-tg">
+                        <a href="https://t.me/put_club" target="_blank" class="social social-tg">
                             <svg fill="#ffffff" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff">
                                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                 <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -49,7 +49,7 @@
                             </svg>
                         </a>
 
-                        <a href="#" class="social social-instagram">
+                        <a href="https://instagram.com/put_club" target="_blank" class="social social-instagram">
                             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                 <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -67,7 +67,7 @@
                             </svg>
                         </a>
 
-                        <a href="#" class="social social-dzen">
+                        <a href="https://dzen.ru/put_club" target="_blank" class="social social-dzen">
                             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" style="display: block;"
                                  viewBox="0 0 2048 2048" preserveAspectRatio="none">
                                 <path transform="translate(0,0)" fill="rgb(254,254,254)"
@@ -75,7 +75,7 @@
                             </svg>
                         </a>
 
-                        <a href="#" class="social social-rutube">
+                        <a href="https://rutube.ru/channel/37334628/" target="_blank" class="social social-rutube">
                             <svg viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg" xml:space="preserve"
                                  fill="none"><g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                 <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -86,7 +86,7 @@
                                           transform="translate(1.605 -1.99)"></path></g></svg>
                         </a>
 
-                        <a href="#" class="social social-tiktok">
+                        <a href="https://www.tiktok.com/@put_club" target="_blank" class="social social-tiktok">
                             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                 <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -107,7 +107,7 @@
                             </svg>
                         </a>
 
-                        <a href="#" class="social social-ok">
+                        <a href="https://ok.ru/group/70000033103318" target="_blank" class="social social-ok">
                             <svg fill="#ffffff" version="1.1" xmlns="http://www.w3.org/2000/svg"
                                  xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve"
                                  stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -117,7 +117,7 @@
                                     d="M256.018,259.156c71.423,0,129.31-57.899,129.31-129.334C385.327,58.387,327.44,0.5,256.018,0.5 c-71.448,0-129.359,57.887-129.359,129.322C126.658,201.257,184.57,259.156,256.018,259.156z M256.018,66.196 c35.131,0,63.612,28.482,63.612,63.625c0,35.144-28.481,63.625-63.612,63.625c-35.168,0-63.638-28.481-63.638-63.625 C192.38,94.678,220.849,66.196,256.018,66.196z M405.075,274.938c-7.285-14.671-27.508-26.872-54.394-5.701 c-36.341,28.619-94.664,28.619-94.664,28.619s-58.361,0-94.702-28.619c-26.873-21.171-47.083-8.97-54.381,5.701 c-12.75,25.563,1.634,37.926,34.096,58.761c27.721,17.803,65.821,24.452,90.411,26.935l-20.535,20.535 c-28.918,28.905-56.826,56.838-76.201,76.213c-11.59,11.577-11.59,30.354,0,41.931l3.48,3.506c11.59,11.577,30.354,11.577,41.943,0 l76.201-76.214c28.943,28.919,56.851,56.839,76.225,76.214c11.59,11.577,30.354,11.577,41.943,0l3.48-3.506 c11.59-11.59,11.59-30.354,0-41.943l-76.201-76.2l-20.584-20.598c24.614-2.545,62.29-9.22,89.786-26.872 C403.441,312.863,417.801,300.5,405.075,274.938z"> </path> </g> </g></svg>
                         </a>
 
-                        <a href="#" class="social social-yappy">
+                        <a href="https://yappy.media/n/put_club" target="_blank" class="social social-yappy">
                             <svg version="1.1" xmlns="http://www.w3.org/2000/svg" style="display: block;"
                                  viewBox="0 0 3353 3353" preserveAspectRatio="none">
                                 <path transform="translate(0,0)" fill="rgb(255,255,255)"
