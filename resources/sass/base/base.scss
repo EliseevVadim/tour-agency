@@ -22,12 +22,10 @@
 
 #app {
     min-width: 400px;
-    width: 100%;
-    max-width: 1920px;
 }
 
 @media (max-width: 400px) {
     body {
-
+        zoom: 0.8; /* Scale down the content */
     }
 }

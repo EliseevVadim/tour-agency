@@ -1,5 +1,5 @@
 <template>
-    <section class="promo-training-section">
+    <section class="promo-training-section position-relative">
         <div class="skewed-background"></div>
         <div class="container-fluid container-xl promo-training-container flex-wrap justify-content-center">
             <div class="promo-image position-relative">
