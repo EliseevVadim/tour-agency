@@ -1,5 +1,5 @@
 <template>
-    <a v-if="tourUrl" :href="tourUrl" class="tour-card-link">
+    <a v-if="tourUrl" :href="tourUrl" target="_blank" class="tour-card-link">
         <div class="tour-card slide">
             <img :src="imageUrl" :alt="altText">
             <div v-if="badgeType" class="tour-card__badge">

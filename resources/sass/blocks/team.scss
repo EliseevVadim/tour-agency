@@ -2,7 +2,7 @@
     padding-top: 108px;
 
     .ssr-carousel-mask {
-        padding: 31px 4px 6px;
+        padding-top: 31px;
     }
 }
 
@@ -14,12 +14,12 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
-    gap: 20px;
 }
 
 .team-member-content {
     overflow: hidden;
-    height: 168px;
+    //height: 168px;
+    height: 100%;
     position: relative;
     background-color: white;
     border-radius: 24px;
@@ -36,6 +36,13 @@
         left: 0;
         width: 100%;
         background-color: $color-ta-red;
+    }
+
+    h3 {
+        font-size: 1.2rem;
+    }
+    p {
+        font-size: 1.1rem !important;
     }
 }
 
@@ -88,40 +95,26 @@
     }
 }
 
+
 @media (max-width: 768px) {
+    .team-member-content {
+        border-radius: 14px;
+        padding: 50px 10px 10px 10px;
+    }
     .team-member {
-        width: calc(50% - 20px);
+        width: calc(35% - 20px);
 
         img {
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
         }
 
         h3 {
-            font-size: 16px;
-        }
-
-        p {
             font-size: 14px;
         }
-    }
-}
-
-@media (max-width: 480px) {
-    .team-member {
-        width: calc(100% - 20px);
-
-        img {
-            width: 100px;
-            height: 100px;
-        }
-
-        h3 {
-            font-size: 18px;
-        }
 
         p {
-            font-size: 16px;
+            font-size: 13px;
         }
     }
 }

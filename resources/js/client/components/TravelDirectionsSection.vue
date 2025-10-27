@@ -18,7 +18,7 @@
                 </template>
 
                 <div class="travel-card slide" v-for="slide in slides" :key="slide.id">
-                    <a :href="slide.video_url" class="travel-card-link">
+                    <a :href="slide.video_url" target="_blank" class="travel-card-link">
                         <div class="travel-card__image-container">
                             <img :src="slide.thumbnail_url" alt="Background" class="travel-card__background-image" />
                         </div>
