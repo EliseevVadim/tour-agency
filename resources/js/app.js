@@ -26,6 +26,7 @@ Vue.component('first-screen', require('./client/components/HeroSection.vue').def
 
 Vue.component('clips-component', require('./admin/ClipsComponent.vue').default);
 Vue.component('videos-component', require('./admin/VideosComponent.vue').default);
+Vue.component('admin-team-component', require('./admin/TeamComponent.vue').default);
 
 Vue.component('ssr-carousel', SsrCarousel);
 

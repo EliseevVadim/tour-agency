@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class TeamController extends Controller
@@ -12,29 +13,17 @@ class TeamController extends Controller
     protected $filePath;
     protected $uploadDirectory;
 
-   /* public function __construct()
+    public function __construct()
     {
-        $this->filePath = storage_path('app/team_data.json');
+        $this->filePath = storage_path('app/team.json');
         if (!File::exists($this->filePath)) {
             $this->initializeJsonFile();
         }
 
-        $this->uploadDirectory = public_path('images/team');
+        $this->uploadDirectory = public_path('img/team');
         if (!File::exists($this->uploadDirectory)) {
             File::makeDirectory($this->uploadDirectory, 0755, true);
         }
-    }*/
-
-    public function index()
-    {
-        $filePath = storage_path('app/videos.json');
-
-        if (!File::exists($filePath)) {
-            $this->initializeJsonFile();
-            return view('admin.team');
-        }
-
-        return view('admin.team');
     }
 
     public function initializeJsonFile()
@@ -47,6 +36,7 @@ class TeamController extends Controller
 
         $initialData = [
             [
+                "id" => 1,
                 "image_url" => "",
                 "name" => "",
                 "position" => ""
@@ -63,12 +53,8 @@ class TeamController extends Controller
         $request->validate([
             'image_url' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'name' => 'required|string|max:255',
-            'position' => 'required|string|max:255',
+            'position' => 'nullable|string|max:255',
         ]);
-
-        if (!File::exists($this->filePath)) {
-            $this->initializeJsonFile();
-        }
 
         try {
             $teamData = json_decode(File::get($this->filePath), true) ?? [];
@@ -84,7 +70,7 @@ class TeamController extends Controller
                 $image = $request->file('image_url');
                 $fileName = Str::uuid() . '.' . $image->getClientOriginalExtension();
                 $image->move($this->uploadDirectory, $fileName);
-                $imagePath = 'images/team/' . $fileName;
+                $imagePath = $fileName;
             }
 
             $newMember = [
@@ -101,67 +87,82 @@ class TeamController extends Controller
             return response()->json($newMember, 201);
 
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Не удалось добавить члена команды.'], 500);
+            return response()->json(['error' => 'Не удалось добавить сотрудника.'], 500);
         }
     }
 
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         $request->validate([
-            'image_url' => 'nullable|url|max:255',
-            'name' => 'required|string|max:255',
-            'position' => 'required|string|max:255',
+            'image_url' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'name'      => 'required|string|max:255',
+            'position'  => 'nullable|string|max:255',
         ]);
 
-        if (!File::exists($this->filePath)) {
-            return response()->json(['error' => 'Файл данных команды не существует.'], 404);
-        }
-
         try {
-            $teamData = json_decode(File::get($this->filePath), true) ?? [];
-            $memberIndex = collect($teamData)->search(fn($member) => $member['id'] == $id);
+            $teamData = collect(json_decode(File::get($this->filePath), true) ?? []);
+            $memberIndex = $teamData->search(fn ($m) => $m['id'] === $id);
 
             if ($memberIndex === false) {
-                return response()->json(['error' => 'Член команды с таким ID не найден.'], 404);
+                return response()->json(['error' => 'Сотрудник не найден'], 404);
             }
 
-            $teamData[$memberIndex]['image_url'] = $request->input('image_url', $teamData[$memberIndex]['image_url']);
-            $teamData[$memberIndex]['name'] = $request->input('name', $teamData[$memberIndex]['name']);
-            $teamData[$memberIndex]['position'] = $request->input('position', $teamData[$memberIndex]['position']);
+            $currentMember = $teamData[$memberIndex];
+            $imagePath = $currentMember['image_url'];
+            if ($request->hasFile('image_url')) {
+                $image = $request->file('image_url');
+                $fileName = Str::uuid() . '.' . $image->getClientOriginalExtension();
+                $image->move($this->uploadDirectory, $fileName);
 
+                if ($imagePath && File::exists($this->uploadDirectory . '/' . $imagePath)) {
+                    File::delete($this->uploadDirectory . $imagePath);
+                }
+
+                $imagePath = $fileName;
+            }
+
+            $newMember = [
+                'id'        => $id,
+                'image_url' => $imagePath,
+                'name'      => $request->input('name'),
+                'position'  => $request->input('position'),
+            ];
+
+            $teamData[$memberIndex] = $newMember;
             File::put($this->filePath, json_encode($teamData, JSON_PRETTY_PRINT));
 
-            return response()->json($teamData[$memberIndex]);
+            return response()->json($newMember, 200);
 
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Не удалось обновить члена команды.'], 500);
+            return response()->json(['error' => 'Не удалось обновить сотрудника.'], 500);
         }
     }
 
     public function destroy($id)
     {
-        if (!File::exists($this->filePath)) {
-            return response()->json(['error' => 'Файл данных команды не существует.'], 404);
-        }
-
         try {
-            $teamData = json_decode(File::get($this->filePath), true) ?? [];
-            $initialCount = count($teamData);
-            $teamData = collect($teamData)->reject(function ($member) use ($id) {
-                return $member['id'] == $id;
-            })->values()->toArray();
+            $teamData = collect(json_decode(File::get($this->filePath), true) ?? []);
+            $member = $teamData->firstWhere('id', $id);
 
-            if (count($teamData) === $initialCount) {
-                return response()->json(['error' => 'Член команды с таким ID не найден.'], 404);
+            if (!$member) {
+                return response()->json(['error' => 'Сотрудник не найден'], 404);
             }
 
-            File::put($this->filePath, json_encode($teamData, JSON_PRETTY_PRINT));
+            if (!empty($member['image_url'])) {
+                $filePath = $this->uploadDirectory . '/' . $member['image_url'];
+                if (File::exists($filePath)) {
+                    File::delete($filePath);
+                }
+            }
 
-            return response()->json(['message' => 'Член команды успешно удален.']);
+            $updatedData = $teamData->filter(fn ($m) => $m['id'] != $id)->values();
+            File::put($this->filePath, json_encode($updatedData, JSON_PRETTY_PRINT));
+
+            return response()->json(['message' => 'Сотрудник удален']);
 
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Не удалось удалить члена команды.'], 500);
+            return response()->json(['error' => 'Ошибка удаления сотрудника'], 500);
         }
     }
 
