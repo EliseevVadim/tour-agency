@@ -9,24 +9,12 @@ use Illuminate\Support\Facades\Log;
 
 class ClipController extends Controller
 {
-    public function index()
-    {
-        $filePath = storage_path('app/clips.json');
-
-        if (!File::exists($filePath)) {
-            $this->initializeJsonFile();
-            return view('admin.clips');
-        }
-
-        return view('admin.clips');
-    }
-
     public function initializeJsonFile()
     {
         $filePath = storage_path('app/clips.json');
 
         if (File::exists($filePath)) {
-            return redirect()->route('clips.index');
+            return;
         }
 
         $initialData = [

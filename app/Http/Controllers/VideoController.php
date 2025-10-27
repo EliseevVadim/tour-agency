@@ -9,18 +9,6 @@ use Illuminate\Support\Facades\Log;
 
 class VideoController extends Controller
 {
-    public function index()
-    {
-        $filePath = storage_path('app/videos.json');
-
-        if (!File::exists($filePath)) {
-            $this->initializeJsonFile();
-            return view('admin.videos');
-        }
-
-        return view('admin.videos');
-    }
-
     public function initializeJsonFile()
     {
         $filePath = storage_path('app/videos.json');

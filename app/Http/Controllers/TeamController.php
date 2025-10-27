@@ -12,7 +12,7 @@ class TeamController extends Controller
     protected $filePath;
     protected $uploadDirectory;
 
-    public function __construct()
+   /* public function __construct()
     {
         $this->filePath = storage_path('app/team_data.json');
         if (!File::exists($this->filePath)) {
@@ -23,7 +23,7 @@ class TeamController extends Controller
         if (!File::exists($this->uploadDirectory)) {
             File::makeDirectory($this->uploadDirectory, 0755, true);
         }
-    }
+    }*/
 
     public function index()
     {
@@ -47,7 +47,6 @@ class TeamController extends Controller
 
         $initialData = [
             [
-                "id" => 1,
                 "image_url" => "",
                 "name" => "",
                 "position" => ""
@@ -165,4 +164,11 @@ class TeamController extends Controller
             return response()->json(['error' => 'Не удалось удалить члена команды.'], 500);
         }
     }
+
+    public function getTeam()
+    {
+        $team = json_decode(File::get(storage_path('app/team.json')), true);
+        return response()->json($team);
+    }
+
 }

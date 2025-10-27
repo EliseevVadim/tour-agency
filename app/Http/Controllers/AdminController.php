@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 
@@ -30,6 +31,8 @@ class AdminController extends Controller
             $request->session()->put('admin_logged_in', true);
             $request->session()->put('admin_email', $adminEmail);
 
+            $this->initializeData();
+
             return redirect()->route('admin.videos');
         }
 
@@ -52,5 +55,20 @@ class AdminController extends Controller
     public function dashboard()
     {
         return view('admin.videos');
+    }
+
+    public function initializeData(): string
+    {
+        $clipController = new ClipController();
+        $videoController = new ClipController();
+        $reviewsController = new ClipController();
+        $teamController = new ClipController();
+
+        $clipController->initializeJsonFile();
+        $videoController->initializeJsonFile();
+        $reviewsController->initializeJsonFile();
+        $teamController->initializeJsonFile();
+
+        return 'Все данные были инициализированы.';
     }
 }
