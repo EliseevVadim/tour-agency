@@ -16,6 +16,7 @@
                     <review-card v-for="review in reviews"
                                  :key="review.id"
                                  :name="review.name"
+                                 :gender="review.gender"
                                  :location="review.location"
                                  :text="review.text"
                                  :background-image="review.backgroundImage"
@@ -35,6 +36,7 @@ export default {
                 {
                     id: 1,
                     name: "Нина Александровна",
+                    gender: "была",
                     location: "Грузии",
                     text: "Спасибо за организацию отличного путешествия которое запомнится на всю жизнь!",
                     backgroundImage: '/img/review-sample-bg.png',
@@ -43,6 +45,7 @@ export default {
                 {
                     id: 2,
                     name: "Нина Александровна",
+                    gender: "была",
                     location: "Италии",
                     text: "Все было организовано безупречно, гид — профессионал своего дела!",
                     backgroundImage: '/img/review-sample-bg.png',
@@ -51,6 +54,7 @@ export default {
                 {
                     id: 3,
                     name: "Нина Александровна",
+                    gender: "была",
                     location: "Японии",
                     text: "Невероятные впечатления! Отдельное спасибо за подборку ресторанов.",
                     backgroundImage: '/img/review-sample-bg.png',
@@ -59,6 +63,7 @@ export default {
                 {
                     id: 4,
                     name: "Нина Александровна",
+                    gender: "была",
                     location: "Японии",
                     text: "Невероятные впечатления! Отдельное спасибо за подборку ресторанов.",
                     backgroundImage: '/img/review-sample-bg.png',
@@ -67,6 +72,7 @@ export default {
                 {
                     id: 5,
                     name: "Нина Александровна",
+                    gender: "была",
                     location: "Японии",
                     text: "Невероятные впечатления! Отдельное спасибо за подборку ресторанов.",
                     backgroundImage: '/img/review-sample-bg.png',

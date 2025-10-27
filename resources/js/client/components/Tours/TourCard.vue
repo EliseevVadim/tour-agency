@@ -1,5 +1,13 @@
 <template>
-    <div class="tour-card slide">
+    <a v-if="tourUrl" :href="tourUrl" class="tour-card-link">
+        <div class="tour-card slide">
+            <img :src="imageUrl" :alt="altText">
+            <div v-if="badgeType" class="tour-card__badge">
+                <p class="tour-badge__text fw-medium">{{ badgeText }}</p>
+            </div>
+        </div>
+    </a>
+    <div v-else class="tour-card slide">
         <img :src="imageUrl" :alt="altText">
         <div v-if="badgeType" class="tour-card__badge">
             <p class="tour-badge__text fw-medium">{{ badgeText }}</p>
@@ -11,6 +19,11 @@
 export default {
     name: "TourCard",
     props: {
+        tourUrl: {
+            type: String,
+            required: true,
+            default: ''
+        },
         imageUrl: {
             type: String,
             required: true,

@@ -8,7 +8,7 @@
         </div>
         <div class="review-card__content">
             <h3 class="review-card__name">{{ name }}</h3>
-            <p class="review-card__location">Была в <span class="underline">{{ location }}</span></p>
+            <p class="review-card__location">{{ gender }} в <span class="underline">{{ location }}</span></p>
             <p class="review-card__text">{{ text }}</p>
         </div>
     </div>
@@ -19,6 +19,10 @@ export default {
     name: "ReviewCard",
     props: {
         name: {
+            type: String,
+            required: true
+        },
+        gender: {
             type: String,
             required: true
         },
@@ -41,3 +45,8 @@ export default {
     }
 }
 </script>
+<style scoped>
+.review-card__location:first-letter{
+    text-transform: capitalize;
+}
+</style>

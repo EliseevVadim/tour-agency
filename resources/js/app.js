@@ -23,6 +23,10 @@ Vue.component('benefits-section', require('./client/components/Benefits.vue').de
 Vue.component('travel-directions', require('./client/components/TravelDirectionsSection.vue').default);
 Vue.component('first-screen', require('./client/components/HeroSection.vue').default);
 
+
+Vue.component('clips-component', require('./admin/ClipsComponent.vue').default);
+Vue.component('videos-component', require('./admin/VideosComponent.vue').default);
+
 Vue.component('ssr-carousel', SsrCarousel);
 
 const app = new Vue({

@@ -6,7 +6,7 @@
         <div class=" container-fluid overflow-hidden">
             <h2 class="travel-directions-title text-center">Наши направления:</h2>
 
-            <ssr-carousel show-arrows show-dots :slidesPerPage="1" overflow-visible
+            <ssr-carousel  v-if="slides.length > 0" show-arrows show-dots :slidesPerPage="1" overflow-visible
                           paginate-by-slide peek-right='3%' peek-left='3%' gutter='30'
                           :responsive='responsive'>
 
@@ -17,10 +17,12 @@
                     <span class="carousel-right-icon" :class="{'disabled': disabled}"></span>
                 </template>
 
-                <div class="travel-card slide" v-for="slide in slides">
-                    <div class="travel-card__image-container">
-                        <img :src="slide.travelImageUrl" alt="Background" class="travel-card__background-image" />
-                    </div>
+                <div class="travel-card slide" v-for="slide in slides" :key="slide.id">
+                    <a :href="slide.video_url" class="travel-card-link">
+                        <div class="travel-card__image-container">
+                            <img :src="slide.thumbnail_url" alt="Background" class="travel-card__background-image" />
+                        </div>
+                    </a>
                 </div>
             </ssr-carousel>
         </div>
@@ -28,32 +30,13 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
     name: "TravelDirectionsSection",
     data(){
         return {
-            slides: [
-                {
-                    id: 1,
-                    travelImageUrl: '/img/travel-sample-1.png',
-                    videoUrl: ''
-                },
-                {
-                    id: 2,
-                    travelImageUrl: '/img/travel-sample-2.png',
-                    videoUrl: ''
-                },
-                {
-                    id: 3,
-                    travelImageUrl: '/img/travel-sample-1.png',
-                    videoUrl: ''
-                },
-                {
-                    id: 4,
-                    travelImageUrl: '/img/travel-sample-1.png',
-                    videoUrl: ''
-                }
-            ],
+            slides: [],
             responsive: [
                 {
                     minWidth: 270,
@@ -76,6 +59,20 @@ export default {
                 }
             ]
         }
+    },
+    methods: {
+        fetchVideos() {
+            axios.get('/api/videos')
+                .then(response => {
+                    this.slides = response.data;
+                })
+                .catch(error => {
+                    console.error('Ошибка при получении видео:', error);
+                });
+        },
+    },
+    mounted() {
+        this.fetchVideos();
     }
 }
 </script>
