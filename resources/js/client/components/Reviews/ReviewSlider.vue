@@ -2,7 +2,7 @@
     <section class="reviews-section">
         <div class="container-fluid overflow-hidden">
             <h2 class="reviews-title text-center">Отзывы клиентов:</h2>
-            <div class="reviews-slider">
+            <div v-if="reviews.length > 0" class="reviews-slider">
                 <ssr-carousel show-arrows :slides-per-page='1'
                               paginate-by-slide overflow-visible peek-right='10%' gutter='29'
                               :responsive='responsive'>
@@ -13,8 +13,8 @@
                         <span class="carousel-right-icon reviews-carousel-right-icon" :class="{'disabled': disabled}"></span>
                     </template>
 
-                    <review-card v-for="review in reviews"
-                                 :key="review.id"
+                    <review-card v-for="(review, index) in reviews"
+                                 :key="index"
                                  :name="review.name"
                                  :gender="review.gender"
                                  :location="review.location"
@@ -28,57 +28,13 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
     name: "ReviewSlider",
     data() {
         return {
-            reviews: [
-                {
-                    id: 1,
-                    name: "Нина Александровна",
-                    gender: "была",
-                    location: "Грузии",
-                    text: "Спасибо за организацию отличного путешествия которое запомнится на всю жизнь!",
-                    backgroundImage: '/img/review-sample-bg.png',
-                    profileImage: '/img/avatar-sample.png'
-                },
-                {
-                    id: 2,
-                    name: "Нина Александровна",
-                    gender: "была",
-                    location: "Италии",
-                    text: "Все было организовано безупречно, гид — профессионал своего дела!",
-                    backgroundImage: '/img/review-sample-bg.png',
-                    profileImage: '/img/avatar-sample.png'
-                },
-                {
-                    id: 3,
-                    name: "Нина Александровна",
-                    gender: "была",
-                    location: "Японии",
-                    text: "Невероятные впечатления! Отдельное спасибо за подборку ресторанов.",
-                    backgroundImage: '/img/review-sample-bg.png',
-                    profileImage: '/img/avatar-sample.png'
-                },
-                {
-                    id: 4,
-                    name: "Нина Александровна",
-                    gender: "была",
-                    location: "Японии",
-                    text: "Невероятные впечатления! Отдельное спасибо за подборку ресторанов.",
-                    backgroundImage: '/img/review-sample-bg.png',
-                    profileImage: '/img/avatar-sample.png'
-                },
-                {
-                    id: 5,
-                    name: "Нина Александровна",
-                    gender: "была",
-                    location: "Японии",
-                    text: "Невероятные впечатления! Отдельное спасибо за подборку ресторанов.",
-                    backgroundImage: '/img/review-sample-bg.png',
-                    profileImage: '/img/avatar-sample.png'
-                }
-            ],
+            reviews: [],
             responsive: [
                 {
                     minWidth: 270,
@@ -101,6 +57,23 @@ export default {
                 }
             ]
         }
+    },
+    methods: {
+        fetchReviews() {
+            axios.get('/api/reviews')
+                .then(response => {
+                    this.reviews = response.data;
+                })
+                .catch(error => {
+                    console.error('Ошибка при получении клипов:', error);
+                    if (error.response) {
+                        console.error('Error response data:', error.response.data);
+                    }
+                });
+        },
+    },
+    mounted() {
+        this.fetchReviews();
     }
 }
 </script>

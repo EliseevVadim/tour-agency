@@ -1,14 +1,14 @@
 <template>
     <section class="team-section container">
         <h2 class="team-section-title text-center">Наша команда:</h2>
-        <ssr-carousel show-dots :slidesPerPage="1">
+        <ssr-carousel v-if="members.length > 0" show-dots :slidesPerPage="1">
             <div v-for="(slide, slideIndex) in slides" :key="slideIndex" class="carousel-slide">
                 <div class="team-members-container">
                     <div v-for="(member, memberIndex) in slide"
-                         :key="member.id"
+                         :key="memberIndex"
                          class="team-member"
                          :class="{ 'top-row': memberIndex < 5, 'bottom-row': memberIndex >= 5 }">
-                        <img :src="member.imageUrl" :alt="member.name">
+                        <img :src="'/img/team/' + member.image_url" :alt="member.name">
                         <div class="team-member-content">
                             <h3>{{ member.name }}</h3>
                             <p>{{ member.position }}</p>
@@ -23,31 +23,22 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
     name: "TeamList",
     data() {
         return {
-            members: [
-                {id: 1, imageUrl: '/img/member-sample.png', name: 'Алексей Мишанков', position: 'Бос'},
-                {id: 2, imageUrl: '/img/member-sample.png', name: 'Алексей Мишанков', position: 'Бос'},
-                {id: 3, imageUrl: '/img/member-sample.png', name: 'Алексей Мишанков', position: 'Бос'},
-                {id: 4, imageUrl: '/img/member-sample.png', name: 'Алексей Мишанков', position: 'Бос'},
-                {id: 5, imageUrl: '/img/member-sample.png', name: 'Алексей Мишанков', position: 'Бос'},
-                {id: 6, imageUrl: '/img/member-sample.png', name: 'Алексей Мишанков', position: 'Бос'},
-                {id: 7, imageUrl: '/img/member-sample.png', name: 'Алексей Мишанков', position: 'Бос'},
-                {id: 8, imageUrl: '/img/member-sample.png', name: 'Алексей Мишанков', position: 'Бос'},
-                {id: 9, imageUrl: '/img/member-sample.png', name: 'Алексей Мишанков', position: 'Бос'},
-                {id: 10, imageUrl: '/img/member-sample.png', name: 'Алексей Мишанков', position: 'Бос'},
-                {id: 11, imageUrl: '/img/member-sample.png', name: 'Алексей Мишанков', position: 'Бос'},
-                {id: 12, imageUrl: '/img/member-sample.png', name: 'Алексей Мишанков', position: 'Бос'},
-                {id: 13, imageUrl: '/img/member-sample.png', name: 'Алексей Мишанков', position: 'Бос'},
-                {id: 14, imageUrl: '/img/member-sample.png', name: 'Алексей Мишанков', position: 'Бос'},
-            ],
-            slides: [] // Important: Define slides here
+            members: [],
+            slides: []
         }
     },
     created() {
-        this.createSlides();
+        this.fetchTeam();
+        //this.createSlides();
+    },
+    mounted() {
+
     },
     methods: {
         createSlides() {
@@ -61,6 +52,19 @@ export default {
         emptySlots(memberCount) {
             const slotsNeeded = 10 - memberCount;
             return Array(Math.max(0, slotsNeeded)).fill(null).map((_, index) => index);
+        },
+        fetchTeam(){
+            axios.get('/api/team')
+                .then(response => {
+                    this.members = response.data;
+                    this.createSlides();
+                })
+                .catch(error => {
+                    console.error('Ошибка при получении команды:', error);
+                    if (error.response) {
+                        console.error('Error response data:', error.response.data);
+                    }
+                });
         }
     }
 }

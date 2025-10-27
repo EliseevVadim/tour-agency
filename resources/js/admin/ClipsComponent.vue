@@ -53,7 +53,7 @@ export default {
                 });
         },
         addClip() {
-            axios.post('/api/clips', this.newClip)
+            axios.post('/admin/api/clips', this.newClip)
                 .then(() => {
                     this.fetchClips();
                     this.newClip = {
@@ -66,7 +66,7 @@ export default {
                 });
         },
         deleteClip(id) {
-            axios.delete(`/api/clips/${id}`)
+            axios.delete(`/admin/api/clips/${id}`)
                 .then(() => {
                     this.fetchClips();
                 })

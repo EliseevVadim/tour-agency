@@ -52,14 +52,7 @@ export default {
         fetchClips() {
             axios.get('/api/clips')
                 .then(response => {
-                    // !!! ВАЖНО: Добавьте логирование для проверки структуры API !!!
-                    console.log('API Response Data:', response.data);
-
-                    this.tours = response.data; // <-- Возможно, здесь проблема, если response.data не просто массив
-
-                    // !!! Проверьте, что после присвоения this.tours действительно имеет данные !!!
-                    console.log('Tours data after assignment:', this.tours);
-
+                    this.tours = response.data;
                 })
                 .catch(error => {
                     console.error('Ошибка при получении клипов:', error);

@@ -53,7 +53,7 @@ export default {
                 });
         },
         addVideo() {
-            axios.post('/api/videos', {video_url: this.newVideo.video_url})
+            axios.post('/admin/api/videos', {video_url: this.newVideo.video_url})
                 .then(() => {
                     this.fetchVideos();
                     this.newVideo = {
@@ -65,7 +65,7 @@ export default {
                 });
         },
         deleteVideo(id) {
-            axios.delete(`/api/videos/${id}`)
+            axios.delete(`/admin/api/videos/${id}`)
                 .then(() => {
                     this.fetchVideos();
                 })
