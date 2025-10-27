@@ -14,7 +14,14 @@
                     <span class="carousel-left-icon" :class="{'disabled': disabled}"></span>
                 </template>
                 <template #next-arrow='{ disabled }'>
-                    <span class="carousel-right-icon" :class="{'disabled': disabled}"></span>
+                    <div class="next-button-container">
+                        <span class="carousel-right-icon" :class="{'disabled': disabled}">
+                            <transition name="expand">
+                                <a href="https://vkvideo.ru/@put_club/all" target="_blank" v-if="disabled"
+                                   class="button-text text-decoration-none">посмотреть еще</a>
+                            </transition>
+                        </span>
+                    </div>
                 </template>
 
                 <div class="travel-card slide" v-for="slide in slides" :key="slide.id">

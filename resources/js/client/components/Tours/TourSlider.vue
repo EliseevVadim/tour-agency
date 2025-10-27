@@ -10,7 +10,14 @@
                     <span class="carousel-left-icon tour-carousel-left-icon" :class="{'disabled': disabled}"></span>
                 </template>
                 <template #next-arrow='{ disabled }'>
-                    <span class="carousel-right-icon tour-carousel-right-icon" :class="{'disabled': disabled}"></span>
+                    <div class="next-button-container">
+                        <span class="carousel-right-icon tour-carousel-right-icon" :class="{'disabled': disabled}">
+                            <transition name="expand">
+                                <a href="https://vk.com/clips/put_club" target="_blank" v-if="disabled"
+                                   class="button-text text-decoration-none">посмотреть еще</a>
+                            </transition>
+                        </span>
+                    </div>
                 </template>
                 <tour-card v-for="(tour, index) in tours"
                            :key="index"

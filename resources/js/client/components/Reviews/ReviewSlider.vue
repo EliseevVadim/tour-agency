@@ -10,7 +10,14 @@
                         <span class="carousel-left-icon reviews-carousel-left-icon" :class="{'disabled': disabled}"></span>
                     </template>
                     <template #next-arrow='{ disabled }'>
-                        <span class="carousel-right-icon reviews-carousel-right-icon" :class="{'disabled': disabled}"></span>
+                        <div class="next-button-container">
+                        <span class="carousel-right-icon reviews-carousel-right-icon" :class="{'disabled': disabled}">
+                            <transition name="expand">
+                                <a href="https://yandex.ru/maps/org/v_put/105740302681/reviews/?ll=38.970202%2C45.034904&z=16" target="_blank" v-if="disabled"
+                                   class="button-text text-decoration-none">посмотреть еще</a>
+                            </transition>
+                        </span>
+                        </div>
                     </template>
 
                     <review-card v-for="(review, index) in reviews"

@@ -9,7 +9,7 @@
         justify-content: center;
         transition: opacity 0.2s;
 
-        &:before {
+        &:after {
             content: "❯";
             color: black;
             font-size: 26px;
@@ -21,10 +21,38 @@
     }
 
     .carousel-left-icon {
-        &:before {
+        &:after {
             transform: rotate(180deg);
         }
     }
+}
+
+.next-button-container {
+    position: relative;
+    height: 100%;
+}
+
+.carousel-right-icon.disabled {
+    opacity: 0.8 !important;
+    cursor: default;
+    max-width: 200px;
+    width: 100%;
+    background: #fff;
+    padding: 0 15px;
+    border-radius: 25px;
+    gap: 10px;
+}
+
+.button-text {
+    white-space: nowrap;
+    margin-left: 8px;
+    font-size: 14px;
+    color: #333;
+}
+
+.expand-enter-from, .expand-leave-to {
+    opacity: 0;
+    transform: translateX(-10px);
 }
 
 .ssr-carousel-dots {
