@@ -2,31 +2,31 @@
     <div class="container mt-4">
         <h3 class="mb-4 fw-bold">Управление командой</h3>
 
-        <button class="btn btn-primary mb-3"
+        <button class="btn btn-success"
                 @click="showAddForm = true"
                 v-if="!showAddForm && !showEditForm">
-            <i class="bi bi-person-plus"></i> Добавить члена команды
+            <i class="bi bi-person-plus"></i> Добавить сотрудника
         </button>
 
         <div v-if="showAddForm" class="card mb-4">
             <div class="card-body">
-                <h2 class="card-title mb-3">Новый член команды</h2>
+                <h2 class="card-title mb-3">Новый сотрудник</h2>
                 <form @submit.prevent="addTeamMember" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label for="addImageFile" class="form-label">Изображение:</label>
                         <input type="file" id="addImageFile" class="form-control" @change="handleImageUpload($event, 'newMember')" accept="image/*">
-                        <small class="form-text text-muted">Поддерживаются форматы: JPG, JPEG, PNG, GIF. Максимальный размер: 2MB.</small>
+                        <small class="form-text text-muted">Поддерживаются форматы: JPG, JPEG, PNG, GIF.</small>
                         <div v-if="newMember.previewImageUrl" class="mt-2">
                             <img :src="newMember.previewImageUrl" alt="Превью изображения" style="max-width: 150px; max-height: 150px;">
                         </div>
                     </div>
                     <div class="mb-3">
                         <label for="addName" class="form-label">Имя:</label>
-                        <input type="text" id="addName" class="form-control" v-model="newMember.name" required>
+                        <input autocomplete="off" type="text" id="addName" class="form-control" v-model="newMember.name" required>
                     </div>
                     <div class="mb-3">
                         <label for="addPosition" class="form-label">Должность:</label>
-                        <input type="text" id="addPosition" class="form-control" v-model="newMember.position" required>
+                        <input autocomplete="off" type="text" id="addPosition" class="form-control" v-model="newMember.position">
                     </div>
                     <button type="submit" class="btn btn-success me-2">Добавить</button>
                     <button type="button" class="btn btn-secondary" @click="cancelForm">Отмена</button>
@@ -36,12 +36,12 @@
 
         <div v-if="showEditForm" class="card mb-4">
             <div class="card-body">
-                <h2 class="card-title mb-3">Редактировать члена команды</h2>
+                <h2 class="card-title mb-3">Редактировать сотрудника</h2>
                 <form @submit.prevent="updateTeamMember" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label for="editImageFile" class="form-label">Изображение:</label>
                         <input type="file" id="editImageFile" class="form-control" @change="handleImageUpload($event, 'editingMember')" accept="image/*">
-                        <small class="form-text text-muted">Поддерживаются форматы: JPG, JPEG, PNG, GIF. Максимальный размер: 2MB.</small>
+                        <small class="form-text text-muted">Поддерживаются форматы: JPG, JPEG, PNG, GIF.</small>
                         <div v-if="editingMember.image_url" class="mt-2">
                             <img :src="getImageSrc(editingMember.image_url)" alt="Текущее изображение" style="max-width: 150px; max-height: 150px;">
                         </div>
@@ -51,43 +51,16 @@
                     </div>
                     <div class="mb-3">
                         <label for="editName" class="form-label">Имя:</label>
-                        <input type="text" id="editName" class="form-control" v-model="editingMember.name" required>
+                        <input autocomplete="off" type="text" id="editName" class="form-control" v-model="editingMember.name" required>
                     </div>
                     <div class="mb-3">
                         <label for="editPosition" class="form-label">Должность:</label>
-                        <input type="text" id="editPosition" class="form-control" v-model="editingMember.position" required>
+                        <input autocomplete="off" type="text" id="editPosition" class="form-control" v-model="editingMember.position">
                     </div>
                     <button type="submit" class="btn btn-success me-2">Сохранить</button>
                     <button type="button" class="btn btn-secondary" @click="cancelForm">Отмена</button>
                 </form>
             </div>
-        </div>
-
-        <div v-if="teamData.length > 0">
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                <div class="col" v-for="member in teamData" :key="member.id">
-                    <div class="card h-100 text-center">
-                        <div class="card-body d-flex flex-column justify-content-between">
-                            <div>
-                                <img :src="getImageSrc(member.image_url)" :alt="member.name" class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
-                                <h5 class="card-title">{{ member.name }}</h5>
-                                <p class="card-text text-muted">{{ member.position }}</p>
-                            </div>
-                            <div class="mt-3">
-                                <button class="btn btn-sm btn-outline-primary me-2" @click="editTeamMember(member)">
-                                    <i class="bi bi-pencil-square"></i> Редактировать
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" @click="deleteTeamMember(member.id)">
-                                    <i class="bi bi-trash"></i> Удалить
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div v-else class="alert alert-info" role="alert">
-            Список команды пуст. Добавьте первого члена команды.
         </div>
 
         <div class="table-responsive" v-if="!showAddForm && !showEditForm">
@@ -102,15 +75,15 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="member in teamData" :key="member.id">
-                    <td>{{ member.id }}</td>
+                <tr v-for="(member, index) in teamData" :key="member.id">
+                    <td>{{ index + 1 }}</td>
                     <td>
-                        <img :src="member.image_url" :alt="member.name" class="img-thumbnail" width="50">
+                        <img :src="'/img/team/' + member.image_url" :alt="member.name" class="img-thumbnail" width="50">
                     </td>
                     <td>{{ member.name }}</td>
                     <td>{{ member.position }}</td>
                     <td>
-                        <button class="btn btn-warning btn-sm me-2" @click="editTeamMember(member)">
+                        <button class="btn btn-sm btn-outline-primary me-2" @click="editTeamMember(member)">
                             <i class="bi bi-pencil"></i> Редактировать
                         </button>
                         <button class="btn btn-danger btn-sm" @click="deleteTeamMember(member.id)">
@@ -156,27 +129,28 @@ export default {
 
         handleImageUpload(event, memberType) {
             const file = event.target.files[0];
+
             if (file) {
                 const reader = new FileReader();
+
                 reader.onload = (e) => {
                     if (memberType === 'newMember') {
                         this.newMember.previewImageUrl = e.target.result;
-                    } else if (memberType === 'editingMember') {
+                        this.newMember.image_file = file;
+                        this.newMember.image_url = null;
+                    }
+                    else if (memberType === 'editingMember') {
                         this.editingMember.previewImageUrl = e.target.result;
+                        this.editingMember.image_file = file;
+                        this.editingMember.image_url = null;
                     }
                 };
                 reader.readAsDataURL(file);
-
-                if (memberType === 'newMember') {
-                    this.newMember.image_file = file;
-                    this.newMember.image_url = null;
-                } else if (memberType === 'editingMember') {
-                    this.editingMember.image_file = file;
-                }
             } else {
                 if (memberType === 'newMember') {
                     this.newMember.previewImageUrl = null;
                     this.newMember.image_file = null;
+                    this.newMember.image_url = null;
                 } else if (memberType === 'editingMember') {
                     this.editingMember.previewImageUrl = null;
                     this.editingMember.image_file = null;
@@ -196,7 +170,7 @@ export default {
             }
 
             try {
-                const response = await axios.post('/api/team', this.formData, {
+                const response = await axios.post('/admin/api/team', this.formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     }
@@ -204,27 +178,13 @@ export default {
                 this.teamData.push(response.data);
                 this.cancelForm();
             } catch (error) {
-                console.error('Ошибка добавления члена команды:', error.response.data);
+                console.error('Ошибка добавления сотрудника:', error.response.data);
                 if (error.response && error.response.data && error.response.data.errors) {
                     alert('Ошибка валидации: ' + Object.values(error.response.data.errors).flat().join(' '));
                 } else {
-                    alert('Не удалось добавить члена команды.');
+                    alert('Не удалось добавить сотрудника.');
                 }
             }
-
-           /* try {
-                const response = await axios.post('/api/team', this.newMember);
-                this.teamData.push(response.data);
-                this.resetForm();
-                this.cancelForm();
-            } catch (error) {
-                console.error('Ошибка при добавлении члена команды:', error);
-                if (error.response && error.response.data && error.response.data.errors) {
-                    alert('Ошибка валидации: ' + JSON.stringify(error.response.data.errors));
-                } else {
-                    alert('Произошла ошибка при добавлении.');
-                }
-            }*/
         },
 
         editTeamMember(member) {
@@ -234,31 +194,43 @@ export default {
         },
 
         async updateTeamMember() {
+            const formData = new FormData();
+
+            if (this.editingMember.image_file instanceof File) {
+                formData.append('image_url', this.editingMember.image_file);
+            } else if (this.editingMember.image_url) {
+                //formData.append('image_url', null);
+            }
+
+            formData.append('name', this.editingMember.name);
+            formData.append('position', this.editingMember.position);
+
             try {
-                const response = await axios.put(`/api/team/${this.editingMember.id}`, this.editingMember);
-                const index = this.teamData.findIndex(m => m.id === this.editingMember.id);
-                if (index !== -1) {
-                    this.$set(this.teamData, index, response.data);
-                }
-                this.resetForm();
+                const response = await axios.post(
+                    `/admin/api/team/${this.editingMember.id}`,
+                    formData,
+                    {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    }
+                );
+
+                const idx = this.teamData.findIndex(m => m.id === this.editingMember.id);
+                if (idx !== -1) this.teamData[idx] = response.data;
                 this.cancelForm();
-            } catch (error) {
-                console.error('Ошибка при обновлении члена команды:', error);
-                if (error.response && error.response.data && error.response.data.errors) {
-                    alert('Ошибка валидации: ' + JSON.stringify(error.response.data.errors));
-                } else {
-                    alert('Произошла ошибка при обновлении.');
-                }
+            } catch (e) {
+                console.error('Ошибка обновления', e.response);
             }
         },
 
         async deleteTeamMember(id) {
-            if (confirm('Вы уверены, что хотите удалить этого члена команды?')) {
+            if (confirm('Вы уверены, что хотите удалить этого сотрудника?')) {
                 try {
-                    await axios.delete(`/api/team/${id}`);
+                    await axios.delete(`/admin/api/team/${id}`);
                     this.teamData = this.teamData.filter(member => member.id !== id);
                 } catch (error) {
-                    console.error('Ошибка при удалении члена команды:', error);
+                    console.error('Ошибка при удалении сотрудника:', error);
                     alert('Произошла ошибка при удалении.');
                 }
             }
@@ -290,7 +262,7 @@ export default {
             if (imageUrl.startsWith('http') || imageUrl.startsWith('/')) {
                 return imageUrl;
             } else {
-                return '/' + imageUrl;
+                return '/img/team/' + imageUrl;
             }
         }
     },
@@ -320,9 +292,8 @@ input[type="text"] {
 }
 
 table {
-    width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-top: 5px;
 }
 
 th, td {
@@ -333,28 +304,6 @@ th, td {
 
 th {
     background-color: #f2f2f2;
-}
-
-button {
-    margin-right: 5px;
-    padding: 8px 12px;
-    cursor: pointer;
-    border: none;
-    border-radius: 4px;
-    background-color: #007bff;
-    color: white;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-button[type="button"] {
-    background-color: #6c757d;
-}
-
-button[type="button"]:hover {
-    background-color: #5a6268;
 }
 
 button:disabled {

@@ -85,6 +85,8 @@
                    class="nav-link {{ request()->routeIs('admin.videos') ? 'active' : '' }}">Видео</a>
                 <a href="{{ route('admin.clips') }}"
                    class="nav-link {{ request()->routeIs('admin.clips') ? 'active' : '' }}">Клипы</a>
+                <a href="{{ route('admin.team') }}"
+                   class="nav-link {{ request()->routeIs('admin.team') ? 'active' : '' }}">Команда</a>
             </nav>
         </div>
         <form method="POST" action="{{ route('admin.logout') }}" style="display:inline;">
