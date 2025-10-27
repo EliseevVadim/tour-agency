@@ -1,0 +1,111 @@
+.footer {
+    padding: 14px 20px 12px 31px;
+    background-image: linear-gradient(to right, $btn-cta-gradient-start, $btn-cta-gradient-end);
+    color: #ffffff;
+
+    .ip-details {
+        list-style: none;
+        line-height: 1.41;
+        letter-spacing: -0.27px;
+        font-weight: normal;
+        font-size: 0.85rem;
+        margin: 0;
+        padding: 0;
+    }
+
+    .logo-container {
+        text-align: center;
+
+        .logo {
+            width: 53px;
+            height: 17px;
+        }
+
+        .logo-plane {
+            width: 5px;
+            height: 4px;
+        }
+
+        .logo-subtitle {
+            font-size: 8px;
+        }
+    }
+
+    .social-icons {
+        display: flex;
+        gap: 10px;
+        justify-content: end;
+
+        .social {
+            width: 26px;
+            min-width: 26px;
+            max-width: 26px;
+            flex: 1;
+            text-align: center;
+            display: flex;
+        }
+    }
+
+    .copyright {
+        margin-top: 31px;
+        font-size: 0.75rem;
+
+        .copyright-item {
+            color: white;
+        }
+
+        .copyright-item:not(:last-child) {
+            &:after {
+                content: "|";
+                padding-left: 9px;
+                padding-right: 9px;
+            }
+        }
+    }
+
+    @media (max-width: 991px) {
+        padding: 10px;
+
+        .row {
+            gap: 10px;
+        }
+        .footer-middle-column {
+            order: 1;
+        }
+        .footer-left-column {
+            order: 2;
+            text-align: center;
+        }
+        .footer-right-column {
+            order: 3;
+
+            .social-icons {
+                justify-content: center;
+            }
+        }
+
+        .copyright {
+            flex-direction: column;
+            text-align: center;
+
+            &:before {
+                content: "";
+                height: 1px;
+                width: 100%;
+                background-color: white;
+            }
+
+            .copyright-item:first-child {
+                padding-top: 5px;
+            }
+
+            .copyright-item:not(:last-child) {
+                &:after {
+                    content: "";
+                    padding-left: 0;
+                    padding-right: 0;
+                }
+            }
+        }
+    }
+}

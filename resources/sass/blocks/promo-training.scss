@@ -1,0 +1,132 @@
+.promo-training-section {
+    .promo-training-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: #f8f8f8;
+        padding: 101px 8px 8px;
+    }
+
+    .skewed-background {
+        position: absolute;
+        width: 100%;
+        height: calc(100% - 82px);
+        background-color: #f3f3f3;
+        clip-path: polygon(0 0, 100% 7%, 100% 100%, 0 100%);
+        margin-top: 39px;
+    }
+
+    .promo-content {
+        flex: 1;
+        z-index: 1;
+        text-align: left;
+    }
+
+    .promo-title {
+        letter-spacing: -0.6px;
+        font-weight: 800;
+        margin-bottom: 6px;
+        line-height: 1;
+
+        span {
+            color: $color-ta-red;
+        }
+    }
+
+    .promo-description {
+        font-size: 1.24em;
+        font-weight: 500;
+        line-height: 1;
+        margin-bottom: 10px;
+    }
+
+    .promo-image {
+        padding-right: 55px;
+        position: relative;
+
+        .expert-background {
+            position: relative;
+            height: 373px;
+            width: 362px;
+            border-radius: 50%;
+            object-fit: cover;
+            top: -9px;
+            left: 8px;
+        }
+
+        .expert-background-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 50%;
+        }
+
+        .expert-background-container::before {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: -5px;
+            right: -5px;
+            height: 50%;
+            border-radius: 0 0 50% 50%;
+            background: $color-ta-red;
+            z-index: 0;
+        }
+
+        .expert-png {
+            position: absolute;
+            left: -16px;
+            bottom: 0;
+        }
+    }
+
+    @media (min-width: 992px) {
+        .promo-training-container {
+            padding-left: 50px;
+        }
+    }
+
+    @media (max-width: 991px) {
+        .promo-image {
+            padding: 0;
+            margin-bottom: 20px;
+            transform: scale(0.8);
+
+            .expert-background {
+                left: 8px;
+            }
+
+            .expert-png {
+                left: -17px;
+            }
+        }
+    }
+
+    @media (max-width: 768px) {
+        .skewed-background {
+            height: 68%;
+        }
+
+        .promo-training-container {
+            padding-top: 45px;
+        }
+
+        .promo-content {
+            padding-right: 0;
+            text-align: center;
+        }
+
+        .promo-description {
+            font-size: 0.95rem;
+        }
+
+        .promo-image {
+            text-align: center;
+        }
+    }
+
+    @media (max-width: 613px) {
+        .skewed-background {
+            height: 96%;
+        }
+    }
+}

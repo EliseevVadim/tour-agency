@@ -1,0 +1,41 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+}
+
+h1 {
+    font-size: calc(1.375rem + 1.5vw);
+    margin-bottom: 0;
+
+    @media (min-width: 1024px) {
+        font-size: 4.5rem;
+    }
+}
+
+h2 {
+    font-size: 2.23rem;
+    font-weight: bold;
+    margin-bottom: 0;
+}
+
+h3 {
+    font-size: 1.56rem;
+    margin-bottom: 0;
+}
+
+p {
+    margin: 0;
+    padding: 0;
+}
+
+.fw-800 {
+    font-weight: 800;
+}
+
+@media (max-width: 1023px) {
+    h2 {
+        font-size: 1.4rem;
+    }
+    h3 {
+        font-size: 0.95rem;
+    }
+}

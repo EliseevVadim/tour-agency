@@ -1,0 +1,31 @@
+.container, .container-fluid, .container-xxl, .container-xl, .container-lg, .container-md, .container-sm {
+    --bs-gutter-x: 2.5rem;
+}
+
+.logo-container {
+    .logo {
+        @media (max-width: 575px) {
+            width: 100px;
+        }
+    }
+
+    .logo-subtitle {
+        font-size: 18px;
+        font-family: 'Bewlay Br1', arial, serif;
+        color: #ffffff;
+
+        @media (min-width: 576px) {
+            font-size: 26px;
+        }
+    }
+}
+
+#app {
+    min-width: 400px;
+}
+
+@media (max-width: 400px) {
+    body {
+        zoom: 0.8; /* Scale down the content */
+    }
+}

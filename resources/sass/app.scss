@@ -2,8 +2,20 @@
 
 @import 'base/variables';
 @import 'base/typography';
+@import 'base/base';
+@import 'base/carousel';
+@import 'base/promo-block';
 
 @import 'layouts/header';
 @import 'layouts/footer';
 
 @import 'components/buttons';
+
+@import "blocks/hero-section";
+@import "blocks/tour-card";
+@import "blocks/promo-telegram";
+@import "blocks/benefits";
+@import "blocks/reviews";
+@import "blocks/travel-directions";
+@import "blocks/promo-training";
+@import "blocks/team";

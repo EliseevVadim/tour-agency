@@ -1,0 +1,151 @@
+.promo-telegram {
+    position: relative;
+    padding-left: 20px;
+    padding-right: 40px;
+    height: 632px;
+
+    .text-block {
+        margin-top: 174px;
+        width: 80%;
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+        }
+    }
+
+    .phone-mockup-container {
+        position: absolute;
+        align-items: center;
+        right: 0;
+        z-index: 3;
+
+        .phone-screen {
+            width: 332px;
+            height: 576px;
+            filter: drop-shadow(0 0 23px rgba(0, 0, 0, 0.29));
+        }
+    }
+
+    .leaf-background {
+        position: absolute;
+        width: 506px;
+        height: 584px;
+        background: url('/img/palm-leaves.png') no-repeat center center / cover;
+        top: 220px;
+        left: -200px;
+        z-index: 10;
+        pointer-events: none;
+    }
+
+    .phone-mockup {
+        position: relative;
+        width: 350px;
+        height: 700px;
+        z-index: 3;
+
+        img {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    }
+
+    .floating-card {
+        position: absolute;
+        z-index: 4;
+        border-radius: 15px;
+        overflow: hidden;
+        width: 242px;
+        height: 109px;
+        border-bottom: 5px solid #e82c26;
+
+        .card-wrapper {
+            background: linear-gradient(0deg, black 0%, transparent 80%);
+            width: 100%;
+            height: 100%;
+            opacity: 0.28;
+            position: absolute;
+        }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 15px;
+            position: absolute;
+            bottom: 0;
+            color: white;
+            width: 80%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+        }
+    }
+
+    .card-1 {
+        top: 80px;
+        left: -131px;
+        transform: rotate(5deg);
+    }
+
+    .card-2 {
+        top: 227px;
+        right: 10px;
+        transform: rotate(4deg);
+    }
+
+    .card-3 {
+        top: 350px;
+        left: -100px;
+        transform: rotate(2deg);
+    }
+}
+
+@media (max-width: 1199px) {
+    .promo-telegram {
+        padding-left: 0;
+    }
+}
+
+@media (max-width: 991px) {
+    .promo-telegram {
+        padding-right: 20px;
+
+        .leaf-background {
+            top: 97px;
+            z-index: 2;
+            width: 251px;
+            height: 335px;
+            left: -68px;
+        }
+    }
+}
+
+@media (max-width: 767px) {
+    .promo-telegram {
+        height: 383px;
+
+        .phone-mockup-container {
+            transform: scale(0.6);
+            top: -120px;
+            right: -74px;
+        }
+    }
+
+    .promo-content .text-block {
+        margin-top: 116px;
+    }
+}
+
+@media (max-width: 480px) {
+    .promo-telegram {
+        .promo-content .text-block {
+            padding-right: 45px;
+        }
+
+        .phone-mockup-container {
+            transform: scale(0.4);
+            right: -115px;
+            top: -110px;
+        }
+    }
+}
