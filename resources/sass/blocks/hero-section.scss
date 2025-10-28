@@ -1,4 +1,57 @@
 .hero-section {
+    @media (max-width: 767.98px) {
+        .mobile-menu {
+            .main a {
+                font-size: 16px;
+            }
+        }
+    }
+
+    .mobile-menu {
+        position: fixed;
+        background: black;
+        left: 0;
+        top: 0;
+        height: 100%;
+        padding-left: 25px;
+        padding-top: 8px;
+        padding-right: 10px;
+        z-index: 11111;
+
+        svg {
+            width: 12px;
+        }
+
+        .main {
+            li {
+                border-bottom: 1px solid;
+                &.active {
+                    a {
+                        color: white;
+                    }
+                    a:before {
+                        content: "";
+                        border-left: 2px solid $color-ta-red;
+                        position: absolute;
+                        height: 15px;
+                        top: 0;
+                        left: -6px;
+                        border-radius: 10px;
+                    }
+                }
+            }
+        }
+
+        .main a {
+            color: #575757;
+            font-weight: bold;
+            letter-spacing: 0.3px;
+            font-size: 11px;
+            text-decoration: none;
+            position: relative;
+        }
+    }
+
     .hero-surf {
         right: 0;
         bottom: -90px;
