@@ -87,6 +87,8 @@
                    class="nav-link {{ request()->routeIs('admin.clips') ? 'active' : '' }}">Клипы</a>
                 <a href="{{ route('admin.team') }}"
                    class="nav-link {{ request()->routeIs('admin.team') ? 'active' : '' }}">Команда</a>
+                <a href="{{ route('admin.reviews') }}"
+                   class="nav-link {{ request()->routeIs('admin.reviews') ? 'active' : '' }}">Отзывы</a>
             </nav>
         </div>
         <form method="POST" action="{{ route('admin.logout') }}" style="display:inline;">
