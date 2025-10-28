@@ -57,6 +57,11 @@ export default {
             };
         });
     },
+    beforeUnmount() {
+        if (this.observer) {
+            this.observer.disconnect();
+        }
+    },
     methods: {
         handleSetActiveLink(link) {
             this.activeAnchor = link;

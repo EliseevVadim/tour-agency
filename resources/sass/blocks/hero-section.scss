@@ -1,8 +1,18 @@
 .hero-section {
-    @media (max-width: 767.98px) {
+    @media (min-width: 768px) {
         .mobile-menu {
-            .main a {
-                font-size: 16px;
+            .main {
+                a {
+                    font-size: 16px !important;
+                }
+                li {
+                    height: 35px !important;
+                }
+                li.active {
+                    a:before{
+                        height: 22px !important;
+                    }
+                }
             }
         }
     }
@@ -24,17 +34,22 @@
 
         .main {
             li {
+                height: 26px;
                 border-bottom: 1px solid;
+                display: flex;
+                align-items: center;
+
                 &.active {
                     a {
                         color: white;
                     }
+
                     a:before {
                         content: "";
                         border-left: 2px solid $color-ta-red;
                         position: absolute;
                         height: 15px;
-                        top: 0;
+                        top: 5px;
                         left: -6px;
                         border-radius: 10px;
                     }
@@ -49,6 +64,16 @@
             font-size: 11px;
             text-decoration: none;
             position: relative;
+            display: flex;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+        }
+
+        .social-icons-menu {
+            svg {
+                width: 16px;
+            }
         }
     }
 
