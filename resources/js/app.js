@@ -4,6 +4,8 @@ import Vue from 'vue';
 import SsrCarousel from 'vue-ssr-carousel'
 import ssrCarouselCss from 'vue-ssr-carousel/index.css'
 
+Vue.component('main-component', require('./App.vue').default);
+
 Vue.component('app-footer', require('./client/components/Fragments/Footer.vue').default);
 Vue.component('app-header', require('./client/components/Fragments/Header.vue').default);
 
@@ -27,6 +29,7 @@ Vue.component('first-screen', require('./client/components/HeroSection.vue').def
 Vue.component('clips-component', require('./admin/ClipsComponent.vue').default);
 Vue.component('videos-component', require('./admin/VideosComponent.vue').default);
 Vue.component('admin-team-component', require('./admin/TeamComponent.vue').default);
+Vue.component('admin-reviews-component', require('./admin/ReviewsComponent.vue').default);
 
 Vue.component('ssr-carousel', SsrCarousel);
 

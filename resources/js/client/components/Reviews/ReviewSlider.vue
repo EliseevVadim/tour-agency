@@ -2,9 +2,8 @@
     <section class="reviews-section">
         <div class="container-fluid overflow-hidden">
             <h2 class="reviews-title text-center">Отзывы клиентов:</h2>
-            <div v-if="reviews.length > 0" class="reviews-slider">
-                <ssr-carousel show-arrows :slides-per-page='1'
-                              paginate-by-slide overflow-visible peek-right='10%' gutter='29'
+            <div class="reviews-slider">
+                <ssr-carousel v-if="reviews.length > 0" :slides-per-page='1' paginate-by-slide show-arrows :center="true"
                               :responsive='responsive'>
                     <template #back-arrow='{ disabled }'>
                         <span class="carousel-left-icon reviews-carousel-left-icon" :class="{'disabled': disabled}"></span>
@@ -22,45 +21,45 @@
 
                     <review-card v-for="(review, index) in reviews"
                                  :key="index"
+                                 :profile-image="review.avatar"
                                  :name="review.name"
-                                 :gender="review.gender"
-                                 :location="review.location"
-                                 :text="review.text"
-                                 :background-image="review.backgroundImage"
-                                 :profile-image="review.profileImage"/>
+                                 :pre-location="review.pre_location"
+                                 :location="review.country"
+                                 :text="review.review_text"
+                                 :photos="review.photos"
+                                 @open-image-modal="showImageModal"/>
                 </ssr-carousel>
             </div>
         </div>
+        <image-modal :is-visible="isModalVisible"
+                     :image-url="currentImageUrl"
+                     @close="hideImageModal"></image-modal>
     </section>
 </template>
 
 <script>
 import axios from "axios";
+import ImageModal from "../Fragments/ImageModal.vue";
 
 export default {
     name: "ReviewSlider",
+    components: {ImageModal},
     data() {
         return {
+            isModalVisible: false,
+            currentImageUrl: '',
             reviews: [],
             responsive: [
                 {
-                    minWidth: 270,
+                    maxWidth: 1365,
                     slidesPerPage: 1,
                     center: true,
-                    peek: 20,
-                    gutter: 15
-                },
-                {
-                    minWidth: 768,
-                    slidesPerPage: 2,
-                },
-                {
-                    minWidth: 1024,
-                    slidesPerPage: 3,
+                    gutter: 10,
+                    peek: 0
                 },
                 {
                     minWidth: 1366,
-                    slidesPerPage: 4,
+                    slidesPerPage: 2,
                 }
             ]
         }
@@ -78,6 +77,14 @@ export default {
                     }
                 });
         },
+        showImageModal(payload) {
+            this.currentImageUrl = payload.imageUrl;
+            this.isModalVisible = true;
+        },
+        hideImageModal() {
+            this.isModalVisible = false;
+            this.currentImageUrl = '';
+        }
     },
     mounted() {
         this.fetchReviews();
