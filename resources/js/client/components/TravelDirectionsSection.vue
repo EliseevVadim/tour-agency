@@ -72,7 +72,6 @@ export default {
             axios.get('/api/videos')
                 .then(response => {
                     this.slides = response.data;
-                    console.log(this.slides)
                 })
                 .catch(error => {
                     console.error('Ошибка при получении видео:', error);

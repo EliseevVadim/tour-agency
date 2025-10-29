@@ -21,11 +21,12 @@
                 </template>
                 <tour-card v-for="(tour, index) in tours"
                            :key="index"
-                           :imageUrl="tour.thumbnail_url"
-                           :tourUrl="tour.video_url"
-                           :alt-text="'Тур'"
-                           :badgeText="tour.badgeText"
-                           :badgeType="tour.badgeType"/>
+                           :imageUrl="tour.image"
+                           :tourUrl="tour.direct_url"
+                           :alt-text="tour.title"
+                           :badgeText="getBadgeText(index)"
+                           :badgeType="getBadgeType(index)"
+                :index="index"/>
             </ssr-carousel>
         </div>
     </section>
@@ -67,6 +68,27 @@ export default {
                         console.error('Error response data:', error.response.data);
                     }
                 });
+        },
+        getBadgeText(index) {
+            if (index === 0) {
+                return "Новинка";
+            } else if (index === 1) {
+                return "Акция";
+            } else if (index === 2) {
+                return "Скидка";
+            }
+            return '';
+        },
+
+        getBadgeType(index) {
+            if (index === 0) {
+                return "new";
+            } else if (index === 1) {
+                return "sale";
+            } else if (index === 2) {
+                return "discount";
+            }
+            return '';
         },
     },
     mounted() {
