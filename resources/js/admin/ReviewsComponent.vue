@@ -77,6 +77,7 @@
                     <th scope="col">Местоположение</th>
                     <th scope="col">Дополнительные фото</th>
                     <th scope="col">Текст отзыва</th>
+                    <th scope="col">Действия</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -106,6 +107,11 @@
                     </td>
                     <td>
                         {{ review.review_text.substring(0, 50) }}{{ review.review_text.length > 50 ? '...' : '' }}
+                    </td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" @click="deleteReview(review.id)">
+                            <i class="bi bi-trash"></i> Удалить
+                        </button>
                     </td>
                 </tr>
                 </tbody>
@@ -207,8 +213,16 @@ export default {
                     console.error('Ошибка при добавлении отзыва:', error);
                 });
         },
-        deleteReview(id){
-
+        async deleteReview(id){
+            if (confirm('Вы уверены, что хотите удалить этот отзыв?')) {
+                try {
+                    await axios.delete(`/admin/api/review/${id}`);
+                    this.reviews = this.reviews.filter(review => review.id !== id);
+                } catch (error) {
+                    console.error('Ошибка при удалении отзыва:', error);
+                    alert('Произошла ошибка при удалении.');
+                }
+            }
         },
         cancelForm() {
             this.showAddForm = false;

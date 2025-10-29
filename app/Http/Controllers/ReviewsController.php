@@ -113,4 +113,31 @@ class ReviewsController extends Controller
             return response()->json(['error' => 'Не удалось добавить отзыв. Произошла ошибка сервера.'], 500);
         }
     }
+
+    public function destroy($id)
+    {
+        try {
+            $reviewsData = collect(json_decode(File::get($this->filePath), true) ?? []);
+            $review = $reviewsData->firstWhere('id', $id);
+
+            if (!$review) {
+                return response()->json(['error' => 'Отзыв не найден'], 404);
+            }
+
+            if (!empty($review['image_url'])) {
+                $filePath = $this->uploadDirectory . '/' . $review['image_url'];
+                if (File::exists($filePath)) {
+                    File::delete($filePath);
+                }
+            }
+
+            $updatedData = $reviewsData->filter(fn ($m) => $m['id'] != $id)->values();
+            File::put($this->filePath, json_encode($updatedData, JSON_PRETTY_PRINT));
+
+            return response()->json(['message' => 'Отзыв удален']);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Ошибка удаления отзыва'], 500);
+        }
+    }
 }
