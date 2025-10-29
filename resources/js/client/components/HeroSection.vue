@@ -49,28 +49,16 @@
                         </button>
                     </div>
 
-                    <ul class="main list-unstyled">
-                        <li @click="setActiveLink('#first')" :class="{active: activeLink === '#first'}"><a
-                            href="#first">Главная</a></li>
-                        <li @click="setActiveLink('#tours')" :class="{active: activeLink === '#tours'}"><a
-                            href="#tours">Туры дня</a></li>
-                        <li @click="setActiveLink('#discount')" :class="{active: activeLink === '#discount'}"><a
-                            href="#discount">Акции и скидки</a></li>
-                        <li @click="setActiveLink('#travel')" :class="{active: activeLink === '#travel'}"><a
-                            href="#travel">О путешествиях</a></li>
-                        <li @click="setActiveLink('#reviews')" :class="{active: activeLink === '#reviews'}"><a
-                            href="#reviews">Отзывы</a></li>
-                        <li @click="setActiveLink('#directions')" :class="{active: activeLink === '#directions'}"><a
-                            href="#directions">Наши направления</a></li>
-                        <li @click="setActiveLink('#training')" :class="{active: activeLink === '#training'}"><a
-                            href="#training">Обучение</a></li>
-                        <li @click="setActiveLink('#team')" :class="{active: activeLink === '#team'}"><a href="#team">Команда</a>
+                    <ul class="main list-unstyled navbar-nav">
+                        <li v-for="(item, index) in menuItems"
+                            :key="index"
+                            @click="setActiveLink(item.link)"
+                            :class="{active: activeLink === item.link}">
+                            <a :href="item.link">{{ item.text }}</a>
                         </li>
-                        <li @click="setActiveLink('#merch')" :class="{active: activeLink === '#merch'}"><a
-                            href="#merch">Мерч</a></li>
                     </ul>
 
-                    <div class="social-icons-menu d-flex flex-fill gap-2">
+                    <div class="social-icons-menu d-flex flex-fill gap-2 mt-4">
                         <a href="https://youtube.com/@put_club" target="_blank" class="social social-youtube">
                             <svg fill="#ffffff" xmlns="http://www.w3.org/2000/svg"
                                  viewBox="-271 311.2 256 179.8" xml:space="preserve" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -144,7 +132,18 @@ export default {
     name: "HeroSection",
     data() {
         return {
-            activeLink: "#first"
+            activeLink: "#first",
+            menuItems: [
+                { link: '#first', text: 'Главная' },
+                { link: '#tours', text: 'Туры дня' },
+                { link: '#discount', text: 'Акции и скидки' },
+                { link: '#travel', text: 'О путешествиях' },
+                { link: '#reviews', text: 'Отзывы' },
+                { link: '#directions', text: 'Наши направления' },
+                { link: '#training', text: 'Обучение' },
+                { link: '#team', text: 'Команда' },
+                { link: '#merch', text: 'Мерч' }
+            ],
         }
     },
     methods: {

@@ -3,8 +3,8 @@
         <div class="container-fluid overflow-hidden">
             <h2 class="reviews-title text-center">Отзывы клиентов:</h2>
             <div class="reviews-slider">
-                <ssr-carousel v-if="reviews.length > 0" :slides-per-page='1' paginate-by-slide show-arrows :center="true"
-                              :responsive='responsive'>
+                <ssr-carousel v-if="reviews.length > 0" :slides-per-page='1' paginate-by-slide show-arrows
+                              :responsive='carouselResponsive'>
                     <template #back-arrow='{ disabled }'>
                         <span class="carousel-left-icon reviews-carousel-left-icon" :class="{'disabled': disabled}"></span>
                     </template>
@@ -49,19 +49,16 @@ export default {
             isModalVisible: false,
             currentImageUrl: '',
             reviews: [],
-            responsive: [
-                {
-                    maxWidth: 1365,
-                    slidesPerPage: 1,
-                    center: true,
-                    gutter: 10,
-                    peek: 0
-                },
-                {
-                    minWidth: 1366,
-                    slidesPerPage: 2,
-                }
-            ]
+            carouselResponsive: [],
+        }
+    },
+    computed: {
+        slidesPerPage() {
+            if (this.reviews.length === 1) {
+                return 1;
+            } else {
+                return 2;
+            }
         }
     },
     methods: {
@@ -84,10 +81,34 @@ export default {
         hideImageModal() {
             this.isModalVisible = false;
             this.currentImageUrl = '';
-        }
+        },
+        updateCarouselResponsive() {
+            this.carouselResponsive = [
+                {
+                    maxWidth: 1365,
+                    slidesPerPage: 1,
+                    center: true,
+                    gutter: 10,
+                    peek: 0
+                },
+                {
+                    minWidth: 1366,
+                    slidesPerPage: this.slidesPerPage,
+                }
+            ];
+        },
     },
     mounted() {
         this.fetchReviews();
-    }
+        this.updateCarouselResponsive();
+    },
+    watch: {
+        'reviews.length': {
+            handler() {
+                this.updateCarouselResponsive();
+            },
+            immediate: true
+        }
+    },
 }
 </script>
