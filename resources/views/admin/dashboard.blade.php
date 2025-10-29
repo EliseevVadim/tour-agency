@@ -81,10 +81,6 @@
         <div style="display: flex; align-items: center;">
             <span class="admin-email">{{ session('admin_email') }}</span>
             <nav class="navigation">
-                <a href="{{ route('admin.videos') }}"
-                   class="nav-link {{ request()->routeIs('admin.videos') ? 'active' : '' }}">Видео</a>
-                <a href="{{ route('admin.clips') }}"
-                   class="nav-link {{ request()->routeIs('admin.clips') ? 'active' : '' }}">Клипы</a>
                 <a href="{{ route('admin.team') }}"
                    class="nav-link {{ request()->routeIs('admin.team') ? 'active' : '' }}">Команда</a>
                 <a href="{{ route('admin.reviews') }}"

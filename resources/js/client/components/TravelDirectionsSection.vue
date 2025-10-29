@@ -25,9 +25,9 @@
                 </template>
 
                 <div class="travel-card slide" v-for="slide in slides" :key="slide.id">
-                    <a :href="slide.video_url" target="_blank" class="travel-card-link">
+                    <a :href="slide.direct_url" target="_blank" class="travel-card-link">
                         <div class="travel-card__image-container">
-                            <img :src="slide.thumbnail_url" alt="Background" class="travel-card__background-image" />
+                            <img :src="slide.image" :alt="slide.title" class="travel-card__background-image" />
                         </div>
                     </a>
                 </div>
@@ -72,6 +72,7 @@ export default {
             axios.get('/api/videos')
                 .then(response => {
                     this.slides = response.data;
+                    console.log(this.slides)
                 })
                 .catch(error => {
                     console.error('Ошибка при получении видео:', error);

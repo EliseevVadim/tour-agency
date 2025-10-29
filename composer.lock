@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c61ff82cbf0142a401a48a8161e1595a",
+    "content-hash": "e48de0004bbd9acf05471053020609ee",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -2153,6 +2153,54 @@
                 "source": "https://github.com/nikic/PHP-Parser/tree/v5.6.1"
             },
             "time": "2025-08-13T20:13:15+00:00"
+        },
+        {
+            "name": "nikileads/vk-client",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nikileads/vk-client.git",
+                "reference": "708625cff11a285a6b2d74c1fa831a883213d0f1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nikileads/vk-client/zipball/708625cff11a285a6b2d74c1fa831a883213d0f1",
+                "reference": "708625cff11a285a6b2d74c1fa831a883213d0f1",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "~6.0|~7.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "ATehnix\\VkClient\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nikileads",
+                    "email": "nikitazaykov@gmail.com"
+                }
+            ],
+            "description": "PHP client for Vk.com API. Forked from atehnix/vkclient. Original author atehnix@gmail.com",
+            "keywords": [
+                "api",
+                "client",
+                "php",
+                "vk",
+                "vk.com",
+                "vkontakte"
+            ],
+            "support": {
+                "source": "https://github.com/nikileads/vk-client/tree/master"
+            },
+            "time": "2024-04-15T06:33:57+00:00"
         },
         {
             "name": "opis/closure",
@@ -7823,12 +7871,15 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "nikileads/vk-client": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7.3|^8.0"
+        "php": "^7.3|^8.0",
+        "ext-json": "*"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.6.0"
 }
