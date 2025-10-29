@@ -45,9 +45,7 @@ class ReviewsController extends Controller
                ],
                "review_text" => "Это было незабываемое путешествие! Море, солнце, полный релакс. Обязательно вернусь сюда снова."*/
 
-        $initialData = [
-            []
-        ];
+        $initialData = [];
 
         File::put($filePath, json_encode($initialData, JSON_PRETTY_PRINT));
 
@@ -67,8 +65,8 @@ class ReviewsController extends Controller
             'pre_location' => 'required|string|max:255',
             'country' => 'required|string|max:255',
             'review_text' => 'required|string',
-            'avatar' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
-            'photos.*' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'avatar' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:10240',
+            'photos.*' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:10240',
         ]);
 
         try {

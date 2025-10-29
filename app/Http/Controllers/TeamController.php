@@ -34,14 +34,7 @@ class TeamController extends Controller
             return ;
         }
 
-        $initialData = [
-            [
-                "id" => 1,
-                "image_url" => "",
-                "name" => "",
-                "position" => ""
-            ]
-        ];
+        $initialData = [];
 
         File::put($filePath, json_encode($initialData, JSON_PRETTY_PRINT));
 
@@ -51,7 +44,7 @@ class TeamController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'image_url' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'image_url' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:10240',
             'name' => 'required|string|max:255',
             'position' => 'nullable|string|max:255',
         ]);
@@ -95,7 +88,7 @@ class TeamController extends Controller
     public function update(Request $request, int $id)
     {
         $request->validate([
-            'image_url' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'image_url' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:10240',
             'name'      => 'required|string|max:255',
             'position'  => 'nullable|string|max:255',
         ]);
