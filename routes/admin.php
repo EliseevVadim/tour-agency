@@ -25,19 +25,11 @@ Route::middleware(['admin.auth.hash'])->prefix('admin')->name('admin.')->group(f
         return view('admin.reviews');
     })->name('reviews');
 
-    Route::post('/api/clips', [ClipController::class, 'store'])->name('api.clips.store');
-    Route::delete('/api/clips/{id}', [ClipController::class, 'destroy'])->name('api.clips.destroy');
-
-    Route::post('/api/videos', [VideoController::class, 'store'])->name('api.videos.store');
-    Route::delete('/api/videos/{id}', [VideoController::class, 'destroy'])->name('api.videos.destroy');
-
     Route::post('/api/team', [TeamController::class, 'store'])->name('api.team.store');
     Route::post('/api/team/{id}', [TeamController::class, 'update'])->name('api.team.update');
     Route::delete('/api/team/{id}', [TeamController::class, 'destroy'])->name('api.team.destroy');
 
     Route::post('/api/review', [ReviewsController::class, 'store'])->name('api.review.store');
-  //  Route::post('/api/team/{id}', [TeamController::class, 'update'])->name('api.team.update');
-  //  Route::delete('/api/team/{id}', [TeamController::class, 'destroy'])->name('api.team.destroy');
 
     Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
 });

@@ -26,8 +26,6 @@ Vue.component('travel-directions', require('./client/components/TravelDirections
 Vue.component('first-screen', require('./client/components/HeroSection.vue').default);
 
 
-Vue.component('clips-component', require('./admin/ClipsComponent.vue').default);
-Vue.component('videos-component', require('./admin/VideosComponent.vue').default);
 Vue.component('admin-team-component', require('./admin/TeamComponent.vue').default);
 Vue.component('admin-reviews-component', require('./admin/ReviewsComponent.vue').default);
 

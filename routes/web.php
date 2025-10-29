@@ -21,13 +21,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('/admin/login', [AdminController::class, 'showLoginForm'])->name('admin.login.show');
 Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login.submit');
 
-require __DIR__.'/admin.php';
+require __DIR__ . '/admin.php';
 
 Route::get('/', function () {
     return view('main');
 });
 
-Route::get('/api/clips', [ClipController::class, 'getClips'])->name('api.clips.index');
-Route::get('/api/videos', [VideoController::class, 'getVideos'])->name('api.videos.index');
+Route::get("/api/videos", [VideoController::class, 'getVideos']);
+Route::get("/api/clips", [ClipController::class, 'getClips']);
+
 Route::get('/api/team', [TeamController::class, 'getTeam'])->name('api.team.index');
 Route::get('/api/reviews', [\App\Http\Controllers\ReviewsController::class, 'getReviews'])->name('api.reviews.index');
