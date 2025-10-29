@@ -1,12 +1,12 @@
 <template>
-    <section class="travel-directions-section">
+    <section v-if="!loading && slides.length > 0" class="travel-directions-section">
         <div class="coconut-background coconut-right"></div>
         <div class="line-gradient-background"></div>
 
         <div class=" container-fluid overflow-hidden">
             <h2 class="travel-directions-title text-center">Наши направления:</h2>
 
-            <ssr-carousel  v-if="slides.length > 0" show-arrows show-dots :slidesPerPage="1" overflow-visible
+            <ssr-carousel v-if="slides.length > 0" show-arrows show-dots :slidesPerPage="1" overflow-visible
                           paginate-by-slide peek-right='3%' peek-left='3%' gutter='30'
                           :responsive='responsive'>
 
@@ -64,7 +64,8 @@ export default {
                     minWidth: 1366,
                     slidesPerPage: 3,
                 }
-            ]
+            ],
+            loading: true
         }
     },
     methods: {
@@ -75,7 +76,9 @@ export default {
                 })
                 .catch(error => {
                     console.error('Ошибка при получении видео:', error);
-                });
+                }).finally(() => {
+                this.loading = false;
+            });
         },
     },
     mounted() {

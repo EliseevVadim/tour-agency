@@ -1,7 +1,7 @@
 <template>
-    <section class="container-fluid container-xl tour-section">
+    <section v-if="!loading && tours.length > 0" class="container-fluid container-xl tour-section">
         <h2>Туры дня:</h2>
-        <div v-if="tours.length > 0" class="tour-slider">
+        <div class="tour-slider">
             <ssr-carousel show-arrows feather :peek='20'
                           :slides-per-page='1'
                           paginate-by-slide
@@ -53,7 +53,8 @@ export default {
                     minWidth: 1366,
                     slidesPerPage: 4,
                 }
-            ]
+            ],
+            loading: true,
         }
     },
     methods: {
@@ -67,7 +68,9 @@ export default {
                     if (error.response) {
                         console.error('Error response data:', error.response.data);
                     }
-                });
+                }).finally(() => {
+                this.loading = false;
+            });
         },
         getBadgeText(index) {
             if (index === 0) {

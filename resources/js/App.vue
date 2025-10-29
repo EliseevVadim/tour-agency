@@ -55,12 +55,14 @@ export default {
                     mobileMenuCollapse.setAttribute('aria-expanded', 'false');
                 }
             };
+
+            menuLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    closeMenu();
+                    document.body.style.overflow = '';
+                });
+            });
         });
-    },
-    beforeUnmount() {
-        if (this.observer) {
-            this.observer.disconnect();
-        }
     },
     methods: {
         handleSetActiveLink(link) {

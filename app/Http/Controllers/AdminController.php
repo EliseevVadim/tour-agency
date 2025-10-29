@@ -12,7 +12,7 @@ class AdminController extends Controller
     public function showLoginForm()
     {
         if (session('admin_logged_in') === true && session('admin_email') === config('admin.admin_email')) {
-            return redirect()->route('admin.videos');
+            return redirect()->route('admin.team');
         }
         return view('admin.auth.login');
     }
@@ -59,13 +59,9 @@ class AdminController extends Controller
 
     public function initializeData(): string
     {
-        $clipController = new ClipController();
-        $videoController = new ClipController();
-        $reviewsController = new ClipController();
-        $teamController = new ClipController();
+        $reviewsController = new ReviewsController();
+        $teamController = new TeamController();
 
-        $clipController->initializeJsonFile();
-        $videoController->initializeJsonFile();
         $reviewsController->initializeJsonFile();
         $teamController->initializeJsonFile();
 
