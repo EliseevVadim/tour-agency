@@ -22,8 +22,6 @@
                 </button>
                 <div class="logo-container">
                     <img class="logo" src="/img/logo.png" alt="logo">
-                    <img class="position-absolute" src="/img/plane.png" alt="plane">
-                    <p class="logo-subtitle">КЛУБ ПУТЕШЕСТВИЙ</p>
                 </div>
             </div>
 
