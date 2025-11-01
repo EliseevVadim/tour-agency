@@ -10,7 +10,7 @@ class VideoController extends Controller
     {
         $items = [];
 
-        $api = new Client(5.199);
+        $api = new Client(config('admin.vk_version'));
         $api->setDefaultToken(config('admin.vk_token'));
         $response = $api->request('video.get', ['owner_id' => -221754888, 'count' => 20]);
         if (!empty($response) && isset($response['response'])) {

@@ -24,4 +24,11 @@
     min-width: 400px;
 }
 
-
+@media (max-width: 400px) {
+    body {
+        transform: scale(calc(400px / 100));
+        transform-origin: top center;
+        width: 100vw;
+        height: auto;
+    }
+}

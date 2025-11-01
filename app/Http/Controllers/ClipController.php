@@ -14,7 +14,26 @@ class ClipController extends Controller
     {
         $items = [];
 
-        $api = new Client(5.199);
+      /*  $response = Http::withHeaders([
+            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        ])->get('https://api.vk.com/method/shortVideo.getOwnerVideos', [
+            'owner_id' => -221754888,
+            'access_token' => config('admin.vk_token'),
+            'v' => config('admin.vk_version'),
+        ]);
+
+        $data = $response->json();
+
+        // Проверяем наличие ошибок в ответе VK API
+        if (isset($data['error'])) {
+            return response()->json([
+                'error' => 'Ошибка VK API: ' . $data['error']['error_msg']
+            ], $response->status()); // Используем статус код ответа VK
+        }
+
+        dd($data);*/
+
+        $api = new Client(config('admin.vk_version'));
         $api->setDefaultToken(config('admin.vk_token'));
         $response = $api->request('shortVideo.getOwnerVideos', ['owner_id' => -221754888, 'count' => 25]);
         if (!empty($response) && isset($response['response'])) {
