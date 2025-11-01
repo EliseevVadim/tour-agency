@@ -21,8 +21,8 @@
                 </template>
                 <tour-card v-for="(tour, index) in tours"
                            :key="index"
-                           :imageUrl="tour.image"
-                           :tourUrl="tour.direct_url"
+                           :imageUrl="tour.thumbnail_url"
+                           :tourUrl="tour.video_url"
                            :alt-text="tour.title"
                            :badgeText="getBadgeText(index)"
                            :badgeType="getBadgeType(index)"

@@ -10,32 +10,50 @@ use Illuminate\Support\Facades\Log;
 
 class ClipController extends Controller
 {
+
     public function getClips()
     {
-        $items = [];
+        $url = 'https://rutube.ru/api/video/person/37334628/?page=1&perPage=25&origin_type=rshorts';
 
-      /*  $response = Http::withHeaders([
-            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        ])->get('https://api.vk.com/method/shortVideo.getOwnerVideos', [
-            'owner_id' => -221754888,
-            'access_token' => config('admin.vk_token'),
-            'v' => config('admin.vk_version'),
-        ]);
+        try {
+            $response = Http::get($url);
+            if ($response->successful()) {
+                $fullData = $response->json();
 
-        $data = $response->json();
+                $videos = $fullData['results'] ?? [];
 
-        // Проверяем наличие ошибок в ответе VK API
-        if (isset($data['error'])) {
+                $selectedVideos = [];
+                foreach ($videos as $video) {
+                    if (is_array($video)) {
+                        $modifiedVideoUrl = str_replace("https://rutube.ru/video/", "https://rutube.ru/shorts/", $video['video_url']);
+
+                        $selectedVideos[] = [
+                            'title' => $video['title'] ?? null,
+                            'video_url' => $modifiedVideoUrl ?? null,
+                            'thumbnail_url' => $video['thumbnail_url'] ?? null,
+                        ];
+                    }
+                }
+                return response()->json($selectedVideos);
+            } else {
+                $statusCode = $response->status();
+                $errorBody = $response->body();
+                return response()->json([
+                    'error' => 'Request failed',
+                    'status_code' => $statusCode,
+                    'message' => $errorBody
+                ], $statusCode);
+            }
+        } catch (\Exception $e) {
             return response()->json([
-                'error' => 'Ошибка VK API: ' . $data['error']['error_msg']
-            ], $response->status()); // Используем статус код ответа VK
+                'error' => 'An exception occurred',
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        dd($data);*/
-
+      /*  $items = [];
         $api = new Client(config('admin.vk_version'));
         $api->setDefaultToken(config('admin.vk_token'));
-        $response = $api->request('shortVideo.getOwnerVideos', ['owner_id' => -221754888, 'count' => 25]);
+        $response = $api->request('video.get', ['owner_id' => -223232323]);
         if (!empty($response) && isset($response['response'])) {
             $responseData = $response['response'];
             if (isset($responseData['items'])) {
@@ -56,11 +74,9 @@ class ClipController extends Controller
                         $imageUrl = $item['image'][6]['url'];
                     }
                 }
-            }
-            elseif (isset($item['thumbnail']) && is_string($item['thumbnail'])) {
+            } elseif (isset($item['thumbnail']) && is_string($item['thumbnail'])) {
                 $imageUrl = $item['thumbnail'];
-            }
-            elseif (isset($item['preview']) && is_string($item['preview'])) {
+            } elseif (isset($item['preview']) && is_string($item['preview'])) {
                 $imageUrl = $item['preview'];
             }
             $title = $item['title'] ?? null;
@@ -74,6 +90,6 @@ class ClipController extends Controller
             }
         }
 
-        return response()->json($formattedItems);
+        return response()->json($formattedItems);*/
     }
 }

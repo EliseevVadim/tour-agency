@@ -50,7 +50,8 @@ export default {
                     slidesPerPage: 1,
                     center: true,
                     peek: 0,
-                    gutter: 20
+                    gutter: 20,
+                    showDots: false
                 },
                 {
                     minWidth: 768,
