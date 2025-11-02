@@ -45,6 +45,23 @@
     }
 }
 
+@media (max-width: 399.98px) {
+    .text-block {
+        h2 {
+            font-size: 1.2rem !important;
+        }
+        h3 {
+            font-size: 0.8rem !important;
+        }
+
+        .btn-open {
+            width: 115px;
+            height: 40px;
+            font-size: 0.8rem;
+        }
+    }
+}
+
 .promo-souvenir {
     padding-top: 192px;
     padding-bottom: 215px;

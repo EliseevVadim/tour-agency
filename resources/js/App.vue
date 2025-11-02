@@ -1,7 +1,5 @@
 <template>
     <div class="main">
-        <app-header></app-header>
-
         <first-screen id="first" :class="{ 'active': activeAnchor == '#first' }" @set-active-link="handleSetActiveLink"></first-screen>
         <tour-slider id="tours" :class="{ 'active': activeAnchor == '#tours' }"></tour-slider>
         <telegram-promo id="discount" :class="{ 'active': activeAnchor == '#discount' }"></telegram-promo>

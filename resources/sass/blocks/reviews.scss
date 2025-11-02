@@ -57,9 +57,18 @@
     }
 
     .review-gallery {
+        .ssr-carousel-track {
+            justify-content: start;
+
+            &:has(.slide:only-child){
+                img {
+                    width: 100px;
+                }
+            }
+        }
         img {
             width: 100%;
-            height: 100px;
+            height: 100%;
             object-fit: cover;
             border-radius: 10px;
             display: block;
@@ -82,6 +91,23 @@
         }
         .card-body {
             padding: 20px;
+        }
+        .review-text p {
+            font-size: 0.95rem;
+        }
+    }
+
+    @media (max-width: 399.98px) {
+        .review-gallery {
+            img {
+                height: auto;
+                aspect-ratio: 1 / 1;
+            }
+
+            .ssr-carousel-slide {
+                aspect-ratio: 1 / 1;
+                height: fit-content;
+            }
         }
     }
 }
