@@ -41,6 +41,18 @@
         margin-right: 0.5rem;
         font-size: 1.2rem;
     }
+    @media (max-width: 400px) {
+        font-size: 12px;
+    }
+    @media (max-width: 575px) {
+        font-size: small;
+        height: 43px;
+        padding: 0.5rem 0.4rem;
+
+        img {
+            width: 21px;
+        }
+    }
 }
 
 .btn-open {

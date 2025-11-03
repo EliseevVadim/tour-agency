@@ -49,5 +49,12 @@
         text-align: center;
         align-content: center;
     }
+
+    @media (max-width: 500px) {
+        .tour-card__badge {
+            top: 20px;
+            width: 100px;
+        }
+    }
 }
 

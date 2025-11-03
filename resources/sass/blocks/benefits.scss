@@ -47,10 +47,10 @@
     -webkit-text-stroke: none;
     text-stroke: none;
 
-    text-shadow: -1px -1px 0 $color-ta-red,
-    1px -1px 0 $color-ta-red,
-    -1px 1px 0 $color-ta-red,
-    1px 1px 0 $color-ta-red;
+    text-shadow: -1px -1px 0 rgba(235, 45, 38, 0.8),
+    1px -1px 0 rgba(235, 45, 38, 0.8),
+    -1px 1px 0 rgba(235, 45, 38, 0.8),
+    1px 1px 0 rgba(235, 45, 38, 0.8);
 }
 
 .item-heading {
@@ -61,8 +61,8 @@
 
 .item-content {
     position: absolute;
-    top: 50%;
-    left: 29px;
+    top: 63%;
+    left: 28px;
 }
 
 .item-content p {

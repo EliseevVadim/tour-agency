@@ -3,7 +3,7 @@
         <h2>Туры дня:</h2>
         <div class="tour-slider">
             <ssr-carousel show-arrows feather :peek='20'
-                          :slides-per-page='1'
+                          :slides-per-page='2'
                           paginate-by-slide
                           :responsive='responsive'>
                 <template #back-arrow='{ disabled }'>
@@ -42,11 +42,7 @@ export default {
             tours: [],
             responsive: [
                 {
-                    minWidth: 500,
-                    slidesPerPage: 2,
-                },
-                {
-                    minWidth: 675,
+                    minWidth: 768,
                     slidesPerPage: 3,
                 },
                 {

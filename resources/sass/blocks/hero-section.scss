@@ -2,6 +2,7 @@
     .logo {
         width: 166px;
     }
+
     .mobile-menu {
         position: fixed;
         background: black;
@@ -93,6 +94,12 @@
         }
     }
 
+    @media (max-width: 575px) {
+        .hero-top-bar-left {
+            gap: 1rem !important;
+        }
+    }
+
     .mobile-menu.collapse.show {
         transform: translateX(0); /* Перемещаем в видимое положение */
     }
@@ -121,13 +128,6 @@
     }
 
     .hero-top-bar-left {
-        flex: 1 1;
-        justify-content: space-between;
-
-        @media (min-width: 576px) {
-            justify-content: flex-start;
-        }
-
         .navbar-toggler {
             padding: 0;
             border: none;
@@ -162,15 +162,41 @@
     animation-fill-mode: forwards;
 }
 
-.mobile-menu.collapse.show .main li:nth-child(1) { animation-delay: 0.1s; }
-.mobile-menu.collapse.show .main li:nth-child(2) { animation-delay: 0.2s; }
-.mobile-menu.collapse.show .main li:nth-child(3) { animation-delay: 0.3s; }
-.mobile-menu.collapse.show .main li:nth-child(4) { animation-delay: 0.4s; }
-.mobile-menu.collapse.show .main li:nth-child(5) { animation-delay: 0.5s; }
-.mobile-menu.collapse.show .main li:nth-child(6) { animation-delay: 0.6s; }
-.mobile-menu.collapse.show .main li:nth-child(7) { animation-delay: 0.7s; }
-.mobile-menu.collapse.show .main li:nth-child(8) { animation-delay: 0.8s; }
-.mobile-menu.collapse.show .main li:nth-child(9) { animation-delay: 0.9s; }
+.mobile-menu.collapse.show .main li:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.mobile-menu.collapse.show .main li:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.mobile-menu.collapse.show .main li:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.mobile-menu.collapse.show .main li:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.mobile-menu.collapse.show .main li:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+.mobile-menu.collapse.show .main li:nth-child(6) {
+    animation-delay: 0.6s;
+}
+
+.mobile-menu.collapse.show .main li:nth-child(7) {
+    animation-delay: 0.7s;
+}
+
+.mobile-menu.collapse.show .main li:nth-child(8) {
+    animation-delay: 0.8s;
+}
+
+.mobile-menu.collapse.show .main li:nth-child(9) {
+    animation-delay: 0.9s;
+}
 
 .mobile-menu.collapse.show .social-icons-menu {
     animation-delay: 1.2s;

@@ -28,6 +28,7 @@ export default {
         document.addEventListener('DOMContentLoaded', () => {
             const mobileMenuCollapse = document.getElementById('mobileMenuContent');
             const body = document.body;
+            document.querySelector('[data-bs-toggle="collapse"][data-bs-target="#mobileMenuContent"]');
             const disableScroll = () => {
                 body.style.overflow = 'hidden';
             };
@@ -59,6 +60,15 @@ export default {
                     closeMenu();
                     document.body.style.overflow = '';
                 });
+            });
+            const hamburgerButton = document.querySelector('[data-bs-toggle="collapse"][data-bs-target="#mobileMenuContent"]');
+            document.addEventListener('click', (event) => {
+                if (mobileMenuCollapse && mobileMenuCollapse.classList.contains('show')) {
+                    if (!mobileMenuCollapse.contains(event.target) && !hamburgerButton.contains(event.target)) {
+                        closeMenu();
+                        document.body.style.overflow = '';
+                    }
+                }
             });
         });
     },

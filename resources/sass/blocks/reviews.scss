@@ -1,5 +1,13 @@
 .reviews-section {
     padding-top: 47px;
+
+    @media (max-width: 576px) {
+        padding-top: 0;
+
+        .reviews-title {
+            margin-bottom: 0;
+        }
+    }
 }
 
 .reviews-title {

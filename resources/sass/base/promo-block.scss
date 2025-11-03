@@ -20,7 +20,7 @@
             position: absolute;
             bottom: 0;
             left: 0;
-            background-color: var(--color-ta-red);
+            background-color: $color-ta-red;
         }
 
         p {
@@ -41,6 +41,15 @@
         .text-block {
             padding: 20px 0 15px 25px;
             border-radius: 20px;
+        }
+    }
+
+    @media (max-width: 480.98px) {
+        .text-block {
+            margin-top: 60px;
+        }
+        .phone-mockup-container {
+            top: -180px;
         }
     }
 }

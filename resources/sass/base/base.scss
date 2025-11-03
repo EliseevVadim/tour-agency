@@ -2,20 +2,22 @@
     --bs-gutter-x: 2.5rem;
 }
 
-.logo-container {
-    .logo {
+.hero-section {
+    .logo-container {
         @media (max-width: 575px) {
-            width: 100px;
+            .logo {
+                width: 90px;
+            }
         }
-    }
 
-    .logo-subtitle {
-        font-size: 18px;
-        font-family: 'Bewlay Br1', arial, serif;
-        color: #ffffff;
+        .logo-subtitle {
+            font-size: 18px;
+            font-family: 'Bewlay Br1', arial, serif;
+            color: #ffffff;
 
-        @media (min-width: 576px) {
-            font-size: 26px;
+            @media (min-width: 576px) {
+                font-size: 26px;
+            }
         }
     }
 }

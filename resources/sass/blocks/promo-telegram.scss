@@ -138,14 +138,21 @@
 
 @media (max-width: 480px) {
     .promo-telegram {
+        height: 285px;
+
+        .leaf-background {
+            top: 0;
+        }
+
         .promo-content .text-block {
             padding-right: 45px;
+            margin-top: 50px;
         }
 
         .phone-mockup-container {
             transform: scale(0.4);
             right: -115px;
-            top: -110px;
+            top: -190px;
         }
     }
 }

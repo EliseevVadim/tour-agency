@@ -14,7 +14,6 @@
                     <div class="logo-container">
                         <img class="logo" src="/img/logo.png" alt="logo">
                         <img class="position-absolute logo-plane" src="/img/plane.png" alt="plane">
-                        <p class="logo-subtitle">КЛУБ ПУТЕШЕСТВИЙ</p>
                     </div>
                 </div>
                 <div class="footer-right-column col-lg-4">
