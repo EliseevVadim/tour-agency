@@ -4,8 +4,8 @@
 
         <div class="container-fluid container-xl promo-content">
             <div class="text-block position-relative">
-                <h2>Наш мерч</h2>
-                <h3 class="mb-3">выбери свой любимый</h3>
+                <h2>Наша атрибутика</h2>
+                <h3 class="mb-3">выбери свою</h3>
                 <a href="https://t.me/ваш_telegram_канал" target="_blank" class="btn btn-cta btn-open rounded-3">посмотреть</a>
             </div>
 

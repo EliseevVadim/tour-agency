@@ -5,7 +5,8 @@
 
     .mobile-menu {
         position: fixed;
-        background: black;
+        background: rgba(0,0,0,0.2);
+        backdrop-filter: blur(8px);
         left: 0;
         top: 0;
         height: 100%;
@@ -24,7 +25,7 @@
         .main {
             li {
                 height: 40px;
-                border-bottom: 1px solid;
+                border-bottom: 1px solid #fff9;
                 display: flex;
                 align-items: center;
                 position: relative;
@@ -44,11 +45,23 @@
                         border-radius: 10px;
                     }
                 }
+
+                &:hover {
+                    a:before {
+                        content: "";
+                        border-left: 2px solid $color-ta-red;
+                        position: absolute;
+                        height: 27px;
+                        top: 5px;
+                        left: -6px;
+                        border-radius: 10px;
+                    }
+                }
             }
         }
 
         .main a {
-            color: #575757;
+            color: white;
             font-weight: bold;
             letter-spacing: 0.3px;
             font-size: 17px;

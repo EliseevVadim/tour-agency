@@ -1,7 +1,8 @@
 <template>
     <section class="team-section container">
         <h2 class="team-section-title text-center">Наша команда:</h2>
-        <ssr-carousel class="custom-carousel" v-if="members.length > 0" show-dots :slides-per-page='1' paginate-by-slide>
+        <ssr-carousel v-model="slide" ref="teamCarousel" @drag:start="openTelegram" class="custom-carousel"
+                      v-if="members.length > 0" show-dots :slides-per-page='1' paginate-by-slide>
             <div v-for="(slide, slideIndex) in slides" :key="slideIndex" class="carousel-slide">
                 <div class="team-members-container">
                     <div v-for="(member, memberIndex) in slide"
@@ -31,8 +32,9 @@ export default {
         return {
             members: [],
             slides: [],
-            membersPerSlide: 10,
-            memberIdx: 5
+            membersPerSlide: 8,
+            memberIdx: 4,
+            slide: 0
         }
     },
     created() {
@@ -42,8 +44,13 @@ export default {
 
     },
     methods: {
+        openTelegram() {
+            this.slide = 0;
+            const telegramLink = 'https://t.me/put_club';
+            window.open(telegramLink, '_blank');
+        },
         createSlides() {
-            this.membersPerSlide = 10;
+            this.membersPerSlide = 8;
             if (window.innerWidth <= 767) {
                 this.membersPerSlide = 6;
                 this.memberIdx = 3
@@ -56,7 +63,7 @@ export default {
             this.slides = tempSlides;
         },
         emptySlots(memberCount) {
-            const slotsNeeded = 10 - memberCount;
+            const slotsNeeded = this.membersPerSlide - memberCount;
             return Array(Math.max(0, slotsNeeded)).fill(null).map((_, index) => index);
         },
         fetchTeam() {

@@ -111,7 +111,7 @@
         </nav>
 
         <div class="hero-content align-items-center container d-grid justify-content-center text-center text-uppercase">
-            <h1 class="text-white fw-bold">Мы работаем чтобы</h1>
+            <h1 class="text-white fw-bold">Мы работаем, чтобы</h1>
             <h1 class="text-white fw-800">вы отдыхали</h1>
         </div>
 
