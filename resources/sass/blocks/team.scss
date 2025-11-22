@@ -1,6 +1,9 @@
 .team-section {
     padding-top: 108px;
 
+    .ssr-carousel {
+       // pointer-events: none;
+    }
     .ssr-carousel-mask {
         padding-top: 31px;
     }

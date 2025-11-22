@@ -1,18 +1,18 @@
 <template>
     <section class="team-section container">
         <h2 class="team-section-title text-center">Наша команда:</h2>
-        <ssr-carousel v-model="slide" ref="teamCarousel" @drag:start="openTelegram" class="custom-carousel"
+        <ssr-carousel v-model="slide" ref="teamCarousel" @change="openTelegram" class="custom-carousel"
                       v-if="members.length > 0" show-dots :slides-per-page='1' paginate-by-slide>
-            <div v-for="(slide, slideIndex) in slides" :key="slideIndex" class="carousel-slide">
+            <div v-for="(slide, slideIndex) in slides" :key="slideIndex" class="carousel-slide" >
                 <div class="team-members-container">
                     <div v-for="(member, memberIndex) in slide"
                          :key="memberIndex"
                          class="team-member"
                          :class="{ 'top-row': memberIndex < memberIdx, 'bottom-row': memberIndex >= memberIdx }">
-                        <img :src="'/img/team/' + member.image_url" :alt="member.name">
+                        <img :class="{'placeholder': memberIndex < membersPerSlide  && slideIndex > 0}" :src="'/img/team/' + member.image_url" :alt="member.name">
                         <div class="team-member-content">
-                            <h3>{{ member.name }}</h3>
-                            <p>{{ member.position }}</p>
+                            <h3 :class="{'placeholder': memberIndex < membersPerSlide  && slideIndex > 0}">{{ member.name }}</h3>
+                            <p :class="{'placeholder': memberIndex < membersPerSlide  && slideIndex > 0}">{{ member.position }}</p>
                         </div>
                     </div>
                     <div v-for="emptySlot in emptySlots(slide.length)" :key="'empty-' + emptySlot"
@@ -45,9 +45,12 @@ export default {
     },
     methods: {
         openTelegram() {
-            this.slide = 0;
-            const telegramLink = 'https://t.me/put_club';
-            window.open(telegramLink, '_blank');
+            this.$nextTick(() => {
+                if (this.slide !== 0){
+                    this.slide = 0;
+                    window.open("https://t.me/put_club", '_blank');
+                }
+            })
         },
         createSlides() {
             this.membersPerSlide = 8;
