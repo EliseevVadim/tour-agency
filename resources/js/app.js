@@ -5,6 +5,7 @@ import SsrCarousel from 'vue-ssr-carousel'
 import ssrCarouselCss from 'vue-ssr-carousel/index.css'
 
 Vue.component('main-component', require('./App.vue').default);
+Vue.component('contacts-component', require('./client/Contacts.vue').default);
 
 Vue.component('app-footer', require('./client/components/Fragments/Footer.vue').default);
 Vue.component('app-header', require('./client/components/Fragments/Header.vue').default);

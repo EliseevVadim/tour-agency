@@ -26,6 +26,9 @@ require __DIR__ . '/admin.php';
 Route::get('/', function () {
     return view('main');
 });
+Route::get('/contacts', function () {
+   return view('contacts');
+});
 
 Route::get("/api/videos", [VideoController::class, 'getVideos']);
 Route::get("/api/clips", [ClipController::class, 'getClips']);

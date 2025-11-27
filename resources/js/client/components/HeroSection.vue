@@ -140,7 +140,8 @@ export default {
                 { link: '#directions', text: 'Наши направления' },
                 { link: '#training', text: 'Обучение' },
                 { link: '#team', text: 'Команда' },
-                { link: '#merch', text: 'Мерч' }
+                { link: '#merch', text: 'Мерч' },
+                { link: '/contacts', text: 'Контакты' }
             ],
         }
     },
