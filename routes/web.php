@@ -30,6 +30,7 @@ Route::get('/contacts', function () {
    return view('contacts');
 });
 
+Route::get("/api/contacts", [\App\Http\Controllers\DataController::class, 'getContacts']);
 Route::get("/api/videos", [VideoController::class, 'getVideos']);
 Route::get("/api/clips", [ClipController::class, 'getClips']);
 

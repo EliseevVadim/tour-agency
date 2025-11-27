@@ -2,8 +2,7 @@
 
 @section('admin_content')
     <div id="app">
-        <videos-component></videos-component>
+        <admin-contacts-component></admin-contacts-component>
     </div>
 @endsection
-
 

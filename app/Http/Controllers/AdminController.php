@@ -33,7 +33,7 @@ class AdminController extends Controller
 
             $this->initializeData();
 
-            return redirect()->route('admin.videos');
+            return redirect()->route('admin.team');
         }
 
         return back()->withErrors([
@@ -50,11 +50,6 @@ class AdminController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('admin.login.show');
-    }
-
-    public function dashboard()
-    {
-        return view('admin.videos');
     }
 
     public function initializeData(): string

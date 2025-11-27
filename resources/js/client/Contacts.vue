@@ -1,6 +1,30 @@
 <script>
+import axios from "axios";
+
 export default {
-    name: "Contacts"
+    name: "Contacts",
+    data() {
+        return {
+            contacts: []
+        }
+    },
+    methods: {
+        fetchContacts(){
+            axios.get('/api/contacts')
+                .then(response => {
+                    this.contacts = response.data;
+                })
+                .catch(error => {
+                    console.error('Ошибка при получении контактов:', error);
+                    if (error.response) {
+                        console.error('Error response data:', error.response.data);
+                    }
+                });
+        }
+    },
+    mounted() {
+        this.fetchContacts();
+    }
 }
 </script>
 
@@ -16,36 +40,36 @@ export default {
 
             <div class="contacts-wrapper">
                 <div class="contact-options">
-                    <div class="contact-item telegram">
+                    <a :href="contacts.telegram" target="_blank" class="contact-item text-decoration-none text-white telegram">
                         <div class="contacts-wrapper-icon">
                             <img src="/img/icons/telegram.svg" alt="Telegram"/>
                         </div>
                         <span>Telegram</span>
-                    </div>
-                    <div class="contact-item whatsapp">
+                    </a>
+                    <a :href="contacts.whatsapp" target="_blank" class="contact-item text-decoration-none text-white whatsapp">
                         <div class="contacts-wrapper-icon">
                             <img src="/img/icons/whatsapp.png" alt="Whatsapp"/>
                         </div>
                         <span>Whatsapp</span>
-                    </div>
-                    <div class="contact-item max">
+                    </a>
+                    <a :href="contacts.max" target="_blank" class="contact-item text-decoration-none text-white max">
                         <div class="contacts-wrapper-icon">
                             <img src="/img/icons/max.png" alt="Max"/>
                         </div>
                         <span>Max</span>
-                    </div>
-                    <div class="contact-item vkontakte">
+                    </a>
+                    <a :href="contacts.vk" target="_blank" class="contact-item text-decoration-none text-white vkontakte">
                         <div class="contacts-wrapper-icon">
                             <img src="/img/icons/vk.png" alt="Vkontakte"/>
                         </div>
                         <span>Vkontakte</span>
-                    </div>
-                    <div class="contact-item viber">
+                    </a>
+                    <a :href="contacts.viber" target="_blank" class="contact-item text-decoration-none text-white viber">
                         <div class="contacts-wrapper-icon">
                             <img src="/img/icons/viber.png" alt="Viber"/>
                         </div>
                         <span>Viber</span>
-                    </div>
+                    </a>
                 </div>
 
                 <div class="call-to-action">
