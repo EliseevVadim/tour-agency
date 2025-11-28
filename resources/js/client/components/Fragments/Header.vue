@@ -120,6 +120,35 @@ export default {
                 { link: '/contacts', text: 'Контакты' }
             ],
         }
+    },
+    mounted(){
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuCollapse = document.getElementById('mobileMenuContent');
+            const menuLinks = document.querySelectorAll('.main li a');
+
+            const closeMenu = () => {
+                if (mobileMenuCollapse) {
+                    mobileMenuCollapse.classList.remove('show');
+                    mobileMenuCollapse.setAttribute('aria-expanded', 'false');
+                }
+            };
+
+            menuLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    closeMenu();
+                    document.body.style.overflow = '';
+                });
+            });
+            const hamburgerButton = document.querySelector('[data-bs-toggle="collapse"][data-bs-target="#mobileMenuContent"]');
+            document.addEventListener('click', (event) => {
+                if (mobileMenuCollapse && mobileMenuCollapse.classList.contains('show')) {
+                    if (!mobileMenuCollapse.contains(event.target) && !hamburgerButton.contains(event.target)) {
+                        closeMenu();
+                        document.body.style.overflow = '';
+                    }
+                }
+            });
+        });
     }
 }
 </script>

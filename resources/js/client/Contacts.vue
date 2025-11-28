@@ -50,7 +50,7 @@ export default {
                         <div class="contacts-wrapper-icon">
                             <img src="/img/icons/whatsapp.png" alt="Whatsapp"/>
                         </div>
-                        <span>Whatsapp</span>
+                        <span>WhatsApp</span>
                     </a>
                     <a :href="contacts.max" target="_blank" class="contact-item text-decoration-none text-white max">
                         <div class="contacts-wrapper-icon">
