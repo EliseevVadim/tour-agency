@@ -21,6 +21,7 @@
         z-index: 3;
 
         .phone-screen {
+            opacity: 0;
             width: 332px;
             height: 576px;
             filter: drop-shadow(0 0 23px rgba(0, 0, 0, 0.29));
@@ -59,6 +60,7 @@
         width: 242px;
         height: 109px;
         border-bottom: 5px solid #e82c26;
+        opacity: 0;
 
         .card-wrapper {
             background: linear-gradient(0deg, black 0%, transparent 80%);
@@ -84,19 +86,25 @@
     .card-1 {
         top: 80px;
         left: -131px;
-        transform: rotate(5deg);
+        &.is-active{
+            transform: rotate(5deg) !important;
+        }
     }
 
     .card-2 {
         top: 227px;
         right: 10px;
-        transform: rotate(4deg);
+        &.is-active{
+            transform: rotate(4deg) !important;
+        }
     }
 
     .card-3 {
         top: 350px;
         left: -100px;
-        transform: rotate(2deg);
+        &.is-active{
+            transform: rotate(2deg) !important;
+        }
     }
 }
 

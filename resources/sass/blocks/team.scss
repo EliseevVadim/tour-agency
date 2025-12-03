@@ -52,6 +52,7 @@
 .team-member {
     position: relative;
     width: calc(25% - 20px);
+    opacity: 0;
 
     img {
         z-index: 1;

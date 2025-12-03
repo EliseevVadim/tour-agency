@@ -27,7 +27,7 @@
                 <div class="travel-card slide" v-for="slide in slides" :key="slide.id">
                     <a :href="slide.direct_url" target="_blank" class="travel-card-link">
                         <div class="travel-card__image-container">
-                            <img :src="slide.image" :alt="slide.title" class="travel-card__background-image" />
+                            <img :src="slide.image" :alt="slide.title" class="travel-card__background-image"/>
                         </div>
                     </a>
                 </div>
@@ -41,7 +41,7 @@ import axios from "axios";
 
 export default {
     name: "TravelDirectionsSection",
-    data(){
+    data() {
         return {
             slides: [],
             responsive: [
@@ -84,6 +84,21 @@ export default {
     },
     mounted() {
         this.fetchVideos();
+        document.addEventListener('scroll', debounceCrop);
+
+        function debounceCrop() {
+            document.querySelectorAll('.travel-card-link').forEach((el, idx) => {
+
+                const rect = el.getBoundingClientRect();
+                const isVisible =
+                    rect.top < window.innerHeight * (1 - 0.1) && rect.bottom > window.innerHeight * 0.1;
+                if (!isVisible) return;
+                el.classList.add('animate__animated', 'animate__fadeIn', 'animate__fast');
+                if (idx === 1) el.classList.add('animate__delay-0-5s');
+                if (idx === 2) el.classList.add('animate__delay-1s');
+                if (idx === 3) el.classList.add('animate__delay-1-5s');
+            });
+        }
     }
 }
 </script>

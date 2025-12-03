@@ -3,6 +3,7 @@ require('./bootstrap');
 import Vue from 'vue';
 import SsrCarousel from 'vue-ssr-carousel'
 import ssrCarouselCss from 'vue-ssr-carousel/index.css'
+import 'animate.css';
 
 Vue.component('main-component', require('./App.vue').default);
 Vue.component('contacts-component', require('./client/Contacts.vue').default);
@@ -32,6 +33,12 @@ Vue.component('admin-reviews-component', require('./admin/ReviewsComponent.vue')
 Vue.component('admin-contacts-component', require('./admin/ContactsComponent.vue').default);
 
 Vue.component('ssr-carousel', SsrCarousel);
+
+
+import { initPromoAnimation } from './animation';
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => initPromoAnimation());
+}
 
 const app = new Vue({
     el: '#app',

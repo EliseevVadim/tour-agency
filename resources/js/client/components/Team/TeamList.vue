@@ -41,7 +41,24 @@ export default {
         this.fetchTeam();
     },
     mounted() {
+        document.addEventListener('scroll', showAnimation);
 
+        function showAnimation() {
+            const teamContainer = document.querySelector('.team-members-container');
+
+            const rect = teamContainer.getBoundingClientRect();
+            const isVisible =
+                rect.top < window.innerHeight * (1 - 0.2) && rect.bottom > window.innerHeight * 0.2;
+            if (!isVisible) return;
+
+            document.querySelectorAll('.top-row').forEach((el, idx) => {
+                el.classList.add('animate__animated', 'animate__fadeInLeft', 'animate__slow');
+            })
+
+            document.querySelectorAll('.bottom-row').forEach((el, idx) => {
+                el.classList.add('animate__animated', 'animate__fadeInRight', 'animate__slow');
+            })
+        }
     },
     methods: {
         openTelegram() {

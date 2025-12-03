@@ -21,5 +21,24 @@
 <script>
 export default {
     name: "SouvenirPromo",
+    mounted() {
+        document.addEventListener('scroll', showAnimation);
+
+        function showAnimation() {
+            const sectionPromo = document.querySelector('.promo-souvenir');
+            const textBlock = document.querySelector('.promo-souvenir .text-block');
+            const souvenirMockup = document.querySelector('.souvenir-mockup');
+
+            console.log(textBlock)
+
+            const rect = sectionPromo.getBoundingClientRect();
+            const isVisible =
+                rect.top < window.innerHeight * (1 - 0.3) && rect.bottom > window.innerHeight * 0.3;
+            if (!isVisible) return;
+
+            textBlock.classList.add('animate__animated', 'animate__fadeInLeft', 'animate__slow');
+            souvenirMockup.classList.add('animate__animated', 'animate__fadeIn', 'animate__slow', 'animate__delay-1-5s');
+        }
+    }
 }
 </script>

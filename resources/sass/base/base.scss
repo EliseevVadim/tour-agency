@@ -2,6 +2,24 @@
     --bs-gutter-x: 2.5rem;
 }
 
+.animate__delay-0-5s {
+    animation-delay: 0.5s;
+}
+
+.animate__delay-1-5s {
+    animation-delay: 1.5s;
+}
+
+.animate__delay-2-5s {
+    animation-delay: 2.5s;
+}
+.animate__delay-3-5s {
+    animation-delay: 3.5s;
+}
+.animate__delay-4-5s {
+    animation-delay: 4.5s;
+}
+
 .hero-section {
     .logo-container {
         @media (max-width: 575px) {

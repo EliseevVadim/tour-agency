@@ -91,7 +91,7 @@ export default {
                             <div class="align-self-center d-flex flex-column text-area__content">
                                 <p>Остались вопросы или нужна помощь?</p>
                                 <p class="fw-bold">Звони прямо сейчас, и мы с радостью поможем!</p>
-                                <a class="phone-plate btn btn-cta py-2 align-content-center" href="tel:+79888883603">
+                                <a class="phone-plate btn btn-cta py-2 align-content-center" href="tel:+74951299996">
                                     ПОЗВОНИТЬ
                                 </a>
                             </div>

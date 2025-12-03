@@ -15,9 +15,9 @@
             </div>
 
             <div class="hero-top-bar-right d-block">
-                <a class="phone-plate btn btn-cta py-2 align-content-center" href="tel:+79888883603">
+                <a class="phone-plate btn btn-cta py-2 align-content-center" href="tel:+74951299996">
                     <img class="align-bottom" src="/img/phone-call.png" alt="phone">
-                    +7 (988)888-36-03
+                    +7(495) 129-99-96
                 </a>
             </div>
 
