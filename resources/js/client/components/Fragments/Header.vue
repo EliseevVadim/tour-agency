@@ -114,7 +114,7 @@ export default {
                 { link: '/#travel', text: 'О путешествиях' },
                 { link: '/#reviews', text: 'Отзывы' },
                 { link: '/#directions', text: 'Наши направления' },
-                { link: '/#training', text: 'Обучение' },
+                { link: '/#training', text: 'Курсы' },
                 { link: '/#team', text: 'Команда' },
                 { link: '/#merch', text: 'Мерч' },
                 { link: '/contacts', text: 'Контакты' }
