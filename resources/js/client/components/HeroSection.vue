@@ -1,6 +1,6 @@
 <template>
     <section class="hero-section d-flex flex-column justify-content-between"
-             style="min-height: 100vh; position: relative;">
+             style="position: relative;">
 
         <div class="hero-background"
              style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden;">
