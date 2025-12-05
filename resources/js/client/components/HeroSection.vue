@@ -118,7 +118,9 @@
         <div class="hero-bottom container py-3 d-flex justify-content-center">
             <div class="bg-opacity-50 bg-light rounded d-flex justify-content-center"
                  style="width: 630px; height: 547px">
-                СКОРО ЗДЕСЬ ЧТО-ТО БУДЕТ
+                <div class="tv-search-form tv-moduleid-9974653"></div>
+                <div class="tv-hot-tours tv-moduleid-9986629"></div>
+                <div class="tv-image-slider tv-moduleid-9986630"></div>
             </div>
         </div>
 

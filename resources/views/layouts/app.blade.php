@@ -18,6 +18,7 @@
 <div id="app">
     @yield('content')
 </div>
+<script type="text/javascript" src="//tourvisor.ru/module/init.js"></script>
 <script src="{{ asset('js/app.js') }}"></script>
 </body>
 </html>
