@@ -30,7 +30,7 @@
             </ssr-carousel>
         </div>
 
-        <h2>Горящие туры:</h2>
+        <h2 class="title-hot-tours">Горящие туры:</h2>
         <div id="hot-tours" class="tv-hot-tours tv-moduleid-9986629"></div>
     </section>
 </template>
