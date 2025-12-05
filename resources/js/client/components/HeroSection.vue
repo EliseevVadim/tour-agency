@@ -133,6 +133,7 @@ export default {
             menuItems: [
                 { link: '#first', text: 'Главная' },
                 { link: '#tours', text: 'Туры дня' },
+                { link: '#hot-tours', text: 'Горящие туры' },
                 { link: '#discount', text: 'Акции и скидки' },
                 { link: '#travel', text: 'О путешествиях' },
                 { link: '#reviews', text: 'Отзывы' },

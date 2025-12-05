@@ -31,7 +31,7 @@
         </div>
 
         <h2>Горящие туры:</h2>
-        <div class="tv-hot-tours tv-moduleid-9986629"></div>
+        <div id="hot-tours" class="tv-hot-tours tv-moduleid-9986629"></div>
     </section>
 </template>
 
