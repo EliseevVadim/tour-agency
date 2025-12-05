@@ -4,7 +4,7 @@
 
         <div class="container-fluid container-xl promo-content">
             <div class="text-block animate__animated">
-                <h2 class="fw-bold">Горящие туры, акции и скидки</h2>
+                <h2 class="fw-bold">Акции и скидки</h2>
                 <h3 class="mb-3">можно посмотреть у нас в Telegram</h3>
                 <a href="https://t.me/put_club" target="_blank" class="btn btn-cta btn-open rounded-3">посмотреть</a>
             </div>
