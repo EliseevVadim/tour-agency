@@ -1,5 +1,11 @@
 <template>
     <div class="main">
+        <div class="loader" v-if="loading">
+            <div class="loader__dot"></div>
+            <div class="loader__dot"></div>
+            <div class="loader__dot"></div>
+        </div>
+
         <first-screen id="first" :class="{ 'active': activeAnchor == '#first' }" @set-active-link="handleSetActiveLink"></first-screen>
         <tour-slider id="tours" :class="{ 'active': activeAnchor == '#tours' }"></tour-slider>
         <telegram-promo id="discount" :class="{ 'active': activeAnchor == '#discount' }"></telegram-promo>
@@ -21,10 +27,14 @@ export default {
             activeAnchor: null,
             sectionObserver: null,
             menuLinks: [],
-            sectionElements: []
+            sectionElements: [],
+            loading: true
         }
     },
     mounted() {
+        setTimeout(()=>{
+            this.loading = false;
+        },3000);
         document.addEventListener('DOMContentLoaded', () => {
             const mobileMenuCollapse = document.getElementById('mobileMenuContent');
             const body = document.body;

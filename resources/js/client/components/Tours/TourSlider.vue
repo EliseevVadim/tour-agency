@@ -93,9 +93,11 @@ export default {
             return '';
         },
     },
-    mounted() {
+    created() {
         this.fetchClips();
-        document.addEventListener('scroll', debounceCrop);
+    },
+    mounted() {
+        /*document.addEventListener('scroll', debounceCrop);
 
         function debounceCrop() {
             document.querySelectorAll('.tour-card-link').forEach((el, idx) => {
@@ -108,7 +110,7 @@ export default {
                 if (idx === 2) el.classList.add('animate__delay-1s');
                 if (idx === 3) el.classList.add('animate__delay-1-5s');
             })
-        }
+        }*/
     }
 }
 </script>

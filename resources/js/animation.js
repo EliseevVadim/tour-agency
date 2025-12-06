@@ -42,7 +42,7 @@ export function initPromoAnimation() {
             }
 
             animateCSS('.floating-card', 'animate__fadeInLeft').then((message) => {
-                card.classList.add('is-active');
+                card.classList.add('is-active', 'opacity-100');
             });
             animateCSS('.floating-card', 'animate__fadeInRight').then((message) => {
                 card.classList.add('is-active');
