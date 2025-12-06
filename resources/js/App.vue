@@ -81,6 +81,14 @@ export default {
                 }
             });
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.location.hash) {
+                setTimeout(function() {
+                    window.location.href = window.location.hash;
+                }, 800);
+            }
+        });
     },
     methods: {
         handleSetActiveLink(link) {

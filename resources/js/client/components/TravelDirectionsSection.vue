@@ -87,7 +87,7 @@ export default {
         document.addEventListener('scroll', debounceCrop);
 
         function debounceCrop() {
-            document.querySelectorAll('.travel-card-link').forEach((el, idx) => {
+            document.querySelectorAll('.travel-card').forEach((el, idx) => {
 
                 const rect = el.getBoundingClientRect();
                 const isVisible =

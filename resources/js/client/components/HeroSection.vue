@@ -21,7 +21,9 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="logo-container">
-                    <img class="logo" src="/img/logo.png" alt="logo">
+                    <a href="/">
+                        <img class="logo" src="/img/logo.png" alt="logo">
+                    </a>
                 </div>
             </div>
 
@@ -141,7 +143,7 @@ export default {
                 { link: '#training', text: 'Курсы' },
                 { link: '#team', text: 'Команда' },
                 { link: '#merch', text: 'Мерч' },
-                { link: '/contacts', text: 'Контакты' }
+                { link: 'contacts', text: 'Контакты' }
             ],
         }
     },

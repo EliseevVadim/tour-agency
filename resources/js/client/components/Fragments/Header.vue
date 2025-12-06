@@ -10,7 +10,9 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="logo-container">
-                    <img class="logo" src="/img/logo.png" alt="logo">
+                    <a href="/">
+                        <img class="logo" src="/img/logo.png" alt="logo">
+                    </a>
                 </div>
             </div>
 
@@ -108,7 +110,7 @@ export default {
         return {
             activeLink: "/contacts",
             menuItems: [
-                { link: '/#first', text: 'Главная' },
+                { link: '#first', text: 'Главная' },
                 { link: '/#tours', text: 'Туры дня' },
                 { link: '/#hot-tours', text: 'Горящие туры' },
                 { link: '/#discount', text: 'Акции и скидки' },
@@ -118,7 +120,7 @@ export default {
                 { link: '/#training', text: 'Курсы' },
                 { link: '/#team', text: 'Команда' },
                 { link: '/#merch', text: 'Мерч' },
-                { link: '/contacts', text: 'Контакты' }
+                { link: 'contacts', text: 'Контакты' }
             ],
         }
     },
