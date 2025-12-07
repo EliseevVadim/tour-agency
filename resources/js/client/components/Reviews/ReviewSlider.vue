@@ -85,14 +85,14 @@ export default {
         updateCarouselResponsive() {
             this.carouselResponsive = [
                 {
-                    maxWidth: 1365,
+                    maxWidth: 1479,
                     slidesPerPage: 1,
                     center: true,
                     gutter: 10,
                     peek: 0
                 },
                 {
-                    minWidth: 1366,
+                    minWidth: 1480,
                     slidesPerPage: this.slidesPerPage,
                 }
             ];
