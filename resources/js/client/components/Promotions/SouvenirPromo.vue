@@ -29,8 +29,6 @@ export default {
             const textBlock = document.querySelector('.promo-souvenir .text-block');
             const souvenirMockup = document.querySelector('.souvenir-mockup');
 
-            console.log(textBlock)
-
             const rect = sectionPromo.getBoundingClientRect();
             const isVisible =
                 rect.top < window.innerHeight * (1 - 0.3) && rect.bottom > window.innerHeight * 0.3;

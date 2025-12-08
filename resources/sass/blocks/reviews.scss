@@ -1,6 +1,10 @@
 .reviews-section {
     padding-top: 47px;
 
+    .ssr-carousel-slides {
+        height: 100%;
+    }
+
     @media (max-width: 576px) {
         padding-top: 0;
 

@@ -45,6 +45,7 @@ export default {
 
         function showAnimation() {
             const teamContainer = document.querySelector('.team-members-container');
+            if (!teamContainer) return;
 
             const rect = teamContainer.getBoundingClientRect();
             const isVisible =

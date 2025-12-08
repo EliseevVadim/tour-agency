@@ -4,7 +4,8 @@
             <h2 class="reviews-title text-center">Отзывы клиентов:</h2>
             <div class="reviews-slider">
                 <ssr-carousel v-if="reviews.length > 0" :slides-per-page='1' paginate-by-slide show-arrows
-                              :responsive='carouselResponsive'>
+                              :responsive='carouselResponsive' v-model="activeSlide" @change="changeSlide"
+                              :style="{ height: this.carouselHeight }">
                     <template #back-arrow='{ disabled }'>
                         <span class="carousel-left-icon reviews-carousel-left-icon" :class="{'disabled': disabled}"></span>
                     </template>
@@ -50,6 +51,8 @@ export default {
             currentImageUrl: '',
             reviews: [],
             carouselResponsive: [],
+            carouselHeight: '500px',
+            activeSlide: null
         }
     },
     computed: {
@@ -97,6 +100,20 @@ export default {
                 }
             ];
         },
+        changeSlide(slide){
+            this.$nextTick(() => {
+                const items = document.querySelectorAll('.review-card');
+
+                if (!items || items.length === 0) {
+                    console.warn('Элементы .review-card не найдены в контейнере.');
+                    return;
+                }
+
+                const itemReview = items[this.activeSlide === null ? 0 : this.activeSlide];
+                const reviewSize = itemReview.getBoundingClientRect();
+                this.carouselHeight = reviewSize.height + 45 + 'px'
+            });
+        }
     },
     mounted() {
         this.fetchReviews();
@@ -106,6 +123,14 @@ export default {
         'reviews.length': {
             handler() {
                 this.updateCarouselResponsive();
+            },
+            immediate: true
+        },
+        activeSlide: {
+            handler() {
+                setTimeout(()=>{
+                    this.changeSlide();
+                },2500);
             },
             immediate: true
         }
