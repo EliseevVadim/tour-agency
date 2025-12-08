@@ -169,6 +169,21 @@
     }
 }
 
+.center-play-btn{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+
+    img {
+        width: 55px;
+    }
+}
+
 .hero-section {
     .logo-container {
         @media (max-width: 575px) {

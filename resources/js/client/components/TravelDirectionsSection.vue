@@ -27,6 +27,9 @@
                 <div class="travel-card slide" v-for="slide in slides" :key="slide.id">
                     <a :href="slide.direct_url" target="_blank" class="travel-card-link">
                         <div class="travel-card__image-container">
+                            <div class="center-play-btn">
+                                <img src="/img/icons/play.svg" alt="play Video">
+                            </div>
                             <img :src="slide.image" :alt="slide.title" class="travel-card__background-image"/>
                         </div>
                     </a>

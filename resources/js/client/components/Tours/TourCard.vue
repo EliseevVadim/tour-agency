@@ -1,7 +1,10 @@
 <template>
     <a :href="tourUrl" target="_blank" class="tour-card-link">
         <div class="tour-card slide">
-            <img :src="imageUrl" :alt="altText">
+            <div class="center-play-btn">
+                <img src="/img/icons/play.svg" alt="play Shorts">
+            </div>
+            <img class="tour-card__image" :src="imageUrl" :alt="altText">
             <div v-if="badgeType" class="tour-card__badge">
                 <p class="tour-badge__text fw-medium">{{ badgeText }}</p>
             </div>
