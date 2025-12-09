@@ -1,6 +1,6 @@
 <template>
     <div class="course-page">
-        <app-header></app-header>
+        <app-header class="hero-section_dark"></app-header>
 
         <course-hero></course-hero>
         <target-audience-list></target-audience-list>

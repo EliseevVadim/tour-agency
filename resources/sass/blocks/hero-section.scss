@@ -1,6 +1,15 @@
 .hero-section {
     overflow-x: clip;
 
+    &.hero-section_dark {
+        background: #282a29;
+
+        .hero-top-bar {
+            padding-bottom: 15px;
+            padding-top: 15px;
+        }
+    }
+
     .logo {
         width: 166px;
     }
@@ -16,9 +25,7 @@
         left: 0;
         top: 0;
         height: 100%;
-        padding-left: 25px;
-        padding-top: 8px;
-        padding-right: 10px;
+        padding: 8px 10px 0 25px;
         z-index: 11111;
         transform: translateX(-100%);
         transition: transform 0.3s ease-out;
@@ -36,12 +43,22 @@
                 align-items: center;
                 position: relative;
 
-                &.active {
-                    a {
-                        color: white;
-                    }
+                a {
+                    color: white;
+                    font-weight: bold;
+                    letter-spacing: 0.3px;
+                    font-size: 17px;
+                    text-decoration: none;
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                    height: 100%;
+                    width: 100%;
+                }
 
-                    a:before {
+                &.active,
+                &:hover {
+                    a::before {
                         content: "";
                         border-left: 2px solid $color-ta-red;
                         position: absolute;
@@ -52,31 +69,10 @@
                     }
                 }
 
-                &:hover {
-                    a:before {
-                        content: "";
-                        border-left: 2px solid $color-ta-red;
-                        position: absolute;
-                        height: 27px;
-                        top: 5px;
-                        left: -6px;
-                        border-radius: 10px;
-                    }
+                &.active a {
+                    color: white;
                 }
             }
-        }
-
-        .main a {
-            color: white;
-            font-weight: bold;
-            letter-spacing: 0.3px;
-            font-size: 17px;
-            text-decoration: none;
-            position: relative;
-            display: flex;
-            align-items: center;
-            height: 100%;
-            width: 100%;
         }
 
         .social-icons-menu {
@@ -96,7 +92,7 @@
                 }
 
                 li.active {
-                    a:before {
+                    a::before {
                         height: 22px !important;
                     }
                 }
@@ -113,14 +109,8 @@
         }
     }
 
-    @media (max-width: 575px) {
-        .hero-top-bar-left {
-            gap: 1rem !important;
-        }
-    }
-
     .mobile-menu.collapse.show {
-        transform: translateX(0); /* Перемещаем в видимое положение */
+        transform: translateX(0);
     }
 
     .mobile-menu.collapsing {
@@ -158,6 +148,12 @@
             border: none;
             background: none;
             outline: none;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .hero-top-bar-left {
+            gap: 1rem !important;
         }
     }
 }

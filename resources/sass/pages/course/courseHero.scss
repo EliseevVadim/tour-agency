@@ -1,0 +1,114 @@
+.course-hero {
+    margin-top: 25px;
+
+    .hero-content-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/img/course-hero.png');
+        background-size: cover;
+        background-position: bottom;
+        border-radius: 55px;
+        padding: 205px 80px 10px;
+        margin-bottom: 50px;
+    }
+
+    .hero-main-text {
+        margin-bottom: 125px;
+    }
+
+    .hero-main-title {
+        color: white;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .hero-highlight-title {
+        color: $color-ta-red;
+        font-weight: 900;
+        text-transform: uppercase;
+    }
+
+    .hero-subtitle {
+        color: white;
+        font-size: 2rem;
+        line-height: 1;
+        padding-left: 80px;
+        padding-right: 80px;
+    }
+
+    .scroll-indicator {
+        display: block;
+        text-decoration: none;
+        /* Анимация: pulse animation */
+    }
+
+    .scroll-arrow-container {
+        width: 50px;
+        height: 50px;
+        background: rgba(235, 45, 38, 0.4);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .scroll-arrow-container:hover {
+        background: rgba(235, 45, 38, 0.6);
+    }
+
+    .scroll-arrow {
+        width: 74px;
+        height: 74px;
+        color: white;
+        //animation: bounce 1.5s infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(5px);
+        }
+    }
+
+    .hero-lower-content {
+        text-align: center;
+    }
+
+    .lower-title {
+        margin-bottom: 20px;
+    }
+
+    .lower-description {
+        font-size: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .hero-content-wrapper {
+            padding: 50px 25px 10px;
+        }
+        .hero-main-title {
+            font-size: 18px;
+        }
+        .hero-subtitle {
+            font-size: 15px;
+            padding-left: 40px;
+            padding-right: 40px;
+        }
+        .hero-main-text {
+            margin-bottom: 30px;
+        }
+        .scroll-arrow-container {
+            width: 30px;
+            height: 30px;
+        }
+        .lower-description {
+            font-size: 15px;
+        }
+    }
+}

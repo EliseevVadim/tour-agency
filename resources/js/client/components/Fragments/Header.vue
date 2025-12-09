@@ -110,7 +110,7 @@ export default {
         return {
             activeLink: "/contacts",
             menuItems: [
-                { link: '#first', text: 'Главная' },
+                { link: '/', text: 'Главная' },
                 { link: '/#tours', text: 'Туры дня' },
                 { link: '/#hot-tours', text: 'Горящие туры' },
                 { link: '/#discount', text: 'Акции и скидки' },
