@@ -1,0 +1,166 @@
+.course-modules-section {
+    .course-modules-container {
+        display: flex;
+        flex-flow: row;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .course-modules-left {
+        .course-modules-header {
+            margin-bottom: 25px;
+        }
+
+        .course-description {
+            font-size: 1.8rem;
+            line-height: 1;
+        }
+    }
+
+    .course-modules-right {
+        .gradient-circle {
+            width: 390px;
+            height: 390px;
+            border-radius: 100%;
+            background-image: linear-gradient(to right, $btn-cta-gradient-start, $btn-cta-gradient-end);
+        }
+
+        .course-modules-cards {
+            width: 100%;
+            height: 100%;
+            position: relative;
+
+            .course-card {
+                position: absolute;
+                border-radius: 10px;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size: cover;
+                text-align: center;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                .card-line-bg {
+                    width: 100%;
+                    background-image: linear-gradient(to right, $btn-cta-gradient-start, $btn-cta-gradient-end);
+                    padding: 15px 10px;
+                }
+
+                .card-title {
+                    font-weight: 900;
+                    font-size: 1.8rem;
+                }
+
+                .card-subtitle {
+                    line-height: 1;
+                }
+            }
+
+            .course-card-1 {
+                background-image: url("/img/course-modules/module-1.png");
+                height: 385px !important;
+                width: 285px;
+                transform: rotate(-3deg);
+                top: 15px;
+                left: 15px;
+            }
+
+            .course-card-2 {
+                background-image: url("/img/course-modules/module-2.png");
+                height: 343px !important;
+                width: 250px;
+                transform: rotate(3.5deg);
+                right: 80px;
+                bottom: -30px;
+            }
+
+            .course-card-3 {
+                background-image: url("/img/course-modules/module-3.png");
+                height: 319px !important;
+                width: 246px;
+                transform: rotate(7.5deg);
+                right: 0;
+                bottom: -60px;
+            }
+        }
+    }
+
+    .course-modules-list {
+        margin-top: 80px;
+
+        .ssr-carousel-track {
+            .module-card {
+                width: 100%;
+            }
+        }
+
+        .module-card {
+            position: relative;
+
+            .skewed-bg {
+                width: 100%;
+                height: 100%;
+                background-color: #f1f1f1;
+                clip-path: polygon(0 0, 100% 0, 100% 93%, 0 100%);
+                position: absolute;
+                left: 0;
+                z-index: -1;
+            }
+        }
+
+        .module-card-container {
+            padding-top: 40px;
+            padding-bottom: 20px;
+
+            .module-card-title {
+                color: $color-ta-red;
+                font-weight: 900;
+                margin-bottom: 10px;
+            }
+
+            .module-card-subtitle {
+                margin-bottom: 10px;
+            }
+
+            .module-card-description {
+                font-size: 1.47rem;
+                font-weight: 500;
+                line-height: 1;
+            }
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .course-modules-container {
+            flex-flow: column;
+            gap: 85px;
+        }
+
+        .course-modules-left .course-description {
+            font-size: 1.15rem;
+        }
+
+        .course-modules-left .course-modules-header {
+            margin-bottom: 5px;
+        }
+
+        .course-modules-right {
+            order: -1;
+        }
+
+        .course-modules-list {
+            .ssr-carousel-slides {
+                height: 100%;
+            }
+
+            margin-top: 40px;
+        }
+
+        .module-card-container {
+            .module-card-description {
+                font-size: 1.15rem !important;
+            }
+        }
+    }
+}

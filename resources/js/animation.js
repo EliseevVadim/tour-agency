@@ -24,6 +24,7 @@ export function initPromoAnimation() {
     const textBlock = document.querySelector('.promo-content .text-block');
 
     const checkVisibilityDiscount = () => {
+        if (!phoneContainer) return;
         const rect = phoneContainer.getBoundingClientRect();
         const isVisible =
             rect.top < window.innerHeight * (1 - threshold) && rect.bottom > window.innerHeight * threshold;
@@ -53,6 +54,7 @@ export function initPromoAnimation() {
     const benefitsContainer = document.querySelector('.benefits-container');
     const benefitsItems = document.querySelectorAll('.benefits-item');
     const checkVisibilityBenefits = () => {
+        if (!benefitsContainer) return;
         const rect = benefitsContainer.getBoundingClientRect();
         const isVisible =
             rect.top < window.innerHeight * (1 - threshold) && rect.bottom > window.innerHeight * threshold;
