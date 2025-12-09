@@ -1,0 +1,61 @@
+.faq-chat-section {
+    margin-top: 155px;
+    margin-bottom: 100px;
+
+    @media (max-width: 767.98px) {
+        margin-top: 44px;
+        margin-bottom: 40px;
+
+        .chat-icon-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        .chat-icon-image {
+            width: 200px;
+        }
+        .chat-button {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+    }
+}
+
+.chat-content-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+    margin: 45px auto 0;
+    background-color: white;
+    border-radius: 37px;
+    padding: 40px 30px;
+    box-shadow: 0 0 19.5px 1.5px rgba(0, 0, 0, 0.19);
+
+    .chat-text-content {
+        margin-bottom: 15px;
+    }
+
+    .chat-description {
+        font-size: 1.47rem;
+        line-height: 1;
+    }
+}
+
+.chat-icon-container {
+    flex-shrink: 0;
+    width: 292px;
+}
+
+.chat-icon-image {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.chat-right-content {
+    flex-grow: 1;
+    flex-basis: 0;
+    min-width: 250px;
+}
