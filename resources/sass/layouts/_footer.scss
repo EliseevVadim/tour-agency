@@ -3,6 +3,10 @@
     background-image: linear-gradient(to right, $btn-cta-gradient-start, $btn-cta-gradient-end);
     color: #ffffff;
 
+    &__wrapper {
+        background: rgba(0, 0, 0, 0.3);
+    }
+
     .ip-details {
         list-style: none;
         line-height: 1.41;

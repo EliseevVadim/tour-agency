@@ -29,6 +29,12 @@ Route::get('/', function () {
 Route::get('/contacts', function () {
    return view('contacts');
 });
+Route::get('/shop', function () {
+   return view('shop');
+});
+Route::get('/courses', function () {
+   return view('courses');
+});
 
 Route::get("/api/contacts", [\App\Http\Controllers\DataController::class, 'getContacts']);
 Route::get("/api/videos", [VideoController::class, 'getVideos']);

@@ -1,10 +1,10 @@
 <template>
     <section v-if="!loading && slides.length > 0" class="travel-directions-section">
-        <div class="coconut-background coconut-right"></div>
+        <div v-if="isShowCoconut" class="coconut-background coconut-right"></div>
         <div class="line-gradient-background"></div>
 
         <div class=" container-fluid overflow-hidden">
-            <h2 class="travel-directions-title text-center">Наши направления:</h2>
+            <h2 class="travel-directions-title text-center" :class="titleStyle">{{ title }}:</h2>
 
             <ssr-carousel v-if="slides.length > 0" show-arrows show-dots :slidesPerPage="1" overflow-visible
                           paginate-by-slide peek-right='3%' peek-left='3%' gutter='30'
@@ -44,6 +44,20 @@ import axios from "axios";
 
 export default {
     name: "TravelDirectionsSection",
+    props: {
+        title: {
+            type: String,
+            default: "Наши направления"
+        },
+        isShowCoconut: {
+            type: Boolean,
+            default: true
+        },
+        titleStyle: {
+            type: String,
+            default: ''
+        }
+    },
     data() {
         return {
             slides: [],

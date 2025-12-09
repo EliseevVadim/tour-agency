@@ -27,6 +27,16 @@ Vue.component('benefits-section', require('./client/components/Benefits.vue').de
 Vue.component('travel-directions', require('./client/components/TravelDirectionsSection.vue').default);
 Vue.component('first-screen', require('./client/components/HeroSection.vue').default);
 
+Vue.component('main-shop-content', require('./client/modules/shop/MerchStore.vue').default);
+
+
+Vue.component('main-courses-content', require('./client/modules/course/CoursePage.vue').default);
+Vue.component('course-hero', require('./client/modules/course/components/CourseHero.vue').default);
+Vue.component('target-audience-list', require('./client/modules/course/components/TargetAudienceList.vue').default);
+Vue.component('course-modules-summary', require('./client/modules/course/components/CourseModulesSummary.vue').default);
+Vue.component('pricing-selector', require('./client/modules/course/components/PricingSelector.vue').default);
+Vue.component('faq-or-contact', require('./client/modules/course/components/FaqOrContact.vue').default);
+
 
 Vue.component('admin-team-component', require('./admin/TeamComponent.vue').default);
 Vue.component('admin-reviews-component', require('./admin/ReviewsComponent.vue').default);

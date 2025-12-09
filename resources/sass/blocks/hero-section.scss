@@ -1,5 +1,6 @@
 .hero-section {
     overflow-x: clip;
+
     .logo {
         width: 166px;
     }
@@ -10,7 +11,7 @@
 
     .mobile-menu {
         position: fixed;
-        background: rgba(0,0,0,0.2);
+        background: rgba(0, 0, 0, 0.2);
         backdrop-filter: blur(8px);
         left: 0;
         top: 0;
@@ -158,6 +159,15 @@
             background: none;
             outline: none;
         }
+    }
+}
+
+.hero-section-absolute {
+    background: rgba(0, 0, 0, 0.3);
+
+    .hero-top-bar {
+        padding-bottom: 15px;
+        padding-top: 15px;
     }
 }
 
