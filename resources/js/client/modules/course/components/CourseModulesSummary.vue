@@ -2,9 +2,9 @@
     <section class="course-modules-section">
         <div class="course-modules-container container container-xl">
             <div class="course-modules-left">
-                <h2 class="course-modules-header title-course">ОБ ОБУЧЕНИИ:</h2>
+                <h2 class="course-modules-header title-course">ОБ КУРСЕ:</h2>
                 <p class="course-description">
-                    Наше обучение включает в себя
+                    Наш курс включает в себя
                     <span class="fw-800">9 уникальных модулей,</span> каждый
                     из которых поможет тебе стать экспертом в мире туризма
                     и подготовит к успешной карьере.

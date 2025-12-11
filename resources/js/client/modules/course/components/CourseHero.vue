@@ -1,6 +1,14 @@
 <template>
     <section class="course-hero container-fluid container-xl">
         <div class="hero-content-wrapper">
+            <div class="hero-background-video">
+                <video class="h-100 w-100" autoplay muted loop playsinline>
+                    <source src="/videos/movie.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div v-if="false" class="hero-background-image">
+                <img src="/img/course-hero.png" alt="Hero Background">
+            </div>
             <div class="hero-main-text">
                 <h2 class="hero-main-title">Авторский курс</h2>
                 <h1 class="hero-highlight-title">«ПУТЬ В ТУРИЗМ»</h1>
@@ -13,11 +21,10 @@
                     </svg>
                 </div>
             </a>
-
         </div>
 
         <div class="hero-lower-content">
-            <h2 class="lower-title">Наше авторское обучение <span class="fw-800">«Путь в туризм»</span></h2>
+            <h2 class="lower-title">Наш авторский курс <span class="fw-800">«Путь в туризм»</span></h2>
             <p class="lower-description">
                 это не просто курс, это твоя уникальная возможность изменить жизнь, начать карьеру, которая позволит
                 тебе работать из любой части нашей планеты — будь то пляжи Мальдив, горы Швейцарии или уютные уголки

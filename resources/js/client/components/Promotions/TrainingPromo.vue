@@ -12,7 +12,7 @@
                 <h2 class="promo-title"><span>Профессиональный</span> курс</h2>
                 <p class="promo-description">Наш авторский курс для людей которые хотят работать в сфере туризма на
                     полную или частичную занятость, или путешествовать с огромными скидками.</p>
-                <a href="#" class="btn btn-cta btn-open rounded-3">посмотреть</a>
+                <a href="/courses" class="btn btn-cta btn-open rounded-3">посмотреть</a>
             </div>
         </div>
     </section>
