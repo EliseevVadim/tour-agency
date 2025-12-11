@@ -15,36 +15,36 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="miniOldPrice" class="form-label">Старая цена</label>
+                                <label for="minipriceOld" class="form-label">Старая цена</label>
                                 <div class="price-input-wrapper">
-                                    <input type="hidden" id="miniOldPriceHidden"
-                                           v-model.number="packages.mini.oldPrice">
+                                    <input type="hidden" id="minipriceOldHidden"
+                                           v-model.number="packages.mini.priceOld">
 
                                     <input type="text"
                                            autocomplete="off"
                                            class="form-control price-display"
-                                           id="miniOldPriceDisplay"
-                                           :value="formattedPrice(packages.mini.oldPrice)"
-                                           @input="updatePrice('mini', 'oldPrice', $event.target.value)"
-                                           @blur="handleBlur('mini', 'oldPrice')"
-                                           @focus="handleFocus('mini', 'oldPrice')"
+                                           id="minipriceOldDisplay"
+                                           :value="formattedPrice(packages.mini.priceOld)"
+                                           @input="updatePrice('mini', 'priceOld', $event.target.value)"
+                                           @blur="handleBlur('mini', 'priceOld')"
+                                           @focus="handleFocus('mini', 'priceOld')"
                                            placeholder="14 500">
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label for="miniNewPrice" class="form-label">Новая цена</label>
+                                <label for="minipriceNew" class="form-label">Новая цена</label>
                                 <div class="price-input-wrapper">
-                                    <input type="hidden" id="miniNewPriceHidden"
-                                           v-model.number="packages.mini.newPrice">
+                                    <input type="hidden" id="minipriceNewHidden"
+                                           v-model.number="packages.mini.priceNew">
                                     <input type="text"
                                            autocomplete="off"
                                            class="form-control price-display"
-                                           id="miniNewPriceDisplay"
-                                           :value="formattedPrice(packages.mini.newPrice)"
-                                           @input="updatePrice('mini', 'newPrice', $event.target.value)"
-                                           @blur="handleBlur('mini', 'newPrice')"
-                                           @focus="handleFocus('mini', 'newPrice')"
+                                           id="minipriceNewDisplay"
+                                           :value="formattedPrice(packages.mini.priceNew)"
+                                           @input="updatePrice('mini', 'priceNew', $event.target.value)"
+                                           @blur="handleBlur('mini', 'priceNew')"
+                                           @focus="handleFocus('mini', 'priceNew')"
                                            placeholder="14 500">
                                 </div>
                             </div>
@@ -72,36 +72,36 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="miniOldPrice" class="form-label">Старая цена</label>
+                                <label for="minipriceOld" class="form-label">Старая цена</label>
                                 <div class="price-input-wrapper">
-                                    <input type="hidden" id="miniOldPriceHidden"
-                                           v-model.number="packages.opti.oldPrice">
+                                    <input type="hidden" id="minipriceOldHidden"
+                                           v-model.number="packages.opti.priceOld">
 
                                     <input type="text"
                                            autocomplete="off"
                                            class="form-control price-display"
-                                           id="miniOldPriceDisplay"
-                                           :value="formattedPrice(packages.opti.oldPrice)"
-                                           @input="updatePrice('opti', 'oldPrice', $event.target.value)"
-                                           @blur="handleBlur('opti', 'oldPrice')"
-                                           @focus="handleFocus('opti', 'oldPrice')"
+                                           id="minipriceOldDisplay"
+                                           :value="formattedPrice(packages.opti.priceOld)"
+                                           @input="updatePrice('opti', 'priceOld', $event.target.value)"
+                                           @blur="handleBlur('opti', 'priceOld')"
+                                           @focus="handleFocus('opti', 'priceOld')"
                                            placeholder="14 500">
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label for="miniNewPrice" class="form-label">Новая цена</label>
+                                <label for="minipriceNew" class="form-label">Новая цена</label>
                                 <div class="price-input-wrapper">
-                                    <input type="hidden" id="miniNewPriceHidden"
-                                           v-model.number="packages.opti.newPrice">
+                                    <input type="hidden" id="minipriceNewHidden"
+                                           v-model.number="packages.opti.priceNew">
                                     <input type="text"
                                            autocomplete="off"
                                            class="form-control price-display"
-                                           id="miniNewPriceDisplay"
-                                           :value="formattedPrice(packages.opti.newPrice)"
-                                           @input="updatePrice('opti', 'newPrice', $event.target.value)"
-                                           @blur="handleBlur('opti', 'newPrice')"
-                                           @focus="handleFocus('opti', 'newPrice')"
+                                           id="minipriceNewDisplay"
+                                           :value="formattedPrice(packages.opti.priceNew)"
+                                           @input="updatePrice('opti', 'priceNew', $event.target.value)"
+                                           @blur="handleBlur('opti', 'priceNew')"
+                                           @focus="handleFocus('opti', 'priceNew')"
                                            placeholder="14 500">
                                 </div>
                             </div>
@@ -129,36 +129,36 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="miniOldPrice" class="form-label">Старая цена</label>
+                                <label for="minipriceOld" class="form-label">Старая цена</label>
                                 <div class="price-input-wrapper">
-                                    <input type="hidden" id="miniOldPriceHidden"
-                                           v-model.number="packages.maxi.oldPrice">
+                                    <input type="hidden" id="minipriceOldHidden"
+                                           v-model.number="packages.maxi.priceOld">
 
                                     <input type="text"
                                            autocomplete="off"
                                            class="form-control price-display"
-                                           id="miniOldPriceDisplay"
-                                           :value="formattedPrice(packages.maxi.oldPrice)"
-                                           @input="updatePrice('maxi', 'oldPrice', $event.target.value)"
-                                           @blur="handleBlur('maxi', 'oldPrice')"
-                                           @focus="handleFocus('maxi', 'oldPrice')"
+                                           id="minipriceOldDisplay"
+                                           :value="formattedPrice(packages.maxi.priceOld)"
+                                           @input="updatePrice('maxi', 'priceOld', $event.target.value)"
+                                           @blur="handleBlur('maxi', 'priceOld')"
+                                           @focus="handleFocus('maxi', 'priceOld')"
                                            placeholder="14 500">
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label for="miniNewPrice" class="form-label">Новая цена</label>
+                                <label for="minipriceNew" class="form-label">Новая цена</label>
                                 <div class="price-input-wrapper">
-                                    <input type="hidden" id="miniNewPriceHidden"
-                                           v-model.number="packages.maxi.newPrice">
+                                    <input type="hidden" id="minipriceNewHidden"
+                                           v-model.number="packages.maxi.priceNew">
                                     <input type="text"
                                            autocomplete="off"
                                            class="form-control price-display"
-                                           id="miniNewPriceDisplay"
-                                           :value="formattedPrice(packages.maxi.newPrice)"
-                                           @input="updatePrice('maxi', 'newPrice', $event.target.value)"
-                                           @blur="handleBlur('maxi', 'newPrice')"
-                                           @focus="handleFocus('maxi', 'newPrice')"
+                                           id="minipriceNewDisplay"
+                                           :value="formattedPrice(packages.maxi.priceNew)"
+                                           @input="updatePrice('maxi', 'priceNew', $event.target.value)"
+                                           @blur="handleBlur('maxi', 'priceNew')"
+                                           @focus="handleFocus('maxi', 'priceNew')"
                                            placeholder="14 500">
                                 </div>
                             </div>
@@ -187,22 +187,22 @@ export default {
                 mini: {
                     id: null,
                     name: 'Мини',
-                    oldPrice: 0,
-                    newPrice: 0,
+                    priceOld: 0,
+                    priceNew: 0,
                     contentLink: '',
                 },
                 opti: {
                     id: null,
                     name: 'Опти',
-                    oldPrice: 0,
-                    newPrice: 0,
+                    priceOld: 0,
+                    priceNew: 0,
                     contentLink: '',
                 },
                 maxi: {
                     id: null,
                     name: 'Макси',
-                    oldPrice: 0,
-                    newPrice: 0,
+                    priceOld: 0,
+                    priceNew: 0,
                     contentLink: '',
                 }
             },
@@ -221,22 +221,22 @@ export default {
                     if (packagesData.mini) {
                         this.packages.mini = {
                             ...packagesData.mini,
-                            oldPrice: parseInt(packagesData.mini.oldPrice),
-                            newPrice: parseInt(packagesData.mini.newPrice)
+                            priceOld: parseInt(packagesData.mini.priceOld),
+                            priceNew: parseInt(packagesData.mini.priceNew)
                         };
                     }
                     if (packagesData.opti) {
                         this.packages.opti = {
                             ...packagesData.opti,
-                            oldPrice: parseInt(packagesData.opti.oldPrice),
-                            newPrice: parseInt(packagesData.opti.newPrice)
+                            priceOld: parseInt(packagesData.opti.priceOld),
+                            priceNew: parseInt(packagesData.opti.priceNew)
                         };
                     }
                     if (packagesData.maxi) {
                         this.packages.maxi = {
                             ...packagesData.maxi,
-                            oldPrice: parseInt(packagesData.maxi.oldPrice),
-                            newPrice: parseInt(packagesData.maxi.newPrice)
+                            priceOld: parseInt(packagesData.maxi.priceOld),
+                            priceNew: parseInt(packagesData.maxi.priceNew)
                         };
                     }
 

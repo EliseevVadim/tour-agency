@@ -21,7 +21,7 @@
             </div>
         </div>
 
-        <div class="select-course-section position-relative">
+        <div v-if="!isLoading && packageData.length > 0" class="select-course-section position-relative">
             <div class="person-wrapper">
                 <div class="course-persons">
                     <img src="/img/packets/course-persons.png" alt="course persons">
@@ -75,9 +75,9 @@
                 </div>
                 <div v-if="expandedPackage === pkg.id"
                      class="btn-container d-flex flex-column justify-content-center text-center">
-                    <button class="btn btn-cta btn-price">
+                    <a :href="pkg.details.contentLink" class="btn btn-cta btn-price">
                         {{ pkg.details.buttonText }}
-                    </button>
+                    </a>
                     <div class="mark-price">
                         <span class="price-old text-decoration-line-through fw-medium">{{
                                 pkg.details.priceOld
@@ -94,11 +94,10 @@
 export default {
     data() {
         return {
-            expandedPackage: 'p2',
-
+            expandedPackage: 'opti',
             packageData: [
                 {
-                    id: 'p1',
+                    id: 'mini',
                     name: 'МИНИ',
                     description: 'это идеальный вариант для тех, кто хочет освоить базовые навыки работы в туризме, но без дополнительных привилегий.',
                     imagePlaceholder: '/img/packets/packet-1-bg.png',
@@ -111,12 +110,12 @@ export default {
                             {title: 'Получать выгодные цены на туры и путешествия, не прибегая к услугам агентств.'}
                         ],
                         summary: '<b>С пакетом "Мини"</b> ты получишь все ключевые знания и инструменты для организации путешествий с максимальной выгодой для себя, открывая мир путешествий на совершенно новом уровне.',
-                        priceOld: '9000',
-                        priceNew: '7000',
+                        priceOld: 9000,
+                        priceNew: 7000,
                         buttonText: 'ПОЛУЧИТЬ ДОСТУП'
                     }
                 }, {
-                    id: 'p2',
+                    id: 'opti',
                     name: 'ОПТИ',
                     description: 'это твой полный путь к успеху в мире туризма!',
                     imagePlaceholder: '/img/packets/packet-2-bg.png',
@@ -154,12 +153,12 @@ export default {
                             }
                         ],
                         summary: '<b>Пакет "Опти"</b> – это не просто курс, это комплексная подготовка, которая откроет перед тобой все двери в мир туризма!',
-                        priceOld: '18000',
-                        priceNew: '14000',
+                        priceOld: 18000,
+                        priceNew: 14000,
                         buttonText: 'ПОЛУЧИТЬ ДОСТУП'
                     }
                 }, {
-                    id: 'p3',
+                    id: 'maxi',
                     name: 'МАКСИ',
                     description: 'это полный и уникальный набор возможностей для твоего профессионального роста и сфере туризма!',
                     imagePlaceholder: '/img/packets/packet-3-bg.png',
@@ -193,18 +192,58 @@ export default {
                             }
                         ],
                         summary: '<b>Пакет "Макси"</b> – это полное погружение в мир туризма с возможностью стать частью нашей крупнейшей сети и начать собственный бизнес с поддержкой.',
-                        priceOld: '45000',
-                        priceNew: '37000',
+                        priceOld: 45000,
+                        priceNew: 37000,
                         buttonText: 'ПОЛУЧИТЬ ДОСТУП'
                     }
-                }]
+                }],
+            isLoading: true
         };
-    }
-    ,
+    },
     methods: {
         togglePackage(packageId) {
             this.expandedPackage = this.expandedPackage === packageId ? null : packageId;
+        },
+        getCourses() {
+            axios.get("/api/courses").then((response) => {
+                const packagesObject = response.data.packages;
+
+                if (typeof packagesObject !== 'object' || packagesObject === null) {
+                    console.error("API вернул невалидные данные пакетов.");
+                    return;
+                }
+
+                if (packagesObject.mini) {
+                    this.packageData[0].id = packagesObject.mini.id;
+                    this.packageData[0].name = packagesObject.mini.name;
+                    this.packageData[0].details.priceOld = packagesObject.mini.priceOld;
+                    this.packageData[0].details.priceNew = packagesObject.mini.priceNew;
+                    this.packageData[0].details.contentLink = packagesObject.mini.contentLink;
+                }
+
+                if (packagesObject.opti) {
+                    this.packageData[1].id = packagesObject.opti.id;
+                    this.packageData[1].name = packagesObject.opti.name;
+                    this.packageData[1].details.priceOld = packagesObject.opti.priceOld;
+                    this.packageData[1].details.priceNew = packagesObject.opti.priceNew;
+                    this.packageData[1].details.contentLink = packagesObject.opti.contentLink;
+                }
+
+                if (packagesObject.maxi) {
+                    this.packageData[2].id = packagesObject.maxi.id;
+                    this.packageData[2].name = packagesObject.maxi.name;
+                    this.packageData[2].details.priceOld = packagesObject.maxi.priceOld;
+                    this.packageData[2].details.priceNew = packagesObject.maxi.priceNew;
+                    this.packageData[2].details.contentLink = packagesObject.maxi.contentLink;
+                }
+                console.log(this.packageData)
+            }).finally(() => {
+                this.isLoading = false;
+            })
         }
+    },
+    mounted() {
+        this.getCourses();
     }
 }
 </script>

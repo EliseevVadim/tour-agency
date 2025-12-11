@@ -32,22 +32,22 @@ class CoursesController extends Controller
                 "mini" => [
                     "id" => "mini",
                     "name" => "Мини",
-                    "oldPrice" => 14500,
-                    "newPrice" => 12000,
+                    "priceOld" => 14500,
+                    "priceNew" => 12000,
                     "contentLink" => "",
                 ],
                 "opti" => [
                     "id" => "opti",
                     "name" => "Опти",
-                    "oldPrice" => 14500,
-                    "newPrice" => 12000,
+                    "priceOld" => 14500,
+                    "priceNew" => 12000,
                     "contentLink" => "",
                 ],
                 "maxi" => [
                     "id" => "maxi",
                     "name" => "Макси",
-                    "oldPrice" => 14500,
-                    "newPrice" => 12000,
+                    "priceOld" => 14500,
+                    "priceNew" => 12000,
                     "contentLink" => "",
                 ]
             ]
@@ -72,8 +72,8 @@ class CoursesController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'oldPrice' => 'required|numeric|min:0',
-            'newPrice' => 'required|numeric|min:0',
+            'priceOld' => 'required|numeric|min:0',
+            'priceNew' => 'required|numeric|min:0',
             'contentLink' => 'nullable|string|url|max:255',
         ]);
 
@@ -87,8 +87,8 @@ class CoursesController extends Controller
 
         $updatedPackage = $packages[$packageIndex];
         $updatedPackage['name'] = $request->input('name');
-        $updatedPackage['oldPrice'] = $request->input('oldPrice');
-        $updatedPackage['newPrice'] = $request->input('newPrice');
+        $updatedPackage['priceOld'] = $request->input('priceOld');
+        $updatedPackage['priceNew'] = $request->input('priceNew');
         $updatedPackage['contentLink'] = $request->input('contentLink');
 
         $packages[$packageIndex] = $updatedPackage;
