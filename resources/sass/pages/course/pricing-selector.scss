@@ -1,0 +1,300 @@
+.pricing-section {
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    gap: 20px;
+    margin-top: 55px;
+    margin-bottom: 20px;
+
+    .pricing-left {
+        .course-description {
+            font-size: 1.47rem;
+            font-weight: 500;
+            line-height: 1.17;
+
+            &:first-child {
+                margin-bottom: 35px;
+            }
+        }
+    }
+
+    .pricing-certificate {
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/img/packets/certificat-bg.jpg');
+        width: 339px;
+        height: 180px;
+        border: 9px solid $color-ta-red;
+        background-size: cover;
+        transform: rotate(-5deg);
+
+        .pricing-certificate-container {
+            height: 100%;
+            display: flex;
+            flex-flow: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo {
+            width: 88px;
+            margin-bottom: 5px;
+        }
+
+        .certificate-title {
+            font-size: 15px;
+            color: white;
+            font-weight: bold;
+            line-height: 1.19;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        flex-flow: column;
+        gap: 40px;
+
+        .pricing-right {
+            order: -1;
+            margin-top: 40px;
+        }
+        .pricing-left .course-description {
+            font-size: 1.15rem;
+
+            &:first-child {
+                margin-bottom: 15px;
+            }
+        }
+    }
+}
+
+.select-course-section {
+    .person-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+    }
+
+    .course-persons {
+        width: 100%;
+        position: relative;
+    }
+
+    .course-persons img {
+        width: 96%;
+        display: block;
+    }
+
+    .title-course {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1;
+    }
+
+    .package-card {
+        overflow: hidden;
+        cursor: pointer;
+        border-radius: 27px;
+        box-shadow: 0 5px 12px 1px rgba(0, 0, 0, 0.21);
+    }
+
+    .package-image {
+        height: 120px;
+        display: flex;
+        align-items: center;
+        padding: 0 35px;
+        color: white;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        border-bottom-left-radius: 27px;
+    }
+
+    .package-title {
+        font-weight: 500;
+    }
+
+    .package-info-content {
+        background-image: linear-gradient(to right, $btn-cta-gradient-start, $btn-cta-gradient-end);
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        color: white;
+        position: relative;
+        border-bottom-right-radius: 27px;
+
+        .scroll-arrow {
+            width: 50px;
+            flex-shrink: 0;
+        }
+
+        .scroll-arrow.arrow-up {
+            transform: rotate(180deg);
+        }
+    }
+
+    .package-description {
+        max-width: 87%;
+        font-size: 1.47rem;
+        font-weight: normal;
+        line-height: 0.83;
+        letter-spacing: normal;
+    }
+
+    .package-container {
+        margin-bottom: 40px;
+
+        &.expanded {
+            margin-bottom: 125px;
+
+            .benefits-list {
+                margin-top: 35px;
+            }
+        }
+
+        .btn-container {
+            position: absolute;
+            bottom: -33px;
+            left: 50%;
+            transform: translateX(-50%);
+
+            button {
+                background: linear-gradient(90deg, #dd0024 0%, #fb6228 70%, #fb6228 100%);
+                border-radius: 25px;
+                height: 65px;
+                padding-left: 45px;
+                padding-right: 45px;
+            }
+
+            .mark-price {
+                padding: 10px 15px 10px 14px;
+                border-radius: 26.5px;
+                box-shadow: 0 0 19.5px 1.5px rgba(0, 0, 0, 0.19);
+                background-color: #fff;
+                width: max-content;
+                text-align: center;
+                transform: rotate(-2deg) translateX(-50%);
+                position: absolute;
+                left: 50%;
+                bottom: -25px;
+                color: #3b3b34;
+
+                .price-new {
+                    font-weight: 900;
+                }
+            }
+        }
+    }
+
+    .package-details-container {
+        padding: 60px 45px 90px;
+        background-color: #f1f1f1;
+
+        .details-content {
+            font-size: 1.47rem;
+            line-height: 1.17;
+            font-weight: 500;
+        }
+
+        .details-subtitle {
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+
+        .benefits-list {
+            margin-bottom: 40px;
+            font-size: 1.3rem;
+
+            .benefits-item {
+                display: flex;
+                flex-flow: column;
+                margin-bottom: 20px;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+
+                h3 {
+                    margin-bottom: 5px;
+                }
+            }
+
+            .benefit-number {
+                z-index: 2;
+                font-size: 36px;
+                font-weight: 900;
+                font-style: normal;
+                line-height: 0.83;
+                color: #f1f1f1;
+                -webkit-text-stroke: none;
+                text-stroke: none;
+                text-shadow: -1px -1px 0 rgba(235, 45, 38, 0.8), 1px -1px 0 rgba(235, 45, 38, 0.8), -1px 1px 0 rgba(235, 45, 38, 0.8), 1px 1px 0 rgba(235, 45, 38, 0.8);
+                top: -30px;
+                left: 45px;
+            }
+        }
+
+        .btn-price {
+            border-radius: 100px;
+            height: 65px;
+            padding-left: 45px;
+            padding-right: 45px;
+        }
+    }
+
+    @media (max-width: 1199.98px) {
+
+    }
+
+    @media (max-width: 991.98px) {
+
+    }
+
+    @media (max-width: 767.98px) {
+        .package-card {
+            border-radius: 20px;
+        }
+        .package-image, .package-info-content {
+            height: 80px;
+        }
+
+        .package-info-content {
+            padding: 0 10px;
+            border-bottom-right-radius: 20px;
+        }
+
+        .package-image {
+            padding: 0 15px;
+            min-width: 120px;
+            border-bottom-left-radius: 20px;
+        }
+
+        .package-description {
+            font-size: 1.15rem;
+        }
+
+        .package-title {
+            font-size: 1rem;
+        }
+        .package-description {
+            max-width: fit-content;
+            font-size: 0.8rem;
+        }
+        .package-info-content .scroll-arrow {
+            width: 25px;
+        }
+        .package-details-container {
+            .details-content, .benefit-description, h3 {
+                font-size: 1.15rem;
+            }
+        }
+    }
+}
+
+@media (max-width: 767.98px) {
+    .course-page section.travel-directions-section {
+        padding-top: 0 !important;
+    }
+}
