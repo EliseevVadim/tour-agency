@@ -41,6 +41,7 @@ Vue.component('faq-or-contact', require('./client/modules/course/components/FaqO
 Vue.component('admin-team-component', require('./admin/TeamComponent.vue').default);
 Vue.component('admin-reviews-component', require('./admin/ReviewsComponent.vue').default);
 Vue.component('admin-contacts-component', require('./admin/ContactsComponent.vue').default);
+Vue.component('admin-courses-component', require('./admin/AdminCoursesComponent.vue').default);
 
 Vue.component('ssr-carousel', SsrCarousel);
 

@@ -1,5 +1,11 @@
 <template>
     <div class="course-page">
+        <div class="loader" v-if="loading">
+            <div class="loader__dot"></div>
+            <div class="loader__dot"></div>
+            <div class="loader__dot"></div>
+        </div>
+
         <app-header class="hero-section_dark"></app-header>
 
         <course-hero></course-hero>
@@ -14,11 +20,19 @@
     </div>
 </template>
 
-<script setup>
-
+<script>
+export default {
+    components: {TravelDirectionsSection},
+    data(){
+        return {
+            loading: true
+        }
+    },
+    mounted() {
+        setTimeout(()=>{
+            this.loading = false;
+        },1000);
+    }
+}
 import TravelDirectionsSection from "../../components/TravelDirectionsSection.vue";
 </script>
-
-<style scoped>
-
-</style>

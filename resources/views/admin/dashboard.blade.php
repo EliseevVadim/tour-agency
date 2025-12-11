@@ -87,6 +87,8 @@
                    class="nav-link {{ request()->routeIs('admin.reviews') ? 'active' : '' }}">Отзывы</a>
                 <a href="{{ route('admin.contacts') }}"
                    class="nav-link {{ request()->routeIs('admin.contacts') ? 'active' : '' }}">Контакты</a>
+                <a href="{{ route('admin.courses') }}"
+                   class="nav-link {{ request()->routeIs('admin.courses') ? 'active' : '' }}">Курсы</a>
             </nav>
         </div>
         <form method="POST" action="{{ route('admin.logout') }}" style="display:inline;">

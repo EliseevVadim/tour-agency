@@ -37,10 +37,15 @@
         cursor: not-allowed;
     }
 
+    &:first-child:active, &:not(.btn-check) + .btn:active {
+        color: white;
+    }
+
     .btn-cta__icon {
         margin-right: 0.5rem;
         font-size: 1.2rem;
     }
+
     @media (max-width: 400px) {
         font-size: 12px;
     }
@@ -63,8 +68,16 @@
     align-content: center;
     font-weight: 500;
 
+    &:first-child:active, &:not(.btn-check) + .btn:active {
+        color: white;
+    }
+
     @media (max-width: 767px) {
         font-size: 1rem;
         width: 150px;
     }
+}
+
+.btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active, .btn.show {
+    color: white;
 }

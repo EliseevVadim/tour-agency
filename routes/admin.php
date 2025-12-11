@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CoursesController;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\ReviewsController;
 use App\Http\Controllers\TeamController;
@@ -19,6 +20,10 @@ Route::middleware(['admin.auth.hash'])->prefix('admin')->name('admin.')->group(f
         return view('admin.contacts');
     })->name('contacts');
 
+    Route::get('/courses', function () {
+        return view('admin.courses');
+    })->name('courses');
+
     Route::put('/api/contacts', [DataController::class, 'updateContacts'])->name('api.contacts.update');
 
     Route::post('/api/team', [TeamController::class, 'store'])->name('api.team.store');
@@ -27,6 +32,10 @@ Route::middleware(['admin.auth.hash'])->prefix('admin')->name('admin.')->group(f
 
     Route::post('/api/review', [ReviewsController::class, 'store'])->name('api.review.store');
     Route::delete('/api/review/{id}', [ReviewsController::class, 'destroy'])->name('api.review.destroy');
+
+    Route::prefix('/api/courses')->group(function () {
+        Route::put('/{id}', [CoursesController::class, 'update']);
+    });
 
     Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
 });

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ClipController;
+use App\Http\Controllers\CoursesController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Request;
@@ -42,3 +43,5 @@ Route::get("/api/clips", [ClipController::class, 'getClips']);
 
 Route::get('/api/team', [TeamController::class, 'getTeam'])->name('api.team.index');
 Route::get('/api/reviews', [\App\Http\Controllers\ReviewsController::class, 'getReviews'])->name('api.reviews.index');
+
+Route::get('/api/courses', [CoursesController::class, 'getCourses']);
