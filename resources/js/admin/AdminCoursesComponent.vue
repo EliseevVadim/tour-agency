@@ -55,7 +55,8 @@
                                        v-model="packages.mini.contentLink">
                             </div>
 
-                            <button type="submit" class="btn btn-primary" :disabled="!isDataLoaded">Сохранить "Мини"</button>
+                            <button type="submit" class="btn btn-primary" :disabled="!isDataLoaded">Сохранить "Мини"
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -112,7 +113,8 @@
                                        v-model="packages.opti.contentLink">
                             </div>
 
-                            <button type="submit" class="btn btn-primary" :disabled="!isDataLoaded">Сохранить "Опти"</button>
+                            <button type="submit" class="btn btn-primary" :disabled="!isDataLoaded">Сохранить "Опти"
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -169,7 +171,8 @@
                                        v-model="packages.maxi.contentLink">
                             </div>
 
-                            <button type="submit" class="btn btn-primary" :disabled="!isDataLoaded">Сохранить "Макси"</button>
+                            <button type="submit" class="btn btn-primary" :disabled="!isDataLoaded">Сохранить "Макси"
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -210,7 +213,7 @@ export default {
         };
     },
     mounted() {
-         this.loadPackages();
+        this.loadPackages();
     },
     methods: {
         loadPackages() {
@@ -250,21 +253,40 @@ export default {
         savePackage(packageName) {
             const packageToSave = this.packages[packageName];
 
-            if (!packageToSave.id) {
-                alert(`Ошибка: ID пакета "${packageName}" отсутствует.`);
+            if (!packageToSave || !packageToSave.id) {
+                alert(`Ошибка: ID пакета "${packageName}" отсутствует или данные неполные.`);
                 return;
             }
 
-            axios.put(`/admin/api/courses/${packageToSave.id}`, packageToSave)
+            axios.put(`/api/admin/courses/${packageToSave.id}`, packageToSave)
                 .then(response => {
                     alert(`Пакет "${packageName}" успешно сохранен!`);
+
                     if (response.data.course) {
-                        this.packages[packageName] = { ...packageToSave, ...response.data.course };
+                        const updatedDataFromBackend = response.data.course;
+
+                        this.packages[packageName] = {
+                            ...packageToSave,
+                            id: updatedDataFromBackend.id || packageToSave.id,
+                            name: updatedDataFromBackend.name || packageToSave.name,
+
+                            priceOld: updatedDataFromBackend.price_old || packageToSave.priceOld,
+                            priceNew: updatedDataFromBackend.price_new || packageToSave.priceNew,
+                            contentLink: updatedDataFromBackend.content_link || packageToSave.contentLink
+                        };
                     }
                 }).catch(error => {
                 let errorMessage = `Ошибка при сохранении пакета "${packageName}".`;
-                if (error.response && error.response.data && error.response.data.message) {
-                    errorMessage += `\n${error.response.data.message}`;
+
+                if (error.response && error.response.data) {
+                    const responseData = error.response.data;
+                    const errorDetail = responseData.message ||
+                        (responseData.errors ? Object.values(responseData.errors).flat().join('\n') : null);
+                    if (errorDetail) {
+                        errorMessage += `\nДетали ошибки:\n${errorDetail}`;
+                    } else {
+                        errorMessage += `\nСервер вернул статус ${error.response.status}.`;
+                    }
                 }
                 alert(errorMessage);
             });

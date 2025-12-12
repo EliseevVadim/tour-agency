@@ -237,42 +237,35 @@ export default {
                     console.error("API вернул невалидные данные пакетов.");
                     return;
                 }
+                const expectedOrder = ['mini', 'opti', 'maxi'];
 
-                if (packagesObject.mini) {
-                    this.packageData[0].id = packagesObject.mini.id;
-                    this.packageData[0].name = packagesObject.mini.name;
-                    this.packageData[0].details.priceOld = packagesObject.mini.priceOld;
-                    this.packageData[0].details.priceNew = packagesObject.mini.priceNew;
-                    this.packageData[0].details.contentLink = packagesObject.mini.contentLink;
-                }
+                expectedOrder.forEach((key, index) => {
+                    const pkgData = packagesObject[key] ?? null;
 
-                if (packagesObject.opti) {
-                    this.packageData[1].id = packagesObject.opti.id;
-                    this.packageData[1].name = packagesObject.opti.name;
-                    this.packageData[1].details.priceOld = packagesObject.opti.priceOld;
-                    this.packageData[1].details.priceNew = packagesObject.opti.priceNew;
-                    this.packageData[1].details.contentLink = packagesObject.opti.contentLink;
-                }
+                    if (pkgData) {
+                        this.packageData[index].id = pkgData.id;
+                        this.packageData[index].name = pkgData.name;
 
-                if (packagesObject.maxi) {
-                    this.packageData[2].id = packagesObject.maxi.id;
-                    this.packageData[2].name = packagesObject.maxi.name;
-                    this.packageData[2].details.priceOld = packagesObject.maxi.priceOld;
-                    this.packageData[2].details.priceNew = packagesObject.maxi.priceNew;
-                    this.packageData[2].details.contentLink = packagesObject.maxi.contentLink;
-                }
+                        this.packageData[index].details.priceOld = pkgData.priceOld;
+                        this.packageData[index].details.priceNew = pkgData.priceNew;
+                        this.packageData[index].details.contentLink = pkgData.contentLink;
+                    }
+                });
             }).finally(() => {
                 this.isLoading = false;
             })
         },
         async paymentClick(pkg){
-            await axios.post('/api/send-purchase-notification', {
+            const response = await axios.post('/payments/create', {
                 course_name: pkg.name,
                 user_name: 'Test Name',
                 amount: pkg.details.priceNew
-            }).then((response) => {
-                alert ("Отправлено")
             });
+            if (response.status === 200) {
+                window.open(response.data);
+            } else {
+                console.log('Ошибка при создании платежа');
+            }
         }
     },
     mounted() {

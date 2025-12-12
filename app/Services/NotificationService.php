@@ -8,28 +8,9 @@ use Telegram;
 
 class NotificationService
 {
-    // ВНИМАНИЕ: Этот метод предполагает, что ID каналов хранятся в конфигурации.
     protected function getChannelChatId(string $channelKey): ?string
     {
         return Config::get("bot_channels.{$channelKey}");
-    }
-
-    public function testBuy()
-    {
-        $chatId = $this->getChannelChatId('sales_channel');
-        try {
-            Telegram::sendMessage([
-                'chat_id' => $chatId,
-                'text'    => "🚨 НОВАЯ ПОКУПКА 🚨\n" .
-                    "👤 Пользователь: \n" .
-                    "📚 Курс: \n" .
-                    "💰 Сумма: .2f USD",
-            ]);
-            return true;
-        } catch (\Exception $e) {
-            Log::error("Ошибка отправки уведомления о покупке (Irazasyed SDK): " . $e->getMessage());
-            return false;
-        }
     }
 
     public function sendPurchaseNotification(string $courseName, string $userName, float $amount): bool

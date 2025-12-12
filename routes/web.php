@@ -26,6 +26,7 @@ Route::get('/admin/login', [AdminController::class, 'showLoginForm'])->name('adm
 Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login.submit');
 
 require __DIR__ . '/admin.php';
+require __DIR__ . '/payment.php';
 
 Route::get('/', function () {
     return view('main');
@@ -38,7 +39,7 @@ Route::get('/shop', function () {
 });
 Route::get('/courses', function () {
    return view('courses');
-});
+})->name('courses');
 
 Route::get("/api/contacts", [\App\Http\Controllers\DataController::class, 'getContacts']);
 Route::get("/api/videos", [VideoController::class, 'getVideos']);
@@ -47,7 +48,7 @@ Route::get("/api/clips", [ClipController::class, 'getClips']);
 Route::get('/api/team', [TeamController::class, 'getTeam'])->name('api.team.index');
 Route::get('/api/reviews', [\App\Http\Controllers\ReviewsController::class, 'getReviews'])->name('api.reviews.index');
 
-Route::get('/api/courses', [CoursesController::class, 'getCourses']);
+//Route::get('/api/courses', [CoursesController::class, 'getCourses']);
 
 
 Route::post('/telegram/webhook', [TelegramController::class, 'handleWebhook'])->name('telegram.webhook');
