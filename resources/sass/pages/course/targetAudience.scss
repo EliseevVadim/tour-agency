@@ -31,10 +31,7 @@
         width: 100%;
         z-index: 1;
         overflow: hidden;
-        height: 215px;
-        padding-left: 45px;
-        padding-right: 45px;
-        padding-top: 45px;
+        padding: 30px 45px;
 
         &:before {
             content: "";
@@ -67,7 +64,6 @@
         .audience-card {
             padding: 35px 15px 20px 15px;
             border-radius: 20px;
-            height: 200px;
 
             .card-description {
                 font-size: 0.95rem;

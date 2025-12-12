@@ -33,8 +33,6 @@ class PaymentService
     {
         $idempotenceKey = uniqid('', true);
         $client = $this->getClient();
-        $packageId = $options['package_id'] ?? 'unknown';
-
         $payment = $client->createPayment([
             'amount' => [
                 "value" => $amount,
@@ -46,13 +44,12 @@ class PaymentService
                 'return_url' => route('courses'),
             ],
             'metadata' => [
-                'transaction_id' => $options['transaction_id'],
-                'package_id' => $packageId,
+                'package_id' => $options['package_id'],
                 'course_name' => $options['course_name'],
-                'first_name' => $options['first_name'] ?? '',
-                'last_name' => $options['last_name'] ?? '',
-                'phone_number' => $options['phone'] ?? '',
-                'email' => $options['email'] ?? '',
+                'first_name' => $options['first_name'],
+                'last_name' => $options['last_name'],
+                'phone_number' => $options['phone_number'],
+                'email' => $options['email']
             ],
             'description' => $description,
         ], $idempotenceKey);

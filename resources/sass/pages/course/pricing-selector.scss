@@ -330,6 +330,16 @@
                 font-size: 1.15rem;
             }
         }
+
+        .benefits-list {
+            .benefit-description {
+                font-size: 1.15rem !important;
+            }
+        }
+
+        .package-details-container .benefits-list .benefits-item h3 {
+            font-size: 1.3rem !important;
+        }
     }
 }
 
@@ -340,5 +350,14 @@
 @media (max-width: 767.98px) {
     .course-page section.travel-directions-section {
         padding-top: 0 !important;
+    }
+}
+
+@media (max-width: 573.98px) {
+    .pricing-section .pricing-left .course-description {
+        margin-top: 45px;
+    }
+    .pricing-section .pricing-right {
+        justify-content: center;
     }
 }

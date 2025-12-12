@@ -6,12 +6,20 @@
                     Каждый модуль — это продуманный шаг к твоему профессиональному росту и успешной карьере в мире
                     туризма.
                 </p>
+                <div class="d-flex d-sm-none pricing-right">
+                    <div class="pricing-certificate">
+                        <div class="pricing-certificate-container">
+                            <img class="logo" src="/img/logo-red.png" alt="logo">
+                            <p class="certificate-title">СЕРТИФИКАТ</p>
+                        </div>
+                    </div>
+                </div>
                 <p class="course-description">
-                    Кроме того, выпускники курса получат <span class="fw-bold">сертификат,</span> который подтверждает
-                    их квалификацию. Пройди наш курс и открой для себя мир безграничных возможностей!
+                    Кроме того, выпускники курса получат <span class="fw-bold">сертификат,</span>. Пройди наш курс и
+                    открой для себя мир безграничных возможностей!
                 </p>
             </div>
-            <div class="pricing-right">
+            <div class="d-none d-sm-block pricing-right">
                 <div class="pricing-certificate">
                     <div class="pricing-certificate-container">
                         <img class="logo" src="/img/logo-red.png" alt="logo">
@@ -33,7 +41,7 @@
                  :class="{ 'expanded': expandedPackage === pkg.id }" :ref="`package_${pkg.id}`">
                 <div class="package-card mb-4"
                      :class="{ 'expanded': expandedPackage === pkg.id }">
-                    <div class="d-flex align-items-center"  @click="togglePackage(pkg.id)">
+                    <div class="d-flex align-items-center" @click="togglePackage(pkg.id)">
                         <div class="col-md-5 package-image"
                              :style="{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${pkg.imagePlaceholder})` }">
                             <h2 class="package-title">ПАКЕТ <span class="fw-bolder">"{{ pkg.name }}"</span></h2>
@@ -50,7 +58,8 @@
                             </svg>
                         </div>
                     </div>
-                    <div v-if="expandedPackage === pkg.id" class="package-details-container position-relative cursor-auto">
+                    <div v-if="expandedPackage === pkg.id"
+                         class="package-details-container position-relative cursor-auto">
                         <div class="details-content">
                             <p class="mb-4">{{ pkg.details.intro }}</p>
                             <p v-if="pkg.details.restriction" class="restriction-text">{{ pkg.details.restriction }}</p>
@@ -100,7 +109,7 @@ export default {
                     id: 'mini',
                     name: 'МИНИ',
                     description: 'это идеальный вариант для тех, кто хочет освоить базовые навыки работы в туризме, но без дополнительных привилегий.',
-                    imagePlaceholder: '/img/packets/packet-1-bg.png',
+                    imagePlaceholder: '/img/packets/packet-2-bg.png',
                     details: {
                         intro: 'Он включает в себя все девять модулей нашего курса, давая тебе полное понимание туристической индустрии и необходимых практических знаний.',
                         restriction: 'Однако в пакете "Мини" не предусмотрены доступ к закрытому клубу, наставникам и кураторам, а также сертификация по завершении курса.',
@@ -118,7 +127,7 @@ export default {
                     id: 'opti',
                     name: 'ОПТИ',
                     description: 'это твой полный путь к успеху в мире туризма!',
-                    imagePlaceholder: '/img/packets/packet-2-bg.png',
+                    imagePlaceholder: '/img/packets/packet-1-bg.png',
                     details: {
                         intro: 'Этот пакет включает в себя все ключевые элементы для твоего профессионального роста и предоставляет уникальные возможности:',
                         restriction: null,
@@ -256,7 +265,7 @@ export default {
                 this.isLoading = false;
             })
         },
-        async paymentClick(pkg){
+        async paymentClick(pkg) {
             this.isDisabled = true;
             const response = await axios.post('/payments/create', {
                 package_id: pkg.id,

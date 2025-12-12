@@ -48,24 +48,4 @@ Route::get("/api/clips", [ClipController::class, 'getClips']);
 Route::get('/api/team', [TeamController::class, 'getTeam'])->name('api.team.index');
 Route::get('/api/reviews', [\App\Http\Controllers\ReviewsController::class, 'getReviews'])->name('api.reviews.index');
 
-//Route::get('/api/courses', [CoursesController::class, 'getCourses']);
-
-
 Route::post('/telegram/webhook', [TelegramController::class, 'handleWebhook'])->name('telegram.webhook');
-
-Route::post('/api/send-purchase-notification', function (Request $request, NotificationService $service) {
-    $validated = $request->all();
-
-    $success = $service->sendPurchaseNotification(
-        $validated['course_name'],
-        $validated['user_name'],
-        (float)$validated['amount']
-    );
-
-    if ($success) {
-        return response()->json(['message' => 'Notification sent successfully!'], 200);
-    }
-
-    return response()->json(['message' => 'Failed to send notification.'], 500);
-
-});
