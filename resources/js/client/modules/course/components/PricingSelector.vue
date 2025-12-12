@@ -75,7 +75,7 @@
                 </div>
                 <div v-if="expandedPackage === pkg.id"
                      class="btn-container d-flex flex-column justify-content-center text-center">
-                    <button @click="paymentClick(pkg)" class="btn btn-cta btn-price">
+                    <button @click="paymentClick(pkg)" class="btn btn-cta btn-price" :disabled="isDisabled">
                         {{ pkg.details.buttonText }}
                     </button>
                     <div class="mark-price">
@@ -197,7 +197,8 @@ export default {
                         buttonText: 'ПОЛУЧИТЬ ДОСТУП'
                     }
                 }],
-            isLoading: true
+            isLoading: true,
+            isDisabled: false
         };
     },
     methods: {
@@ -256,10 +257,17 @@ export default {
             })
         },
         async paymentClick(pkg){
+            this.isDisabled = true;
             const response = await axios.post('/payments/create', {
+                package_id: pkg.id,
                 course_name: pkg.name,
-                user_name: 'Test Name',
+                phone_number: 'Test number',
+                email: 'test@example.com',
+                first_name: 'Test',
+                last_name: 'Name',
                 amount: pkg.details.priceNew
+            }).finally(() => {
+                this.isDisabled = false;
             });
             if (response.status === 200) {
                 window.open(response.data);

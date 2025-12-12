@@ -35,4 +35,9 @@ return [
         'version' => env('VK_API_VERSION', '5.199'),
     ],
 
+    'yookassa' => [
+        'shop_id' => env('YOOKASSA_SHOP_ID'),
+        'secret_key' => env('YOOKASSA_SECRET_KEY'),
+    ],
+
 ];

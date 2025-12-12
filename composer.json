@@ -14,7 +14,8 @@
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
         "nikileads/vk-client": "dev-master",
-        "rutube/php-api-client": " 1.0.*"
+        "rutube/php-api-client": " 1.0.*",
+        "yoomoney/yookassa-sdk-php": "^3.11"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
