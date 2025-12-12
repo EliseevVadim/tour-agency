@@ -4,8 +4,8 @@
 
         <div class="tour-store__container">
             <div class="tour-store__content">
-                <h3>Здесь скоро будет магазин с нашем мерчем, а пока можете <a href="/"
-                                                                               target="_blank">заказать у нас тур</a>
+                <h3 class="fw-bold">Здесь скоро будет магазин с нашем мерчем, а пока можете
+                    <a href="/" target="_blank" class="text-white">заказать у нас тур</a>
                 </h3>
             </div>
         </div>

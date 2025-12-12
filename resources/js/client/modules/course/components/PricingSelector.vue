@@ -30,10 +30,10 @@
             </div>
 
             <div v-for="pkg in packageData" :key="pkg.id" class="package-container position-relative"
-                 :class="{ 'expanded': expandedPackage === pkg.id }">
+                 :class="{ 'expanded': expandedPackage === pkg.id }" :ref="`package_${pkg.id}`">
                 <div class="package-card mb-4"
-                     :class="{ 'expanded': expandedPackage === pkg.id }" @click="togglePackage(pkg.id)">
-                    <div class="d-flex align-items-center">
+                     :class="{ 'expanded': expandedPackage === pkg.id }">
+                    <div class="d-flex align-items-center"  @click="togglePackage(pkg.id)">
                         <div class="col-md-5 package-image"
                              :style="{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${pkg.imagePlaceholder})` }">
                             <h2 class="package-title">ПАКЕТ <span class="fw-bolder">"{{ pkg.name }}"</span></h2>
@@ -50,7 +50,7 @@
                             </svg>
                         </div>
                     </div>
-                    <div v-if="expandedPackage === pkg.id" class="package-details-container position-relative">
+                    <div v-if="expandedPackage === pkg.id" class="package-details-container position-relative cursor-auto">
                         <div class="details-content">
                             <p class="mb-4">{{ pkg.details.intro }}</p>
                             <p v-if="pkg.details.restriction" class="restriction-text">{{ pkg.details.restriction }}</p>
@@ -75,9 +75,9 @@
                 </div>
                 <div v-if="expandedPackage === pkg.id"
                      class="btn-container d-flex flex-column justify-content-center text-center">
-                    <a :href="pkg.details.contentLink" class="btn btn-cta btn-price">
+                    <button @click="paymentClick(pkg)" class="btn btn-cta btn-price">
                         {{ pkg.details.buttonText }}
-                    </a>
+                    </button>
                     <div class="mark-price">
                         <span class="price-old text-decoration-line-through fw-medium">{{
                                 pkg.details.priceOld
@@ -201,8 +201,33 @@ export default {
         };
     },
     methods: {
-        togglePackage(packageId) {
-            this.expandedPackage = this.expandedPackage === packageId ? null : packageId;
+        togglePackage(packageId, headerOffset = 0) {
+            this.expandedPackage =
+                this.expandedPackage === packageId ? null : packageId;
+
+            this.$nextTick(() => {
+                const refKey = `package_${packageId}`;
+                const pkgRefs = this.$refs[refKey];
+
+                if (!pkgRefs || pkgRefs.length === 0) return;
+                const pkgEl = pkgRefs[0];
+                if (!(pkgEl instanceof Element)) return;
+
+                pkgEl.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                });
+
+                if (headerOffset > 0) {
+                    const targetScroll =
+                        window.scrollY + pkgEl.getBoundingClientRect().top - headerOffset;
+
+                    window.scroll({
+                        top: targetScroll,
+                        behavior: 'smooth',
+                    });
+                }
+            });
         },
         getCourses() {
             axios.get("/api/courses").then((response) => {
@@ -236,10 +261,18 @@ export default {
                     this.packageData[2].details.priceNew = packagesObject.maxi.priceNew;
                     this.packageData[2].details.contentLink = packagesObject.maxi.contentLink;
                 }
-                console.log(this.packageData)
             }).finally(() => {
                 this.isLoading = false;
             })
+        },
+        async paymentClick(pkg){
+            await axios.post('/api/send-purchase-notification', {
+                course_name: pkg.name,
+                user_name: 'Test Name',
+                amount: pkg.details.priceNew
+            }).then((response) => {
+                alert ("Отправлено")
+            });
         }
     },
     mounted() {

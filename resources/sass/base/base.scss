@@ -108,6 +108,10 @@ body {
     font-weight: 900;
 }
 
+.cursor-auto {
+    cursor: auto;
+}
+
 @-webkit-keyframes wave {
     50%, 75% {
         transform:scale(2.5)
