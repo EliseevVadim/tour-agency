@@ -56,11 +56,9 @@ class AdminController extends Controller
     {
         $reviewsController = new ReviewsController();
         $teamController = new TeamController();
-        $coursesController = new CoursesController();
 
         $reviewsController->initializeJsonFile();
         $teamController->initializeJsonFile();
-        $coursesController->initializeJsonFile();
 
         return 'Все данные были инициализированы.';
     }

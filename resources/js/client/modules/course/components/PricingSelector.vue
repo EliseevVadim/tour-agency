@@ -1,5 +1,6 @@
 <template>
-    <section class="container container-xl">
+    <section class="pricing-selector container container-xl">
+        <pre-order-modal class="pre-order-modal"></pre-order-modal>
         <div class="pricing-section">
             <div class="pricing-left">
                 <p class="course-description">
@@ -69,12 +70,14 @@
                                 Этот пакет отлично подходит для тех, кто хочет:
                             </h4>
                             <ul class="list-unstyled benefits-list">
-                                <li v-for="(benefit, index) in pkg.details.suitsFor" :key="index" class="benefits-item">
-                                    <span class="benefit-number">{{ (index + 1).toString().padStart(2, '0') }}</span>
-                                    <h3 class="fw-bold" v-if="benefit.description">{{ benefit.title }}</h3>
-                                    <p class="benefit-description">
-                                        {{ !benefit.description ? benefit.title : benefit.description }}
-                                    </p>
+                                <li v-for="(benefit, index) in pkg.details.suitsFor" :key="index" class="benefits-item d-flex align-items-center">
+                                    <img :src="benefit.icon" class="benefit-icon" :alt="'icon-benefit-'+index"/>
+                                    <div class="benefit-text">
+                                        <h3 class="fw-bold" v-if="benefit.description">{{ benefit.title }}</h3>
+                                        <p class="benefit-description">
+                                            {{ !benefit.description ? benefit.title : benefit.description }}
+                                        </p>
+                                    </div>
                                 </li>
                             </ul>
 
@@ -84,7 +87,9 @@
                 </div>
                 <div v-if="expandedPackage === pkg.id"
                      class="btn-container d-flex flex-column justify-content-center text-center">
-                    <button @click="paymentClick(pkg)" class="btn btn-cta btn-price" :disabled="isDisabled">
+                    <button data-bs-toggle="modal" data-bs-target="#orderModal" class="btn btn-cta btn-price"
+                            :disabled="isDisabled" :data-bs-id="pkg.id"
+                            :data-bs-name="pkg.name" :data-bs-price="pkg.details.priceNew">
                         {{ pkg.details.buttonText }}
                     </button>
                     <div class="mark-price">
@@ -100,7 +105,10 @@
 </template>
 
 <script>
+import PreOrderModal from "../../../modals/PreOrderModal.vue";
+
 export default {
+    components: {PreOrderModal},
     data() {
         return {
             expandedPackage: 'opti',
@@ -114,9 +122,9 @@ export default {
                         intro: 'Он включает в себя все девять модулей нашего курса, давая тебе полное понимание туристической индустрии и необходимых практических знаний.',
                         restriction: 'Однако в пакете "Мини" не предусмотрены доступ к закрытому клубу, наставникам и кураторам, а также сертификация по завершении курса.',
                         suitsFor: [
-                            {title: 'Освоить азы работы турагента.'},
-                            {title: 'Научиться бронировать путешествия для себя и своих близких.'},
-                            {title: 'Получать выгодные цены на туры и путешествия, не прибегая к услугам агентств.'}
+                            {icon: '/img/packets/icons/1.png', title: 'Освоить азы работы турагента.'},
+                            {icon: '/img/packets/icons/2.png', title: 'Научиться бронировать путешествия для себя и своих близких.'},
+                            {icon: '/img/packets/icons/3.png', title: 'Получать выгодные цены на туры и путешествия, не прибегая к услугам агентств.'}
                         ],
                         summary: '<b>С пакетом "Мини"</b> ты получишь все ключевые знания и инструменты для организации путешествий с максимальной выгодой для себя, открывая мир путешествий на совершенно новом уровне.',
                         priceOld: 9000,
@@ -133,30 +141,37 @@ export default {
                         restriction: null,
                         suitsFor: [
                             {
+                                icon: '/img/packets/icons/4.png',
                                 title: 'Все девять модулей курса',
                                 description: 'Ты получаешь доступ ко всем девяти модулям, которые охватывают все аспекты туристической индустрии, от основ до практических навыков, которые помогут стать настоящим экспертом.'
                             },
                             {
+                                icon: '/img/packets/icons/5.png',
                                 title: 'Закрытый клуб',
                                 description: 'Становишься частью закрытого клуба, где сможешь общаться с коллегами, обмениваться опытом и получать дополнительные советы от опытных профессионалов отрасли.'
                             },
                             {
+                                icon: '/img/packets/icons/6.png',
                                 title: 'Общение с кураторами',
                                 description: 'Наши кураторы всегда будут рядом, готовые поддержать и помочь на протяжении всего курса, отвечая на твои вопросы и направляя в нужном направлении.'
                             },
                             {
+                                icon: '/img/packets/icons/7.png',
                                 title: 'Общение с наставниками',
                                 description: 'Ты будешь работать с наставниками, которые помогут тебе раскрыть твой потенциал, делиться практическими знаниями и обеспечат поддержку на всех этапах развития.'
                             },
                             {
+                                icon: '/img/packets/icons/8.png',
                                 title: 'Доступ к онлайн-вебинарам от партнеров',
                                 description: 'Пакет также включает доступ к эксклюзивным онлайн вебинарам от наших партнеров — лидеров индустрии, что расширяет твои горизонты и открывает новые возможности.'
                             },
                             {
+                                icon: '/img/packets/icons/9.png',
                                 title: 'Сертификат о прохождении курса',
                                 description: 'По завершении курса ты получишь официальный сертификат, который станет подтверждением твоих знаний и навыков в сфере туризма.'
                             },
                             {
+                                icon: '/img/packets/icons/10.png',
                                 title: 'Возможность работы менеджером в туристической компании "В ПУТЬ"',
                                 description: 'После успешного завершения курса ты получишь шанс работать менеджером в нашей туристической компании, что станет отличным стартом для твоей карьеры в туризме.'
                             }
@@ -176,26 +191,32 @@ export default {
                         restriction: null,
                         suitsFor: [
                             {
+                                icon: '/img/packets/icons/4.png',
                                 title: 'Все девять модулей курса',
                                 description: "Ты получаешь доступ ко всем 9 модулям нашего курса, которые помогут тебе освоить основы туризма, от правовых аспектов до маркетинга и продаж. Всё, что необходимо для успешной карьеры в этой отрасли, — в одном пакете!"
                             },
                             {
+                                icon: '/img/packets/icons/5.png',
                                 title: 'Закрытый премиум-клуб',
                                 description: "Для наших самых амбициозных участников мы предлагаем премиум-клуб, где ты получишь дополнительные привилегии: персонализированные консультации, доступ к эксклюзивным материалам и уникальным возможностям для карьерного роста."
                             },
                             {
+                                icon: '/img/packets/icons/6.png',
                                 title: 'Общение с наставниками',
                                 description: "Ты будешь общаться с опытными наставниками, которые помогут тебе на каждом этапе курса. Получи ценные советы, направляющие твой путь и делая его максимально успешным."
                             },
                             {
+                                icon: '/img/packets/icons/7.png',
                                 title: 'Общение с кураторами',
                                 description: "Наши кураторы всегда будут рядом, чтобы поддержать тебя и ответить на все вопросы, возникающие в процессе курса. Мы не просто обучаем, мы заботимся о твоем успехе!"
                             },
                             {
+                                icon: '/img/packets/icons/9.png',
                                 title: 'Получение сертификата',
                                 description: "По завершении курса ты получишь сертификат, который станет подтверждением твоих новых знаний и навыков, открывая перед тобой двери для карьерных возможностей в индустрии туризма."
                             },
                             {
+                                icon: '/img/packets/icons/11.png',
                                 title: 'Возможность открытия бренда-офиса по франшизе',
                                 description: "И, наконец, ты получаешь уникальную возможность открыть собственный бренд-офис по франшизе туристической компании «В ПУТЬ» в своем городе. Мы предоставим тебе все необходимые инструменты и поддержку для старта успешного бизнеса."
                             }
@@ -207,7 +228,8 @@ export default {
                     }
                 }],
             isLoading: true,
-            isDisabled: false
+            isDisabled: false,
+            selectedCourse: null
         };
     },
     methods: {
@@ -265,28 +287,35 @@ export default {
                 this.isLoading = false;
             })
         },
-        async paymentClick(pkg) {
-            this.isDisabled = true;
-            const response = await axios.post('/payments/create', {
-                package_id: pkg.id,
-                course_name: pkg.name,
-                phone_number: 'Test number',
-                email: 'test@example.com',
-                first_name: 'Test',
-                last_name: 'Name',
-                amount: pkg.details.priceNew
-            }).finally(() => {
-                this.isDisabled = false;
-            });
-            if (response.status === 200) {
-                window.open(response.data);
-            } else {
-                console.log('Ошибка при создании платежа');
-            }
-        }
     },
     mounted() {
         this.getCourses();
+
+        const orderModal = document.getElementById('orderModal');
+
+        if (orderModal) {
+            orderModal.addEventListener('show.bs.modal', event => {
+                const button = event.relatedTarget;
+
+                const id = button.getAttribute('data-bs-id');
+                const name = button.getAttribute('data-bs-name');
+                const price = button.getAttribute('data-bs-price');
+
+                const modalId = orderModal.querySelector('.idCourse');
+                const modalTitle = orderModal.querySelector('.package-title .fw-bolder');
+                const modalPrice = orderModal.querySelector('.package-price .price');
+
+                if (modalId) {
+                    modalId.value = id;
+                }
+                if (modalTitle) {
+                    modalTitle.textContent = ` "${name}"`;
+                }
+                if (modalPrice) {
+                    modalPrice.textContent = `${price} р`;
+                }
+            });
+        }
     }
 }
 </script>

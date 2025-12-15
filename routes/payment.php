@@ -5,5 +5,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/payments/create', [PaymentController::class, 'create'])->name('payment.create');
 
-Route::any('/payments/callback', [PaymentController::class, 'callback'])
+Route::post('/payments/callback', [PaymentController::class, 'callback'])
     ->name('payment.callback');

@@ -14,13 +14,13 @@
                 <h1 class="hero-highlight-title">«ПУТЬ В ТУРИЗМ»</h1>
                 <p class="hero-subtitle">от самой медийной туристической компании страны!</p>
             </div>
-            <a href="#next-section" class="scroll-indicator">
+            <div class="scroll-indicator">
                 <div class="scroll-arrow-container">
                     <svg class="scroll-arrow" viewBox="0 0 24 24">
                         <path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
                     </svg>
                 </div>
-            </a>
+            </div>
         </div>
 
         <div class="hero-lower-content">

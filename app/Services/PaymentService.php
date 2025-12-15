@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Log;
 use YooKassa\Client;
 
 class PaymentService
@@ -9,7 +10,10 @@ class PaymentService
     private function getClient(): Client
     {
         $client = new Client();
-        $client->setAuth(config('services.yookassa.shop_id'), config('services.yookassa.secret_key'));
+        $client->setAuth(
+            config('services.yookassa.shop_id'),
+            config('services.yookassa.secret_key')
+        );
 
         return $client;
     }
@@ -29,31 +33,34 @@ class PaymentService
      * @throws \YooKassa\Common\Exceptions\TooManyRequestsException
      * @throws \YooKassa\Common\Exceptions\UnauthorizedException
      */
-    public function createPayment(float $amount, string $description, array $options = [])
-    {
+    public function createPayment(float $amount, string $description, array $options = []): array {
         $idempotenceKey = uniqid('', true);
         $client = $this->getClient();
+
         $payment = $client->createPayment([
             'amount' => [
-                "value" => $amount,
-                "currency" => "RUB"
+                'value'    => $amount,
+                'currency' => 'RUB',
             ],
-            'capture' => false,
+            'capture'   => false,
             'confirmation' => [
-                'type' => 'redirect',
+                'type'       => 'redirect',
                 'return_url' => route('courses'),
             ],
             'metadata' => [
-                'package_id' => $options['package_id'],
-                'course_name' => $options['course_name'],
-                'first_name' => $options['first_name'],
-                'last_name' => $options['last_name'],
-                'phone_number' => $options['phone_number'],
-                'email' => $options['email']
+                'package_id'     => $options['package_id'],
+                'course_name'    => $options['course_name'],
+                'full_name'      => $options['full_name'],
+                'phone_number'   => $options['phone_number'],
+                'email'          => $options['email'],
+                'transaction_id' => $options['transaction_id'],
             ],
             'description' => $description,
         ], $idempotenceKey);
 
-        return $payment->getConfirmation()->getConfirmationUrl();
+        return [
+            'url' => $payment->getConfirmation()->getConfirmationUrl(),
+            'id'  => $payment->getId(),
+        ];
     }
 }

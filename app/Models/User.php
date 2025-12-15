@@ -18,8 +18,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'first_name',
-        'last_name',
+        'full_name',
         'email',
         'phone_number',
         'email_verified_at',
@@ -48,10 +47,5 @@ class User extends Authenticatable
     public function paymentTransactions()
     {
         return $this->hasMany(\App\Models\PaymentTransaction::class);
-    }
-
-    public function getFullNameAttribute(): string
-    {
-        return "{$this->first_name} {$this->last_name}";
     }
 }

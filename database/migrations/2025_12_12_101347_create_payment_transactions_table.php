@@ -20,9 +20,9 @@ class CreatePaymentTransactionsTable extends Migration
             $table->string('package_id');
             $table->foreign('package_id')->references('id')->on('packages')->onDelete('restrict');
 
-            $table->string('payment_id')->nullable();
-            $table->string('status')->default('pending');
+            $table->uuid('payment_id')->nullable()->comment('Системный ID платежа в YooKassa');
             $table->string('payment_method')->nullable();
+            $table->string('status')->default('pending');
             $table->decimal('amount', 10, 2)->default(0);
 
             $table->dateTime('payment_at')->nullable();

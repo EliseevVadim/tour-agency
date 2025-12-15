@@ -24,11 +24,6 @@ use YooKassa\Model\Payment\PaymentStatus;
 
 class PaymentController extends Controller
 {
-    public function index()
-    {
-        return view('payment.index');
-    }
-
     /**
      * @param Request $request
      * @param PaymentService $service
@@ -45,55 +40,66 @@ class PaymentController extends Controller
      */
     public function create(Request $request, PaymentService $service)
     {
-        $amount = $request['amount'];
-        $description = 'Пакет ' . '"' . $request['course_name'] . '"';
+        $amount        = $request->input('amount');
+        $description   = 'Пакет ' . '"' . $request->input('course_name') . '"';
 
         $user = User::updateOrCreate(
-            ['email' => $request['email']],
+            ['email' => $request->input('email')],
             [
-                'first_name' => $request['first_name'],
-                'last_name' => $request['last_name'],
-                'phone_number' => $request['phone_number'],
-                'password' => Hash::make(Str::random(12)),
+                'full_name'    => $request->input('full_name'),
+                'phone_number' => $request->input('phone_number'),
+                'password'     => Hash::make(Str::random(12)),
             ]
         );
 
-        $payment_transaction = PaymentTransaction::create([
-            'user_id' => $user->id,
-            'package_id' => $request['package_id'],
-            'amount' => $amount,
-            'status' => 'pending',
+        $paymentTransaction = PaymentTransaction::create([
+            'user_id'      => $user->id,
+            'package_id'   => $request->input('package_id'),
+            'amount'       => $amount,
+            'status'       => 'pending',
             'payment_method' => 'unknown',
         ]);
 
-        return $service->createPayment($amount, $description, [
-            'user_id' => $user->id,
-            'transaction_id' => $payment_transaction->id,
-            'package_id' => $request['package_id'],
-            'course_name' => $description,
-            'first_name' => $request['first_name'],
-            'last_name' => $request['last_name'],
-            'phone_number' => $request['phone_number'],
-            'email' => $request['email'],
-        ]);
+        $paymentInfo = $service->createPayment(
+            $amount,
+            $description,
+            [
+                'user_id'        => $user->id,
+                'transaction_id' => $paymentTransaction->id,
+                'package_id'     => $request->input('package_id'),
+                'course_name'    => $description,
+                'full_name'      => $request->input('full_name'),
+                'phone_number'   => $request->input('phone_number'),
+                'email'          => $request->input('email'),
+            ]
+        );
+
+        $paymentTransaction->payment_id = $paymentInfo['id'];
+        $paymentTransaction->save();
+
+        return $paymentInfo['url'];
     }
 
     public function callback(Request $request)
     {
-        $source = $request->getContent();
+        $source      = $request->getContent();
         $requestBody = json_decode($source, true);
         $paymentData = $requestBody['object'] ?? null;
 
-        if (!$paymentData || !isset($paymentData['status'])) {
+        if (!$paymentData || !isset($paymentData['status'], $paymentData['id'])) {
             return response()->json(['message' => 'Invalid notification structure'], 400);
         }
 
-        $transactionId = (int)($paymentData['metadata']['transaction_id'] ?? 0);
-        $transaction = $transactionId ? PaymentTransaction::find($transactionId) : null;
+        Log::info("Received payment status: {$paymentData['status']} for payment ID: {$paymentData['id']}");
+        $transaction = PaymentTransaction::where('payment_id', '=', $paymentData['id'])->first();
 
         if (!$transaction) {
+            Log::warning('Transaction not found, but event acknowledged');
             return response()->json(['message' => 'Transaction not found, but event acknowledged'], 200);
         }
+
+        $transaction->payment_id = $paymentData['id'] ?? $transaction->payment_id;
+        $transaction->save();
 
         $paymentStatus = $paymentData['status'];
 
@@ -103,8 +109,7 @@ class PaymentController extends Controller
                 break;
 
             case 'canceled':
-                $transaction->status = 'cancelled';
-                $transaction->save();
+                $this->handleCanceled($transaction, $paymentData);
                 break;
 
             case 'waiting_for_capture':
@@ -112,7 +117,7 @@ class PaymentController extends Controller
                 break;
 
             default:
-                Log::info("Unhandled payment status '{$paymentStatus}' for transaction {$transactionId}");
+                Log::info("Unhandled payment status '{$paymentStatus}'");
                 break;
         }
 
@@ -121,50 +126,45 @@ class PaymentController extends Controller
 
     protected function handleSucceeded(PaymentTransaction $transaction, array $paymentData)
     {
-        $metadata = $paymentData['metadata'];
-        $payment_method = $paymentData['payment_method'];
-
-        $courseName = $metadata['course_name'] ?? 'Unknown Package';
-        $userName = trim(($metadata['first_name'] ?? '') . ' ' . ($metadata['last_name'] ?? ''));
-        $userName = $userName ?: 'Guest';
-
-        $amount = (float)($paymentData['amount']['value'] ?? 0.0);
-
-        app(NotificationService::class)->sendPurchaseNotification(
-            $courseName,
-            $userName,
-            $amount
-        );
-
-        $transaction->payment_method = $payment_method['type'];
         $transaction->status = 'completed';
+        $transaction->payment_method = $paymentData['payment_method']['type'] ?? 'unknown';
         $transaction->payment_at = Carbon::now();
         $transaction->save();
+
+        app(NotificationService::class)->sendPurchaseNotification(
+            $paymentData['metadata']['course_name'] ?? 'Unknown Package',
+            $paymentData['metadata']['full_name'] ?? 'Guest',
+            (float)$paymentData['amount']['value']
+        );
+    }
+
+    protected function handleCanceled(PaymentTransaction $transaction, array $paymentData)
+    {
+        $transaction->status = 'canceled';
+        $transaction->save();
+
+        app(NotificationService::class)->sendPaymentFailedNotification(
+            $paymentData['metadata']['course_name'] ?? 'Unknown Package',
+            $paymentData['metadata']['full_name'] ?? 'Guest',
+            (float)$paymentData['amount']['value']
+        );
     }
 
     protected function handleWaitingForCapture(PaymentTransaction $transaction, array $paymentData)
     {
         $transaction->status = PaymentStatus::WAITING_FOR_CAPTURE;
-        $transaction->payment_id = $paymentData['id'];
-        $transaction->payment_at = Carbon::now();
-        $transaction->save();
 
         $client = new Client();
-        $shopId = config('services.yookassa.shop_id');
-        $secretKey = config('services.yookassa.secret_key');
-
-        if (!$shopId || !$secretKey) {
-            Log::error("YooKassa credentials missing for capture in config.");
-            return;
-        }
-
-        $client->setAuth($shopId, $secretKey);
+        $client->setAuth(
+            config('services.yookassa.shop_id'),
+            config('services.yookassa.secret_key')
+        );
 
         try {
             $captureResponse = $client->capturePayment(
                 [
                     'amount' => [
-                        'value' => $paymentData['amount']['value'],
+                        'value'    => $paymentData['amount']['value'],
                         'currency' => $paymentData['amount']['currency'],
                     ],
                 ],
@@ -176,10 +176,16 @@ class PaymentController extends Controller
                 $transaction->status = PaymentStatus::SUCCEEDED;
                 $transaction->save();
             } else {
-                Log::warning("Capture attempt for Payment ID {$paymentData['id']} failed. Status: " . $captureResponse->getStatus());
+                Log::warning(
+                    "Capture attempt for Payment ID {$paymentData['id']} failed. Status: " .
+                    $captureResponse->getStatus()
+                );
             }
         } catch (\Exception $e) {
-            Log::error("Error during YooKassa payment capture for ID {$paymentData['id']}: " . $e->getMessage());
+            Log::error(
+                "Error during YooKassa payment capture for ID {$paymentData['id']}: " .
+                $e->getMessage()
+            );
         }
     }
 }

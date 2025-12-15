@@ -9,7 +9,7 @@ use Telegram;
 class GetIdCommand extends Command
 {
     protected $name = 'getChatId';
-    protected $description = 'Отправляет информацию о пользователе и ID чата в этот же чат.';
+    protected $description = 'Отправляет информацию о ID чата в этот же чат.';
 
     /**
      * Метод, который будет вызван, когда пользователь вводит /getChatId.

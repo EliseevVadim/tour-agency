@@ -112,6 +112,22 @@ body {
     cursor: auto;
 }
 
+.line-1 {
+    line-height: 1;
+}
+
+.ta-input {
+    padding-left: 20px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-radius: 15px;
+    background: rgb(238, 238, 238);
+
+    &::placeholder {
+        color: #bcbcbc;
+    }
+}
+
 @-webkit-keyframes wave {
     50%, 75% {
         transform:scale(2.5)

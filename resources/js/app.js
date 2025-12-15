@@ -47,6 +47,8 @@ Vue.component('ssr-carousel', SsrCarousel);
 
 
 import { initPromoAnimation } from './animation';
+require("./scripts");
+
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', () => initPromoAnimation());
 }
