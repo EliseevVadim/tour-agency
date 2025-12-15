@@ -8,19 +8,21 @@
                 <div class="modal-body">
                     <h2 class="order-title text-center">Ваш заказ</h2>
                     <p class="order-subtitle text-center">Внимательно заполняйте <br> поля ниже</p>
+                    <!-- Изменено: Теперь обработка идет через @input, а не @submit.prevent -->
                     <form @submit.prevent="paymentClick">
                         <input class="idCourse" type="text" hidden :value="currentPackageId">
                         <div class="mb-3">
                             <label for="fullName" class="form-label">Фамилия Имя:</label>
-                            <input type="text" class="form-control ta-input" id="fullName" placeholder="Как к Вам обращаться?">
+                            <input type="text" class="form-control ta-input" id="fullName" placeholder="Как к Вам обращаться?" v-model="formData.fullName" @input="checkFormValidity">
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">На данную почту придет доступ к курсу:</label>
-                            <input type="email" class="form-control ta-input" id="email" placeholder="Email">
+                            <input type="email" class="form-control ta-input" id="email" placeholder="Email" v-model="formData.email" @input="checkFormValidity">
                         </div>
                         <div class="mb-3">
                             <label for="phone" class="form-label">Введите Ваш номер телефона:</label>
-                            <input type="tel" class="form-control ta-input" id="phone" placeholder="Чтобы мы точно смогли с Вами связаться">
+                            <!-- Важно: При использовании v-model для инпута с маской, обработка маски должна быть аккуратной. Пока оставим прямое чтение для маски, но добавим проверку валидности. -->
+                            <input type="tel" class="form-control ta-input" id="phone" placeholder="Чтобы мы точно смогли с Вами связаться" v-model="formData.phone" @input="checkFormValidity">
                         </div>
 
                         <div class="package-info d-flex justify-content-center gap-3 mb-5">
@@ -37,7 +39,8 @@
 
                         <div class="politics">
                             <div class="form-check mb-3 d-flex">
-                                <input class="form-check-input" type="checkbox" value="" id="checkPolitics">
+                                <!-- Добавлен v-model для чекбокса -->
+                                <input class="form-check-input" type="checkbox" id="checkPolitics" v-model="formData.agreesToPolitics" @change="checkFormValidity">
                                 <label class="form-check-label" for="checkPolitics">
                                     Я согласен с <a href="#" class="text-decoration-underline">Условиями использования</a> и <a href="#" class="text-decoration-underline">Политикой конфиденциальности</a>
                                 </label>
@@ -45,9 +48,11 @@
                         </div>
 
                         <div class="text-center">
-                            <button data-bs-dismiss="modal" type="submit" class="btn btn-continue btn-cta">Продолжить</button>
+                            <!-- Кнопка теперь управляется директивой :disabled -->
+                            <button :disabled="isDisabled" data-bs-dismiss="modal" type="submit"
+                                    class="btn btn-continue btn-cta">Продолжить</button>
                         </div>
-                </form>
+                    </form>
                 </div>
             </div>
         </div>
@@ -59,43 +64,51 @@ export default {
     name: "PreOrderModal",
     data(){
         return {
-            isDisabled: false,
+            isDisabled: true,
             currentPackageId: null,
             currentPackageName: null,
             currentPackagePrice: null,
+            formData: {
+                fullName: '',
+                email: '',
+                phone: '',
+                agreesToPolitics: false,
+            }
         }
     },
     methods: {
+        checkFormValidity() {
+            const { fullName, email, phone, agreesToPolitics } = this.formData;
+            const isPhoneValid = phone && phone.replace(/\D/g, '').length >= 10;
+
+            this.isDisabled = !(
+                fullName.trim() &&
+                email.includes('@') &&
+                isPhoneValid &&
+                agreesToPolitics
+            );
+        },
+
         async paymentClick() {
-            const isAgreed = document.getElementById('checkPolitics').checked;
-            if (!isAgreed) {
-                alert("Вы должны согласиться с условиями!");
-                return;
-            }
+            const { fullName, email, phone, agreesToPolitics } = this.formData;
 
-            const pkgId = this.currentPackageId;
-            const pkgName = this.currentPackageName;
-            const amount = this.currentPackagePrice;
-
-            if (!pkgId || !amount) {
-                console.error("Недостаточно данных для оплаты.");
-                return;
+            if (!this.currentPackageId || !this.currentPackagePrice || !agreesToPolitics || !this.isDisabled) {
+                if (this.isDisabled) {
+                    this.checkFormValidity();
+                    if(this.isDisabled) return;
+                }
             }
 
             this.isDisabled = true;
 
-            const phone = document.getElementById('phone').value;
-            const email = document.getElementById('email').value;
-            const firstName = document.getElementById('fullName').value;
-
             try {
                 const response = await axios.post('/payments/create', {
-                    package_id: pkgId,
-                    course_name: pkgName,
+                    package_id: this.currentPackageId,
+                    course_name: this.currentPackageName,
                     phone_number: phone,
                     email: email,
-                    full_name: firstName,
-                    amount: amount
+                    full_name: fullName,
+                    amount: this.currentPackagePrice
                 }).finally(() => {
                     this.isDisabled = false;
                 })
@@ -169,6 +182,12 @@ export default {
 
         if (orderModal) {
             orderModal.addEventListener('show.bs.modal', event => {
+                this.formData.fullName = '';
+                this.formData.email = '';
+                this.formData.phone = '';
+                this.formData.agreesToPolitics = false;
+                this.isDisabled = true;
+
                 this.addMaskToPhone();
 
                 const button = event.relatedTarget;
@@ -189,11 +208,12 @@ export default {
                     modalIdField.value = id;
                 }
                 if (modalTitleSpan) {
-                    modalTitleSpan.textContent = ` "${name}"`;
+                    modalTitleSpan.textContent = name ? ` "${name}"` : '...';
                 }
                 if (modalPriceSpan) {
-                    modalPriceSpan.textContent = `${price} р`;
+                    modalPriceSpan.textContent = price ? `${price} р` : '...';
                 }
+                this.checkFormValidity();
             });
         }
     }
