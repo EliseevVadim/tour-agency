@@ -134,6 +134,8 @@ class PaymentController extends Controller
         app(NotificationService::class)->sendPurchaseNotification(
             $paymentData['metadata']['course_name'] ?? 'Unknown Package',
             $paymentData['metadata']['full_name'] ?? 'Guest',
+            $paymentData['metadata']['phone_number'] ?? 'Unknown',
+            $paymentData['metadata']['email'] ?? 'Unknown',
             (float)$paymentData['amount']['value']
         );
     }
@@ -146,6 +148,8 @@ class PaymentController extends Controller
         app(NotificationService::class)->sendPaymentFailedNotification(
             $paymentData['metadata']['course_name'] ?? 'Unknown Package',
             $paymentData['metadata']['full_name'] ?? 'Guest',
+            $paymentData['metadata']['phone_number'] ?? 'Unknown',
+            $paymentData['metadata']['email'] ?? 'Unknown',
             (float)$paymentData['amount']['value']
         );
     }

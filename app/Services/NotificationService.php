@@ -11,7 +11,7 @@ class NotificationService
     // Константы для стилизации сообщений
     private const ICON_SUCCESS = "✅";
     private const ICON_FAILURE = "❌";
-    private const ICON_INFO = "ℹ️"; // Можно использовать для других статусов
+    private const ICON_INFO = "ℹ️";
 
     protected function getChatId(string $channelKey): ?string
     {
@@ -35,7 +35,8 @@ class NotificationService
         }
     }
 
-    public function sendPurchaseNotification(string $courseName, string $userName, float $amount): bool
+    public function sendPurchaseNotification(string $courseName, string $userName, string $phone,
+                                             string $email, float $amount): bool
     {
         $chatId = $this->getChatId('sales_channel');
 
@@ -45,20 +46,22 @@ class NotificationService
         }
 
         $message = sprintf(
-            "%s НОВАЯ ПОКУПКА\n\n" .
-            "👤 Пользователь: %s\n" .
-            "📚 Курс: %s\n" .
-            "💰 Сумма: %.2f р",
+            "%s %s оплатил(а) курс %s за %.2f р \n\n" .
+            "Email: %s \n" .
+            "Телефон: %s \n",
             self::ICON_SUCCESS,
             $userName,
             $courseName,
-            $amount
+            $amount,
+            $email,
+            $phone
         );
 
         return $this->sendToTelegram($chatId, $message);
     }
 
-    public function sendPaymentFailedNotification(string $courseName, string $userName, float $amount): bool
+    public function sendPaymentFailedNotification(string $courseName, string $userName, string $phone,
+                                                  string $email, float $amount): bool
     {
         $chatId = $this->getChatId('not_sales_channel');
 
@@ -68,14 +71,14 @@ class NotificationService
         }
 
         $message = sprintf(
-            "%s ПОПЫТКА ОПЛАТЫ НЕ УДАЛАСЬ\n\n" .
-            "👤 Пользователь: %s\n" .
-            "📚 Курс: %s\n" .
-            "💰 Сумма: %.2f р",
+            "%s У %s попытка оплаты за курс %s не удалась\n\n" .
+            "Email: %s \n" .
+            "Телефон: %s \n" ,
             self::ICON_FAILURE,
             $userName,
             $courseName,
-            $amount
+            $email,
+            $phone
         );
 
         return $this->sendToTelegram($chatId, $message);

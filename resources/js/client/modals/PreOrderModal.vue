@@ -88,15 +88,6 @@ export default {
             const email = document.getElementById('email').value;
             const firstName = document.getElementById('fullName').value;
 
-            console.log({
-                package_id: pkgId,
-                course_name: pkgName,
-                phone_number: phone,
-                email: email,
-                full_name: firstName,
-                amount: amount
-            });
-
             try {
                 const response = await axios.post('/payments/create', {
                     package_id: pkgId,
@@ -105,7 +96,9 @@ export default {
                     email: email,
                     full_name: firstName,
                     amount: amount
-                });
+                }).finally(() => {
+                    this.isDisabled = false;
+                })
 
                 if (response.status === 200) {
                     window.open(response.data);
@@ -115,8 +108,6 @@ export default {
             } catch (error) {
                 console.error('Ошибка API:', error);
                 alert('Произошла ошибка при запросе к серверу.');
-            } finally {
-                this.isDisabled = false;
             }
         },
         addMaskToPhone(){
