@@ -126,6 +126,11 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Transaction not found, but event acknowledged'], 200);
         }
 
+        if ($transaction->status === 'completed' && $paymentData['status'] === 'succeeded') {
+            Log::info("Duplicate 'succeeded' webhook received for Payment ID: {$paymentData['id']}. Ignored.");
+            return response()->json(['message' => 'Already completed'], 200);
+        }
+
         $transaction->payment_id = $paymentData['id'] ?? $transaction->payment_id;
         $transaction->save();
 
