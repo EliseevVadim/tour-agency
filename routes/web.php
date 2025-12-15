@@ -49,3 +49,7 @@ Route::get('/api/team', [TeamController::class, 'getTeam'])->name('api.team.inde
 Route::get('/api/reviews', [\App\Http\Controllers\ReviewsController::class, 'getReviews'])->name('api.reviews.index');
 
 Route::post('/telegram/webhook', [TelegramController::class, 'handleWebhook'])->name('telegram.webhook');
+
+Route::get('/test', function () {
+   return view('emails.purchase_success');
+});

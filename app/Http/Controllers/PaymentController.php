@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\PurchaseConfirmationMail;
 use App\Models\PaymentTransaction;
 use App\Models\User;
 use App\Services\NotificationService;
@@ -10,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use YooKassa\Client;
 use YooKassa\Client\BaseClient;
@@ -157,13 +159,24 @@ class PaymentController extends Controller
         $transaction->payment_at = Carbon::now();
         $transaction->save();
 
+        $courseName = $paymentData['metadata']['course_name'];
+        $userName = $paymentData['metadata']['full_name'];
+        $email = $paymentData['metadata']['email'];
+        $link = $paymentData['metadata']['link'] ?? "#";
+
         app(NotificationService::class)->sendPurchaseNotification(
-            $paymentData['metadata']['course_name'] ?? 'Unknown Package',
-            $paymentData['metadata']['full_name'] ?? 'Guest',
+            $courseName ?? 'Unknown Package',
+            $userName ?? 'Guest',
             $paymentData['metadata']['phone_number'] ?? 'Unknown',
-            $paymentData['metadata']['email'] ?? 'Unknown',
+                $email ?? 'Unknown',
             (float)$paymentData['amount']['value']
         );
+
+        Mail::to($email)->queue(new PurchaseConfirmationMail(
+            $courseName,
+            $userName,
+            $link,
+        ));
     }
 
     protected function handleCanceled(PaymentTransaction $transaction, array $paymentData)
