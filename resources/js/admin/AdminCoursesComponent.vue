@@ -1,180 +1,266 @@
 <template>
     <div class="container mt-4">
-        <h3 class="mb-4 fw-bold">Управление пакетами</h3>
+        <ul class="nav nav-tabs" id="coursesTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="manage-courses-tab" data-bs-toggle="tab"
+                        data-bs-target="#manage-courses" type="button" role="tab" aria-controls="manage-courses"
+                        aria-selected="true">Управление</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="logs-courses-tab" data-bs-toggle="tab" data-bs-target="#logs-courses"
+                        type="button" role="tab" aria-controls="logs-courses" aria-selected="false">История</button>
+            </li>
+        </ul>
+        <div class="tab-content" id="coursesTabContent">
+            <div class="tab-pane fade show active" id="manage-courses" role="tabpanel"
+                 aria-labelledby="manage-courses-tab">
+                <div class="row" v-if="isDataLoaded">
+                    <div class="col-lg-4">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Пакет "Мини"</h5>
+                                <form @submit.prevent="savePackage('mini')">
+                                    <div class="mb-3">
+                                        <label for="miniName" class="form-label">Название пакета</label>
+                                        <input autocomplete="off" class="form-control" id="miniName"
+                                               v-model="packages.mini.name">
+                                    </div>
 
-        <div class="row" v-if="isDataLoaded">
-            <div class="col-lg-4">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Пакет "Мини"</h5>
-                        <form @submit.prevent="savePackage('mini')">
-                            <div class="mb-3">
-                                <label for="miniName" class="form-label">Название пакета</label>
-                                <input autocomplete="off" class="form-control" id="miniName"
-                                       v-model="packages.mini.name">
+                                    <div class="mb-3">
+                                        <label for="minipriceOld" class="form-label">Старая цена</label>
+                                        <div class="price-input-wrapper">
+                                            <input type="hidden" id="minipriceOldHidden"
+                                                   v-model.number="packages.mini.priceOld">
+
+                                            <input type="text"
+                                                   autocomplete="off"
+                                                   class="form-control price-display"
+                                                   id="minipriceOldDisplay"
+                                                   :value="formattedPrice(packages.mini.priceOld)"
+                                                   @input="updatePrice('mini', 'priceOld', $event.target.value)"
+                                                   @blur="handleBlur('mini', 'priceOld')"
+                                                   @focus="handleFocus('mini', 'priceOld')"
+                                                   placeholder="14 500">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="minipriceNew" class="form-label">Новая цена</label>
+                                        <div class="price-input-wrapper">
+                                            <input type="hidden" id="minipriceNewHidden"
+                                                   v-model.number="packages.mini.priceNew">
+                                            <input type="text"
+                                                   autocomplete="off"
+                                                   class="form-control price-display"
+                                                   id="minipriceNewDisplay"
+                                                   :value="formattedPrice(packages.mini.priceNew)"
+                                                   @input="updatePrice('mini', 'priceNew', $event.target.value)"
+                                                   @blur="handleBlur('mini', 'priceNew')"
+                                                   @focus="handleFocus('mini', 'priceNew')"
+                                                   placeholder="14 500">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="miniContentLink" class="form-label">Контент-ссылка</label>
+                                        <input autocomplete="off" class="form-control" id="miniContentLink"
+                                               v-model="packages.mini.contentLink">
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary" :disabled="!isDataLoaded">Сохранить "Мини"
+                                    </button>
+                                </form>
                             </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Пакет "Опти"</h5>
+                                <form @submit.prevent="savePackage('opti')">
+                                    <div class="mb-3">
+                                        <label for="optiName" class="form-label">Название пакета</label>
+                                        <input autocomplete="off" class="form-control" id="optiName"
+                                               v-model="packages.opti.name">
+                                    </div>
 
-                            <div class="mb-3">
-                                <label for="minipriceOld" class="form-label">Старая цена</label>
-                                <div class="price-input-wrapper">
-                                    <input type="hidden" id="minipriceOldHidden"
-                                           v-model.number="packages.mini.priceOld">
+                                    <div class="mb-3">
+                                        <label for="minipriceOld" class="form-label">Старая цена</label>
+                                        <div class="price-input-wrapper">
+                                            <input type="hidden" id="minipriceOldHidden"
+                                                   v-model.number="packages.opti.priceOld">
 
-                                    <input type="text"
-                                           autocomplete="off"
-                                           class="form-control price-display"
-                                           id="minipriceOldDisplay"
-                                           :value="formattedPrice(packages.mini.priceOld)"
-                                           @input="updatePrice('mini', 'priceOld', $event.target.value)"
-                                           @blur="handleBlur('mini', 'priceOld')"
-                                           @focus="handleFocus('mini', 'priceOld')"
-                                           placeholder="14 500">
-                                </div>
+                                            <input type="text"
+                                                   autocomplete="off"
+                                                   class="form-control price-display"
+                                                   id="minipriceOldDisplay"
+                                                   :value="formattedPrice(packages.opti.priceOld)"
+                                                   @input="updatePrice('opti', 'priceOld', $event.target.value)"
+                                                   @blur="handleBlur('opti', 'priceOld')"
+                                                   @focus="handleFocus('opti', 'priceOld')"
+                                                   placeholder="14 500">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="minipriceNew" class="form-label">Новая цена</label>
+                                        <div class="price-input-wrapper">
+                                            <input type="hidden" id="minipriceNewHidden"
+                                                   v-model.number="packages.opti.priceNew">
+                                            <input type="text"
+                                                   autocomplete="off"
+                                                   class="form-control price-display"
+                                                   id="minipriceNewDisplay"
+                                                   :value="formattedPrice(packages.opti.priceNew)"
+                                                   @input="updatePrice('opti', 'priceNew', $event.target.value)"
+                                                   @blur="handleBlur('opti', 'priceNew')"
+                                                   @focus="handleFocus('opti', 'priceNew')"
+                                                   placeholder="14 500">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="optiContentLink" class="form-label">Контент-ссылка</label>
+                                        <input autocomplete="off" class="form-control" id="optiContentLink"
+                                               v-model="packages.opti.contentLink">
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary" :disabled="!isDataLoaded">Сохранить "Опти"
+                                    </button>
+                                </form>
                             </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Пакет "Макси"</h5>
+                                <form @submit.prevent="savePackage('maxi')">
+                                    <div class="mb-3">
+                                        <label for="maxiName" class="form-label">Название пакета</label>
+                                        <input autocomplete="off" class="form-control" id="maxiName"
+                                               v-model="packages.maxi.name">
+                                    </div>
 
-                            <div class="mb-3">
-                                <label for="minipriceNew" class="form-label">Новая цена</label>
-                                <div class="price-input-wrapper">
-                                    <input type="hidden" id="minipriceNewHidden"
-                                           v-model.number="packages.mini.priceNew">
-                                    <input type="text"
-                                           autocomplete="off"
-                                           class="form-control price-display"
-                                           id="minipriceNewDisplay"
-                                           :value="formattedPrice(packages.mini.priceNew)"
-                                           @input="updatePrice('mini', 'priceNew', $event.target.value)"
-                                           @blur="handleBlur('mini', 'priceNew')"
-                                           @focus="handleFocus('mini', 'priceNew')"
-                                           placeholder="14 500">
-                                </div>
+                                    <div class="mb-3">
+                                        <label for="minipriceOld" class="form-label">Старая цена</label>
+                                        <div class="price-input-wrapper">
+                                            <input type="hidden" id="minipriceOldHidden"
+                                                   v-model.number="packages.maxi.priceOld">
+
+                                            <input type="text"
+                                                   autocomplete="off"
+                                                   class="form-control price-display"
+                                                   id="minipriceOldDisplay"
+                                                   :value="formattedPrice(packages.maxi.priceOld)"
+                                                   @input="updatePrice('maxi', 'priceOld', $event.target.value)"
+                                                   @blur="handleBlur('maxi', 'priceOld')"
+                                                   @focus="handleFocus('maxi', 'priceOld')"
+                                                   placeholder="14 500">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="minipriceNew" class="form-label">Новая цена</label>
+                                        <div class="price-input-wrapper">
+                                            <input type="hidden" id="minipriceNewHidden"
+                                                   v-model.number="packages.maxi.priceNew">
+                                            <input type="text"
+                                                   autocomplete="off"
+                                                   class="form-control price-display"
+                                                   id="minipriceNewDisplay"
+                                                   :value="formattedPrice(packages.maxi.priceNew)"
+                                                   @input="updatePrice('maxi', 'priceNew', $event.target.value)"
+                                                   @blur="handleBlur('maxi', 'priceNew')"
+                                                   @focus="handleFocus('maxi', 'priceNew')"
+                                                   placeholder="14 500">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="maxiContentLink" class="form-label">Контент-ссылка</label>
+                                        <input autocomplete="off" class="form-control" id="maxiContentLink"
+                                               v-model="packages.maxi.contentLink">
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary" :disabled="!isDataLoaded">Сохранить "Макси"
+                                    </button>
+                                </form>
                             </div>
-
-                            <div class="mb-3">
-                                <label for="miniContentLink" class="form-label">Контент-ссылка</label>
-                                <input autocomplete="off" class="form-control" id="miniContentLink"
-                                       v-model="packages.mini.contentLink">
-                            </div>
-
-                            <button type="submit" class="btn btn-primary" :disabled="!isDataLoaded">Сохранить "Мини"
-                            </button>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Пакет "Опти"</h5>
-                        <form @submit.prevent="savePackage('opti')">
-                            <div class="mb-3">
-                                <label for="optiName" class="form-label">Название пакета</label>
-                                <input autocomplete="off" class="form-control" id="optiName"
-                                       v-model="packages.opti.name">
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="minipriceOld" class="form-label">Старая цена</label>
-                                <div class="price-input-wrapper">
-                                    <input type="hidden" id="minipriceOldHidden"
-                                           v-model.number="packages.opti.priceOld">
-
-                                    <input type="text"
-                                           autocomplete="off"
-                                           class="form-control price-display"
-                                           id="minipriceOldDisplay"
-                                           :value="formattedPrice(packages.opti.priceOld)"
-                                           @input="updatePrice('opti', 'priceOld', $event.target.value)"
-                                           @blur="handleBlur('opti', 'priceOld')"
-                                           @focus="handleFocus('opti', 'priceOld')"
-                                           placeholder="14 500">
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="minipriceNew" class="form-label">Новая цена</label>
-                                <div class="price-input-wrapper">
-                                    <input type="hidden" id="minipriceNewHidden"
-                                           v-model.number="packages.opti.priceNew">
-                                    <input type="text"
-                                           autocomplete="off"
-                                           class="form-control price-display"
-                                           id="minipriceNewDisplay"
-                                           :value="formattedPrice(packages.opti.priceNew)"
-                                           @input="updatePrice('opti', 'priceNew', $event.target.value)"
-                                           @blur="handleBlur('opti', 'priceNew')"
-                                           @focus="handleFocus('opti', 'priceNew')"
-                                           placeholder="14 500">
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="optiContentLink" class="form-label">Контент-ссылка</label>
-                                <input autocomplete="off" class="form-control" id="optiContentLink"
-                                       v-model="packages.opti.contentLink">
-                            </div>
-
-                            <button type="submit" class="btn btn-primary" :disabled="!isDataLoaded">Сохранить "Опти"
-                            </button>
-                        </form>
+            <div class="tab-pane fade" id="logs-courses" role="tabpanel" aria-labelledby="logs-courses-tab">
+                <div class="container-fluid py-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center">
+                            <label for="statusFilter" class="me-1 fw-medium">Статус:</label>
+                            <select id="statusFilter" v-model="filters.status" @change="fetchData" class="form-select" style="width:200px;">
+                                <option :value="null">Все</option>
+                                <option v-for="s in statuses" :key="s" :value="s">{{ s }}</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Пакет "Макси"</h5>
-                        <form @submit.prevent="savePackage('maxi')">
-                            <div class="mb-3">
-                                <label for="maxiName" class="form-label">Название пакета</label>
-                                <input autocomplete="off" class="form-control" id="maxiName"
-                                       v-model="packages.maxi.name">
-                            </div>
 
-                            <div class="mb-3">
-                                <label for="minipriceOld" class="form-label">Старая цена</label>
-                                <div class="price-input-wrapper">
-                                    <input type="hidden" id="minipriceOldHidden"
-                                           v-model.number="packages.maxi.priceOld">
-
-                                    <input type="text"
-                                           autocomplete="off"
-                                           class="form-control price-display"
-                                           id="minipriceOldDisplay"
-                                           :value="formattedPrice(packages.maxi.priceOld)"
-                                           @input="updatePrice('maxi', 'priceOld', $event.target.value)"
-                                           @blur="handleBlur('maxi', 'priceOld')"
-                                           @focus="handleFocus('maxi', 'priceOld')"
-                                           placeholder="14 500">
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="minipriceNew" class="form-label">Новая цена</label>
-                                <div class="price-input-wrapper">
-                                    <input type="hidden" id="minipriceNewHidden"
-                                           v-model.number="packages.maxi.priceNew">
-                                    <input type="text"
-                                           autocomplete="off"
-                                           class="form-control price-display"
-                                           id="minipriceNewDisplay"
-                                           :value="formattedPrice(packages.maxi.priceNew)"
-                                           @input="updatePrice('maxi', 'priceNew', $event.target.value)"
-                                           @blur="handleBlur('maxi', 'priceNew')"
-                                           @focus="handleFocus('maxi', 'priceNew')"
-                                           placeholder="14 500">
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="maxiContentLink" class="form-label">Контент-ссылка</label>
-                                <input autocomplete="off" class="form-control" id="maxiContentLink"
-                                       v-model="packages.maxi.contentLink">
-                            </div>
-
-                            <button type="submit" class="btn btn-primary" :disabled="!isDataLoaded">Сохранить "Макси"
-                            </button>
-                        </form>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped align-middle">
+                            <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Пользователь</th>
+                                <th>Пакет</th>
+                                <th>Payment ID</th>
+                                <th>Статус</th>
+                                <th>Метод</th>
+                                <th>Сумма</th>
+                                <th>Оплачено</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="t in transactions" :key="t.id">
+                                <td>#{{ t.id }}</td>
+                                <td>
+                                    <div>{{ t.user.full_name ?? '-' }}</div>
+                                    <small class="text-muted">{{ t.user.email ?? '' }}</small><br>
+                                    <small class="text-muted">{{ t.user.phone_number ?? '' }}</small>
+                                </td>
+                                <td>
+                                    <div>{{ t.package.name ?? '-' }}</div>
+                                    <small class="text-muted">Цена: {{ t.package.price_new ?? '-' }} р</small>
+                                </td>
+                                <td>{{ t.payment_id ?? '-' }}</td>
+                                <td>
+                                    <span :class="badgeClass(t.status)">{{ formatStatus(t.status) }}</span>
+                                </td>
+                                <td>{{ t.payment_method ?? '-' }}</td>
+                                <td>{{ formatMoney(t.amount) }} р</td>
+                                <td>{{ t.payment_at ? formatDate(t.payment_at) : '-' }}</td>
+                            </tr>
+                            <tr v-if="transactions.length === 0">
+                                <td colspan="8" class="text-center text-muted py-5">
+                                    Нет транзакций для отображения
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
+
+                    <nav v-if="meta.total > meta.per_page" class="mt-2">
+                        <ul class="pagination pagination-sm justify-content-center mb-0">
+                            <li :class="['page-item', { disabled: !links.prev }]">
+                                <a class="page-link" href="#" @click.prevent="goToPage(meta.current_page - 1)">«</a>
+                            </li>
+
+                            <li v-for="page in pages" :key="page" class="page-item" :class="{ active: page === meta.current_page }">
+                                <a class="page-link" href="#" @click.prevent="goToPage(page)">{{ page }}</a>
+                            </li>
+
+                            <li :class="['page-item', { disabled: !links.next }]">
+                                <a class="page-link" href="#" @click.prevent="goToPage(meta.current_page + 1)">»</a>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
@@ -209,13 +295,90 @@ export default {
                     contentLink: '',
                 }
             },
-            isDataLoaded: false
+            isDataLoaded: false,
+            filters: {
+                status: null,
+            },
+            transactions: [],
+            meta: {},
+            links: { next: null, prev: null },
+            statuses: ['completed',
+            'pending',
+            'canceled']
         };
+    },
+    computed: {
+        pages() {
+            const arr = [];
+            for (let i = 1; i <= (this.meta.last_page || 1); i++) {
+                arr.push(i);
+            }
+            return arr;
+        },
+    },
+
+    watch: {
+        'filters.status'() {
+            this.fetchData(1);
+        },
+    },
+    created() {
+        this.fetchData();
     },
     mounted() {
         this.loadPackages();
     },
     methods: {
+        async fetchData(page = 1) {
+            try {
+                const { data } = await axios.get('/admin/api/transactions', {
+                    params: { ...this.filters, page },
+                });
+
+                this.transactions = data.data;
+                this.meta = data.meta;
+                this.links = data.links;
+            } catch (e) {
+                console.error('Failed to load transactions', e);
+            }
+        },
+
+        goToPage(page) {
+            if (page < 1 || page > (this.meta.last_page || 1)) return;
+            this.fetchData(page);
+        },
+
+        formatMoney(val) {
+            return Number(val).toLocaleString('ru-RU', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            });
+        },
+
+        formatDate(dateStr) {
+            const d = new Date(dateStr);
+            return d.toLocaleString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
+        },
+
+        formatStatus(status) {
+            return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+        },
+
+        badgeClass(status) {
+            const map = {
+                completed: 'badge bg-success',
+                waiting_for_capture: 'badge bg-warning',
+                canceled: 'badge bg-danger',
+            };
+            return map[status] ?? 'badge bg-secondary';
+        },
+
         loadPackages() {
             axios.get('/api/courses')
                 .then(response => {

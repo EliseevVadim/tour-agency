@@ -33,5 +33,7 @@ Route::middleware(['admin.auth.hash'])->prefix('admin')->name('admin.')->group(f
     Route::post('/api/review', [ReviewsController::class, 'store'])->name('api.review.store');
     Route::delete('/api/review/{id}', [ReviewsController::class, 'destroy'])->name('api.review.destroy');
 
+    Route::get('/api/transactions', [\App\Http\Controllers\PaymentController::class, 'index']);
+
     Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
 });

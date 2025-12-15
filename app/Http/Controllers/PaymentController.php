@@ -24,6 +24,34 @@ use YooKassa\Model\Payment\PaymentStatus;
 
 class PaymentController extends Controller
 {
+    public function index(Request $request)
+    {
+        $status = $request->input('status');
+
+        $query = PaymentTransaction::with(['user', 'package'])
+            ->orderByDesc('id');
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        $transactions = $query->paginate(20)->appends($request->query());
+
+        return response()->json([
+            'data'  => $transactions->items(),
+            'meta'  => [
+                'current_page' => $transactions->currentPage(),
+                'per_page'     => $transactions->perPage(),
+                'last_page'    => $transactions->lastPage(),
+                'total'        => $transactions->total(),
+            ],
+            'links' => [
+                'next' => $transactions->nextPageUrl(),
+                'prev' => $transactions->previousPageUrl(),
+            ],
+        ]);
+    }
+
     /**
      * @param Request $request
      * @param PaymentService $service
@@ -57,7 +85,7 @@ class PaymentController extends Controller
             'package_id'   => $request->input('package_id'),
             'amount'       => $amount,
             'status'       => 'pending',
-            'payment_method' => 'unknown',
+            'payment_method' => null,
         ]);
 
         $paymentInfo = $service->createPayment(
@@ -89,8 +117,6 @@ class PaymentController extends Controller
         if (!$paymentData || !isset($paymentData['status'], $paymentData['id'])) {
             return response()->json(['message' => 'Invalid notification structure'], 400);
         }
-
-        Log::info("Received payment status: {$paymentData['status']} for payment ID: {$paymentData['id']}");
         $transaction = PaymentTransaction::where('payment_id', '=', $paymentData['id'])->first();
 
         if (!$transaction) {
