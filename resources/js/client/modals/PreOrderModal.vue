@@ -11,7 +11,7 @@
                     <form @submit.prevent="paymentClick">
                         <input class="idCourse" type="text" hidden :value="currentPackageId">
                         <div class="mb-3">
-                            <label for="fullName" class="form-label">Фамилия Имя:</label>
+                            <label for="fullName" class="form-label modal-input-to-focus">Фамилия Имя:</label>
                             <input type="text" class="form-control ta-input" id="fullName"
                                    placeholder="Как к Вам обращаться?" v-model="formData.fullName"
                                    @input="checkFormValidity">
@@ -120,7 +120,7 @@ export default {
                 })
 
                 if (response.status === 200) {
-                    window.open(response.data);
+                    window.location.href = response.data;
                 } else {
                     alert('Ошибка при создании платежа.');
                 }
@@ -237,6 +237,15 @@ export default {
                 this.checkFormValidity();
             });
         }
+        orderModal.addEventListener('shown.bs.modal', () => {
+            if (document.activeElement) {
+                document.activeElement.blur();
+            }
+            const inputToFocus = orderModal.querySelector('.modal-input-to-focus');
+            if (inputToFocus) {
+                inputToFocus.focus();
+            }
+        });
     }
 }
 </script>
