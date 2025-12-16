@@ -164,3 +164,23 @@
         }
     }
 }
+
+@media (max-width: 420px) {
+    .course-modules-section .course-modules-right .gradient-circle {
+        width: 340px;
+        height: 340px;
+    }
+
+    .course-modules-cards {
+        transform: scale(0.8);
+    }
+
+    .course-modules-section .course-modules-right .course-modules-cards .course-card-1 {
+        left: -33px;
+        top: -30px;
+    }
+
+    .pricing-section .pricing-certificate {
+        transform: rotate(-12deg) scale(0.8) !important;
+    }
+}

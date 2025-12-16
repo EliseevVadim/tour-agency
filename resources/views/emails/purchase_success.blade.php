@@ -13,6 +13,7 @@
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
+            min-height: 100vh;
         }
         table {
             border-collapse: collapse !important;
@@ -48,14 +49,12 @@
             height: 180px;
             border-radius: 50%;
             background-color: #E74C3C;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: table;
             text-align: center;
         }
     </style>
 </head>
-<body style="margin:0; padding:0; background-color:#f4f4f4;">
+<body style="margin:0; padding:0; background-color:#f4f4f4;" dir="ltr">
 
 <table width="100%" border="0" cellpadding="0" cellspacing="0">
     <tr>
@@ -72,7 +71,7 @@
                                     <table border="0" cellpadding="0" cellspacing="0" class="logo-circle">
                                         <tr>
                                             <td align="center" style="padding: 20px;">
-                                                <img style="width: 140px;" class="logo" alt="logo"
+                                                <img style="display: block; width: 140px; border: 0;" class="logo" alt="logo"
                                                      src="https://putclub.ru/img/logo-courses.png">
                                             </td>
                                         </tr>
