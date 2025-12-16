@@ -380,7 +380,7 @@ export default {
         },
 
         loadPackages() {
-            axios.get('/api/courses')
+            axios.get('/api/admin/courses')
                 .then(response => {
                     const packagesData = response.data.packages;
 

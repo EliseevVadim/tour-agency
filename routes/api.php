@@ -23,4 +23,5 @@ Route::get('/courses', [CoursesController::class, 'getCourses']);
 
 Route::prefix('admin')->group(function () {
     Route::put('/courses/{id}', [CoursesController::class, 'update']);
+    Route::get('/courses', [CoursesController::class, 'getAdminCourses']);
 });

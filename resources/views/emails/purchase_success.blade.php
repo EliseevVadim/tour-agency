@@ -61,7 +61,7 @@
     <tr>
         <td align="center" style="padding: 20px 0 20px 0;">
             <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 440px;
-            border-collapse: collapse; background: url('/public/img/hero-section-bg.jpg');
+            border-collapse: collapse; background: url('https://putclub.ru/img/hero-section-bg.jpg');
             background-position:center top; background-size: cover; overflow: hidden">
                 <tr>
                     <td></td>
@@ -72,7 +72,8 @@
                                     <table border="0" cellpadding="0" cellspacing="0" class="logo-circle">
                                         <tr>
                                             <td align="center" style="padding: 20px;">
-                                                <img style="width: 140px;" class="logo" alt="logo" src="/public/img/logo.png">
+                                                <img style="width: 140px;" class="logo" alt="logo"
+                                                     src="https://putclub.ru/img/logo-courses.png">
                                             </td>
                                         </tr>
                                     </table>

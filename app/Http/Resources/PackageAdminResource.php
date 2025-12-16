@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class PackageResource extends JsonResource
+class PackageAdminResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,6 +19,7 @@ class PackageResource extends JsonResource
             'name' => $this->name,
             'priceOld' => $this->price_old,
             'priceNew' => $this->price_new,
+            'contentLink' => $this->content_link,
         ];
     }
 }

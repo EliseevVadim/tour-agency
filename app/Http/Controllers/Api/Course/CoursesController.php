@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Course;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\PackageAdminResource;
 use App\Http\Resources\PackageResource;
 use App\Models\Package;
 use Illuminate\Http\JsonResponse;
@@ -12,7 +13,8 @@ use Illuminate\Support\Facades\Validator;
 
 class CoursesController extends Controller
 {
-    public function getCourses(): JsonResponse
+
+    protected function getPackagesData(string $resourceClass): array
     {
         $packages = Package::all()->keyBy('id');
         $expectedKeys = ['mini', 'opti', 'maxi'];
@@ -20,11 +22,27 @@ class CoursesController extends Controller
 
         foreach ($expectedKeys as $key) {
             if ($packages->has($key)) {
-                $responsePackages[$key] = new PackageResource($packages->get($key));
+                $responsePackages[$key] = new $resourceClass($packages->get($key));
             } else {
                 $responsePackages[$key] = null;
             }
         }
+
+        return $responsePackages;
+    }
+
+    public function getCourses(): JsonResponse
+    {
+        $responsePackages = $this->getPackagesData(PackageResource::class);
+
+        return response()->json([
+            'packages' => $responsePackages
+        ]);
+    }
+
+    public function getAdminCourses(): JsonResponse
+    {
+        $responsePackages = $this->getPackagesData(PackageAdminResource::class);
 
         return response()->json([
             'packages' => $responsePackages

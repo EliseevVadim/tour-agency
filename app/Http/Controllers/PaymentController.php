@@ -218,10 +218,17 @@ class PaymentController extends Controller
         $transaction->payment_at = Carbon::now();
         $transaction->save();
 
+        $package = $transaction->package;
+
+        $packageLink = null;
+        if ($package) {
+            $packageLink = $package->content_link;
+        }
+
         $courseName = $paymentData['metadata']['course_name'];
         $userName = $paymentData['metadata']['full_name'];
         $email = $paymentData['metadata']['email'];
-        $link = $paymentData['metadata']['link'] ?? "#";
+        $link = $packageLink ?? "#";
 
         app(NotificationService::class)->sendPurchaseNotification(
             $courseName ?? 'Unknown Package',
