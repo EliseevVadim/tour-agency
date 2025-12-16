@@ -89,7 +89,8 @@
                      class="btn-container d-flex flex-column justify-content-center text-center">
                     <button data-bs-toggle="modal" data-bs-target="#orderModal" class="btn btn-cta btn-price"
                             :disabled="isDisabled" :data-bs-id="pkg.id"
-                            :data-bs-name="pkg.name" :data-bs-price="pkg.details.priceNew">
+                            :data-bs-name="pkg.name" :data-bs-price="pkg.details.priceNew"
+                            :data-bs-bg="pkg.imageThumbnail">
                         {{ pkg.details.buttonText }}
                     </button>
                     <div class="mark-price">
@@ -118,6 +119,7 @@ export default {
                     name: 'МИНИ',
                     description: 'это идеальный вариант для тех, кто хочет освоить базовые навыки работы в туризме, но без дополнительных привилегий.',
                     imagePlaceholder: '/img/packets/packet-2-bg.png',
+                    imageThumbnail: '/img/packets/packet-1-bg-small.jpg',
                     details: {
                         intro: 'Он включает в себя все девять модулей нашего курса, давая тебе полное понимание туристической индустрии и необходимых практических знаний.',
                         restriction: 'Однако в пакете "Мини" не предусмотрены доступ к закрытому клубу, наставникам и кураторам, а также сертификация по завершении курса.',
@@ -136,6 +138,7 @@ export default {
                     name: 'ОПТИ',
                     description: 'это твой полный путь к успеху в мире туризма!',
                     imagePlaceholder: '/img/packets/packet-1-bg.png',
+                    imageThumbnail: '/img/packets/packet-2-bg-small.jpg',
                     details: {
                         intro: 'Этот пакет включает в себя все ключевые элементы для твоего профессионального роста и предоставляет уникальные возможности:',
                         restriction: null,
@@ -186,6 +189,7 @@ export default {
                     name: 'МАКСИ',
                     description: 'это полный и уникальный набор возможностей для твоего профессионального роста и сфере туризма!',
                     imagePlaceholder: '/img/packets/packet-3-bg.png',
+                    imageThumbnail: '/img/packets/packet-3-bg-small.jpg',
                     details: {
                         intro: 'Этот пакет нашего курса, предоставляет тебе доступ к самым ценным и эксклюзивным материалам и услугам.',
                         restriction: null,

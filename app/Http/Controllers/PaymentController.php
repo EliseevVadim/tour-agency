@@ -26,6 +26,61 @@ use YooKassa\Model\Payment\PaymentStatus;
 
 class PaymentController extends Controller
 {
+    protected $paymentService;
+
+    public function __construct(PaymentService $paymentService)
+    {
+        $this->paymentService = $paymentService;
+    }
+
+    public function handleReturn(Request $request)
+    {
+        $transactionId = $request->query('transaction_id');
+
+        if (!$transactionId) {
+            return redirect()->route('courses')->with('payment_fail', [
+                'title' => 'Ошибка возврата',
+                'support_link_text' => 'службу заботы',
+                'support_link_url' => route('contacts'),
+            ]);
+        }
+
+        $transaction = PaymentTransaction::find($transactionId);
+
+        if (!$transaction) {
+            return redirect()->route('courses')->with('payment_fail', [
+                'title' => 'Ошибка: Транзакция не найдена в системе.',
+                'support_link_text' => 'службу заботы',
+                'support_link_url' => route('contacts'),
+            ]);
+        }
+
+        try {
+            if ($transaction->status === 'succeeded') {
+                return redirect()->route('courses')->with('payment_success', [
+                    'title' => 'Добро пожаловать в увлекательный мир туризма!',
+                    'body' => 'Мы рады сообщить, доступ к выбранному Вами пакету отправлен на Вашу почту.',
+                    'support_link_text' => 'службу заботы',
+                    'support_link_url' => route('contacts'),
+                ]);
+
+            } else {
+                return redirect()->route('courses')->with('payment_fail', [
+                    'title' => 'К сожалению, оплату не удалось провести. Пожалуйста, попробуйте снова.',
+                    'support_link_text' => 'службу заботы',
+                    'support_link_url' => route('contacts'),
+                ]);
+            }
+        } catch (\Exception $exception) {
+            return redirect()->route('courses')->with('payment_fail', [
+                'title' => 'Системная ошибка',
+                'body' => 'Произошла ошибка при проверке статуса платежа. Пожалуйста, свяжитесь с нами.',
+                'support_link_text' => 'службу заботы',
+                'support_link_url' => route('contacts'),
+            ]);
+        }
+    }
+
     public function index(Request $request)
     {
         $status = $request->input('status');
@@ -40,12 +95,12 @@ class PaymentController extends Controller
         $transactions = $query->paginate(20)->appends($request->query());
 
         return response()->json([
-            'data'  => $transactions->items(),
-            'meta'  => [
+            'data' => $transactions->items(),
+            'meta' => [
                 'current_page' => $transactions->currentPage(),
-                'per_page'     => $transactions->perPage(),
-                'last_page'    => $transactions->lastPage(),
-                'total'        => $transactions->total(),
+                'per_page' => $transactions->perPage(),
+                'last_page' => $transactions->lastPage(),
+                'total' => $transactions->total(),
             ],
             'links' => [
                 'next' => $transactions->nextPageUrl(),
@@ -70,23 +125,23 @@ class PaymentController extends Controller
      */
     public function create(Request $request, PaymentService $service)
     {
-        $amount        = $request->input('amount');
-        $description   = 'Пакет ' . '"' . $request->input('course_name') . '"';
+        $amount = $request->input('amount');
+        $description = 'Пакет ' . '"' . $request->input('course_name') . '"';
 
         $user = User::updateOrCreate(
             ['email' => $request->input('email')],
             [
-                'full_name'    => $request->input('full_name'),
+                'full_name' => $request->input('full_name'),
                 'phone_number' => $request->input('phone_number'),
-                'password'     => Hash::make(Str::random(12)),
+                'password' => Hash::make(Str::random(12)),
             ]
         );
 
         $paymentTransaction = PaymentTransaction::create([
-            'user_id'      => $user->id,
-            'package_id'   => $request->input('package_id'),
-            'amount'       => $amount,
-            'status'       => 'pending',
+            'user_id' => $user->id,
+            'package_id' => $request->input('package_id'),
+            'amount' => $amount,
+            'status' => 'pending',
             'payment_method' => null,
         ]);
 
@@ -94,13 +149,13 @@ class PaymentController extends Controller
             $amount,
             $description,
             [
-                'user_id'        => $user->id,
+                'user_id' => $user->id,
                 'transaction_id' => $paymentTransaction->id,
-                'package_id'     => $request->input('package_id'),
-                'course_name'    => $description,
-                'full_name'      => $request->input('full_name'),
-                'phone_number'   => $request->input('phone_number'),
-                'email'          => $request->input('email'),
+                'package_id' => $request->input('package_id'),
+                'course_name' => $description,
+                'full_name' => $request->input('full_name'),
+                'phone_number' => $request->input('phone_number'),
+                'email' => $request->input('email'),
             ]
         );
 
@@ -112,7 +167,7 @@ class PaymentController extends Controller
 
     public function callback(Request $request)
     {
-        $source      = $request->getContent();
+        $source = $request->getContent();
         $requestBody = json_decode($source, true);
         $paymentData = $requestBody['object'] ?? null;
 
@@ -126,9 +181,8 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Transaction not found, but event acknowledged'], 200);
         }
 
-        if ($transaction->status === 'completed' && $paymentData['status'] === 'succeeded') {
-            Log::info("Duplicate 'succeeded' webhook received for Payment ID: {$paymentData['id']}. Ignored.");
-            return response()->json(['message' => 'Already completed'], 200);
+        if ($transaction->status === 'succeeded' && $paymentData['status'] === 'succeeded') {
+            return response()->json(['message' => 'Already succeeded'], 200);
         }
 
         $transaction->payment_id = $paymentData['id'] ?? $transaction->payment_id;
@@ -159,7 +213,7 @@ class PaymentController extends Controller
 
     protected function handleSucceeded(PaymentTransaction $transaction, array $paymentData)
     {
-        $transaction->status = 'completed';
+        $transaction->status = 'succeeded';
         $transaction->payment_method = $paymentData['payment_method']['type'] ?? 'unknown';
         $transaction->payment_at = Carbon::now();
         $transaction->save();
@@ -173,7 +227,7 @@ class PaymentController extends Controller
             $courseName ?? 'Unknown Package',
             $userName ?? 'Guest',
             $paymentData['metadata']['phone_number'] ?? 'Unknown',
-                $email ?? 'Unknown',
+            $email ?? 'Unknown',
             (float)$paymentData['amount']['value']
         );
 
@@ -212,7 +266,7 @@ class PaymentController extends Controller
             $captureResponse = $client->capturePayment(
                 [
                     'amount' => [
-                        'value'    => $paymentData['amount']['value'],
+                        'value' => $paymentData['amount']['value'],
                         'currency' => $paymentData['amount']['currency'],
                     ],
                 ],

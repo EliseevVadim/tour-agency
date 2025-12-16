@@ -302,7 +302,7 @@ export default {
             transactions: [],
             meta: {},
             links: { next: null, prev: null },
-            statuses: ['completed',
+            statuses: ['succeeded',
             'pending',
             'canceled']
         };
@@ -372,7 +372,7 @@ export default {
 
         badgeClass(status) {
             const map = {
-                completed: 'badge bg-success',
+                succeeded: 'badge bg-success',
                 waiting_for_capture: 'badge bg-warning',
                 canceled: 'badge bg-danger',
             };

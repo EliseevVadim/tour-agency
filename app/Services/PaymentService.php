@@ -7,7 +7,7 @@ use YooKassa\Client;
 
 class PaymentService
 {
-    private function getClient(): Client
+    public function getClient(): Client
     {
         $client = new Client();
         $client->setAuth(
@@ -42,10 +42,10 @@ class PaymentService
                 'value'    => $amount,
                 'currency' => 'RUB',
             ],
-            'capture'   => false,
+            'capture'   => true,
             'confirmation' => [
                 'type'       => 'redirect',
-                'return_url' => route('courses'),
+                'return_url' => route('payment.return', ['transaction_id' => $options['transaction_id']])
             ],
             'metadata' => [
                 'package_id'     => $options['package_id'],

@@ -3,30 +3,33 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header text-end">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <h2 class="order-title text-center">Ваш заказ</h2>
                     <p class="order-subtitle text-center">Внимательно заполняйте <br> поля ниже</p>
-                    <!-- Изменено: Теперь обработка идет через @input, а не @submit.prevent -->
                     <form @submit.prevent="paymentClick">
                         <input class="idCourse" type="text" hidden :value="currentPackageId">
                         <div class="mb-3">
                             <label for="fullName" class="form-label">Фамилия Имя:</label>
-                            <input type="text" class="form-control ta-input" id="fullName" placeholder="Как к Вам обращаться?" v-model="formData.fullName" @input="checkFormValidity">
+                            <input type="text" class="form-control ta-input" id="fullName"
+                                   placeholder="Как к Вам обращаться?" v-model="formData.fullName"
+                                   @input="checkFormValidity">
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">На данную почту придет доступ к курсу:</label>
-                            <input type="email" class="form-control ta-input" id="email" placeholder="Email" v-model="formData.email" @input="checkFormValidity">
+                            <input type="email" class="form-control ta-input" id="email" placeholder="Email"
+                                   v-model="formData.email" @input="checkFormValidity">
                         </div>
                         <div class="mb-3">
                             <label for="phone" class="form-label">Введите Ваш номер телефона:</label>
-                            <!-- Важно: При использовании v-model для инпута с маской, обработка маски должна быть аккуратной. Пока оставим прямое чтение для маски, но добавим проверку валидности. -->
-                            <input type="tel" class="form-control ta-input" id="phone" placeholder="Чтобы мы точно смогли с Вами связаться" v-model="formData.phone" @input="checkFormValidity">
+                            <input type="tel" class="form-control ta-input" id="phone"
+                                   placeholder="Чтобы мы точно смогли с Вами связаться" v-model="formData.phone"
+                                   @input="checkFormValidity">
                         </div>
 
                         <div class="package-info d-flex justify-content-center gap-3 mb-5">
-                            <div class="package-badge position-relative">
+                            <div class="package-badge position-relative" :style="getBackgroundStyle()">
                                 <p class="package-title">
                                     ПАКЕТ <span class="fw-bolder">{{ currentPackageName || '...' }}</span>
                                 </p>
@@ -39,18 +42,20 @@
 
                         <div class="politics">
                             <div class="form-check mb-3 d-flex">
-                                <!-- Добавлен v-model для чекбокса -->
-                                <input class="form-check-input" type="checkbox" id="checkPolitics" v-model="formData.agreesToPolitics" @change="checkFormValidity">
+                                <input class="form-check-input" type="checkbox" id="checkPolitics"
+                                       v-model="formData.agreesToPolitics" @change="checkFormValidity">
                                 <label class="form-check-label" for="checkPolitics">
-                                    Я согласен с <a href="#" class="text-decoration-underline">Условиями использования</a> и <a href="#" class="text-decoration-underline">Политикой конфиденциальности</a>
+                                    Я согласен с <a href="#" class="text-decoration-underline">Условиями
+                                    использования</a> и <a href="#" class="text-decoration-underline">Политикой
+                                    конфиденциальности</a>
                                 </label>
                             </div>
                         </div>
 
                         <div class="text-center">
-                            <!-- Кнопка теперь управляется директивой :disabled -->
                             <button :disabled="isDisabled" data-bs-dismiss="modal" type="submit"
-                                    class="btn btn-continue btn-cta">Продолжить</button>
+                                    class="btn btn-continue btn-cta">Продолжить
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -62,12 +67,13 @@
 <script>
 export default {
     name: "PreOrderModal",
-    data(){
+    data() {
         return {
             isDisabled: true,
             currentPackageId: null,
             currentPackageName: null,
             currentPackagePrice: null,
+            currentPackageBg: null,
             formData: {
                 fullName: '',
                 email: '',
@@ -78,7 +84,7 @@ export default {
     },
     methods: {
         checkFormValidity() {
-            const { fullName, email, phone, agreesToPolitics } = this.formData;
+            const {fullName, email, phone, agreesToPolitics} = this.formData;
             const isPhoneValid = phone && phone.replace(/\D/g, '').length >= 10;
 
             this.isDisabled = !(
@@ -90,12 +96,12 @@ export default {
         },
 
         async paymentClick() {
-            const { fullName, email, phone, agreesToPolitics } = this.formData;
+            const {fullName, email, phone, agreesToPolitics} = this.formData;
 
             if (!this.currentPackageId || !this.currentPackagePrice || !agreesToPolitics || !this.isDisabled) {
                 if (this.isDisabled) {
                     this.checkFormValidity();
-                    if(this.isDisabled) return;
+                    if (this.isDisabled) return;
                 }
             }
 
@@ -123,7 +129,7 @@ export default {
                 alert('Произошла ошибка при запросе к серверу.');
             }
         },
-        addMaskToPhone(){
+        addMaskToPhone() {
             const addInputMaskPhone = () => {
                 $(document)
                     .on('input', '#phone', maskPhone)
@@ -175,7 +181,15 @@ export default {
             }
 
             addInputMaskPhone();
-        }
+        },
+        getBackgroundStyle() {
+            if (this.currentPackageBg) {
+                return {
+                    background: this.currentPackageBg
+                };
+            }
+            return {};
+        },
     },
     mounted() {
         const orderModal = document.getElementById('orderModal');
@@ -195,10 +209,12 @@ export default {
                 const id = button.getAttribute('data-bs-id');
                 const name = button.getAttribute('data-bs-name');
                 const price = button.getAttribute('data-bs-price');
+                const bgUrl = button.getAttribute('data-bs-bg');
 
                 this.currentPackageId = id;
                 this.currentPackageName = name;
                 this.currentPackagePrice = price;
+                this.currentPackageBg = bgUrl;
 
                 const modalIdField = orderModal.querySelector('.idCourse');
                 const modalTitleSpan = orderModal.querySelector('.package-title .fw-bolder');
@@ -212,6 +228,11 @@ export default {
                 }
                 if (modalPriceSpan) {
                     modalPriceSpan.textContent = price ? `${price} р` : '...';
+                }
+                if (this.currentPackageBg) {
+                    this.currentPackageBg = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url("${bgUrl}") no-repeat center center / cover`;
+                } else {
+                    this.currentPackageBg = '';
                 }
                 this.checkFormValidity();
             });

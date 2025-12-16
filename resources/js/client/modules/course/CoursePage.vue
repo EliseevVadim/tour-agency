@@ -6,6 +6,11 @@
             <div class="loader__dot"></div>
         </div>
 
+        <notification-modal v-if="isNotificationVisible"
+                            :data="notificationData"
+                            :is-success="!!notificationData && !!notificationData.title.includes('Добро пожаловать')"
+                            @close="isNotificationVisible = false"></notification-modal>
+
         <app-header class="hero-section_dark"></app-header>
 
         <course-hero></course-hero>
@@ -21,18 +26,50 @@
 </template>
 
 <script>
+import NotificationModal from "../../modals/NotificationModal.vue";
+import TravelDirectionsSection from "../../components/TravelDirectionsSection.vue";
+
 export default {
-    components: {TravelDirectionsSection},
-    data(){
+    components: {NotificationModal, TravelDirectionsSection},
+    data() {
         return {
-            loading: true
+            loading: true,
+            notificationData: null,
+            isNotificationVisible: false,
+            isSuccessType: false
+        }
+    },
+    props: {
+        initialSuccessData: {
+            type: Object,
+            default: () => null
+        },
+        initialFailData: {
+            type: Object,
+            default: () => null
+        }
+    },
+    created() {
+        if (this.initialSuccessData && Object.keys(this.initialSuccessData).length > 0) {
+            this.notificationData = this.initialSuccessData;
+            this.isSuccessType = true;
+            this.isNotificationVisible = true;
+        } else if (this.initialFailData && Object.keys(this.initialFailData).length > 0) {
+            this.notificationData = this.initialFailData;
+            this.isSuccessType = false;
+            this.isNotificationVisible = true;
+        }
+
+        if (this.isNotificationVisible) {
+            this.loading = false;
         }
     },
     mounted() {
-        setTimeout(()=>{
-            this.loading = false;
-        },1000);
+        if (!this.isNotificationVisible) {
+            setTimeout(() => {
+                this.loading = false;
+            }, 1000);
+        }
     }
 }
-import TravelDirectionsSection from "../../components/TravelDirectionsSection.vue";
 </script>

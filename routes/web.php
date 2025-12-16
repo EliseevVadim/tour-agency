@@ -2,11 +2,12 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ClipController;
-use App\Http\Controllers\CoursesController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TelegramController;
 use App\Http\Controllers\VideoController;
 use App\Services\NotificationService;
+use App\Services\PaymentService;
 use Illuminate\Support\Facades\Route;
 use Telegram\Bot\Api;
 use Illuminate\Http\Request;
@@ -33,7 +34,7 @@ Route::get('/', function () {
 });
 Route::get('/contacts', function () {
    return view('contacts');
-});
+})->name('contacts');
 Route::get('/shop', function () {
    return view('shop');
 });
@@ -50,6 +51,27 @@ Route::get('/api/reviews', [\App\Http\Controllers\ReviewsController::class, 'get
 
 Route::post('/telegram/webhook', [TelegramController::class, 'handleWebhook'])->name('telegram.webhook');
 
-Route::get('/test', function () {
-   return view('emails.purchase_success');
-});
+Route::get('/payment/return', [PaymentController::class, 'handleReturn'])->name('payment.return');
+
+
+Route::get('/test-payment-url', function (PaymentService $paymentService) {
+    $mockRequest = new Request([
+        'amount' => 15000.00,
+        'course_name' => 'Ultimate Travel',
+        'package_id' => 'opti',
+        'full_name' => 'Тестовый Пользователь',
+        'phone_number' => '+79991234567',
+        'email' => 'test.user@example.com',
+    ]);
+
+    $controller = new PaymentController($paymentService);
+
+    try {
+        $paymentUrl = $controller->create($mockRequest, $paymentService);
+
+        return "URL для оплаты успешно сгенерирован: <a target='_blank' href='{$paymentUrl}'>Перейти к оплате</a>";
+
+    } catch (\Exception $e) {
+        return "Ошибка при создании платежа: " . $e->getMessage();
+    }
+})->name('test.payment.url');
