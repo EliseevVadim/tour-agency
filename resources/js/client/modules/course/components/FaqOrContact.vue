@@ -13,7 +13,8 @@
                     поможем!</span></p>
                 </div>
 
-                <button class="chat-button btn-cta text-uppercase">открыть чат</button>
+                <a href="https://t.me/put_club1" class="chat-button btn-cta text-uppercase align-content-center">открыть
+                    чат</a>
             </div>
         </div>
     </section>

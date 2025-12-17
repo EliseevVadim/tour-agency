@@ -41,22 +41,12 @@ class PurchaseConfirmationMail extends Mailable
         $this->link = $link;
     }
 
-    /**
-     * Build the message.
-     *
-     * @return $this
-     */
     public function build()
     {
-        return $this->view('emails.purchase_confirmation', [
+        return $this->subject("Поздравляем с приобретением курса «Путь в туризм»")->view('emails.purchase_success', [
             'courseName' => $this->courseName,
             'userName' => $this->userName,
-            'link' => $this->link,
+            'link' => $this->link
         ]);
-    }
-
-    public function subject()
-    {
-        return "Поздравляем с приобретением пакета {$this->courseName}! из курса «Путь в туризм»";
     }
 }

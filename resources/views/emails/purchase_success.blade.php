@@ -9,12 +9,14 @@
             -webkit-text-size-adjust: 100%;
             -ms-text-size-adjust: 100%;
         }
+
         body {
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
             min-height: 100vh;
         }
+
         table {
             border-collapse: collapse !important;
         }
@@ -30,7 +32,6 @@
             border-radius: 10px;
             color: white;
             font-size: 1.4rem;
-            background: linear-gradient(90deg, #dd0024 0%, #fb6228 100%);
         }
 
         .content-text {
@@ -40,6 +41,7 @@
             line-height: 1.3;
             text-align: center;
         }
+
         .highlight {
             font-weight: bold;
         }
@@ -48,8 +50,7 @@
             width: 180px;
             height: 180px;
             border-radius: 50%;
-            background-color: #E74C3C;
-            display: table;
+            background-color: #dd0024;
             text-align: center;
         }
     </style>
@@ -68,10 +69,13 @@
                         <table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding: 30px 0 0 0;">
                             <tr>
                                 <td align="center" style="padding: 25px;">
-                                    <table border="0" cellpadding="0" cellspacing="0" class="logo-circle">
+                                    <table border="0" cellpadding="0" cellspacing="0">
                                         <tr>
-                                            <td align="center" style="padding: 20px;">
-                                                <img style="display: block; width: 140px; border: 0;" class="logo" alt="logo"
+                                            <td align="center" class="logo-circle" width="180px"
+                                                height="180px" style='border-radius: 50%; background: url("https://putclub.ru/img/bg-btn-gradient.jpg");
+                                            background-position:center top; background-size: contain;"'>
+                                                <img style="display: block; width: 180px; border: 0;" class="logo"
+                                                     alt="logo"
                                                      src="https://putclub.ru/img/logo-courses.png">
                                             </td>
                                         </tr>
@@ -91,6 +95,7 @@
                                 <td style="padding-bottom: 20px; text-align: center;">
                                     <p class="content-text" style="font-size: 20px; line-height: 1.2; margin-bottom: 0;
                                     margin-top: 0;">
+                                        Уважаемый, {{$userName}}! <br>
                                         Поздравляем с приобретением<br>
                                         курса «Путь в Туризм»<br>
                                         <span style="font-weight: bold;">{{ $courseName }}!</span>
@@ -101,17 +106,22 @@
                             <tr>
                                 <td style="padding-bottom: 25px;">
                                     <p class="content-text">
-                                        Пакет активирован, и впереди Вас ждет увлекательное путешествие в мир туристической деятельности. Пройдя этот курс, Вы получите все необходимые знания и навыки для полноценной работы в индустрии туризма.
+                                        Пакет активирован, и впереди Вас ждет увлекательное путешествие в мир
+                                        туристической деятельности. Пройдя этот курс, Вы получите все необходимые знания
+                                        и навыки для полноценной работы в индустрии туризма.
                                     </p>
                                     <p class="content-text">
-                                        Не теряйте времени — переходите в закрытую группу и начинайте изучение с вкладки «Как это работает?».
+                                        Не теряйте времени — переходите в закрытую группу и начинайте изучение с вкладки
+                                        «Как это работает?».
                                     </p>
                                 </td>
                             </tr>
 
                             <tr>
                                 <td align="center">
-                                    <a href="{{ $link }}" target="_blank" class="button" style="color: #ffffff!important; text-decoration: none;">
+                                    <a href="{{ $link }}" target="_blank" class="button" style="color: #ffffff!important; text-decoration: none;
+                                    background: url('https://putclub.ru/img/bg-btn-gradient.jpg');
+                                    background-position:center top; background-size: cover;">
                                         Перейти
                                     </a>
                                 </td>

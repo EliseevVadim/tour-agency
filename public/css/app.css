@@ -12216,10 +12216,6 @@ body {
   }
 }
 
-.modal-open {
-  position: fixed !important;
-}
-
 .ssr-carousel-arrows .carousel-left-icon, .ssr-carousel-arrows .carousel-right-icon {
   width: 49px;
   height: 49px;

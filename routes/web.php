@@ -8,8 +8,10 @@ use App\Http\Controllers\ReviewsController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TelegramController;
 use App\Http\Controllers\VideoController;
+use App\Mail\PurchaseConfirmationMail;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,13 +35,13 @@ Route::get('/', function () {
     return view('main');
 });
 Route::get('/contacts', function () {
-   return view('contacts');
+    return view('contacts');
 })->name('contacts');
 Route::get('/shop', function () {
-   return view('shop');
+    return view('shop');
 });
 Route::get('/courses', function () {
-   return view('courses');
+    return view('courses');
 })->name('courses');
 
 Route::get("/api/contacts", [DataController::class, 'getContacts']);
@@ -61,7 +63,7 @@ Route::get('/test-payment-url', function (PaymentService $paymentService) {
         'package_id' => 'opti',
         'full_name' => 'Тестовый Пользователь',
         'phone_number' => '+79991234567',
-        'email' => 'maritaly98@gmail.com',
+        'email' => 'marena98@mail.ru',
     ]);
 
     $controller = new PaymentController($paymentService);
@@ -73,3 +75,26 @@ Route::get('/test-payment-url', function (PaymentService $paymentService) {
         return "Ошибка при создании платежа: " . $e->getMessage();
     }
 })->name('test.payment.url');
+
+Route::get('/test', function () {
+    $data = [
+        'courseName' => 'Пакет "Опти"',
+        'userName' => 'Иван Смирнов',
+        'link' => '/shop'
+    ];
+    return view('emails.purchase_success', $data);
+/*
+    $courseName = 'Пакет "Опти"';
+    $userName = 'Иван';
+    $link = '/shop';
+
+    $email = 'marena98@mail.ru';
+
+    Mail::to($email)->queue(new PurchaseConfirmationMail(
+        $courseName,
+        $userName,
+        $link
+    ));
+
+    return "Письмо поставлено в очередь. Проверьте обработчик очереди.";*/
+});

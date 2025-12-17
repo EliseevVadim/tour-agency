@@ -11819,9 +11819,12 @@ var staticRenderFns = [function () {
     staticClass: "chat-description"
   }, [_vm._v("Остались вопросы или нужна помощь?"), _c("br"), _c("span", {
     staticClass: "fw-bold"
-  }, [_vm._v("Просто напиши в чате, и мы с радостью\n                поможем!")])])]), _vm._v(" "), _c("button", {
-    staticClass: "chat-button btn-cta text-uppercase"
-  }, [_vm._v("открыть чат")])])])]);
+  }, [_vm._v("Просто напиши в чате, и мы с радостью\n                поможем!")])])]), _vm._v(" "), _c("a", {
+    staticClass: "chat-button btn-cta text-uppercase align-content-center",
+    attrs: {
+      href: "https://t.me/put_club1"
+    }
+  }, [_vm._v("открыть\n                чат")])])])]);
 }];
 render._withStripped = true;
 
