@@ -95,7 +95,7 @@ class CoursesController extends Controller
             'notification' => [
                 'isPresentation' => true,
                 'title' => 'Ваша заявка принята, в ближайшее время с Вами свяжется персональный менеджер
-            туристической компании «ВПуть»',
+            туристической компании «В ПУТЬ»',
                 'class'=> 'mb-4'
             ]
         ]);

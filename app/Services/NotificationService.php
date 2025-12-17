@@ -8,10 +8,9 @@ use Telegram;
 
 class NotificationService
 {
-    // Константы для стилизации сообщений
     private const ICON_SUCCESS = "✅";
     private const ICON_FAILURE = "❌";
-    private const ICON_INFO = "ℹ️";
+    private const ICON_INFO = "⚠️";
 
     protected function getChatId(string $channelKey): ?string
     {
