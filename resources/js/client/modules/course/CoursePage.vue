@@ -59,14 +59,10 @@ export default {
             this.isSuccessType = false;
             this.isNotificationVisible = true;
         } else if(localStorage.getItem('notification')) {
-            const notification = JSON.parse(localStorage.getItem('notification'));
-            this.notificationData = notification;
+            this.notificationData = JSON.parse(localStorage.getItem('notification'));
             this.isSuccessType = true;
             this.isNotificationVisible = true;
-            console.log('Notification loaded from localStorage:', notification);
-
             localStorage.removeItem('notification');
-            console.log('Notification removed from localStorage.');
         }
 
         if (this.isNotificationVisible) {

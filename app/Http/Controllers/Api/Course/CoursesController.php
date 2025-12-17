@@ -94,7 +94,7 @@ class CoursesController extends Controller
             'redirect' => route('courses'),
             'notification' => [
                 'isPresentation' => true,
-                'title' => 'Ваша заявка принята, в ближайшее время с вами свяжется персональный менеджер
+                'title' => 'Ваша заявка принята, в ближайшее время с Вами свяжется персональный менеджер
             туристической компании «ВПуть»',
                 'class'=> 'mb-4'
             ]
