@@ -11,8 +11,10 @@ use App\Http\Controllers\VideoController;
 use App\Mail\PurchaseConfirmationMail;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
+use Telegram\Bot\Api;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,45 +58,3 @@ Route::post('/telegram/webhook', [TelegramController::class, 'handleWebhook'])->
 Route::get('/payment/return', [PaymentController::class, 'handleReturn'])->name('payment.return');
 
 
-Route::get('/test-payment-url', function (PaymentService $paymentService) {
-    $mockRequest = new Request([
-        'amount' => 15000.00,
-        'course_name' => 'Ultimate Travel',
-        'package_id' => 'opti',
-        'full_name' => 'Тестовый Пользователь',
-        'phone_number' => '+79991234567',
-        'email' => 'marena98@mail.ru',
-    ]);
-
-    $controller = new PaymentController($paymentService);
-    try {
-        $paymentUrl = $controller->create($mockRequest, $paymentService);
-        return "URL для оплаты успешно сгенерирован: <a target='_blank' href='$paymentUrl'>Перейти к оплате</a>";
-
-    } catch (Exception $e) {
-        return "Ошибка при создании платежа: " . $e->getMessage();
-    }
-})->name('test.payment.url');
-
-Route::get('/test', function () {
-    $data = [
-        'courseName' => 'Пакет "Опти"',
-        'userName' => 'Иван Смирнов',
-        'link' => '/shop'
-    ];
-    return view('emails.purchase_success', $data);
-/*
-    $courseName = 'Пакет "Опти"';
-    $userName = 'Иван';
-    $link = '/shop';
-
-    $email = 'marena98@mail.ru';
-
-    Mail::to($email)->queue(new PurchaseConfirmationMail(
-        $courseName,
-        $userName,
-        $link
-    ));
-
-    return "Письмо поставлено в очередь. Проверьте обработчик очереди.";*/
-});

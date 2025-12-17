@@ -4,7 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
-use Telegram; // Предполагаем, что это Telegram-SDK фасад
+use Telegram;
 
 class NotificationService
 {
