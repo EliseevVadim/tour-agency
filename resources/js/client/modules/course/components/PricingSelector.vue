@@ -94,7 +94,7 @@
                             :data-bs-bg="pkg.imageThumbnail">
                         {{ pkg.details.buttonText }}
                     </button>
-                    <div class="mark-price">
+                    <div v-if="pkg.id != 'maxi'" class="mark-price">
                         <span class="price-old text-decoration-line-through fw-medium">{{
                                 pkg.details.priceOld
                             }} р</span>

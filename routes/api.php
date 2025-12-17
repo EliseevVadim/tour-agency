@@ -20,6 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/courses', [CoursesController::class, 'getCourses']);
+Route::post('/request-presentation', [CoursesController::class, 'getRequestPresentation']);
 
 Route::prefix('admin')->group(function () {
     Route::put('/courses/{id}', [CoursesController::class, 'update']);

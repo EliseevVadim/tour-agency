@@ -60,6 +60,28 @@ class NotificationService
         return $this->sendToTelegram($chatId, $message);
     }
 
+    public function sendPresentationNotification(string $userName, string $phone, string $email): bool
+    {
+        $chatId = $this->getChatId('presentation_channel');
+
+        if (!$chatId) {
+            Log::warning("Telegram Chat ID 'presentation_channel' not configured.");
+            return false;
+        }
+
+        $message = sprintf(
+            "%s %s оставил(а) заявку на получение презентации по пакету 'Макси' \n\n" .
+            "Email: %s \n" .
+            "Телефон: %s \n",
+            self::ICON_INFO,
+            $userName,
+            $email,
+            $phone
+        );
+
+        return $this->sendToTelegram($chatId, $message);
+    }
+
     public function sendPaymentFailedNotification(string $courseName, string $userName, string $phone,
                                                   string $email, float $amount): bool
     {

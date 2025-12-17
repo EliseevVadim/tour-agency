@@ -34,7 +34,7 @@
                                     ПАКЕТ <span class="fw-bolder">{{ currentPackageName || '...' }}</span>
                                 </p>
                             </div>
-                            <div class="package-price">
+                            <div class="package-price" :class="{'d-none': currentPackageId === 'maxi'}">
                                 <p class="line-1">Стоимость:</p>
                                 <p class="price fw-medium line-1">{{ currentPackagePrice || '...' }} р</p>
                             </div>
@@ -54,7 +54,8 @@
 
                         <div class="text-center">
                             <button :disabled="isDisabled" data-bs-dismiss="modal" type="submit"
-                                    class="btn btn-continue btn-cta">Продолжить
+                                    class="btn btn-continue btn-cta">
+                                {{ currentPackageId === 'maxi' ? 'Получить презентацию' : 'Продолжить' }}
                             </button>
                         </div>
                     </form>
@@ -104,29 +105,47 @@ export default {
                     if (this.isDisabled) return;
                 }
             }
-
-            this.isDisabled = true;
-
-            try {
-                const response = await axios.post('/payments/create', {
-                    package_id: this.currentPackageId,
-                    course_name: this.currentPackageName,
+            if (this.currentPackageId == 'maxi') {
+                await axios.post('/api/request-presentation', {
+                    full_name: fullName,
                     phone_number: phone,
                     email: email,
-                    full_name: fullName,
-                    amount: this.currentPackagePrice
+                    package: this.currentPackageId
+                }).then((response) => {
+                    if (response.data && response.data.success && response.data.redirect) {
+                        localStorage.setItem('notification', JSON.stringify(response.data.notification));
+                        window.location.href = response.data.redirect;
+                    } else {
+                        console.error('API did not return expected success and redirect:', response.data);
+                    }
                 }).finally(() => {
                     this.isDisabled = false;
-                })
+                    return;
+                });
+            } else {
+                this.isDisabled = true;
 
-                if (response.status === 200) {
-                    window.location.href = response.data;
-                } else {
-                    alert('Ошибка при создании платежа.');
+                try {
+                    const response = await axios.post('/payments/create', {
+                        package_id: this.currentPackageId,
+                        course_name: this.currentPackageName,
+                        phone_number: phone,
+                        email: email,
+                        full_name: fullName,
+                        amount: this.currentPackagePrice
+                    }).finally(() => {
+                        this.isDisabled = false;
+                    })
+
+                    if (response.status === 200) {
+                        window.location.href = response.data;
+                    } else {
+                        alert('Ошибка при создании платежа.');
+                    }
+                } catch (error) {
+                    console.error('Ошибка API:', error);
+                    alert('Произошла ошибка при запросе к серверу.');
                 }
-            } catch (error) {
-                console.error('Ошибка API:', error);
-                alert('Произошла ошибка при запросе к серверу.');
             }
         },
         addMaskToPhone() {

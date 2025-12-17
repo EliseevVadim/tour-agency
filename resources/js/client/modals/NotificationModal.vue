@@ -4,10 +4,10 @@
             <div class="notification-header"></div>
 
             <div class="notification-body">
-                <h2 class="title">{{ data.title }}</h2>
+                <h2 :class="data.class" class="title">{{ data.title }}</h2>
                 <p v-if="data.body" class="body-text support-text">{{ data.body}}</p>
 
-                <div class="support-block">
+                <div v-if="!data.isPresentation" class="support-block">
                     <div class="chat-icon-container">
                         <img class="chat-icon-image" alt="ask Course" src="/img/ask-course.png">
                     </div>

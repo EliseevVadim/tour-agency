@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PackageAdminResource;
 use App\Http\Resources\PackageResource;
 use App\Models\Package;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 
 class CoursesController extends Controller
@@ -77,5 +79,25 @@ class CoursesController extends Controller
         return (new PackageResource($package))
             ->response()
             ->setStatusCode(200);
+    }
+
+    public function getRequestPresentation(Request $request)
+    {
+        app(NotificationService::class)->sendPresentationNotification(
+            $request->input('full_name') ?? 'Guest',
+            $request->input('phone_number') ?? 'Unknown',
+            $request->input('email') ?? 'Unknown',
+        );
+
+        return Response::json([
+            'success' => true,
+            'redirect' => route('courses'),
+            'notification' => [
+                'isPresentation' => true,
+                'title' => 'Ваша заявка принята, в ближайшее время с вами свяжется персональный менеджер
+            туристической компании «ВПуть»',
+                'class'=> 'mb-4'
+            ]
+        ]);
     }
 }
