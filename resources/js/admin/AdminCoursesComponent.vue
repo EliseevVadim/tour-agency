@@ -62,7 +62,7 @@
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="miniContentLink" class="form-label">Контент-ссылка</label>
+                                        <label for="miniContentLink" class="form-label">Id телеграмм-чата</label>
                                         <input autocomplete="off" class="form-control" id="miniContentLink"
                                                v-model="packages.mini.contentLink">
                                     </div>
@@ -120,7 +120,7 @@
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="optiContentLink" class="form-label">Контент-ссылка</label>
+                                        <label for="optiContentLink" class="form-label">Id телеграмм-чата</label>
                                         <input autocomplete="off" class="form-control" id="optiContentLink"
                                                v-model="packages.opti.contentLink">
                                     </div>
@@ -178,7 +178,7 @@
                                     </div>
 
                                     <div class="mb-3">
-                                        <label for="maxiContentLink" class="form-label">Контент-ссылка</label>
+                                        <label for="maxiContentLink" class="form-label">Id телеграмм-чата</label>
                                         <input autocomplete="off" class="form-control" id="maxiContentLink"
                                                v-model="packages.maxi.contentLink">
                                     </div>

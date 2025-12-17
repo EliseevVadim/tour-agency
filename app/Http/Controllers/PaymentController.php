@@ -226,7 +226,7 @@ class PaymentController extends Controller
         $courseName = $paymentData['metadata']['course_name'];
         $userName = $paymentData['metadata']['full_name'];
         $email = $paymentData['metadata']['email'];
-        $link = $this->getTelegramLink() ?? "#";
+        $link = $this->getTelegramLink($packageLink) ?? "#";
 
         app(NotificationService::class)->sendPurchaseNotification(
             $courseName ?? 'Unknown Package',
@@ -296,9 +296,9 @@ class PaymentController extends Controller
         }
     }
 
-    public function getTelegramLink()
+    public function getTelegramLink($link)
     {
-        $chatId = env('TELEGRAM_OPTI_INVITE');
+        $chatId = $link;
         $parameters = [
             'chat_id' => $chatId,
             'member_limit' => 1,
