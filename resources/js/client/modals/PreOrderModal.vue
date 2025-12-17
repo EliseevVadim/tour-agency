@@ -11,7 +11,7 @@
                     <form @submit.prevent="paymentClick">
                         <input class="idCourse" type="text" hidden :value="currentPackageId">
                         <div class="mb-3">
-                            <label for="fullName" class="form-label modal-input-to-focus">Фамилия Имя:</label>
+                            <label for="fullName" class="form-label">Фамилия Имя:</label>
                             <input type="text" class="form-control ta-input" id="fullName"
                                    placeholder="Как к Вам обращаться?" v-model="formData.fullName"
                                    @input="checkFormValidity">
@@ -24,6 +24,7 @@
                         <div class="mb-3">
                             <label for="phone" class="form-label">Введите Ваш номер телефона:</label>
                             <input type="tel" class="form-control ta-input" id="phone"
+                                   v-mask="'+7 (###) ###-##-##'"
                                    placeholder="Чтобы мы точно смогли с Вами связаться" v-model="formData.phone"
                                    @input="checkFormValidity">
                         </div>
@@ -148,59 +149,6 @@ export default {
                 }
             }
         },
-        addMaskToPhone() {
-            const addInputMaskPhone = () => {
-                $(document)
-                    .on('input', '#phone', maskPhone)
-                    .on('focus', '#phone', maskPhone)
-                    .on('blur', '#phone', maskPhone)
-                    .on('keydown', '#phone', maskPhone)
-            }
-
-            let keyCode
-
-            function maskPhone(event) {
-                event.keyCode && (keyCode = event.keyCode)
-
-                var pos = this.selectionStart
-                if (pos < 3) event.preventDefault()
-
-                const matrix = '+7 (___) ___-__-__'
-                let i = 0
-                const def = matrix.replace(/\D/g, '')
-                const val = this.value.replace(/\D/g, '')
-
-                let newValue = matrix.replace(/[_\d]/g, function (a) {
-                    return i < val.length ? val.charAt(i++) || def.charAt(i) : a
-                })
-
-                i = newValue.indexOf('_')
-                if (i !== -1) {
-                    i < 5 && (i = 3)
-                    newValue = newValue.slice(0, i)
-                }
-
-                var reg = matrix
-                    .substr(0, this.value.length)
-                    .replace(/_+/g, function (a) {
-                        return '\\d{1,' + a.length + '}'
-                    })
-                    .replace(/[+()]/g, '\\$&')
-
-                reg = new RegExp('^' + reg + '$')
-
-                if (
-                    !reg.test(this.value) ||
-                    this.value.length < 5 ||
-                    (keyCode > 47 && keyCode < 58)
-                )
-                    this.value = newValue
-
-                if (event.type === 'focusout' && this.value.length < 18) this.value = ''
-            }
-
-            addInputMaskPhone();
-        },
         getBackgroundStyle() {
             if (this.currentPackageBg) {
                 return {
@@ -220,8 +168,6 @@ export default {
                 this.formData.phone = '';
                 this.formData.agreesToPolitics = false;
                 this.isDisabled = true;
-
-                this.addMaskToPhone();
 
                 const button = event.relatedTarget;
 
@@ -256,15 +202,6 @@ export default {
                 this.checkFormValidity();
             });
         }
-        orderModal.addEventListener('shown.bs.modal', () => {
-            if (document.activeElement) {
-                document.activeElement.blur();
-            }
-            const inputToFocus = orderModal.querySelector('.modal-input-to-focus');
-            if (inputToFocus) {
-                inputToFocus.focus();
-            }
-        });
     }
 }
 </script>

@@ -4,6 +4,7 @@ import Vue from 'vue';
 import SsrCarousel from 'vue-ssr-carousel'
 import ssrCarouselCss from 'vue-ssr-carousel/index.css'
 import 'animate.css';
+import VueMask from 'v-mask';
 
 Vue.component('main-component', require('./App.vue').default);
 Vue.component('contacts-component', require('./client/Contacts.vue').default);
@@ -44,7 +45,7 @@ Vue.component('admin-contacts-component', require('./admin/ContactsComponent.vue
 Vue.component('admin-courses-component', require('./admin/AdminCoursesComponent.vue').default);
 
 Vue.component('ssr-carousel', SsrCarousel);
-
+Vue.use(VueMask);
 
 import { initPromoAnimation } from './animation';
 require("./scripts");
