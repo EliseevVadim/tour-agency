@@ -11,8 +11,22 @@ class PurchaseConfirmationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $courseName;
+    /**
+     * Имя пользователя.
+     * @var string
+     */
     public $userName;
+
+    /**
+     * Название курса.
+     * @var string
+     */
+    public $courseName;
+
+    /**
+     * Ссылка для перехода.
+     * @var string
+     */
     public $link;
 
     /**
@@ -34,6 +48,15 @@ class PurchaseConfirmationMail extends Mailable
      */
     public function build()
     {
-        return $this->view('emails.purchase_success');
+        return $this->view('emails.purchase_confirmation', [
+            'courseName' => $this->courseName,
+            'userName' => $this->userName,
+            'link' => $this->link,
+        ]);
+    }
+
+    public function subject()
+    {
+        return "Поздравляем с приобретением пакета {$this->courseName}! из курса «Путь в туризм»";
     }
 }

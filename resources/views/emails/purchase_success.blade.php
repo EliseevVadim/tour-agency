@@ -60,7 +60,7 @@
     <tr>
         <td align="center" style="padding: 20px 0 20px 0;">
             <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 440px;
-            border-collapse: collapse; background: url('https://putclub.ru/img/hero-section-bg.jpg');
+            border-collapse: collapse; background: url('https://putclub.ru/img/message-bg.jpg');
             background-position:center top; background-size: cover; overflow: hidden">
                 <tr>
                     <td></td>
@@ -93,7 +93,7 @@
                                     margin-top: 0;">
                                         Поздравляем с приобретением<br>
                                         курса «Путь в Туризм»<br>
-                                        <span style="font-weight: bold;">«{{ $courseName }}»!</span>
+                                        <span style="font-weight: bold;">{{ $courseName }}!</span>
                                     </p>
                                 </td>
                             </tr>
