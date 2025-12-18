@@ -16,18 +16,6 @@
                                    placeholder="Как к Вам обращаться?" v-model="formData.fullName"
                                    @input="checkFormValidity">
                         </div>
-                        <div class="mb-3">
-                            <label for="email" class="form-label">На данную почту придет доступ к курсу:</label>
-                            <input type="email" class="form-control ta-input" id="email" placeholder="Email"
-                                   v-model="formData.email" @input="checkFormValidity" autocomplete="true">
-                        </div>
-                        <div class="mb-3">
-                            <label for="phone" class="form-label">Введите Ваш номер телефона:</label>
-                            <input type="tel" class="form-control ta-input" id="phone"
-                                   v-mask="'+7 (###) ###-##-##'" autocomplete="false"
-                                   placeholder="Чтобы мы точно смогли с Вами связаться" v-model="formData.phone"
-                                   @input="checkFormValidity">
-                        </div>
 
                         <div class="package-info d-flex justify-content-center gap-3 mb-5">
                             <div class="package-badge position-relative" :style="getBackgroundStyle()">
