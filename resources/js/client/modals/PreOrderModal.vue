@@ -9,7 +9,7 @@
                     <h2 class="order-title text-center">Ваш заказ</h2>
                     <p class="order-subtitle text-center">Внимательно заполняйте <br> поля ниже</p>
                     <form @submit.prevent="paymentClick">
-                        <input class="idCourse" type="text" hidden :value="currentPackageId">
+                        <input id="idCourse" class="idCourse" type="text" hidden :value="currentPackageId">
                         <div class="mb-3">
                             <label for="fullName" class="form-label">Фамилия Имя:</label>
                             <input type="text" class="form-control ta-input" id="fullName"
@@ -19,12 +19,12 @@
                         <div class="mb-3">
                             <label for="email" class="form-label">На данную почту придет доступ к курсу:</label>
                             <input type="email" class="form-control ta-input" id="email" placeholder="Email"
-                                   v-model="formData.email" @input="checkFormValidity">
+                                   v-model="formData.email" @input="checkFormValidity" autocomplete="true">
                         </div>
                         <div class="mb-3">
                             <label for="phone" class="form-label">Введите Ваш номер телефона:</label>
                             <input type="tel" class="form-control ta-input" id="phone"
-                                   v-mask="'+7 (###) ###-##-##'"
+                                   v-mask="'+7 (###) ###-##-##'" autocomplete="false"
                                    placeholder="Чтобы мы точно смогли с Вами связаться" v-model="formData.phone"
                                    @input="checkFormValidity">
                         </div>
