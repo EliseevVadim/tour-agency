@@ -368,6 +368,124 @@
         }
     }
 
+    .unu {
+        margin-top: 1px;
+    }
+
+    .unu, .doi, .trei {
+        -webkit-animation: mouse-scroll 1s infinite;
+        -moz-animation: mouse-scroll 1s infinite;
+        animation: mouse-scroll 1s infinite;
+
+    }
+
+    .unu {
+        -webkit-animation-delay: .1s;
+        -moz-animation-delay: .1s;
+        -webkit-animation-direction: alternate;
+        animation-direction: alternate;
+        animation-delay: alternate;
+    }
+
+    .doi {
+        -webkit-animation-delay: .2s;
+        -moz-animation-delay: .2s;
+        -webkit-animation-direction: alternate;
+        animation-delay: .2s;
+        animation-direction: alternate;
+    }
+
+    .trei {
+        -webkit-animation-delay: .3s;
+        -moz-animation-delay: .3s;
+        -webkit-animation-direction: alternate;
+        animation-delay: .3s;
+        animation-direction: alternate;
+    }
+
+    @-webkit-keyframes mouse-scroll {
+
+        0% {
+            opacity: 0;
+        }
+        50% {
+            opacity: .5;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    @-moz-keyframes mouse-scroll {
+
+        0% {
+            opacity: 0;
+        }
+        50% {
+            opacity: .5;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    @-o-keyframes mouse-scroll {
+
+        0% {
+            opacity: 0;
+        }
+        50% {
+            opacity: .5;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    @keyframes mouse-scroll {
+
+        0% {
+            opacity: 0;
+        }
+        50% {
+            opacity: .5;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    .arrow-css {
+        width: 25px;
+        height: 18px;
+        position: relative;
+        color: currentColor;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &::before,
+        &::after {
+            content: '';
+            position: absolute;
+            display: block;
+            width: 4px;
+            height: 17px;
+            background-color: currentColor;
+            top: 50%;
+        }
+
+        &::before {
+            transform: translate(-50%, -50%) rotateZ(-45deg);
+            transform-origin: bottom right;
+        }
+
+        &::after {
+            transform: translate(-74%, -50%) rotateZ(45deg);
+            transform-origin: bottom left;
+        }
+    }
+
     @media (max-width: 1199.98px) {
 
     }
@@ -428,6 +546,16 @@
 
         .package-details-container .benefits-list .benefits-item h3 {
             font-size: 1.3rem !important;
+        }
+
+        .arrow-css {
+            height: 10px;
+
+            &::before,
+            &::after {
+                width: 2px;
+                height: 8px;
+            }
         }
     }
 }

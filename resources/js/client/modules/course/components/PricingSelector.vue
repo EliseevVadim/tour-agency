@@ -52,25 +52,35 @@
                             <p class="package-description">
                                 {{ pkg.description }}
                             </p>
-                            <svg class="scroll-arrow" :class="expandedPackage === pkg.id ? 'arrow-up' : 'arrow-down'"
-                                 viewBox="0 0 24 24">
-                                <path fill="currentColor"
-                                      d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
-                            </svg>
+                            <div :class="{'animate-down': expandedPackage !== pkg.id}">
+                                <div class="d-flex flex-column" v-if="expandedPackage !== pkg.id">
+                                    <span class="arrow-css unu"></span>
+                                    <span class="arrow-css doi"></span>
+                                    <span class="arrow-css trei"></span>
+                                </div>
+
+                                <svg v-if="expandedPackage === pkg.id" class="scroll-arrow arrow-up"
+                                     viewBox="0 0 24 24">
+                                    <path fill="currentColor"
+                                          d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
+                                </svg>
+                            </div>
                         </div>
                     </div>
                     <div v-if="expandedPackage === pkg.id"
                          class="package-details-container position-relative cursor-auto">
                         <div class="details-content">
                             <p class="mb-4">{{ pkg.details.intro }}</p>
-                            <p v-if="pkg.details.restriction && pkg.id !== 'mini'" class="restriction-text">{{ pkg.details.restriction }}</p>
+                            <p v-if="pkg.details.restriction && pkg.id !== 'mini'" class="restriction-text">
+                                {{ pkg.details.restriction }}</p>
 
                             <h4 v-if="pkg.id === 1"
                                 class="details-subtitle fw-bold">
                                 Этот пакет отлично подходит для тех, кто хочет:
                             </h4>
                             <ul class="list-unstyled benefits-list">
-                                <li v-for="(benefit, index) in pkg.details.suitsFor" :key="index" class="benefits-item d-flex align-items-center">
+                                <li v-for="(benefit, index) in pkg.details.suitsFor" :key="index"
+                                    class="benefits-item d-flex align-items-center">
                                     <img :src="benefit.icon" class="benefit-icon" :alt="'icon-benefit-'+index"/>
                                     <div class="benefit-text">
                                         <h3 class="fw-bold" v-if="benefit.description">{{ benefit.title }}</h3>
@@ -81,7 +91,8 @@
                                 </li>
                             </ul>
 
-                            <p v-if="pkg.details.restriction && pkg.id === 'mini'" class="restriction-text mb-5">{{ pkg.details.restriction }}</p>
+                            <p v-if="pkg.details.restriction && pkg.id === 'mini'" class="restriction-text mb-5">
+                                {{ pkg.details.restriction }}</p>
                             <p v-if="pkg.details.summary" class="summary-text" v-html="pkg.details.summary"></p>
                         </div>
                     </div>
@@ -92,6 +103,7 @@
                             :disabled="isDisabled" :data-bs-id="pkg.id"
                             :data-bs-name="pkg.name" :data-bs-price="pkg.details.priceNew"
                             :data-bs-bg="pkg.imageThumbnail">
+                        <span class="flare"></span>
                         {{ pkg.details.buttonText }}
                     </button>
                     <div v-if="pkg.id != 'maxi'" class="mark-price">
@@ -126,8 +138,14 @@ export default {
                         restriction: 'Однако в пакете "Мини" не предусмотрены доступ к закрытому клубу, наставникам и кураторам, а также сертификация по завершении курса.',
                         suitsFor: [
                             {icon: '/img/packets/icons/1.png', title: 'Освоить азы работы турагента.'},
-                            {icon: '/img/packets/icons/2.png', title: 'Научиться бронировать путешествия для себя и своих близких.'},
-                            {icon: '/img/packets/icons/3.png', title: 'Получать выгодные цены на туры и путешествия, не прибегая к услугам агентств.'}
+                            {
+                                icon: '/img/packets/icons/2.png',
+                                title: 'Научиться бронировать путешествия для себя и своих близких.'
+                            },
+                            {
+                                icon: '/img/packets/icons/3.png',
+                                title: 'Получать выгодные цены на туры и путешествия, не прибегая к услугам агентств.'
+                            }
                         ],
                         summary: '<b>С пакетом "Мини"</b> ты получишь все ключевые знания и инструменты для организации путешествий с максимальной выгодой для себя, открывая мир путешествий на совершенно новом уровне.',
                         priceOld: 9000,
@@ -305,6 +323,6 @@ export default {
     }
 }
 </script>
-<style scoped>
+<style scoped lang="scss">
 
 </style>

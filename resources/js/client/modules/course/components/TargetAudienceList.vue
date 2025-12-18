@@ -51,6 +51,32 @@ export default {
                 }
             ]
         };
+    },
+    mounted() {
+        document.addEventListener('scroll', animateBlock);
+
+        function animateBlock() {
+            const targetContainer = document.querySelector('.target-audience-list')
+            if (!targetContainer) return;
+
+            const rect = targetContainer.getBoundingClientRect();
+            const isVisible =
+                rect.top < window.innerHeight * (1 - 0.2) && rect.bottom > window.innerHeight * 0.2;
+            if (!isVisible) return;
+
+            document.querySelectorAll('.audience-wrapper').forEach((el, idx) => {
+                el.classList.add('animate__animated', 'animate__fadeIn', 'animate__faster');
+                if (idx === 1) el.classList.add('animate__delay-0-5s');
+                if (idx === 2) el.classList.add('animate__delay-1s');
+                if (idx === 3) el.classList.add('animate__delay-1-5s');
+                if (idx === 3) el.classList.add('animate__delay-2s');
+            });
+        }
     }
 };
 </script>
+<style scoped>
+.audience-wrapper {
+    opacity: 0;
+}
+</style>

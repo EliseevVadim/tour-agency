@@ -56,6 +56,7 @@
                         <div class="text-center">
                             <button :disabled="isDisabled" data-bs-dismiss="modal" type="submit"
                                     class="btn btn-continue btn-cta">
+                                <span class="flare"></span>
                                 {{ currentPackageId === 'maxi' ? 'Получить презентацию' : 'Продолжить' }}
                             </button>
                         </div>

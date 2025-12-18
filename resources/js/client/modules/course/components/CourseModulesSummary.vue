@@ -165,6 +165,32 @@ export default {
                 this.carouselHeight = moduleSize.height + 10 + 'px'
             });
         }
+    },
+    mounted() {
+        document.addEventListener('scroll', animateBlock);
+
+        function animateBlock() {
+
+            const modulesContainer = document.querySelector('.course-modules-cards')
+            if (!modulesContainer) return;
+
+            const rect = modulesContainer.getBoundingClientRect();
+            const isVisible =
+                rect.top < window.innerHeight * (1 - 0.3) && rect.bottom > window.innerHeight * 0.3;
+            if (!isVisible) return;
+
+            document.querySelectorAll('.course-card').forEach((el, idx) => {
+                el.classList.add('animate__animated', 'animate__fadeIn', 'animate__slow');
+                if (idx === 1) el.classList.add('animate__delay-1s');
+                if (idx === 2) el.classList.add('animate__delay-2s');
+                if (idx === 3) el.classList.add('animate__delay-3s');
+            });
+        }
     }
 }
 </script>
+<style>
+.course-card {
+    opacity: 0;
+}
+</style>
