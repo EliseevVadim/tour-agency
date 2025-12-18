@@ -134,6 +134,12 @@ body {
     }
 }
 
+@media(max-width:767px) {
+    .modal-open {
+        position: fixed!important;
+    }
+}
+
 @-webkit-keyframes wave {
     50%, 75% {
         transform:scale(2.5)
