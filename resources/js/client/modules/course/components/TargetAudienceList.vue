@@ -53,25 +53,29 @@ export default {
         };
     },
     mounted() {
-        document.addEventListener('scroll', animateBlock);
-
         function animateBlock() {
-            const targetContainer = document.querySelector('.target-audience-list')
-            if (!targetContainer) return;
+            const targetContainer = document.querySelector('.target-audience-list');
+            if (!targetContainer) {
+                console.log('Target container not found, trying again...');
+                return;
+            }
 
-            const rect = targetContainer.getBoundingClientRect();
-            const isVisible =
-                rect.top < window.innerHeight * (1 - 0.2) && rect.bottom > window.innerHeight * 0.2;
-            if (!isVisible) return;
+            const audienceElements = document.querySelectorAll('.audience-wrapper');
+            if (audienceElements.length === 0) {
+                console.log('Audience wrappers not found, trying again...');
+                return;
+            }
 
-            document.querySelectorAll('.audience-wrapper').forEach((el, idx) => {
+            audienceElements.forEach((el, idx) => {
                 el.classList.add('animate__animated', 'animate__fadeIn', 'animate__faster');
-                if (idx === 1) el.classList.add('animate__delay-0-5s');
-                if (idx === 2) el.classList.add('animate__delay-1s');
-                if (idx === 3) el.classList.add('animate__delay-1-5s');
-                if (idx === 3) el.classList.add('animate__delay-2s');
+                if (idx === 0) el.classList.add('animate__delay-1s');
+                if (idx === 1) el.classList.add('animate__delay-2s');
+                if (idx === 2) el.classList.add('animate__delay-2-5s');
+                if (idx === 3) el.classList.add('animate__delay-3s');
             });
+            console.log('Animation applied!');
         }
+        setTimeout(animateBlock, 50);
     }
 };
 </script>

@@ -145,7 +145,7 @@
                             Не работает кнопка? Перейдите по ссылке ниже или скопируйте и откройте ее в браузере:
                             <a href="{{ $link }}" target="_blank"
                                style="text-decoration: underline; font-family: Montserrat, sans-serif; font-size: 1.2rem">
-                                https://putclub.ru/shop
+                                {{$link}}
                             </a>
                         </span>
                     </td>
