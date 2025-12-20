@@ -12,6 +12,7 @@ class PaymentTransaction extends Model
     protected $fillable = [
         'user_id',
         'package_id',
+        'promo_code_id',
         'payment_id',
         'status',
         'payment_method',
@@ -32,5 +33,10 @@ class PaymentTransaction extends Model
     public function package()
     {
         return $this->belongsTo(Package::class, 'package_id', 'id');
+    }
+
+    public function promoCodes()
+    {
+        return $this->belongsTo(PromoCode::class, 'promo_code_id', 'id');
     }
 }

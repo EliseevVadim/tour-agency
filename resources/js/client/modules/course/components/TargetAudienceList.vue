@@ -56,24 +56,21 @@ export default {
         function animateBlock() {
             const targetContainer = document.querySelector('.target-audience-list');
             if (!targetContainer) {
-                console.log('Target container not found, trying again...');
                 return;
             }
 
             const audienceElements = document.querySelectorAll('.audience-wrapper');
             if (audienceElements.length === 0) {
-                console.log('Audience wrappers not found, trying again...');
                 return;
             }
 
             audienceElements.forEach((el, idx) => {
                 el.classList.add('animate__animated', 'animate__fadeIn', 'animate__faster');
                 if (idx === 0) el.classList.add('animate__delay-1s');
-                if (idx === 1) el.classList.add('animate__delay-2s');
-                if (idx === 2) el.classList.add('animate__delay-2-5s');
-                if (idx === 3) el.classList.add('animate__delay-3s');
+                if (idx === 1) el.classList.add('animate__delay-1-5s');
+                if (idx === 2) el.classList.add('animate__delay-2s');
+                if (idx === 3) el.classList.add('animate__delay-2-5s');
             });
-            console.log('Animation applied!');
         }
         setTimeout(animateBlock, 50);
     }

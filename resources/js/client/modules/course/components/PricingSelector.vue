@@ -307,7 +307,7 @@ export default {
 
                 const modalId = orderModal.querySelector('.idCourse');
                 const modalTitle = orderModal.querySelector('.package-title .fw-bolder');
-                const modalPrice = orderModal.querySelector('.package-price .price');
+                const modalPrice = orderModal.querySelector('.originalPrice');
 
                 if (modalId) {
                     modalId.value = id;
@@ -316,7 +316,7 @@ export default {
                     modalTitle.textContent = ` "${name}"`;
                 }
                 if (modalPrice) {
-                    modalPrice.textContent = `${price} р`;
+                    modalPrice.value = price;
                 }
             });
         }

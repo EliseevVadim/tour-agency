@@ -54,6 +54,7 @@ class PaymentService
                 'phone_number'   => $options['phone_number'],
                 'email'          => $options['email'],
                 'transaction_id' => $options['transaction_id'],
+                'promo_code_id' => $options['promo_code_id'],
             ],
             'description' => $description,
         ], $idempotenceKey);

@@ -7,11 +7,16 @@
                         aria-selected="true">Управление</button>
             </li>
             <li class="nav-item" role="presentation">
+                <button class="nav-link" id="promo-codes-tab" data-bs-toggle="tab"
+                        data-bs-target="#promo-codes" type="button" role="tab" aria-controls="promo-codes-courses"
+                        aria-selected="true">Промокоды</button>
+            </li>
+            <li class="nav-item" role="presentation">
                 <button class="nav-link" id="logs-courses-tab" data-bs-toggle="tab" data-bs-target="#logs-courses"
                         type="button" role="tab" aria-controls="logs-courses" aria-selected="false">История</button>
             </li>
         </ul>
-        <div class="tab-content" id="coursesTabContent">
+        <div class="tab-content py-4" id="coursesTabContent">
             <div class="tab-pane fade show active" id="manage-courses" role="tabpanel"
                  aria-labelledby="manage-courses-tab">
                 <div class="row" v-if="isDataLoaded">
@@ -192,7 +197,7 @@
                 </div>
             </div>
             <div class="tab-pane fade" id="logs-courses" role="tabpanel" aria-labelledby="logs-courses-tab">
-                <div class="container-fluid py-3">
+                <div class="container-fluid">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="d-flex align-items-center">
                             <label for="statusFilter" class="me-1 fw-medium">Статус:</label>
@@ -263,13 +268,21 @@
                     </nav>
                 </div>
             </div>
+            <div class="tab-pane fade" id="promo-codes" role="tabpanel" aria-labelledby="promo-codes-tab">
+                <div class="container-fluid">
+                    <promocodes-component :initial-packages="packages"></promocodes-component>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
+import PromocodesComponent from "./modules/PromocodesComponent.vue";
+
 export default {
     name: "AdminCoursesComponent",
+    components: {PromocodesComponent},
     data() {
         return {
             packages: {

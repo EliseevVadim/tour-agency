@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\PurchaseConfirmationMail;
 use App\Models\PaymentTransaction;
+use App\Models\PromoCode;
 use App\Models\User;
 use App\Services\NotificationService;
 use App\Services\PaymentService;
@@ -154,6 +155,7 @@ class PaymentController extends Controller
                 'full_name' => $request->input('full_name'),
                 'phone_number' => $request->input('phone_number'),
                 'email' => $request->input('email'),
+                'promo_code_id' => $request->input('promo_code_id'),
             ]
         );
 
@@ -211,10 +213,26 @@ class PaymentController extends Controller
 
     protected function handleSucceeded(PaymentTransaction $transaction, array $paymentData)
     {
+        $promo_code_id = $paymentData['metadata']['promo_code_id'];
+
+
         $transaction->status = 'succeeded';
         $transaction->payment_method = $paymentData['payment_method']['type'] ?? 'unknown';
         $transaction->payment_at = Carbon::now();
+        $transaction->promo_code_id = $promo_code_id;
         $transaction->save();
+
+        if ($transaction->promo_code_id) {
+            $promo = PromoCode::find($transaction->promo_code_id);
+            $promo->is_used = true;
+            if ($promo && is_null($promo->used_at)) {
+                $promo->used_at = Carbon::now();
+                if ($transaction->user_id) {
+                    $promo->user_id = $transaction->user_id;
+                }
+                $promo->save();
+            }
+        }
 
         $package = $transaction->package;
 
@@ -296,9 +314,8 @@ class PaymentController extends Controller
         }
     }
 
-    public function getTelegramLink($link)
+    public function getTelegramLink($chatId)
     {
-        $chatId = $link;
         $parameters = [
             'chat_id' => $chatId,
             'member_limit' => 1,
