@@ -39,7 +39,8 @@
                                        class="form-control"
                                        placeholder="Введите промокод"
                                        v-model="promoInput">
-                                <button v-if="!isActivePromocode" @click="checkPromoCode()" class="btn btn-outline-secondary">
+                                <button v-if="!isActivePromocode" @click="checkPromoCode()"
+                                        class="btn btn-outline-secondary">
                                     <svg class="scroll-arrow arrow-up" viewBox="0 0 24 24">
                                         <path fill="currentColor"
                                               d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
@@ -171,32 +172,20 @@ export default {
 
             this.promoStatus = 'checking';
 
-            try {
-                const response = await axios.post('/api/check-promo-code', {
-                    code: this.promoInput,
-                    package_id: this.currentPackageId
-                }).then((response) => {
-                    this.promoCodeId = response.discount_info.promo_code_id;
-                });
-
+            await axios.post('/api/check-promo-code', {
+                code: this.promoInput,
+                package_id: this.currentPackageId
+            }).then((response) => {
+                this.promoCodeId = response.data.promo_id;
                 this.promoStatus = response.data.status;
                 this.promoMessage = response.data.message;
 
                 if (this.promoStatus === 'allowed') {
                     this.discountDetails = response.data.discount_info;
                 }
+            });
 
-            } catch (error) {
-                if (error.response && error.response.data) {
-                    this.promoStatus = error.response.data.status || 'invalid';
-                    this.promoMessage = error.response.data.message || 'Ошибка сервера при проверке кода.';
-                } else {
-                    this.promoStatus = 'invalid';
-                    this.promoMessage = 'Ошибка сети при проверке кода.';
-                }
-            } finally {
-                this.checkFormValidity();
-            }
+            this.checkFormValidity();
             this.calculateFinalPrice();
         },
 
