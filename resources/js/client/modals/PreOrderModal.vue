@@ -149,14 +149,14 @@ export default {
                 agreesToPolitics
             );
 
-            let isPromoRequiredAndInvalid = false;
+            let isPromoInvalidOrMissing = false;
             if (this.promoInput) {
                 if (this.promoStatus !== 'allowed') {
-                    isPromoRequiredAndInvalid = true;
+                    isPromoInvalidOrMissing = true;
                 }
             }
 
-            this.isDisabled = !(isBaseValid && !isPromoRequiredAndInvalid);
+            this.isDisabled = !(isBaseValid && !isPromoInvalidOrMissing);
         },
 
         async checkPromoCode() {
@@ -182,6 +182,10 @@ export default {
 
                     if (this.promoStatus === 'allowed') {
                         this.discountDetails = response.data.discount_info;
+                    } else {
+                        this.promoInput = '';
+                        this.promoCodeId = null;
+                        this.discountDetails = null;
                     }
                 });
             } catch (error) {
@@ -192,6 +196,10 @@ export default {
                     this.promoStatus = 'invalid';
                     this.promoMessage = 'Ошибка сети при проверке кода.';
                 }
+
+                this.promoInput = '';
+                this.promoCodeId = null;
+                this.discountDetails = null;
             }
 
             this.checkFormValidity();
@@ -223,7 +231,6 @@ export default {
                 }
 
                 this.currentPackagePrice = Math.round(newPrice * 100) / 100;
-                this.isActivePromocode = true;
             } else {
                 this.currentPackagePrice = null;
                 this.$nextTick(() => {
