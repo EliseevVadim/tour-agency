@@ -213,13 +213,17 @@ class PaymentController extends Controller
 
     protected function handleSucceeded(PaymentTransaction $transaction, array $paymentData)
     {
-        $promo_code_id = $paymentData['metadata']['promo_code_id'];
-
+        $promo_code_id = null;
+        if (!empty($paymentData['metadata']['promo_code_id'] ?? null)) {
+            $promo_code_id = $paymentData['metadata']['promo_code_id'];
+        }
 
         $transaction->status = 'succeeded';
         $transaction->payment_method = $paymentData['payment_method']['type'] ?? 'unknown';
         $transaction->payment_at = Carbon::now();
-        $transaction->promo_code_id = $promo_code_id;
+        if ($promo_code_id !== null) {
+            $transaction->promo_code_id = $promo_code_id;
+        }
         $transaction->save();
 
         if ($transaction->promo_code_id) {
@@ -251,7 +255,8 @@ class PaymentController extends Controller
             $userName ?? 'Guest',
             $paymentData['metadata']['phone_number'] ?? 'Unknown',
             $email ?? 'Unknown',
-            (float)$paymentData['amount']['value']
+            (float)$paymentData['amount']['value'],
+
         );
 
         Mail::to($email)->queue(new PurchaseConfirmationMail(

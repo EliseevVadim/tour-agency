@@ -39,7 +39,7 @@
                                        class="form-control"
                                        placeholder="Введите промокод"
                                        v-model="promoInput">
-                                <button @click="checkPromoCode()"
+                                <button type="button" @click="checkPromoCode()"
                                         class="btn btn-outline-secondary">
                                     <svg class="scroll-arrow arrow-up" viewBox="0 0 24 24">
                                         <path fill="currentColor"
