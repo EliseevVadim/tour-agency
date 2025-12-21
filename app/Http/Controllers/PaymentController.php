@@ -156,6 +156,8 @@ class PaymentController extends Controller
                 'phone_number' => $request->input('phone_number'),
                 'email' => $request->input('email'),
                 'promo_code_id' => $request->input('promo_code_id'),
+                'discount_type' => $request->input('discount_type'),
+                'discount_value' => $request->input('discount_value'),
             ]
         );
 
@@ -213,12 +215,21 @@ class PaymentController extends Controller
 
     protected function handleSucceeded(PaymentTransaction $transaction, array $paymentData)
     {
-        $promo_code_id = $paymentData['metadata']['promo_code_id'];
+        $promo_code_id = $paymentData['metadata']['promo_code_id'] ?? null;
+        $discount_type = $paymentData['metadata']['discount_type'] ?? null;
+        $discount_value = $paymentData['metadata']['discount_value'] ?? null;
+        $phone = $paymentData['metadata']['phone_number'] ?? 'Unknown';
+
+        Log::info($discount_type);
+        Log::info($discount_value);
+        Log::info($promo_code_id);
 
         $transaction->status = 'succeeded';
         $transaction->payment_method = $paymentData['payment_method']['type'] ?? 'unknown';
         $transaction->payment_at = Carbon::now();
-        $transaction->promo_code_id = $promo_code_id;
+        if ($promo_code_id !== null) {
+            $transaction->promo_code_id = $promo_code_id;
+        }
         $transaction->save();
 
         if ($transaction->promo_code_id) {
@@ -245,12 +256,35 @@ class PaymentController extends Controller
         $email = $paymentData['metadata']['email'];
         $link = $this->getTelegramLink($packageLink) ?? "#";
 
+        $promo_info = '';
+        if ($promo_code_id && $discount_type && $discount_value) {
+            $value_formatted = '';
+
+            switch ($discount_type) {
+                case 'percent':
+                    $value_formatted = "{$discount_value}%";
+                    break;
+                case 'fixed':
+                    $value_formatted = "{$discount_value} р";
+                    break;
+                default:
+                    $value_formatted = "{$discount_value} ({$discount_type})";
+                    break;
+            }
+
+            $promo_info = sprintf(
+                "\n[🔥 Промокод применен: Скидка %s]",
+                $value_formatted
+            );
+        }
+
         app(NotificationService::class)->sendPurchaseNotification(
             $courseName ?? 'Unknown Package',
             $userName ?? 'Guest',
-            $paymentData['metadata']['phone_number'] ?? 'Unknown',
+            $phone,
             $email ?? 'Unknown',
-            (float)$paymentData['amount']['value']
+            (float)$paymentData['amount']['value'],
+            $promo_info
         );
 
         Mail::to($email)->queue(new PurchaseConfirmationMail(

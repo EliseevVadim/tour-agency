@@ -55,6 +55,8 @@ class PaymentService
                 'email'          => $options['email'],
                 'transaction_id' => $options['transaction_id'],
                 'promo_code_id' => $options['promo_code_id'],
+                'discount_type' => $options['discount_type'],
+                'discount_value' => $options['discount_value'],
             ],
             'description' => $description,
         ], $idempotenceKey);

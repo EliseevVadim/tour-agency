@@ -35,7 +35,7 @@ class NotificationService
     }
 
     public function sendPurchaseNotification(string $courseName, string $userName, string $phone,
-                                             string $email, float $amount): bool
+                                             string $email, float $amount, string $promoInfo = ''): bool
     {
         $chatId = $this->getChatId('sales_channel');
 
@@ -47,13 +47,14 @@ class NotificationService
         $message = sprintf(
             "%s %s оплатил(а) курс %s за %.2f р \n\n" .
             "Email: %s \n" .
-            "Телефон: %s \n",
+            "Телефон: %s\n\n %s",
             self::ICON_SUCCESS,
             $userName,
             $courseName,
             $amount,
             $email,
-            $phone
+            $phone,
+            $promoInfo
         );
 
         return $this->sendToTelegram($chatId, $message);

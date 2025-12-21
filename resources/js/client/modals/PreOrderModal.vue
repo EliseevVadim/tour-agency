@@ -110,6 +110,9 @@ export default {
             promoStatus: null,
             promoMessage: '',
             discountDetails: null,
+            promoCodeId: null,
+            promoCodeType: null,
+            promoCodeValue: null
         }
     },
     methods: {
@@ -179,14 +182,10 @@ export default {
                     email: email,
                     full_name: fullName,
                     amount: this.currentPackagePrice,
-                    promo_code_id: this.$attrs['data-bs-promo-id']
+                    promo_code_id: this.promoCodeId,
+                    discount_value: this.promoCodeValue,
+                    discount_type: this.promoCodeType
                 };
-
-                if (isPromoAllowed) {
-                    paymentData.promo_code = this.$attrs['data-bs-promo-code'];
-                    paymentData.discount_type = this.$attrs['data-bs-promo-type'];
-                    paymentData.discount_value = this.$attrs['data-bs-promo-value'];
-                }
 
                 try {
                     const response = await axios.post('/payments/create', paymentData);
@@ -235,7 +234,12 @@ export default {
                 this.promoMessage = button.getAttribute('data-bs-promo-message') || '';
 
                 if (this.promoStatus === 'allowed') {
+                    this.promoCodeId = button.getAttribute('data-bs-promo-id');
+                    this.promoCodeType = button.getAttribute('data-bs-promo-type');
+                    this.promoCodeValue = button.getAttribute('data-bs-promo-value');
+
                     this.discountDetails = {
+                        code: button.getAttribute('data-bs-promo-code'),
                         type: button.getAttribute('data-bs-promo-type'),
                         value: parseFloat(button.getAttribute('data-bs-promo-value'))
                     };
