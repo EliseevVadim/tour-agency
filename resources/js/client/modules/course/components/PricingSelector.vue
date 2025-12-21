@@ -74,7 +74,7 @@
                             <p v-if="pkg.details.restriction && pkg.id !== 'mini'" class="restriction-text">
                                 {{ pkg.details.restriction }}</p>
 
-                            <h4 v-if="pkg.id === 1"
+                            <h4 v-if="pkg.id === 'mini'"
                                 class="details-subtitle fw-bold">
                                 Этот пакет отлично подходит для тех, кто хочет:
                             </h4>
@@ -100,9 +100,17 @@
                 <div v-if="expandedPackage === pkg.id"
                      class="btn-container d-flex flex-column justify-content-center text-center">
                     <button data-bs-toggle="modal" data-bs-target="#orderModal" class="btn btn-cta btn-price"
-                            :disabled="isDisabled" :data-bs-id="pkg.id"
-                            :data-bs-name="pkg.name" :data-bs-price="pkg.details.priceNew"
-                            :data-bs-bg="pkg.imageThumbnail">
+                            :data-bs-id="pkg.id"
+                            :data-bs-name="pkg.name"
+                            :data-bs-price="finalPrice"
+                            :data-bs-original-price="pkg.details.priceNew"
+                            :data-bs-bg="pkg.imageThumbnail"
+                            :data-bs-promo-id="promoCodeId"
+                            :data-bs-promo-code="promoCode"
+                            :data-bs-promo-status="promoStatus"
+                            :data-bs-promo-message="promoMessage"
+                            :data-bs-promo-type="discountDetails ? discountDetails.type : null"
+                            :data-bs-promo-value="discountDetails ? discountDetails.value : null">
                         <span class="flare"></span>
                         {{ pkg.details.buttonText }}
                     </button>
@@ -110,7 +118,9 @@
                         <span class="price-old text-decoration-line-through fw-medium">{{
                                 pkg.details.priceOld
                             }} р</span>
-                        <span class="price-new">{{ pkg.details.priceNew }} р</span>
+                        <span class="price-new">{{
+                                promoStatus === 'allowed' ? finalPrice : pkg.details.priceNew
+                            }} р</span>
                     </div>
                 </div>
             </div>
@@ -120,6 +130,7 @@
 
 <script>
 import PreOrderModal from "../../../modals/PreOrderModal.vue";
+import axios from "axios";
 
 export default {
     components: {PreOrderModal},
@@ -232,12 +243,41 @@ export default {
                     }
                 }],
             isLoading: true,
-            isDisabled: false,
-            selectedCourse: null
+            promoCode: null,
+            promoCodeId: null,
+            promoStatus: null,
+            promoMessage: null,
+            discountDetails: null,
         };
     },
+    computed: {
+        currentPackage() {
+            return this.packageData.find(pkg => pkg.id === this.expandedPackage) || this.packageData[1];
+        },
+        priceNewUnformatted() {
+            return this.currentPackage.details.priceNew;
+        },
+        finalPrice() {
+            if (this.promoStatus === 'allowed' && this.discountDetails) {
+                const {type, value} = this.discountDetails;
+                const original = this.priceNewUnformatted;
+                let finalPrice = original;
+
+                if (type === 'percent') {
+                    finalPrice = original * (1 - value / 100);
+                } else if (type === 'fixed') {
+                    finalPrice = original - value;
+                }
+                return Math.round(finalPrice * 100) / 100;
+            }
+            return this.priceNewUnformatted;
+        },
+        isDisabledPrice() {
+            return this.isLoading || isNaN(this.finalPrice);
+        }
+    },
     methods: {
-        togglePackage(packageId, headerOffset = 0) {
+        togglePackage(packageId) {
             this.expandedPackage =
                 this.expandedPackage === packageId ? null : packageId;
 
@@ -245,23 +285,15 @@ export default {
                 const refKey = `package_${packageId}`;
                 const pkgRefs = this.$refs[refKey];
 
-                if (!pkgRefs || pkgRefs.length === 0) return;
-                const pkgEl = pkgRefs[0];
-                if (!(pkgEl instanceof Element)) return;
-
-                pkgEl.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start',
-                });
-
-                if (headerOffset > 0) {
-                    const targetScroll =
-                        window.scrollY + pkgEl.getBoundingClientRect().top - headerOffset;
-
-                    window.scroll({
-                        top: targetScroll,
+                if (pkgRefs && pkgRefs.length > 0 && pkgRefs[0] instanceof Element) {
+                    pkgRefs[0].scrollIntoView({
                         behavior: 'smooth',
+                        block: 'start',
                     });
+                }
+
+                if (this.promoCode) {
+                    this.checkPromoCode();
                 }
             });
         },
@@ -284,45 +316,122 @@ export default {
 
                         this.packageData[index].details.priceOld = pkgData.priceOld;
                         this.packageData[index].details.priceNew = pkgData.priceNew;
-                        this.packageData[index].details.contentLink = pkgData.contentLink;
+                        this.packageData[index].details.buttonText = pkgData.buttonText || 'ПОЛУЧИТЬ ДОСТУП';
                     }
                 });
+
+                if (this.promoCode) {
+                    this.checkPromoCode();
+                }
+
             }).finally(() => {
                 this.isLoading = false;
             })
         },
+        getPromocodeFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            this.promoCode = urlParams.get('promo');
+
+            if (this.promoCode && !this.isLoading) {
+                this.checkPromoCode();
+            }
+        },
+        async checkPromoCode() {
+            if (!this.promoCode) return;
+
+            this.discountDetails = null;
+            this.promoCodeId = null;
+            this.promoStatus = 'loading';
+            this.promoMessage = 'Проверка промокода...';
+
+            const currentId = this.currentPackage.id;
+
+            try {
+                const response = await axios.post('/api/check-promo-code', {
+                    code: this.promoCode,
+                    package_id: currentId
+                });
+
+                this.promoStatus = response.data.status;
+
+                if (this.promoStatus === 'allowed') {
+                    this.discountDetails = response.data.discount_info;
+                    this.promoCodeId = response.data.promo_id;
+                    this.promoMessage = response.data.message || 'Промокод успешно применен!';
+                } else {
+                    this.promoMessage = response.data.message || 'Промокод недействителен для этого пакета.';
+                    this.discountDetails = null;
+                    this.promoCodeId = null;
+                }
+
+            } catch (error) {
+                console.error('Ошибка при проверке кода:', error.response?.data?.message || 'Ошибка сети');
+                this.promoStatus = 'error';
+                this.promoMessage = 'Не удалось проверить промокод.';
+                this.discountDetails = null;
+                this.promoCodeId = null;
+            }
+        },
     },
     mounted() {
         this.getCourses();
+        this.getPromocodeFromUrl();
 
         const orderModal = document.getElementById('orderModal');
-
         if (orderModal) {
             orderModal.addEventListener('show.bs.modal', event => {
                 const button = event.relatedTarget;
 
                 const id = button.getAttribute('data-bs-id');
                 const name = button.getAttribute('data-bs-name');
-                const price = button.getAttribute('data-bs-price');
+                const finalPrice = button.getAttribute('data-bs-price');
+                const originalPrice = button.getAttribute('data-bs-original-price');
+                const bgUrl = button.getAttribute('data-bs-bg');
 
-                const modalId = orderModal.querySelector('.idCourse');
-                const modalTitle = orderModal.querySelector('.package-title .fw-bolder');
-                const modalPrice = orderModal.querySelector('.originalPrice');
+                const promoStatus = button.getAttribute('data-bs-promo-status');
+                const promoMessage = button.getAttribute('data-bs-promo-message');
+                const promoType = button.getAttribute('data-bs-promo-type');
+                const promoValue = button.getAttribute('data-bs-promo-value');
+                const promoId = button.getAttribute('data-bs-promo-id');
 
-                if (modalId) {
-                    modalId.value = id;
-                }
-                if (modalTitle) {
-                    modalTitle.textContent = ` "${name}"`;
-                }
-                if (modalPrice) {
-                    modalPrice.value = price;
+                const modalIdInput = orderModal.querySelector('.idCourse');
+                const modalTitleSpan = orderModal.querySelector('.package-title .fw-bolder');
+                const modalPriceP = orderModal.querySelector('.package-price .price');
+
+                if (modalIdInput) modalIdInput.value = id;
+                if (modalTitleSpan) modalTitleSpan.textContent = ` "${name}"`;
+                if (modalPriceP) modalPriceP.textContent = `${finalPrice} р`;
+
+                this.currentPackageId = id;
+                this.currentPackageName = name;
+                this.currentPackagePrice = finalPrice;
+                this.originalPrice = parseFloat(originalPrice) || 0;
+                this.currentPackageBg = bgUrl ? `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url("${bgUrl}") no-repeat center center / cover` : '';
+
+                this.promoCodeId = promoId;
+                this.promoStatus = promoStatus;
+                this.promoMessage = promoMessage;
+
+                if (promoStatus === 'allowed' && promoType && promoValue) {
+                    this.discountDetails = {
+                        type: promoType,
+                        value: parseFloat(promoValue)
+                    };
+                } else {
+                    this.discountDetails = null;
                 }
             });
         }
-    }
+    },
+    watch: {
+        promoCode: {
+            handler(newCode) {
+                if (newCode && !this.isLoading) {
+                    this.checkPromoCode();
+                }
+            },
+            immediate: true
+        }
+    },
 }
 </script>
-<style scoped lang="scss">
-
-</style>

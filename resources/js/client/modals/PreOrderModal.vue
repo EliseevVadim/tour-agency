@@ -107,8 +107,6 @@ export default {
                 phone: '',
                 agreesToPolitics: false,
             },
-            promoCodeId: null,
-            promoInput: '',
             promoStatus: null,
             promoMessage: '',
             discountDetails: null,
@@ -126,85 +124,7 @@ export default {
                 agreesToPolitics
             );
 
-            let isPromoRequiredAndInvalid = false;
-            if (this.promoInput) {
-                if (this.promoStatus !== 'allowed') {
-                    isPromoRequiredAndInvalid = true;
-                }
-            }
-
-            this.isDisabled = !(isBaseValid && !isPromoRequiredAndInvalid);
-        },
-
-        async checkPromoCode() {
-            this.promoStatus = null;
-            this.promoMessage = '';
-            this.discountDetails = null;
-
-            if (!this.promoInput) {
-                this.checkFormValidity();
-                return;
-            }
-
-            try {
-                const response = await axios.post('/api/check-promo-code', {
-                    code: this.promoInput,
-                    package_id: this.currentPackageId
-                });
-
-                this.promoCodeId = response.data.promo_id;
-                this.promoStatus = response.data.status;
-                this.promoMessage = response.data.message;
-
-                if (this.promoStatus === 'allowed') {
-                    this.discountDetails = response.data.discount_info;
-                }
-            } catch (error) {
-                if (error.response && error.response.data) {
-                    this.promoStatus = error.response.data.status || 'invalid';
-                    this.promoMessage = error.response.data.message || 'Ошибка сервера при проверке кода.';
-                } else {
-                    this.promoStatus = 'invalid';
-                    this.promoMessage = 'Ошибка сети при проверке кода.';
-                }
-            } finally {
-                this.checkFormValidity();
-            }
-            this.calculateFinalPrice();
-        },
-
-        debounce(func, delay) {
-            let timeoutId = null;
-            return function (...args) {
-                clearTimeout(timeoutId);
-                timeoutId = setTimeout(() => {
-                    func.apply(this, args);
-                }, delay);
-            };
-        },
-
-        calculateFinalPrice() {
-            if (this.promoStatus === 'allowed' && this.discountDetails) {
-                const discountType = this.discountDetails.type;
-                const discountValue = this.discountDetails.value;
-                const original = this.originalPrice;
-
-                let newPrice = original;
-
-                if (discountType === 'percent') {
-                    newPrice = original * (1 - discountValue / 100);
-                } else if (discountType === 'fixed') {
-                    newPrice = original - discountValue;
-                }
-
-                this.currentPackagePrice = Math.round(newPrice * 100) / 100;
-                this.isActivePromocode = true;
-            } else {
-                this.currentPackagePrice = null;
-                this.$nextTick(() => {
-                    this.currentPackagePrice = this.originalPrice;
-                });
-            }
+            this.isDisabled = !isBaseValid;
         },
 
         getBackgroundStyle() {
@@ -259,17 +179,16 @@ export default {
                     email: email,
                     full_name: fullName,
                     amount: this.currentPackagePrice,
-                    promo_code_id: this.promoCodeId
+                    promo_code_id: this.$attrs['data-bs-promo-id']
                 };
 
                 if (isPromoAllowed) {
-                    paymentData.promo_code = this.promoInput;
-                    paymentData.discount_type = this.discountDetails.type;
-                    paymentData.discount_value = this.discountDetails.value;
+                    paymentData.promo_code = this.$attrs['data-bs-promo-code'];
+                    paymentData.discount_type = this.$attrs['data-bs-promo-type'];
+                    paymentData.discount_value = this.$attrs['data-bs-promo-value'];
                 }
-                console.log(paymentData)
 
-               /* try {
+                try {
                     const response = await axios.post('/payments/create', paymentData);
 
                     if (response.status === 200) {
@@ -287,7 +206,7 @@ export default {
                     }
                 } finally {
                     this.isDisabled = false;
-                }*/
+                }
             }
         },
     },
@@ -300,7 +219,7 @@ export default {
                 this.formData.email = '';
                 this.formData.phone = '';
                 this.formData.agreesToPolitics = false;
-                this.promoInput = '';
+
                 this.promoStatus = null;
                 this.discountDetails = null;
                 this.isDisabled = true;
@@ -312,22 +231,21 @@ export default {
                 const priceStr = button.getAttribute('data-bs-price');
                 const bgUrl = button.getAttribute('data-bs-bg');
 
+                this.promoStatus = button.getAttribute('data-bs-promo-status');
+                this.promoMessage = button.getAttribute('data-bs-promo-message') || '';
+
+                if (this.promoStatus === 'allowed') {
+                    this.discountDetails = {
+                        type: button.getAttribute('data-bs-promo-type'),
+                        value: parseFloat(button.getAttribute('data-bs-promo-value'))
+                    };
+                }
+
                 this.currentPackageId = id;
                 this.currentPackageName = name;
-                this.originalPrice = parseFloat(priceStr) || 0;
-                this.currentPackagePrice = this.originalPrice;
+                this.currentPackagePrice = priceStr;
+                this.originalPrice = parseFloat(button.getAttribute('data-bs-original-price')) || 0;
                 this.currentPackageBg = bgUrl ? `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url("${bgUrl}") no-repeat center center / cover` : '';
-
-                orderModal.querySelector('.idCourse').value = id;
-
-                const urlParams = new URLSearchParams(window.location.search);
-                const urlPromoCode = urlParams.get('promo');
-
-                if (urlPromoCode) {
-                    this.promoInput = urlPromoCode;
-                    console.log(this.promoInput);
-                    this.debounce(this.checkPromoCode, 100)();
-                }
 
                 this.checkFormValidity();
             });
@@ -335,9 +253,3 @@ export default {
     }
 }
 </script>
-<style scoped>
-.scroll-arrow {
-    transform: rotate(270deg);
-    width: 35px;
-}
-</style>
