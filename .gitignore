@@ -18,3 +18,4 @@ yarn-error.log
 /public/img/*
 !/public/img/*.*
 /package-lock.json
+public/js/app.js
