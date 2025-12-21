@@ -215,7 +215,6 @@ class PaymentController extends Controller
     {
         $promo_code_id = $paymentData['metadata']['promo_code_id'];
 
-
         $transaction->status = 'succeeded';
         $transaction->payment_method = $paymentData['payment_method']['type'] ?? 'unknown';
         $transaction->payment_at = Carbon::now();

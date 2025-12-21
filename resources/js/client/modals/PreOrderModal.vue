@@ -32,24 +32,7 @@
                         </div>
 
                         <div v-if="currentPackageId !== 'maxi'" class="mb-3">
-                            <label for="promoCodeInput" class="form-label">Промокод (Необязательно)</label>
-                            <div class="d-flex gap-2">
-                                <input type="text"
-                                       id="promoCodeInput"
-                                       class="form-control"
-                                       placeholder="Введите промокод"
-                                       v-model="promoInput">
-                                <button v-if="!isActivePromocode" @click="checkPromoCode()" class="btn btn-outline-secondary">
-                                    <svg class="scroll-arrow arrow-up" viewBox="0 0 24 24">
-                                        <path fill="currentColor"
-                                              d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <div v-if="promoStatus === 'checking'" class="form-text text-info mt-1">Проверка...</div>
-
-                            <div v-else-if="promoStatus === 'allowed'" class="alert alert-success mt-2 p-2">
+                            <div v-if="promoStatus === 'allowed'" class="alert alert-success mt-2 p-2">
                                 ✅ Промокод принят! Скидка {{
                                     discountDetails ? (discountDetails.value + (discountDetails.type === 'percent' ? '%' : 'р')) : '...'
                                 }} применена.
@@ -60,10 +43,6 @@
                             </div>
 
                             <div v-else-if="promoStatus === 'expired'" class="alert alert-danger mt-2 p-2">
-                                ❌ {{ promoMessage }}
-                            </div>
-
-                            <div v-else-if="promoStatus === 'invalid'" class="alert alert-danger mt-2 p-2">
                                 ❌ {{ promoMessage }}
                             </div>
                         </div>
@@ -77,7 +56,7 @@
                             <div class="package-price" :class="{'d-none': currentPackageId === 'maxi'}">
                                 <p class="line-1">Стоимость:</p>
                                 <p class="price fw-bold line-1"
-                                   :class="{'text-danger': startPrice > currentPackagePrice}">
+                                   :class="{'text-danger': originalPrice > currentPackagePrice}">
                                     {{ currentPackagePrice }} р
                                 </p>
                             </div>
@@ -133,8 +112,6 @@ export default {
             promoStatus: null,
             promoMessage: '',
             discountDetails: null,
-            startPrice: 0,
-            isActivePromocode: false
         }
     },
     methods: {
@@ -169,23 +146,19 @@ export default {
                 return;
             }
 
-            this.promoStatus = 'checking';
-
             try {
                 const response = await axios.post('/api/check-promo-code', {
                     code: this.promoInput,
                     package_id: this.currentPackageId
-                }).then((response) => {
-                    this.promoCodeId = response.discount_info.promo_code_id;
                 });
 
+                this.promoCodeId = response.data.promo_id;
                 this.promoStatus = response.data.status;
                 this.promoMessage = response.data.message;
 
                 if (this.promoStatus === 'allowed') {
                     this.discountDetails = response.data.discount_info;
                 }
-
             } catch (error) {
                 if (error.response && error.response.data) {
                     this.promoStatus = error.response.data.status || 'invalid';
@@ -294,8 +267,9 @@ export default {
                     paymentData.discount_type = this.discountDetails.type;
                     paymentData.discount_value = this.discountDetails.value;
                 }
+                console.log(paymentData)
 
-                try {
+               /* try {
                     const response = await axios.post('/payments/create', paymentData);
 
                     if (response.status === 200) {
@@ -313,7 +287,7 @@ export default {
                     }
                 } finally {
                     this.isDisabled = false;
-                }
+                }*/
             }
         },
     },
@@ -341,11 +315,20 @@ export default {
                 this.currentPackageId = id;
                 this.currentPackageName = name;
                 this.originalPrice = parseFloat(priceStr) || 0;
-                this.startPrice = this.originalPrice;
                 this.currentPackagePrice = this.originalPrice;
                 this.currentPackageBg = bgUrl ? `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url("${bgUrl}") no-repeat center center / cover` : '';
 
                 orderModal.querySelector('.idCourse').value = id;
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const urlPromoCode = urlParams.get('promo');
+
+                if (urlPromoCode) {
+                    this.promoInput = urlPromoCode;
+                    console.log(this.promoInput);
+                    this.debounce(this.checkPromoCode, 100)();
+                }
+
                 this.checkFormValidity();
             });
         }

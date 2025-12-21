@@ -13,8 +13,9 @@
                     поможем!</span></p>
                 </div>
 
-                <a href="https://t.me/put_club1" class="chat-button btn-cta text-uppercase align-content-center">открыть
-                    чат</a>
+                <a href="https://t.me/put_club1" class="chat-button btn-cta text-uppercase align-content-center">
+                    <span class="flare"></span>
+                    открыть чат</a>
             </div>
         </div>
     </section>
