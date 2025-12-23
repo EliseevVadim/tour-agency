@@ -1,6 +1,6 @@
 <template>
     <div class="main">
-        <div class="loader" v-if="false">
+        <div class="loader" v-if="loading">
             <div class="loader__dot"></div>
             <div class="loader__dot"></div>
             <div class="loader__dot"></div>
