@@ -24,9 +24,12 @@
                     </template>
 
                     <tour-card v-for="(tour, index) in tours" :key="index"
-                               :imageUrl="tour.thumbnail_url" :tourUrl="tour.video_url" :index="index"
-                               :alt-text="tour.title" :badgeText="getBadgeText(index)"
-                               :badgeType="getBadgeType(index)"/>
+                               :index="index"
+                               :imageUrl="tour.thumbnail_url"
+                               :tourUrl="tour.video_url"
+                               :alt-text="tour.title"
+                               :badgeText="tour.badgeText"
+                    :badgeType="tour.badgeType"/>
                 </ssr-carousel>
             </div>
         </template>
@@ -62,7 +65,14 @@ export default {
             this.loading = true;
             try {
                 const response = await axios.get('/api/clips');
-                this.tours = response.data;
+                this.tours = response.data.map((tour, index) => {
+                    const badge = this.badgeConfig[index];
+                    return {
+                        ...tour,
+                        badgeText: badge ? badge.text : '',
+                        badgeType: badge ? badge.type : ''
+                    };
+                });
             } catch (error) {
                 console.error('Ошибка при получении клипов:', error);
             } finally {

@@ -4,16 +4,18 @@
             <h2 class="reviews-title text-center">Отзывы клиентов:</h2>
             <div class="reviews-slider">
                 <ssr-carousel v-if="reviews.length > 0" :slides-per-page='1' paginate-by-slide show-arrows
-                              :responsive='carouselResponsive' v-model="activeSlide" @change="changeSlide"
+                              :responsive='carouselResponsive' v-model="activeSlide" @change="handleSlideChange"
                               :style="{ height: this.carouselHeight }">
                     <template #back-arrow='{ disabled }'>
-                        <span class="carousel-left-icon reviews-carousel-left-icon" :class="{'disabled': disabled}"></span>
+                        <span class="carousel-left-icon reviews-carousel-left-icon"
+                              :class="{'disabled': disabled}"></span>
                     </template>
                     <template #next-arrow='{ disabled }'>
                         <div class="next-button-container">
                         <span class="carousel-right-icon reviews-carousel-right-icon" :class="{'disabled': disabled}">
                             <transition name="expand">
-                                <a href="https://yandex.ru/maps/org/v_put/105740302681/reviews/?ll=38.970202%2C45.034904&z=16" target="_blank" v-if="disabled"
+                                <a href="https://yandex.ru/maps/org/v_put/105740302681/reviews/?ll=38.970202%2C45.034904&z=16"
+                                   target="_blank" v-if="disabled"
                                    class="button-text text-decoration-none">посмотреть еще</a>
                             </transition>
                         </span>
@@ -28,6 +30,7 @@
                                  :location="review.country"
                                  :text="review.review_text"
                                  :photos="review.photos"
+                                 :data-slide-index="index"
                                  @open-image-modal="showImageModal"/>
                 </ssr-carousel>
             </div>
@@ -51,41 +54,28 @@ export default {
             currentImageUrl: '',
             reviews: [],
             carouselResponsive: [],
-            carouselHeight: '500px',
-            activeSlide: null
-        }
-    },
-    computed: {
-        slidesPerPage() {
-            if (this.reviews.length === 1) {
-                return 1;
-            } else {
-                return 2;
-            }
+            carouselHeight: 'auto',
+            activeSlide: 0
         }
     },
     methods: {
-        fetchReviews() {
-            axios.get('/api/reviews')
-                .then(response => {
-                    this.reviews = response.data;
-                })
-                .catch(error => {
-                    console.error('Ошибка при получении клипов:', error);
-                    if (error.response) {
-                        console.error('Error response data:', error.response.data);
-                    }
-                });
+        async fetchReviews() {
+            try {
+                const response = await axios.get('/api/reviews');
+                this.reviews = response.data;
+
+                this.updateCarouselResponsive();
+                setTimeout(() => {
+                    this.handleSlideChange();
+                }, 1500);
+            } catch (error) {
+                console.error('Ошибка при получении отзывов:', error);
+            }
         },
-        showImageModal(payload) {
-            this.currentImageUrl = payload.imageUrl;
-            this.isModalVisible = true;
-        },
-        hideImageModal() {
-            this.isModalVisible = false;
-            this.currentImageUrl = '';
-        },
+
         updateCarouselResponsive() {
+            const slidesPerPage = this.reviews.length > 1 ? 2 : 1;
+
             this.carouselResponsive = [
                 {
                     maxWidth: 1479,
@@ -96,11 +86,11 @@ export default {
                 },
                 {
                     minWidth: 1480,
-                    slidesPerPage: this.slidesPerPage,
+                    slidesPerPage: slidesPerPage,
                 }
             ];
         },
-        changeSlide(slide){
+        handleSlideChange() {
             this.$nextTick(() => {
                 const items = document.querySelectorAll('.review-card');
 
@@ -111,29 +101,20 @@ export default {
 
                 const itemReview = items[this.activeSlide === null ? 0 : this.activeSlide];
                 const reviewSize = itemReview.getBoundingClientRect();
-                this.carouselHeight = reviewSize.height + 45 + 'px'
-            });
-        }
+                this.carouselHeight = reviewSize.height + 45 + 'px';
+            })
+        },
+        showImageModal(payload) {
+            this.currentImageUrl = payload.imageUrl;
+            this.isModalVisible = true;
+        },
+        hideImageModal() {
+            this.isModalVisible = false;
+            this.currentImageUrl = '';
+        },
     },
     mounted() {
         this.fetchReviews();
-        this.updateCarouselResponsive();
-    },
-    watch: {
-        'reviews.length': {
-            handler() {
-                this.updateCarouselResponsive();
-            },
-            immediate: true
-        },
-        activeSlide: {
-            handler() {
-                setTimeout(()=>{
-                    this.changeSlide();
-                },2500);
-            },
-            immediate: true
-        }
     },
 }
 </script>

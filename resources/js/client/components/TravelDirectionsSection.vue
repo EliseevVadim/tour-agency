@@ -1,5 +1,5 @@
 <template>
-    <section v-if="!loading && slides.length > 0" class="travel-directions-section">
+    <section v-if="!loading" class="travel-directions-section">
         <div v-if="isShowCoconut" class="coconut-background coconut-right"></div>
         <div class="line-gradient-background"></div>
 

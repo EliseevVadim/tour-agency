@@ -1,9 +1,9 @@
 <template>
-    <div class="slide slide-review">
+    <div class="slide slide-review review-card-wrapper">
         <div class="review-card ">
             <div class="review-header d-flex gap-2 justify-content-between">
                 <div class="align-items-center card-header__info d-flex gap-3">
-                    <img :src="'/img/reviews/avatars/' + profileImage" alt="Профиль" class="avatar">
+                    <img :src="'/img/reviews/avatars/' + profileImage" alt="Профиль" class="avatar" loading="eager">
                     <div class="user-info text-start">
                         <h3 class="fw-bold">{{ name }}</h3>
                         <p class="text-nowrap">{{ preLocation }} <span class="text-decoration-underline">{{
@@ -17,7 +17,7 @@
                         <img :src="'/img/reviews/' + img"
                              :alt="'Фото отзыва ' + (index + 1)"
                              @click="openImageModal('/img/reviews/' + img)"
-                             class="clickable-image">
+                             class="clickable-image" loading="eager">
                     </div>
 
                     <template #back-arrow='{ disabled }'>

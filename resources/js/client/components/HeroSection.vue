@@ -1,10 +1,8 @@
 <template>
-    <section class="hero-section d-flex flex-column justify-content-between"
-             style="position: relative;">
+    <section class="hero-section d-flex flex-column justify-content-between">
 
-        <div class="hero-background"
-             style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden;">
-            <img src="/img/hero-section-bg.jpg" alt="Hero Image" style="width: 100%; height: 100%; object-fit: cover;">
+        <div class="hero-background">
+            <img src="/img/hero-section-bg.jpg" alt="Hero Image">
         </div>
 
         <div class="hero-surf position-absolute">
@@ -53,7 +51,7 @@
                     <ul class="main list-unstyled navbar-nav">
                         <li v-for="(item, index) in menuItems"
                             :key="index"
-                            @click="setActiveLink(item.link)"
+                            @click="handleLinkClick(item.link)"
                             :class="{active: activeLink === item.link}">
                             <a :href="item.link">{{ item.text }}</a>
                         </li>
@@ -119,9 +117,7 @@
         </div>
 
         <div class="hero-bottom container py-3 d-flex justify-content-center">
-            <div class="d-flex justify-content-center">
-                <div class="tv-search-form tv-moduleid-9974653"></div>
-            </div>
+            <div class="tv-search-form tv-moduleid-9974653"></div>
         </div>
 
     </section>
@@ -134,17 +130,17 @@ export default {
         return {
             activeLink: "#first",
             menuItems: [
-                { link: '#first', text: 'Главная' },
-                { link: '#tours', text: 'Туры дня' },
-                { link: '#hot-tours', text: 'Горящие туры' },
-                { link: '#discount', text: 'Акции и скидки' },
-                { link: '#travel', text: 'О путешествиях' },
-                { link: '#reviews', text: 'Отзывы' },
-                { link: '#directions', text: 'Наши направления' },
-                { link: '#training', text: 'Курсы' },
-                { link: '#team', text: 'Команда' },
-                { link: '#merch', text: 'Мерч' },
-                { link: 'contacts', text: 'Контакты' }
+                {link: '#first', text: 'Главная'},
+                {link: '#tours', text: 'Туры дня'},
+                {link: '#hot-tours', text: 'Горящие туры'},
+                {link: '#discount', text: 'Акции и скидки'},
+                {link: '#travel', text: 'О путешествиях'},
+                {link: '#reviews', text: 'Отзывы'},
+                {link: '#directions', text: 'Наши направления'},
+                {link: '#training', text: 'Курсы'},
+                {link: '#team', text: 'Команда'},
+                {link: '#merch', text: 'Мерч'},
+                {link: 'contacts', text: 'Контакты'}
             ],
         }
     },
@@ -152,7 +148,17 @@ export default {
         setActiveLink(link) {
             this.$emit('set-active-link', link);
             this.activeLink = link
-        }
+        },
+        handleLinkClick(link) {
+            this.setActiveLink(link);
+            this.$nextTick(() => {
+                const mobileMenu = document.getElementById('mobileMenuContent');
+                if (mobileMenu && mobileMenu.classList.contains('show')) {
+                    const bsCollapse = new bootstrap.Collapse(mobileMenu, {toggle: false});
+                    bsCollapse.hide();
+                }
+            });
+        },
     },
 
 }
