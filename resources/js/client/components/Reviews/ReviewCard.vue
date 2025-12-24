@@ -17,7 +17,7 @@
                         <img :src="'/img/reviews/' + img"
                              :alt="'Фото отзыва ' + (index + 1)"
                              @click="openImageModal('/img/reviews/' + img)"
-                             class="clickable-image" loading="eager">
+                             class="clickable-image" width="100" height="100">
                     </div>
 
                     <template #back-arrow='{ disabled }'>

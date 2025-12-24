@@ -30,6 +30,10 @@
     overflow: hidden;
     text-align: center;
 
+    .ssr-carousel-track {
+        justify-content: end !important;
+    }
+
     &::after {
         content: "";
         height: 7px;
