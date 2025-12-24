@@ -30,7 +30,7 @@
     overflow: hidden;
     text-align: center;
 
-    .ssr-carousel-track {
+    .ssr-carousel-track:not(:has(.slide:nth-child(3))) {
         justify-content: end !important;
     }
 
