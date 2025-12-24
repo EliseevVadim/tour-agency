@@ -1,6 +1,6 @@
 <template>
     <div class="slide slide-review review-card-wrapper">
-        <div class="review-card ">
+        <div class="review-card " :style="{ height: this.cardHeight }">
             <div class="review-header d-flex gap-2 justify-content-between">
                 <div class="align-items-center card-header__info d-flex gap-3">
                     <img :src="'/img/reviews/avatars/' + profileImage" alt="Профиль" class="avatar" loading="eager">
@@ -71,6 +71,10 @@ export default {
             type: Array,
             required: true,
             default: () => []
+        },
+        cardHeight: {
+            type: String,
+            default: null
         }
     },
     methods: {

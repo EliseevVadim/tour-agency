@@ -2,7 +2,6 @@
     <section class="hero-section d-flex flex-column justify-content-between">
 
         <div class="hero-background">
-            <img src="/img/hero-section-bg.jpg" alt="Hero Image">
         </div>
 
         <div class="hero-surf position-absolute">

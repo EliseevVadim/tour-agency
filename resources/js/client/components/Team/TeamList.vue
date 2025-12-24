@@ -1,5 +1,5 @@
 <template>
-    <section class="team-section container">
+    <section v-if="false" class="team-section container">
         <h2 class="team-section-title text-center">Наша команда:</h2>
         <ssr-carousel v-model="slide" ref="teamCarousel" @change="openTelegram" class="custom-carousel"
                       v-if="members.length > 0" show-dots :slides-per-page='1' paginate-by-slide>

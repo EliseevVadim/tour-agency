@@ -34,7 +34,7 @@ export default {
     mounted() {
         setTimeout(()=>{
             this.loading = false;
-        },3000);
+        },2000);
         document.addEventListener('DOMContentLoaded', () => {
             const mobileMenuCollapse = document.getElementById('mobileMenuContent');
             const body = document.body;

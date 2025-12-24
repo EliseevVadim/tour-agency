@@ -10,11 +10,16 @@
         height: 100%;
         z-index: -1;
         overflow: hidden;
+    }
 
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+    .hero-background {
+        background-image: url('/img/hero-section-bg.jpg');
+        background-size: cover;
+        background-position: center;
+    }
+    @media (max-width: 767px) {
+        .hero-background {
+            background-image: url('/img/hero-section-bg-small.jpg');
         }
     }
 

@@ -5,7 +5,7 @@
             <div class="reviews-slider">
                 <ssr-carousel v-if="reviews.length > 0" :slides-per-page='1' paginate-by-slide show-arrows
                               :responsive='carouselResponsive' v-model="activeSlide" @change="handleSlideChange"
-                              :style="{ height: this.carouselHeight }">
+                              :style="{ height: this.carouselHeight }" :no-drag="true">
                     <template #back-arrow='{ disabled }'>
                         <span class="carousel-left-icon reviews-carousel-left-icon"
                               :class="{'disabled': disabled}"></span>
@@ -31,6 +31,7 @@
                                  :text="review.review_text"
                                  :photos="review.photos"
                                  :data-slide-index="index"
+                                 :card-height="reviewCardHeight"
                                  @open-image-modal="showImageModal"/>
                 </ssr-carousel>
             </div>
@@ -55,7 +56,8 @@ export default {
             reviews: [],
             carouselResponsive: [],
             carouselHeight: 'auto',
-            activeSlide: 0
+            activeSlide: 0,
+            reviewCardHeight: 'auto'
         }
     },
     methods: {
@@ -92,17 +94,51 @@ export default {
         },
         handleSlideChange() {
             this.$nextTick(() => {
-                const items = document.querySelectorAll('.review-card');
+                const allCards = document.querySelectorAll('.review-card');
 
-                if (!items || items.length === 0) {
-                    console.warn('Элементы .review-card не найдены в контейнере.');
+                if (!allCards || allCards.length === 0) {
                     return;
                 }
 
-                const itemReview = items[this.activeSlide === null ? 0 : this.activeSlide];
-                const reviewSize = itemReview.getBoundingClientRect();
-                this.carouselHeight = reviewSize.height + 45 + 'px';
-            })
+                const startIndex = this.activeSlide === null ? 0 : this.activeSlide;
+                const offset = 45;
+                let maxHeight = 0;
+
+                let slidesPerPage = 1;
+                if (window.innerWidth >= 1480 && this.reviews.length > 1) {
+                    slidesPerPage = 2;
+                }
+
+                this.carouselHeight = 'auto';
+                this.reviewCardHeight = 'auto';
+
+                this.$nextTick(() => {
+                    if (slidesPerPage === 2 && startIndex + 1 < allCards.length) {
+
+                        const card1 = allCards[startIndex];
+                        const card2 = allCards[startIndex + 1];
+
+                        if (card1 && card2) {
+                            const height1 = card1.offsetHeight;
+                            const height2 = card2.offsetHeight;
+
+                            maxHeight = Math.max(height1, height2);
+                            this.reviewCardHeight = maxHeight + 'px';
+                        }
+                    } else {
+                        const card = allCards[startIndex];
+                        if (card) {
+                            maxHeight = card.offsetHeight;
+                        }
+                    }
+
+                    if (maxHeight > 0) {
+                        this.carouselHeight = (maxHeight + offset) + 'px';
+                    } else {
+                        this.carouselHeight = 'auto';
+                    }
+                });
+            });
         },
         showImageModal(payload) {
             this.currentImageUrl = payload.imageUrl;
