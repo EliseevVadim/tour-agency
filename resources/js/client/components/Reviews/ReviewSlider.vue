@@ -12,7 +12,7 @@
                     </template>
                     <template #next-arrow='{ disabled }'>
                         <div class="next-button-container">
-                        <span class="carousel-right-icon reviews-carousel-right-icon" :class="{'disabled': disabled}">
+                        <span class="carousel-right-icon reviews-carousel-right-icon" :class="{'disabled w-100': disabled}">
                             <transition name="expand">
                                 <a href="https://yandex.ru/maps/org/v_put/105740302681/reviews/?ll=38.970202%2C45.034904&z=16"
                                    target="_blank" v-if="disabled"

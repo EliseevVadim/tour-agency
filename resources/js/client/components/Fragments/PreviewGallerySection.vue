@@ -9,10 +9,10 @@
                           overflow-visible paginate-by-slide peek-right='3%' peek-left='3%' gutter='30'
                           :responsive='responsive' :no-drag="true">
                 <template #back-arrow='{ disabled }'>
-                    <span class="carousel-left-icon" :class="{'disabled': disabled}"></span>
+                    <span v-if="!disabled" class="carousel-left-icon" :class="{'disabled': disabled}"></span>
                 </template>
                 <template #next-arrow='{ disabled }'>
-                    <span class="carousel-right-icon" :class="{'disabled': disabled}"></span>
+                    <span v-if="!disabled" class="carousel-right-icon" :class="{'disabled': disabled}"></span>
                 </template>
 
                 <div class="travel-card slide preview-card" v-for="slide in slides" :key="slide.id">

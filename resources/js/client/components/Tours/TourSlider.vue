@@ -12,7 +12,7 @@
 
                     <template #next-arrow="{ disabled }">
                         <div class="next-button-container">
-                            <span class="carousel-right-icon tour-carousel-right-icon" :class="{'disabled': disabled}">
+                            <span class="carousel-right-icon tour-carousel-right-icon" :class="{'disabled w-100': disabled}">
                                 <transition name="expand">
                                     <a v-if="disabled" href="https://vk.com/clips/put_club" target="_blank"
                                        class="button-text text-decoration-none">
