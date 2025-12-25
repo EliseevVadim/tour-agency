@@ -32,30 +32,44 @@ class CoursesController extends Controller
             $modulePath = $basePhysicalPath . DIRECTORY_SEPARATOR . $moduleFolderName;
 
             if (is_dir($modulePath)) {
-                $files = glob($modulePath . '/*.png');
+                $files = glob($modulePath . '/[0-9]*.*.png');
 
                 if (!empty($files)) {
                     foreach ($files as $filePath) {
                         $fileName = basename($filePath);
-                        if (!preg_match('/^\d+\.\d+\.png$/', $fileName)) {
+
+                        if (!preg_match('/^(\d+)\.(\d+)\.png$/', $fileName, $matches)) {
                             continue;
                         }
 
-                        $imageWebPath = "{$baseWebPath}/{$moduleFolderName}/{$fileName}";
+                        $major = (int)$matches[1];
+                        $minor = (int)$matches[2];
 
-                        $parts = explode('.', $fileName);
-                        $major = $parts[0] ?? 0;
-                        $minor = $parts[1] ?? 0;
+                        $imageWebPath = "{$baseWebPath}/{$moduleFolderName}/{$fileName}";
 
                         $slides[] = [
                             'id' => $slideIdCounter++,
                             'title' => "Превью {$moduleFolderName} - {$major}.{$minor}",
                             'image' => $imageWebPath,
+                            'sort_major' => $major,
+                            'sort_minor' => $minor,
                         ];
                     }
                 }
             }
         }
+
+        usort($slides, function ($a, $b) {
+            if ($a['sort_major'] != $b['sort_major']) {
+                return $a['sort_major'] - $b['sort_major'];
+            }
+            return $a['sort_minor'] - $b['sort_minor'];
+        });
+
+        foreach ($slides as $key => &$slide) {
+            $slide['id'] = $key;
+        }
+        unset($slide);
 
         return response()->json($slides);
     }
