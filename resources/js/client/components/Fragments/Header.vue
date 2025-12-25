@@ -1,6 +1,6 @@
 <template>
     <section class="hero-section">
-        <nav class="hero-top-bar container-fluid d-flex justify-content-between align-items-center">
+        <nav class="hero-top-bar container-xl d-flex justify-content-between align-items-center">
             <div class="hero-top-bar-left gap-4 d-flex">
                 <button class="navbar-toggler border-0" type="button"
                         data-bs-toggle="collapse"
