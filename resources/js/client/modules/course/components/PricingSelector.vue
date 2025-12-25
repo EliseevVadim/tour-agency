@@ -38,7 +38,7 @@
                 <h2 class="title-course text-center">ВЫБЕРИ СВОЙ ПАКЕТ:</h2>
             </div>
 
-            <div v-for="pkg in packageData" :key="pkg.id" class="package-container position-relative"
+            <div v-for="pkg in packageData" :key="pkg.id" class="package-container position-relative" :id="pkg.id + '-section'"
                  :class="{ 'expanded': expandedPackage === pkg.id }" :ref="`package_${pkg.id}`">
                 <div class="package-card mb-4"
                      :class="{ 'expanded': expandedPackage === pkg.id }">
@@ -278,6 +278,21 @@ export default {
     },
     methods: {
         togglePackage(packageId) {
+            if (this.expandedPackage === packageId) {
+                this.$nextTick(() => {
+                    const refKey = `package_${packageId}`;
+                    const pkgRefs = this.$refs[refKey];
+
+                    if (pkgRefs && pkgRefs.length > 0 && pkgRefs[0] instanceof Element) {
+                        pkgRefs[0].scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start',
+                        });
+                    }
+                });
+                return;
+            }
+
             this.expandedPackage =
                 this.expandedPackage === packageId ? null : packageId;
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Api\Course\CoursesController;
 use App\Http\Controllers\ClipController;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\PaymentController;
@@ -37,6 +38,7 @@ Route::prefix('api')->name('api.')->group(function () {
     Route::get("/contacts", [DataController::class, 'getContacts'])->name('contacts.index');
     Route::get("/videos", [VideoController::class, 'getVideos'])->name('videos.index');
     Route::get("/clips", [ClipController::class, 'getClips'])->name('clips.index');
+    Route::get('/modules-preview', [CoursesController::class, 'getPreviews']);
 
     Route::get('/team', [TeamController::class, 'getTeam'])->name('team.index');
     Route::get('/reviews', [ReviewsController::class, 'getReviews'])->name('reviews.index');

@@ -8,7 +8,7 @@
             <img src="/img/surfboard.png" alt="surfboard">
         </div>
 
-        <nav class="hero-top-bar container-xl d-flex justify-content-between align-items-start">
+        <nav class="hero-top-bar container-fluid d-flex justify-content-between align-items-start">
             <div class="hero-top-bar-left gap-5 d-flex align-items-start">
                 <button @click="setActiveLink('#first')" class="navbar-toggler border-0" type="button"
                         data-bs-toggle="collapse"
@@ -115,7 +115,7 @@
             <h1 class="text-white fw-800">вы отдыхали</h1>
         </div>
 
-        <div class="hero-bottom container py-3 d-flex justify-content-center">
+        <div class="hero-bottom container py-3">
             <div class="tv-search-form tv-moduleid-9974653"></div>
         </div>
 

@@ -15,6 +15,50 @@ use Illuminate\Support\Facades\Validator;
 
 class CoursesController extends Controller
 {
+    public function getPreviews(Request $request)
+    {
+        $slides = [];
+        $slideIdCounter = 0;
+
+        $baseWebPath = '/img/previews';
+        $basePhysicalPath = public_path('img/previews');
+
+        $totalModules = 10;
+
+        for ($i = 0; $i < $totalModules; $i++) {
+            $moduleNum = str_pad($i, 2, '0', STR_PAD_LEFT);
+            $moduleFolderName = "Module_" . $moduleNum;
+
+            $modulePath = $basePhysicalPath . DIRECTORY_SEPARATOR . $moduleFolderName;
+
+            if (is_dir($modulePath)) {
+                $files = glob($modulePath . '/*.png');
+
+                if (!empty($files)) {
+                    foreach ($files as $filePath) {
+                        $fileName = basename($filePath);
+                        if (!preg_match('/^\d+\.\d+\.png$/', $fileName)) {
+                            continue;
+                        }
+
+                        $imageWebPath = "{$baseWebPath}/{$moduleFolderName}/{$fileName}";
+
+                        $parts = explode('.', $fileName);
+                        $major = $parts[0] ?? 0;
+                        $minor = $parts[1] ?? 0;
+
+                        $slides[] = [
+                            'id' => $slideIdCounter++,
+                            'title' => "Превью {$moduleFolderName} - {$major}.{$minor}",
+                            'image' => $imageWebPath,
+                        ];
+                    }
+                }
+            }
+        }
+
+        return response()->json($slides);
+    }
 
     protected function getPackagesData(string $resourceClass): array
     {

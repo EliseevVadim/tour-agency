@@ -16,9 +16,8 @@
         <course-hero></course-hero>
         <target-audience-list></target-audience-list>
         <course-modules-summary></course-modules-summary>
-        <pricing-selector></pricing-selector>
-        <travel-directions-section :is-show-coconut="false" title="Методология курса"
-                                   title-style="text-uppercase fw-800"></travel-directions-section>
+        <pricing-selector ref="pricingSelector"></pricing-selector>
+        <preview-gallery-section @open-pricing-package="handleOpenPricing"></preview-gallery-section>
         <faq-or-contact></faq-or-contact>
 
         <app-footer></app-footer>
@@ -27,16 +26,16 @@
 
 <script>
 import NotificationModal from "../../modals/NotificationModal.vue";
-import TravelDirectionsSection from "../../components/TravelDirectionsSection.vue";
+import PreviewGallerySection from "../../components/Fragments/PreviewGallerySection.vue";
 
 export default {
-    components: {NotificationModal, TravelDirectionsSection},
+    components: {PreviewGallerySection, NotificationModal},
     data() {
         return {
             loading: true,
             notificationData: null,
             isNotificationVisible: false,
-            isSuccessType: false
+            isSuccessType: false,
         }
     },
     props: {
@@ -48,6 +47,16 @@ export default {
             type: Object,
             default: () => null
         }
+    },
+    methods: {
+        handleOpenPricing(packageId) {
+            if (this.$refs.pricingSelector) {
+                this.$refs.pricingSelector.togglePackage(packageId);
+                setTimeout(() => {
+                    document.getElementById('opti-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
+        },
     },
     created() {
         if (this.initialSuccessData && Object.keys(this.initialSuccessData).length > 0) {

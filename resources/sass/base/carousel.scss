@@ -1,6 +1,6 @@
 .ssr-carousel-arrows {
     .carousel-left-icon, .carousel-right-icon {
-        width: 49px;
+        width: 49px !important;
         height: 49px;
         background-color: rgba(255, 255, 255, 0.7);
         border-radius: 50%;
@@ -21,7 +21,7 @@
         }
 
         @media (max-width: 767.98px) {
-            width: 32px;
+            width: 32px !important;
             height: 32px;
 
             &:after {
