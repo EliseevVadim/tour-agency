@@ -133,6 +133,7 @@ class PaymentController extends Controller
                 'full_name' => $request->input('full_name'),
                 'phone_number' => $request->input('phone_number'),
                 'password' => Hash::make(Str::random(12)),
+                'agrees_to_marketing' => $request->input('agrees_to_marketing'),
             ]
         );
 

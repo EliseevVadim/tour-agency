@@ -24,9 +24,11 @@ body {
 .animate__delay-2-5s {
     animation-delay: 2.5s;
 }
+
 .animate__delay-3-5s {
     animation-delay: 3.5s;
 }
+
 .animate__delay-4-5s {
     animation-delay: 4.5s;
 }
@@ -59,17 +61,17 @@ body {
     height: 1.5em;
     margin: .8em;
     position: relative;
-    width:1.5em
+    width: 1.5em
 }
 
 .loader__dot:nth-child(2) {
     -webkit-animation-delay: .1s;
-    animation-delay:.1s
+    animation-delay: .1s
 }
 
 .loader__dot:nth-child(3) {
     -webkit-animation-delay: .2s;
-    animation-delay:.2s
+    animation-delay: .2s
 }
 
 .loader__dot:before {
@@ -80,7 +82,7 @@ body {
     content: "";
     height: 100%;
     position: absolute;
-    width:100%
+    width: 100%
 }
 
 .loader__dot:first-child {
@@ -89,25 +91,25 @@ body {
 
 .loader__dot:first-child:before {
     -webkit-animation-delay: .2s;
-    animation-delay:.2s
+    animation-delay: .2s
 }
 
 .loader__dot:nth-child(2) {
-    background:rgb(235,50,40);
+    background: rgb(235, 50, 40);
 }
 
 .loader__dot:nth-child(2):before {
     -webkit-animation-delay: .4s;
-    animation-delay:.4s
+    animation-delay: .4s
 }
 
 .loader__dot:nth-child(3) {
-    background:#dd0024;
+    background: #dd0024;
 }
 
 .loader__dot:nth-child(3):before {
     -webkit-animation-delay: .6s;
-    animation-delay:.6s
+    animation-delay: .6s
 }
 
 .title-course {
@@ -134,29 +136,34 @@ body {
     }
 }
 
-@media(max-width:767px) {
+.form-check-input:checked {
+    background-color: #dd0024;
+    border-color: #dd0024;
+}
+
+@media(max-width: 767px) {
     .modal-open {
-        position: fixed!important;
+        position: fixed !important;
     }
 }
 
 @-webkit-keyframes wave {
     50%, 75% {
-        transform:scale(2.5)
+        transform: scale(2.5)
     }
 
     80%, to {
-        opacity:0
+        opacity: 0
     }
 }
 
 @keyframes wave {
     50%, 75% {
-        transform:scale(2.5)
+        transform: scale(2.5)
     }
 
     80%, to {
-        opacity:0
+        opacity: 0
     }
 }
 
@@ -164,25 +171,25 @@ body {
     0%, to {
         -webkit-animation-timing-function: ease-in;
         animation-timing-function: ease-in;
-        transform:translateY(0) scale(1)
+        transform: translateY(0) scale(1)
     }
 
     45% {
         -webkit-animation-timing-function: linear;
         animation-timing-function: linear;
-        transform:translateY(5em) scale(1)
+        transform: translateY(5em) scale(1)
     }
 
     50% {
         -webkit-animation-timing-function: linear;
         animation-timing-function: linear;
-        transform:translateY(5em) scale(1.5, .5)
+        transform: translateY(5em) scale(1.5, .5)
     }
 
     55% {
         -webkit-animation-timing-function: ease-out;
         animation-timing-function: ease-out;
-        transform:translateY(5em) scale(1)
+        transform: translateY(5em) scale(1)
     }
 }
 
@@ -190,29 +197,29 @@ body {
     0%, to {
         -webkit-animation-timing-function: ease-in;
         animation-timing-function: ease-in;
-        transform:translateY(0) scale(1)
+        transform: translateY(0) scale(1)
     }
 
     45% {
         -webkit-animation-timing-function: linear;
         animation-timing-function: linear;
-        transform:translateY(5em) scale(1)
+        transform: translateY(5em) scale(1)
     }
 
     50% {
         -webkit-animation-timing-function: linear;
         animation-timing-function: linear;
-        transform:translateY(5em) scale(1.5, .5)
+        transform: translateY(5em) scale(1.5, .5)
     }
 
     55% {
         -webkit-animation-timing-function: ease-out;
         animation-timing-function: ease-out;
-        transform:translateY(5em) scale(1)
+        transform: translateY(5em) scale(1)
     }
 }
 
-.center-play-btn{
+.center-play-btn {
     position: absolute;
     top: 50%;
     left: 50%;

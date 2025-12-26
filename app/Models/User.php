@@ -23,6 +23,7 @@ class User extends Authenticatable
         'phone_number',
         'email_verified_at',
         'password',
+        'agrees_to_marketing'
     ];
 
     /**
@@ -42,6 +43,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'agrees_to_marketing' => 'boolean'
     ];
 
     public function paymentTransactions()

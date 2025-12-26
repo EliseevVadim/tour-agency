@@ -1,5 +1,7 @@
 <template>
     <footer class="footer">
+        <notification-modal v-show="isInfoModalVisible" :is-notification="true" @update:show="closeInfoModal"
+                            :show.sync="isInfoModalVisible"></notification-modal>
         <div class="container">
             <div class="row">
                 <div class="footer-left-column col-lg-4">
@@ -127,17 +129,39 @@
                     </div>
                 </div>
             </div>
-            <div class="copyright d-flex flex-wrap justify-content-center">
-                <p class="copyright-item">Все права защищены</p>
-                <a class="copyright-item link" href="#">Политика конфиденциальности</a>
-                <a class="copyright-item link" href="#">Договор оферты</a>
+            <div class="copyright d-flex flex-wrap gap-4 justify-content-end">
+                <div class="d-flex">
+                    <p class="align-items-end copyright-item d-flex">Все права защищены</p>
+                    <a class="copyright-item link" href="/documents/privacy-policy.pdf" target="_blank"
+                       rel="noopener noreferrer">Политика в отношении <br>обработки персональных данных</a>
+                    <a class="align-items-end copyright-item d-flex" href="/documents/public-offer.pdf" target="_blank"
+                       rel="noopener noreferrer">Договор оферты</a>
+                </div>
+                <a @click.prevent="openInfoModal" href="#" class="align-items-end copyright-item d-flex">Информация о распространении персональных
+                    данных<br> и изображений граждан, опубликованных на сайте</a>
             </div>
         </div>
     </footer>
 </template>
 
 <script>
+import NotificationModal from "../../modals/NotificationModal.vue";
+
 export default {
-    name: "Footer"
+    name: "Footer",
+    components: {NotificationModal},
+    data() {
+        return {
+            isInfoModalVisible: false,
+        }
+    },
+    methods: {
+        openInfoModal() {
+            this.isInfoModalVisible = true;
+        },
+        closeInfoModal() {
+            this.isInfoModalVisible = false;
+        }
+    }
 }
 </script>

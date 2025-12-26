@@ -63,15 +63,26 @@
                         </div>
 
                         <div class="politics">
-                            <div class="form-check mb-3 d-flex">
+                            <div class="form-check d-flex align-items-center mb-2">
+                                <input class="form-check-input" type="checkbox" id="checkPolicy"
+                                       @change="checkFormValidity">
+                                <label class="form-check-label" for="checkPolicy">
+                                    Даю <a href="/documents/privacy-consent.pdf">согласие</a> на обработку моих
+                                    персональных данных в соответствии с
+                                    <a href="/documents/privacy-policy.pdf">политикой</a> обработки персональных данных
+                                </label>
+                            </div>
+                            <div class="form-check mb-3 d-flex align-items-center">
                                 <input class="form-check-input" type="checkbox" id="checkPolitics"
                                        v-model="formData.agreesToPolitics" @change="checkFormValidity">
                                 <label class="form-check-label" for="checkPolitics">
-                                    Я согласен с <a href="#" class="text-decoration-underline">Условиями
-                                    использования</a> и <a href="#" class="text-decoration-underline">Политикой
-                                    конфиденциальности</a>
+                                    Даю <a href="/documents/subscription.pdf">согласие</a> на получение рекламный
+                                    рассылок
                                 </label>
                             </div>
+
+                            <p class="form-check-label mb-3">Нажимая "продолжить", вы соглашаетесь с условиями <a
+                                href="/documents/public-offer.pdf">Оферты</a></p>
                         </div>
 
                         <div class="text-center">
@@ -117,14 +128,16 @@ export default {
     },
     methods: {
         checkFormValidity() {
-            const {fullName, email, phone, agreesToPolitics} = this.formData;
+            const {fullName, email, phone} = this.formData;
+            const checkPolicy = document.getElementById('checkPolicy');
+
             const isPhoneValid = phone && phone.replace(/\D/g, '').length >= 10;
 
             let isBaseValid = (
                 fullName.trim().length > 0 &&
                 email.includes('@') &&
                 isPhoneValid &&
-                agreesToPolitics
+                checkPolicy.checked
             );
 
             this.isDisabled = !isBaseValid;
@@ -147,7 +160,7 @@ export default {
 
             this.isDisabled = true;
 
-            const {fullName, email, phone} = this.formData;
+            const {fullName, email, phone, agreesToPolitics} = this.formData;
             const isPromoAllowed = this.promoStatus === 'allowed' && this.discountDetails;
 
             if (this.currentPackageId === 'maxi') {
@@ -155,6 +168,7 @@ export default {
                     full_name: fullName,
                     phone_number: phone,
                     email: email,
+                    agrees_to_marketing: agreesToPolitics,
                     package: this.currentPackageId
                 };
 
@@ -181,10 +195,11 @@ export default {
                     phone_number: phone,
                     email: email,
                     full_name: fullName,
+                    agrees_to_marketing: agreesToPolitics,
                     amount: this.currentPackagePrice,
                     promo_code_id: this.promoCodeId,
                     discount_value: this.promoCodeValue,
-                    discount_type: this.promoCodeType
+                    discount_type: this.promoCodeType,
                 };
 
                 try {

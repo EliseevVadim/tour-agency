@@ -4,10 +4,8 @@
             <div class="course-modules-left">
                 <h2 class="course-modules-header title-course">О КУРСЕ:</h2>
                 <p class="course-description">
-                    Наш курс включает в себя
-                    <span class="fw-800">9 уникальных модулей,</span> каждый
-                    из которых поможет тебе стать экспертом в мире туризма
-                    и подготовит к успешной карьере.
+                    Наш курс включает в себя <span class="fw-800">9 уникальных модулей,</span> каждый из которых покажет
+                    тебе основные нюансы связанные с работой туристического агента.
                 </p>
             </div>
             <div class="course-modules-right">

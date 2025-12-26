@@ -1,11 +1,27 @@
 <template>
     <div class="modal-overlay">
-        <div class="notification-card">
+        <div v-if="isNotification">
+            <div class="notification-card">
+                <div class="notification-body">
+                    <p class="body-text support-text text-black mb-3" style="text-align: justify;">
+                        Информация об условиях обработки и о наличии запретов и условий на обработку неограниченным
+                        кругом лиц персональных данных, разрешенных субъектом персональных данных для распространения:
+                        Персональные данные (имя, фамилия человека) (далее – ПД), размещенные на сайте, опубликованы с
+                        согласия субъектов на распространение.
+                        Обработка ПД в любой форме третьими лицами (кроме доступа на сайте в соответствии с согласием):
+                        запрещена.
+                    </p>
+
+                    <button @click="closeModal" class="close-btn">Закрыть</button>
+                </div>
+            </div>
+        </div>
+        <div v-else class="notification-card">
             <div class="notification-header"></div>
 
             <div class="notification-body">
                 <h2 :class="data.class" class="title">{{ data.title }}</h2>
-                <p v-if="data.body" class="body-text support-text">{{ data.body}}</p>
+                <p v-if="data.body" class="body-text support-text">{{ data.body }}</p>
 
                 <div v-if="!data.isPresentation" class="support-block">
                     <div class="chat-icon-container">
@@ -29,17 +45,34 @@
 export default {
     props: {
         data: {
-            type: Object,
-            required: true
+            type: Object
         },
         isSuccess: {
             type: Boolean,
             default: true
+        },
+        isNotification: {
+            type: Boolean,
+            default: false
+        },
+        show: {
+            type: Boolean,
+            default: false
+        },
+    }
+    ,
+    computed: {
+        isVisible() {
+            return this.show;
         }
-    },
+    }
+    ,
     methods: {
         close() {
             this.$emit('close');
+        },
+        closeModal() {
+            this.$emit('update:show', false);
         }
     }
 }
