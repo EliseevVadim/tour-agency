@@ -76,7 +76,7 @@
                                 <input class="form-check-input" type="checkbox" id="checkPolitics"
                                        v-model="formData.agreesToPolitics" @change="checkFormValidity">
                                 <label class="form-check-label" for="checkPolitics">
-                                    Даю <a href="/documents/subscription.pdf">согласие</a> на получение рекламный
+                                    Даю <a href="/documents/subscription.pdf">согласие</a> на получение рекламных
                                     рассылок
                                 </label>
                             </div>
