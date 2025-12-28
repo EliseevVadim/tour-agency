@@ -178,10 +178,10 @@ export default {
             if (!isVisible) return;
 
             document.querySelectorAll('.course-card').forEach((el, idx) => {
-                el.classList.add('animate__animated', 'animate__fadeIn', 'animate__slow');
-                if (idx === 1) el.classList.add('animate__delay-1s');
-                if (idx === 2) el.classList.add('animate__delay-2s');
-                if (idx === 3) el.classList.add('animate__delay-3s');
+                el.classList.add('animate__animated', 'animate__fadeIn', 'animate__faster');
+                if (idx === 1) el.classList.add('animate__delay-0-5s');
+                if (idx === 2) el.classList.add('animate__delay-1s');
+                if (idx === 3) el.classList.add('animate__delay-1-5s');
             });
         }
     }

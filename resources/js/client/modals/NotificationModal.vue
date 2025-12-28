@@ -1,6 +1,6 @@
 <template>
     <div class="modal-overlay">
-        <div v-if="isNotification">
+        <template v-if="isNotification">
             <div class="notification-card">
                 <div class="notification-body">
                     <p class="body-text support-text text-black mb-3" style="text-align: justify;">
@@ -15,8 +15,8 @@
                     <button @click="closeModal" class="close-btn">Закрыть</button>
                 </div>
             </div>
-        </div>
-        <div v-else class="notification-card">
+        </template>
+        <template v-else class="notification-card">
             <div class="notification-header"></div>
 
             <div class="notification-body">
@@ -37,7 +37,7 @@
 
                 <button @click="close" class="close-btn">Закрыть</button>
             </div>
-        </div>
+        </template>
     </div>
 </template>
 

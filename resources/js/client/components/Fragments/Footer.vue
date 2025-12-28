@@ -130,14 +130,14 @@
                 </div>
             </div>
             <div class="copyright d-flex flex-wrap gap-4 justify-content-end">
-                <div class="d-flex">
-                    <p class="align-items-end copyright-item d-flex">Все права защищены</p>
-                    <a class="copyright-item link" href="/documents/privacy-policy.pdf" target="_blank"
+                <div class="d-flex flex-column flex-md-row gap-1 align-items-center justify-content-center">
+                    <p class="copyright-item">Все права защищены</p>
+                    <a class="copyright-item link text-center" href="/documents/privacy-policy.pdf" target="_blank"
                        rel="noopener noreferrer">Политика в отношении <br>обработки персональных данных</a>
-                    <a class="align-items-end copyright-item d-flex" href="/documents/public-offer.pdf" target="_blank"
+                    <a class="copyright-item" href="/documents/public-offer.pdf" target="_blank"
                        rel="noopener noreferrer">Договор оферты</a>
                 </div>
-                <a @click.prevent="openInfoModal" href="#" class="align-items-end copyright-item d-flex">Информация о распространении персональных
+                <a @click.prevent="openInfoModal" href="#" class="justify-content-center align-items-end copyright-item d-flex">Информация о распространении персональных
                     данных<br> и изображений граждан, опубликованных на сайте</a>
             </div>
         </div>
