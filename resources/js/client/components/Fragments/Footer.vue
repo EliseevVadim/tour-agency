@@ -8,8 +8,12 @@
                     <ul class="ip-details">
                         <li>ИП Клименко Максим Михайлович</li>
                         <li>г.Краснодар. ул. Длинная. д.100.оф.203</li>
-                        <li>+7(495)129-99-96</li>
-                        <li>ИНН 616814736851</li>
+                        <li class="d-flex gap-3 d-md-none justify-content-center">
+                            <p>+7(495)129-99-96</p>
+                            <p>ИНН 616814736851</p>
+                        </li>
+                        <li class="d-none d-md-block">+7(495)129-99-96</li>
+                        <li class="d-none d-md-block">ИНН 616814736851</li>
                     </ul>
                 </div>
                 <div class="footer-middle-column col-lg-4">
@@ -130,14 +134,16 @@
                 </div>
             </div>
             <div class="copyright d-flex flex-wrap gap-4 justify-content-end">
-                <div class="d-flex flex-column flex-md-row gap-1 align-items-center justify-content-center">
+                <div class="d-flex flex-md-row gap-3 align-items-center justify-content-center">
                     <p class="copyright-item">Все права защищены</p>
                     <a class="copyright-item link text-center" href="/documents/privacy-policy.pdf" target="_blank"
                        rel="noopener noreferrer">Политика в отношении <br>обработки персональных данных</a>
                     <a class="copyright-item" href="/documents/public-offer.pdf" target="_blank"
                        rel="noopener noreferrer">Договор оферты</a>
                 </div>
-                <a @click.prevent="openInfoModal" href="#" class="justify-content-center align-items-end copyright-item d-flex">Информация о распространении персональных
+                <a @click.prevent="openInfoModal" href="#"
+                   class="justify-content-center align-items-end copyright-item d-flex">Информация о распространении
+                    персональных
                     данных<br> и изображений граждан, опубликованных на сайте</a>
             </div>
         </div>

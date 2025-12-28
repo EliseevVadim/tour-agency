@@ -130,4 +130,12 @@
             }
         }
     }
+    @media (max-width: 565px) {
+        .copyright {
+            font-size: 11px;
+        }
+        .copyright-item:nth-child(2){
+            flex-shrink: 0;
+        }
+    }
 }
