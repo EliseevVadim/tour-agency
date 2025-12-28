@@ -3,7 +3,7 @@
         <template v-if="isNotification">
             <div class="notification-card">
                 <div class="notification-body">
-                    <p class="body-text support-text text-black mb-3">
+                    <p class="body-text support-text text-black mb-3" style="text-align: start;">
                         Информация об условиях обработки и о наличии запретов и условий на обработку неограниченным
                         кругом лиц персональных данных, разрешенных субъектом персональных данных для распространения:
                         Персональные данные (имя, фамилия человека) (далее – ПД), размещенные на сайте, опубликованы с
