@@ -38,7 +38,8 @@
                 <h2 class="title-course text-center">ВЫБЕРИ СВОЙ ПАКЕТ:</h2>
             </div>
 
-            <div v-for="pkg in packageData" :key="pkg.id" class="package-container position-relative" :id="pkg.id + '-section'"
+            <div v-for="pkg in packageData" :key="pkg.id" class="package-container position-relative"
+                 :id="pkg.id + '-section'"
                  :class="{ 'expanded': expandedPackage === pkg.id }" :ref="`package_${pkg.id}`">
                 <div class="package-card mb-4"
                      :class="{ 'expanded': expandedPackage === pkg.id }">
@@ -89,6 +90,24 @@
                                         </p>
                                     </div>
                                 </li>
+                                <template v-if="pkg.details.bonuses">
+                                    <li class="mb-0">
+                                        <div class="gradient-divider"></div>
+                                    </li>
+                                    <li class="mb-4 text-center">
+                                        <h2>Бонусы</h2>
+                                    </li>
+                                    <li v-for="(bonus, index) in pkg.details.bonuses" :key="'bonus-' + index"
+                                        class="benefits-item d-flex align-items-center">
+                                        <img :src="bonus.icon" class="benefit-icon" :alt="'icon-benefit-'+index"/>
+                                        <div class="benefit-text">
+                                            <h3 class="fw-bold" v-if="bonus.description">{{ bonus.title }}</h3>
+                                            <p class="benefit-description">
+                                                {{ !bonus.description ? bonus.title : bonus.description }}
+                                            </p>
+                                        </div>
+                                    </li>
+                                </template>
                             </ul>
 
                             <p v-if="pkg.details.restriction && pkg.id === 'mini'" class="restriction-text mb-5">
@@ -192,7 +211,9 @@ export default {
                                 icon: '/img/packets/icons/7.png',
                                 title: 'Общение с наставниками',
                                 description: 'Ты будешь работать с наставниками, которые помогут тебе раскрыть твой потенциал, делиться практическими знаниями и обеспечат поддержку на всех этапах развития.'
-                            },
+                            }
+                        ],
+                        bonuses: [
                             {
                                 icon: '/img/packets/icons/8.png',
                                 title: 'Доступ к онлайн-вебинарам от партнеров',
@@ -209,7 +230,7 @@ export default {
                                 description: 'После успешного завершения курса ты получишь шанс работать менеджером в нашей туристической компании, что станет отличным стартом для твоей карьеры в туризме.'
                             }
                         ],
-                        summary: '<b>Пакет "Опти"</b> – это не просто курс, это комплексная подготовка, которая откроет перед тобой все двери в мир туризма!',
+                        summary: '<b>Пакет "Опти"</b> – это не просто курс, это комплексная информация, которая необходима для работы в мир туризма!',
                         priceOld: 18000,
                         priceNew: 14000,
                         buttonText: 'ПОЛУЧИТЬ ДОСТУП'
@@ -450,3 +471,12 @@ export default {
     },
 }
 </script>
+<style scoped>
+.gradient-divider {
+    height: 2px;
+    width: 100%;
+    display: block;
+    background: linear-gradient(to right, #dd0024, #fb6228);
+    margin-bottom: 25px;
+}
+</style>
