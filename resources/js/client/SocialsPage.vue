@@ -21,8 +21,8 @@
                 </div>
                 <img class="person-image" src="/img/socials/social-persons.png" alt="social persons">
             </div>
-            <div class="row g-5">
-                <div v-for="(item, idx) in socials" class="col-lg-6">
+            <div class="g-3 g-lg-5 row row-cols-2">
+                <div v-for="(item, idx) in socials" class="">
                     <a :href="item.link" class="social-card h-100">
                         <img alt="" class="social-image w-100" :src="'/img/socials/' + (idx + 1) +'.jpg'">
                         <div class="social-link-button" :style="'background-color:'+ item.color">

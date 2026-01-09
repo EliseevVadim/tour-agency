@@ -138,7 +138,8 @@
     }
 
     @media (max-width: 991.98px) {
-        background-size: 100% 48%;
+        background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0) 30%, rgb(255, 255, 255) 52%), url('/img/socials-bg.png');
+        background-size: 100% 140%;
         background-repeat: no-repeat;
         h1 {
             font-size: calc(1.375rem + 1.5vw) !important;
@@ -177,6 +178,11 @@
             }
         }
 
+        .social-link-button {
+            font-size: 0.7rem !important;
+            padding: 5px 40px !important;
+        }
+
         .social-icons-bg {
             .tg-icon {
                 width: 70px;
@@ -201,6 +207,9 @@
         }
     }
     @media (max-width: 543.98px) {
+        .social-link-button {
+            padding: 5px 20px !important;
+        }
         .social-icons-bg {
             .social-icon {
                 transform: scale(0.7);
@@ -217,6 +226,12 @@
         }
     }
     @media (max-width: 481.98px) {
+        .social-section .square-bg-left {
+            margin-top: -5px;
+        }
+        .social-section .layer-controls img {
+            width: 35%;
+        }
         .social-icons-bg {
             .tg-icon {
                 top: -10px;
