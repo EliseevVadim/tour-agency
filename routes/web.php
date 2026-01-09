@@ -33,6 +33,7 @@ Route::view('/', 'main')->name('home');
 Route::view('/contacts', 'contacts')->name('contacts');
 Route::view('/shop', 'shop');
 Route::view('/courses', 'courses')->name('courses');
+Route::view('/socials', 'socials')->name('socials');
 
 Route::prefix('api')->name('api.')->group(function () {
     Route::get("/contacts", [DataController::class, 'getContacts'])->name('contacts.index');

@@ -8,6 +8,7 @@ import VueMask from 'v-mask';
 
 Vue.component('main-component', require('./App.vue').default);
 Vue.component('contacts-component', require('./client/Contacts.vue').default);
+Vue.component('socials-page', require('./client/SocialsPage.vue').default);
 
 Vue.component('app-footer', require('./client/components/Fragments/Footer.vue').default);
 Vue.component('app-header', require('./client/components/Fragments/Header.vue').default);

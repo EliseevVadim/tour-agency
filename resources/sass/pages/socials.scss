@@ -1,0 +1,286 @@
+.social-page-container {
+    overflow: hidden;
+    position: relative;
+    line-height: normal;
+    background-image: linear-gradient(to bottom,
+        rgba(255, 255, 255, 0) 30%, rgb(255, 255, 255) 70%),
+    url("/img/socials-bg.png");
+    background-position: top center;
+    background-size: 100% 125%;
+
+    .page-subtitle {
+        font-size: 2rem;
+    }
+
+    .social-header {
+        padding-top: 55px;
+    }
+
+    .social-icons-bg {
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        z-index: 3;
+
+        .social-icon {
+            position: absolute;
+            width: 100px;
+            height: auto;
+            transition: transform 0.3s ease;
+            pointer-events: auto;
+        }
+
+        .tg-icon {
+            top: -1%;
+            left: 0;
+            width: 120px;
+        }
+
+        .insta-icon {
+            top: 10%;
+            left: 32%;
+            width: 80px;
+        }
+
+        .tiktok-icon {
+            top: 12%;
+            right: 30%;
+            width: 90px;
+        }
+
+        .youtube-icon {
+            top: 8%;
+            right: 3%;
+            width: 110px;
+        }
+    }
+
+    .social-section {
+        padding-bottom: 95px;
+
+        .layer-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: -1;
+
+            img {
+                width: 40%;
+            }
+        }
+
+        .square-bg-left {
+            margin-top: 85px;
+        }
+
+        .polygon-bg-right {
+            margin-top: 40px;
+        }
+
+        .person-wrapper {
+            z-index: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            padding-left: 35px;
+            padding-right: 35px;
+
+            .person-image {
+                width: 100%;
+            }
+        }
+
+        .social-card {
+            overflow: hidden;
+            position: relative;
+            display: block;
+            color: white;
+            text-decoration: none;
+            background: dimgray;
+            border-radius: 20px;
+        }
+
+        .social-image {
+            display: block;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .social-link-button {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 10px 40px;
+            font-size: 1.3em;
+            font-weight: bold;
+            z-index: 10;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+    }
+
+    @media (max-width: 1199.98px) {
+        h1 {
+            font-size: 4.5rem;
+        }
+        .social-section {
+            .polygon-bg-right {
+                margin-right: 20px;
+            }
+        }
+    }
+
+    @media (max-width: 991.98px) {
+        background-size: 100% 48%;
+        background-repeat: no-repeat;
+        h1 {
+            font-size: calc(1.375rem + 1.5vw) !important;
+        }
+        .social-icons-bg {
+            .tg-icon {
+                width: 90px;
+                top: -15px;
+            }
+
+            .insta-icon {
+                top: 2.5%;
+                width: 70px;
+            }
+
+            .tiktok-icon {
+                top: 3.5%;
+                width: 65px;
+            }
+
+            .youtube-icon {
+                top: 100px;
+                width: 80px;
+                right: 20px;
+            }
+        }
+    }
+    @media (max-width: 767.98px) {
+        .page-subtitle {
+            font-size: 15px;
+        }
+
+        .social-section {
+            .square-bg-left {
+                margin-top: 45px;
+            }
+        }
+
+        .social-icons-bg {
+            .tg-icon {
+                width: 70px;
+                top: -15px;
+            }
+
+            .insta-icon {
+                width: 50px;
+            }
+
+            .tiktok-icon {
+                width: 45px;
+                top: 115px;
+                right: 32%;
+            }
+
+            .youtube-icon {
+                top: 70px;
+                width: 60px;
+                right: 30px;
+            }
+        }
+    }
+    @media (max-width: 543.98px) {
+        .social-icons-bg {
+            .social-icon {
+                transform: scale(0.7);
+            }
+
+            .tg-icon {
+                top: -10px;
+                left: 20px;
+            }
+
+            .tiktok-icon {
+                top: 100px;
+            }
+        }
+    }
+    @media (max-width: 481.98px) {
+        .social-icons-bg {
+            .tg-icon {
+                top: -10px;
+                left: 20px;
+            }
+
+            .tiktok-icon {
+                top: 85px;
+                right: 30%;
+            }
+
+            .youtube-icon {
+                top: 50px;
+                right: 38px;
+            }
+        }
+    }
+    @media (max-width: 447.98px) {
+        .social-icons-bg {
+            .social-icon {
+                transform: scale(0.5);
+            }
+
+            .tg-icon {
+                top: -10px;
+                left: 20px;
+            }
+
+            .tiktok-icon {
+                top: 66px;
+                right: 31%;
+            }
+
+            .youtube-icon {
+                top: 40px;
+            }
+
+            .insta-icon {
+                top: 50px;
+            }
+        }
+    }
+    @media (max-width: 383.98px) {
+        .social-icons-bg {
+            .social-icon {
+                transform: scale(0.5);
+            }
+
+            .tg-icon {
+                top: -10px;
+                left: 20px;
+            }
+
+            .tiktok-icon {
+                top: 52px;
+            }
+
+            .youtube-icon {
+                top: 30px;
+            }
+
+            .insta-icon {
+                top: 40px;
+            }
+        }
+    }
+}
