@@ -42,7 +42,6 @@
                     <ul class="main list-unstyled navbar-nav">
                         <li v-for="(item, index) in menuItems"
                             :key="index"
-                            @click="setActiveLink(item.link)"
                             :class="{active: activeLink === item.link}">
                             <a :href="item.link">{{ item.text }}</a>
                         </li>
@@ -121,7 +120,8 @@ export default {
                 { link: '/#training', text: 'Курсы' },
                 { link: '/#team', text: 'Команда' },
                 { link: '/#merch', text: 'Мерч' },
-                { link: 'contacts', text: 'Контакты' }
+                { link: 'contacts', text: 'Контакты' },
+                { link: 'socials', text: 'Социальные сети' }
             ],
         }
     },

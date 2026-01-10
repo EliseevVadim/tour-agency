@@ -139,7 +139,8 @@ export default {
                 {link: '#training', text: 'Курсы'},
                 {link: '#team', text: 'Команда'},
                 {link: '#merch', text: 'Мерч'},
-                {link: 'contacts', text: 'Контакты'}
+                {link: 'contacts', text: 'Контакты'},
+                { link: 'socials', text: 'Социальные сети' }
             ],
         }
     },
