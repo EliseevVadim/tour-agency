@@ -27,8 +27,10 @@
             <div class="collapse navbar-collapse mobile-menu" id="mobileMenuContent">
                 <nav class="nav w-100 d-block">
                     <div class="close-nav d-flex justify-content-end w-100">
-                        <button class="border-0 bg-transparent" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#mobileMenuContent" aria-label="Close navigation">
+                        <button class="border-0 bg-transparent" @click="closeMobileMenu"
+                                type="button"
+                                data-bs-target="#mobileMenuContent"
+                                aria-label="Close navigation">
                             <svg width="23" height="23" viewBox="0 0 23 23" fill="none"
                                  xmlns="http://www.w3.org/2000/svg">
                                 <rect y="20.5059" width="29" height="3" transform="rotate(-45 0 20.5059)"
