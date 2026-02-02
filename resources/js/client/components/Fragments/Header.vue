@@ -42,6 +42,7 @@
                     <ul class="main list-unstyled navbar-nav">
                         <li v-for="(item, index) in menuItems"
                             :key="index"
+                            @click="handleLinkClick(item.link)"
                             :class="{active: activeLink === item.link}">
                             <a :href="item.link">{{ item.text }}</a>
                         </li>
@@ -125,8 +126,47 @@ export default {
             ],
         }
     },
+    methods: {
+        setActiveLink(link) {
+            this.$emit('set-active-link', link);
+            this.activeLink = link
+        },
+        handleLinkClick(link) {
+            this.setActiveLink(link);
+            this.closeMobileMenu();
+        },
+        closeMobileMenu(){
+            this.$nextTick(() => {
+                const mobileMenu = document.getElementById('mobileMenuContent');
+                if (mobileMenu && typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
+                    const bsCollapse = new bootstrap.Collapse(mobileMenu, {toggle: false});
+                    bsCollapse.hide();
+                }
+            });
+        },
+        handleOutsideClick(event) {
+             const mobileMenu = this.mobileMenu;
+             const isMenuShown = mobileMenu && mobileMenu.classList.contains('show');
+             const isClickInsideMenu = mobileMenu && mobileMenu.contains(event.target);
+
+             const hamburgerButton = document.querySelector('.navbar-toggler[data-bs-target="#mobileMenuContent"]');
+             const isClickOnHamburger = hamburgerButton && hamburgerButton.contains(event.target);
+
+             if (isMenuShown && !isClickInsideMenu && !isClickOnHamburger) {
+                 this.closeMobileMenu();
+             }
+        }
+    },
     mounted(){
-        document.addEventListener('DOMContentLoaded', () => {
+        this.mobileMenu = document.getElementById('mobileMenuContent');
+
+        if (this.mobileMenu) {
+            if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
+                this.bsCollapse = new bootstrap.Collapse(this.mobileMenu, {toggle: false});
+            }
+            document.addEventListener('click', this.handleOutsideClick);
+        }
+      /*  document.addEventListener('DOMContentLoaded', () => {
             const mobileMenuCollapse = document.getElementById('mobileMenuContent');
             const menuLinks = document.querySelectorAll('.main li a');
 
@@ -152,7 +192,10 @@ export default {
                     }
                 }
             });
-        });
-    }
+        });*/
+    },
+    beforeDestroy() {
+        document.removeEventListener('click', this.handleOutsideClick);
+    },
 }
 </script>

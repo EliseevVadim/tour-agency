@@ -2,11 +2,11 @@
     <section class="promo-souvenir position-relative">
         <div class="juice-background juice-left"></div>
 
-        <div class="container-fluid container-xl promo-content">
+        <div class="container-fluid container-xl promo-content" @click="goToLink('/courses')">
             <div class="text-block position-relative">
                 <h2>Наша атрибутика</h2>
                 <h3 class="mb-3">выбери свою</h3>
-                <a href="/shop" target="_blank" class="btn btn-cta btn-open rounded-3">
+                <a href="/shop" @click.stop target="_blank" class="btn btn-cta btn-open rounded-3">
                     <span class="flare"></span>
                     посмотреть
                 </a>
@@ -24,6 +24,11 @@
 <script>
 export default {
     name: "SouvenirPromo",
+    methods: {
+        goToLink(link) {
+            window.location.href = link;
+        },
+    },
     mounted() {
         document.addEventListener('scroll', showAnimation);
 

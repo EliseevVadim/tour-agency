@@ -30,8 +30,40 @@
         </div>
     </section>
 </template>
+
 <script>
 export default {
-    name: "Benefits"
+    name: "Benefits",
+    data() {
+        return {
+            threshold: 0.1,
+        };
+    },
+    methods: {
+        checkVisibilityBenefits() {
+            const benefitsContainer = document.querySelector('.benefits-container');
+            const benefitsItems = document.querySelectorAll('.benefits-item');
+
+            if (!benefitsContainer) return;
+
+            const rect = benefitsContainer.getBoundingClientRect();
+            const isVisible =
+                rect.top < window.innerHeight * (1 - this.threshold) && rect.bottom > window.innerHeight * this.threshold;
+
+            if (!isVisible) return;
+            window.removeEventListener('scroll', this.checkVisibilityBenefits);
+
+            benefitsItems.forEach((card) => {
+                card.classList.add('animate__fadeInUp');
+            });
+        }
+    },
+    mounted() {
+        window.addEventListener('scroll', this.checkVisibilityBenefits);
+        this.checkVisibilityBenefits();
+    },
+    beforeUnmount() {
+        window.removeEventListener('scroll', this.checkVisibilityBenefits);
+    }
 }
 </script>

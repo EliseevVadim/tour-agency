@@ -41,9 +41,11 @@
 
 <script>
 import axios from "axios";
+import TourCard from "./TourCard.vue";
 
 export default {
     name: "TourSlider",
+    components: {TourCard},
 
     data() {
         return {

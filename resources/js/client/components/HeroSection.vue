@@ -8,13 +8,16 @@
             <img src="/img/surfboard.png" alt="surfboard">
         </div>
 
-        <nav class="hero-top-bar container-xl d-flex justify-content-between align-items-start">
+        <app-header class="position-absolute w-100"/>
+        <nav v-if="false" class="hero-top-bar container-xl d-flex justify-content-between align-items-start">
             <div class="hero-top-bar-left gap-5 d-flex align-items-start">
-                <button @click="setActiveLink('#first')" class="navbar-toggler border-0" type="button"
+                <button @click="setActiveLink('#first')" class="navbar-toggler border-0"
+                        type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#mobileMenuContent"
                         aria-controls="mobileMenuContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="logo-container">
@@ -35,8 +38,11 @@
             <div class="collapse navbar-collapse mobile-menu" id="mobileMenuContent">
                 <nav class="nav w-100 d-block">
                     <div class="close-nav d-flex justify-content-end w-100">
-                        <button class="border-0 bg-transparent" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#mobileMenuContent" aria-label="Close navigation">
+                        <button class="border-0 bg-transparent" @click="closeMobileMenu"
+                                type="button"
+                                data-bs-target="#mobileMenuContent"
+                                aria-controls="mobileMenuContent"
+                                aria-label="Toggle navigation">
                             <svg width="23" height="23" viewBox="0 0 23 23" fill="none"
                                  xmlns="http://www.w3.org/2000/svg">
                                 <rect y="20.5059" width="29" height="3" transform="rotate(-45 0 20.5059)"
@@ -151,15 +157,47 @@ export default {
         },
         handleLinkClick(link) {
             this.setActiveLink(link);
+            this.closeMobileMenu();
+        },
+        closeMobileMenu(){
             this.$nextTick(() => {
                 const mobileMenu = document.getElementById('mobileMenuContent');
-                if (mobileMenu && mobileMenu.classList.contains('show')) {
+                if (mobileMenu && typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
                     const bsCollapse = new bootstrap.Collapse(mobileMenu, {toggle: false});
                     bsCollapse.hide();
                 }
             });
         },
-    },
+        handleOutsideClick(event) {
+           /* const mobileMenu = this.mobileMenu;
+            const isMenuShown = mobileMenu && mobileMenu.classList.contains('show');
+            const isClickInsideMenu = mobileMenu && mobileMenu.contains(event.target);
 
+            const hamburgerButton = document.querySelector('.navbar-toggler[data-bs-target="#mobileMenuContent"]');
+            const isClickOnHamburger = hamburgerButton && hamburgerButton.contains(event.target);
+
+            if (isMenuShown && !isClickInsideMenu && !isClickOnHamburger) {
+                this.closeMobileMenu();
+            }*/
+        }
+    },
+    mounted() {
+        this.mobileMenu = document.getElementById('mobileMenuContent');
+
+        if (this.mobileMenu) {
+            if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
+                this.bsCollapse = new bootstrap.Collapse(this.mobileMenu, {toggle: false});
+            }
+            document.addEventListener('click', this.handleOutsideClick);
+        }
+    },
+    beforeDestroy() {
+        document.removeEventListener('click', this.handleOutsideClick);
+    },
 }
 </script>
+<style scoped>
+.hero-section .hero-content {
+    padding-top: 110px;
+}
+</style>

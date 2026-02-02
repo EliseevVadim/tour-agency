@@ -6,12 +6,12 @@
             <div class="loader__dot"></div>
         </div>
 
-        <first-screen id="first" :class="{ 'active': activeAnchor == '#first' }" @set-active-link="handleSetActiveLink"></first-screen>
+        <hero-section id="first" :class="{ 'active': activeAnchor == '#first' }" @set-active-link="handleSetActiveLink"></hero-section>
         <tour-slider id="tours" :class="{ 'active': activeAnchor == '#tours' }"></tour-slider>
         <telegram-promo id="discount" :class="{ 'active': activeAnchor == '#discount' }"></telegram-promo>
-        <benefits-section id="travel" :class="{ 'active': activeAnchor == '#travel' }"></benefits-section>
+        <benefits id="travel" :class="{ 'active': activeAnchor == '#travel' }"></benefits>
         <review-slider id="reviews" :class="{ 'active': activeAnchor == '#reviews' }"></review-slider>
-        <travel-directions id="directions" :class="{ 'active': activeAnchor == '#directions' }"></travel-directions>
+        <travel-directions-section id="directions" :class="{ 'active': activeAnchor == '#directions' }"></travel-directions-section>
         <training-promo id="training" :class="{ 'active': activeAnchor == '#training' }"></training-promo>
         <team-list id="team" :class="{ 'active': activeAnchor == '#team' }"></team-list>
         <souvenir-promo id="merch" :class="{ 'active': activeAnchor == '#merch' }"></souvenir-promo>
@@ -20,8 +20,23 @@
     </div>
 </template>
 <script>
+
+import HeroSection from "./client/components/HeroSection.vue";
+import TourSlider from "./client/components/Tours/TourSlider.vue";
+import SouvenirPromo from "./client/components/Promotions/SouvenirPromo.vue";
+import TrainingPromo from "./client/components/Promotions/TrainingPromo.vue";
+import TelegramPromo from "./client/components/Promotions/TelegramPromo.vue";
+import Benefits from "./client/components/Benefits.vue";
+import TravelDirectionsSection from "./client/components/TravelDirectionsSection.vue";
+import TeamList from "./client/components/Team/TeamList.vue";
+import ReviewSlider from "./client/components/Reviews/ReviewSlider.vue";
+
 export default {
     name: "App",
+    components: {
+        ReviewSlider,
+        TeamList,
+        TravelDirectionsSection, Benefits, TelegramPromo, TrainingPromo, SouvenirPromo, TourSlider, HeroSection},
     data() {
         return {
             activeAnchor: null,
@@ -34,17 +49,14 @@ export default {
     mounted() {
         setTimeout(()=>{
             this.loading = false;
-        },2000);
-        document.addEventListener('DOMContentLoaded', () => {
-            const mobileMenuCollapse = document.getElementById('mobileMenuContent');
-            const body = document.body;
-            document.querySelector('[data-bs-toggle="collapse"][data-bs-target="#mobileMenuContent"]');
-            const disableScroll = () => {
-                body.style.overflow = 'hidden';
-            };
-            const enableScroll = () => {
-                body.style.overflow = '';
-            };
+        },1500);
+        const mobileMenuCollapse = document.getElementById('mobileMenuContent');
+        const body = document.body;
+
+        if (mobileMenuCollapse) {
+            const disableScroll = () => { body.style.overflow = 'hidden'; };
+            const enableScroll = () => { body.style.overflow = ''; };
+
             mobileMenuCollapse.addEventListener('shown.bs.collapse', () => {
                 disableScroll();
             });
@@ -52,43 +64,12 @@ export default {
             mobileMenuCollapse.addEventListener('hidden.bs.collapse', () => {
                 enableScroll();
             });
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const mobileMenuCollapse = document.getElementById('mobileMenuContent');
-            const menuLinks = document.querySelectorAll('.main li a');
-
-            const closeMenu = () => {
-                if (mobileMenuCollapse) {
-                    mobileMenuCollapse.classList.remove('show');
-                    mobileMenuCollapse.setAttribute('aria-expanded', 'false');
-                }
-            };
-
-            menuLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    closeMenu();
-                    document.body.style.overflow = '';
-                });
-            });
-            const hamburgerButton = document.querySelector('[data-bs-toggle="collapse"][data-bs-target="#mobileMenuContent"]');
-            document.addEventListener('click', (event) => {
-                if (mobileMenuCollapse && mobileMenuCollapse.classList.contains('show')) {
-                    if (!mobileMenuCollapse.contains(event.target) && !hamburgerButton.contains(event.target)) {
-                        closeMenu();
-                        document.body.style.overflow = '';
-                    }
-                }
-            });
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            if (window.location.hash) {
-                setTimeout(function() {
-                    window.location.href = window.location.hash;
-                }, 800);
-            }
-        });
+        }
+        if (window.location.hash) {
+            setTimeout(() => {
+                window.location.href = window.location.hash;
+            }, 800);
+        }
     },
     methods: {
         handleSetActiveLink(link) {

@@ -45,10 +45,11 @@
 <script>
 import axios from "axios";
 import ImageModal from "../Fragments/ImageModal.vue";
+import ReviewCard from "./ReviewCard.vue";
 
 export default {
     name: "ReviewSlider",
-    components: {ImageModal},
+    components: {ReviewCard, ImageModal},
     data() {
         return {
             isModalVisible: false,

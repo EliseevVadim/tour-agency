@@ -22,5 +22,7 @@
 </template>
 
 <script>
-
+export default {
+   name: "FaqOrContact",
+}
 </script>

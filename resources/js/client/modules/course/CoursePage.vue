@@ -14,7 +14,7 @@
         <app-header class="hero-section_dark"></app-header>
 
         <course-hero></course-hero>
-        <target-audience-list></target-audience-list>
+        <target-audience-section></target-audience-section>
         <course-modules-summary></course-modules-summary>
         <pricing-selector ref="pricingSelector"></pricing-selector>
         <preview-gallery-section @open-pricing-package="handleOpenPricing"></preview-gallery-section>
@@ -27,9 +27,17 @@
 <script>
 import NotificationModal from "../../modals/NotificationModal.vue";
 import PreviewGallerySection from "../../components/Fragments/PreviewGallerySection.vue";
+import PricingSelector from "./components/PricingSelector.vue";
+import CourseModulesSummary from "./components/CourseModulesSummary.vue";
+import CourseHero from "./components/CourseHero.vue";
+import TargetAudienceSection from "./components/TargetAudienceList.vue";
+import FaqOrContact from "./components/FaqOrContact.vue";
 
 export default {
-    components: {PreviewGallerySection, NotificationModal},
+    components: {
+        FaqOrContact,
+        TargetAudienceSection,
+        CourseHero, CourseModulesSummary, PricingSelector, PreviewGallerySection, NotificationModal},
     data() {
         return {
             loading: true,
