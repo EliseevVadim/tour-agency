@@ -61,8 +61,7 @@ class PaymentService
                 ],
                 'tax_system_code' => 2,
                 'customer' => [
-                    'email' => $options['email'],
-                    'phone' => $options['phone_number'],
+                    'email' => $options['email']
                 ]
             ],
 
