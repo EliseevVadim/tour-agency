@@ -2,7 +2,7 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background: linear-gradient(90deg, $btn-cta-gradient-start 0%, $btn-cta-gradient-end 100%);
+    //background: linear-gradient(90deg, $btn-cta-gradient-start 0%, $btn-cta-gradient-end 100%);
 
     &__container {
         flex-grow: 1;
@@ -16,5 +16,249 @@
     &__content {
         text-align: center;
         color: white;
+    }
+
+    .content-wrapper {
+        padding-bottom: 65px;
+    }
+
+    .header-controls-container {
+        padding-top: 65px;
+        padding-bottom: 30px;
+
+        .navigation-tabs {
+            padding-bottom: 25px;
+        }
+
+        .tab-button {
+            padding: 7px 20px;
+            border-radius: 14.5px;
+            border: none;
+            background-color: #cfcfcf;
+            cursor: pointer;
+            font-size: 1.25rem;
+            transition: background-color 0.2s;
+            color: #696969;
+            font-weight: bold;
+        }
+
+        .tab-button.active {
+            background-image: linear-gradient(to right, #dd0024, #fb6228);
+            color: white;
+        }
+
+        .action-icons {
+            .icon-button {
+                background: transparent;
+                border: none;
+                outline: none;
+            }
+        }
+
+        .sort-control button {
+            font-size: 1.25rem;
+            font-weight: 500;
+            background: transparent;
+            border: none;
+            color: inherit;
+
+            b {
+                font-weight: 700;
+            }
+        }
+
+        .sort-control #sortButton::after {
+            display: none !important;
+        }
+
+        .sort-control #sortButton .custom-chevron {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .sort-control #sortButton[aria-expanded="true"] .bi-chevron-down {
+            transform: rotate(180deg);
+        }
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+        pointer-events: none;
+    }
+
+    .sidebar-overlay.active {
+        pointer-events: all;
+    }
+
+    .overlay-backdrop {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    .sidebar-content {
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 100%;
+        width: 100%;
+        max-width: 570px;
+        background: white;
+        transform: translateX(100%);
+        transition: transform 0.3s ease-out;
+        display: flex;
+        flex-direction: column;
+        padding-left: 35px;
+        padding-right: 20px;
+        padding-top: 25px;
+    }
+
+    .sidebar-content.active {
+        transform: translateX(0);
+    }
+
+    .sidebar-header {
+        display: flex;
+        justify-content: space-between;
+
+        h2 {
+            padding-top: 60px;
+            padding-bottom: 40px;
+        }
+    }
+
+    .close-button {
+        background: none;
+        border: none;
+        font-size: 60px;
+        cursor: pointer;
+        line-height: 0.5;
+        display: flex;
+    }
+
+    .sidebar-body {
+        overflow-y: auto;
+        padding-bottom: 80px;
+    }
+
+    .empty-message {
+        text-align: center;
+        color: #888;
+        padding: 50px 0;
+    }
+
+    .sidebar-item {
+        padding-bottom: 45px;
+    }
+
+    .sidebar-item-content {
+        display: flex;
+        gap: 15px;
+
+        .image-wrapper {
+            width: 275px;
+            height: 320px;
+            position: relative;
+            flex: none;
+
+            &::after {
+                content: "";
+                height: 4px;
+                position: absolute;
+                bottom: -4px;
+                left: 0;
+                width: 100%;
+                background-color: #EB2D26FF;
+            }
+
+            img {
+                width: 100%;
+            }
+        }
+
+        h3.product-title {
+            font-weight: 700;
+            font-size: 1.5rem;
+            padding-bottom: 10px;
+        }
+
+        .item-details {
+            .item-name {
+                font-size: 1.2rem;
+                font-weight: 500;
+                line-height: 1;
+            }
+
+            .item-value {
+                font-size: 1.3rem;
+                font-weight: 600;
+                line-height: 1;
+            }
+        }
+
+        .item-price {
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .quantity-button {
+            border: none;
+            outline: none;
+            background: none;
+            font-size: 30px;
+            line-height: 1;
+            font-weight: 600;
+        }
+
+        .quantity-value {
+            padding: 5px 15px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-align: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #dbdbdb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-width: unset;
+        }
+    }
+
+    .order-summary {
+        .order-sum {
+            font-size: 1.4rem;
+            line-height: 1.2;
+
+            .item-value {
+                font-weight: 600;
+            }
+        }
+
+        button {
+            flex-grow: 1;
+        }
+    }
+
+    .remove-button {
+        background: none;
+        border: 1px solid #ddd;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        line-height: 1;
+        font-size: 14px;
+        color: #555;
+        cursor: pointer;
+        margin-left: 10px;
     }
 }

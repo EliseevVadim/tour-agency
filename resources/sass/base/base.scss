@@ -257,3 +257,41 @@ body {
         }
     }
 }
+
+button[disabled='disabled'] {
+    cursor: none;
+}
+
+.color-white {
+    color: white;
+}
+
+.wishlist-icon {
+    cursor: pointer;
+
+    input[type="checkbox"] {
+        display: none;
+    }
+}
+
+.product-block-favorites__label {
+    cursor: pointer;
+
+    svg path {
+        -webkit-transition: 0.3s;
+        transition: 0.3s;
+    }
+
+    &:hover svg path {
+        stroke: #dd0024;
+    }
+}
+
+.product-block-favorites__checkbox:checked + .product-block-favorites__label svg path {
+    fill: url(#favoriteGradient);
+    stroke-width: 0;
+}
+
+.product-block-favorites__checkbox:checked + .product-block-favorites__label svg path {
+    stroke: #dd0024;
+}
