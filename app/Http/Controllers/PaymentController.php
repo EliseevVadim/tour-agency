@@ -221,10 +221,6 @@ class PaymentController extends Controller
         $discount_value = $paymentData['metadata']['discount_value'] ?? null;
         $phone = $paymentData['metadata']['phone_number'] ?? 'Unknown';
 
-        Log::info($discount_type);
-        Log::info($discount_value);
-        Log::info($promo_code_id);
-
         $transaction->status = 'succeeded';
         $transaction->payment_method = $paymentData['payment_method']['type'] ?? 'unknown';
         $transaction->payment_at = Carbon::now();

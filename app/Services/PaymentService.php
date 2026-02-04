@@ -47,6 +47,25 @@ class PaymentService
                 'type'       => 'redirect',
                 'return_url' => route('payment.return', ['transaction_id' => $options['transaction_id']])
             ],
+            'receipt' => [
+                'items' => [
+                    [
+                        'description' => $description,
+                        'quantity' => 1.00,
+                        'amount' => [
+                            'value' => $amount,
+                            'currency' => 'RUB'
+                        ],
+                        'vat_code' => 7,
+                    ]
+                ],
+                'tax_system_code' => 2,
+                'customer' => [
+                    'email' => $options['email'],
+                    'phone' => $options['phone_number'],
+                ]
+            ],
+
             'metadata' => [
                 'package_id'     => $options['package_id'],
                 'course_name'    => $options['course_name'],
