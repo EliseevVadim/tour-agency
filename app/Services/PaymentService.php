@@ -57,6 +57,9 @@ class PaymentService
                             'currency' => 'RUB'
                         ],
                         'vat_code' => 7,
+                        'payment_subject' => 'service',
+                        'payment_mode' => 'full_payment',
+                        'measure' => 'piece'
                     ]
                 ],
                 'tax_system_code' => 2,
