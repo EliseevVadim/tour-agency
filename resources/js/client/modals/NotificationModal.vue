@@ -2,7 +2,7 @@
     <div class="modal-overlay">
         <template v-if="isNotification">
             <div class="notification-card">
-                <div class="notification-body">
+                <div class="notification-body w-100">
                     <p class="body-text support-text text-black mb-3" style="text-align: start;">
                         Информация об условиях обработки и о наличии запретов и условий на обработку неограниченным
                         кругом лиц персональных данных, разрешенных субъектом персональных данных для распространения:
@@ -152,5 +152,30 @@ export default {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+}
+
+.notification-body {
+    position: relative;
+    overflow: hidden;
+    width: 50%;
+    background: white;
+    border-radius: 20px;
+
+    &::before {
+        content: "";
+        width: 100%;
+        height: 5px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: #eb2d26;
+    }
+
+    @media (max-width: 991.98px) {
+        width: 70%;
+    }
+    @media (max-width: 544.98px) {
+        width: 90%;
+    }
 }
 </style>
