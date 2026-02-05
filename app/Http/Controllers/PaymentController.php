@@ -192,6 +192,8 @@ class PaymentController extends Controller
         $transaction->save();
 
         $paymentStatus = $paymentData['status'];
+        Log::info('Get paymentStatus');
+        Log::info($paymentStatus);
 
         switch ($paymentStatus) {
             case 'succeeded':
@@ -228,6 +230,8 @@ class PaymentController extends Controller
             $transaction->promo_code_id = $promo_code_id;
         }
         $transaction->save();
+
+        Log::info('Transaction succeeded');
 
         if ($transaction->promo_code_id) {
             $promo = PromoCode::find($transaction->promo_code_id);
@@ -293,6 +297,8 @@ class PaymentController extends Controller
 
     protected function handleCanceled(PaymentTransaction $transaction, array $paymentData)
     {
+        Log::info('Transaction canceled');
+
         $transaction->status = 'canceled';
         $transaction->save();
 
@@ -307,6 +313,8 @@ class PaymentController extends Controller
 
     protected function handleWaitingForCapture(PaymentTransaction $transaction, array $paymentData)
     {
+        Log::info('Transaction waiting for capture');
+
         $transaction->status = PaymentStatus::WAITING_FOR_CAPTURE;
 
         $client = new Client();
