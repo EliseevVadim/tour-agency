@@ -2,7 +2,7 @@
     <div v-if="isVisible" class="modal-backdrop" @click.self="$emit('close')">
         <div class="modal-content">
             <div class="product-header container">
-                <h2 class="fw-bold">Назад</h2>
+                <h2 @click="closeModal" class="fw-bold cursor-pointer">Назад</h2>
             </div>
 
             <div v-if="product">
@@ -113,10 +113,12 @@
                                 </span>
                             </div>
                         </template>
-                        <div v-for="(item, idx) in [{id:1}, {id: 2},{id:1}, {id: 2},{id:1}, {id: 2},{id:1}, {id: 2}]"
-                             :key="idx">
-                            <p>{{ item }}</p>
-                        </div>
+                        <ProductCard
+                            v-for="product in otherProducts"
+                            :key="product.id"
+                            :product="product"
+                            @click="openModalFromCard(product)"
+                        />
                     </ssr-carousel>
                 </div>
             </div>
@@ -125,8 +127,19 @@
 </template>
 
 <script>
+import ProductCard from "./ProductCard.vue";
+
+const MOCK_PRODUCTS_DB = [
+    { id: 101, name: 'Синяя футболка "Путешествие"', category_slug: 'clothing', currentPrice: 1500, imageUrl: '/img/merch/test.png' },
+    { id: 102, name: 'Красный рюкзак', category_slug: 'accessories', currentPrice: 3500, imageUrl: '/img/merch/test.png' },
+    { id: 103, name: 'Треккинговые ботинки', category_slug: 'clothing', currentPrice: 12000, imageUrl: '/img/merch/test.png' },
+    { id: 104, name: 'Термос "Поход"', category_slug: 'travelGoods', currentPrice: 2500, imageUrl: '/img/merch/test.png' },
+    { id: 105, name: 'Брелок "Трек"', category_slug: 'accessories', currentPrice: 400, imageUrl: '/img/merch/test.png' },
+];
+
 export default {
     name: "ProductDetailModal",
+    components: {ProductCard},
     props: {
         isVisible: {type: Boolean, required: true},
         product: {type: Object, default: null},
@@ -150,18 +163,26 @@ export default {
                 {
                     minWidth: 1024,
                     slidesPerPage: 3,
-                }]
+                }],
+            // TODO: ПОДТЯНУТЬ ИЗ БД ДАННЫЕ ДЛЯ ДРУГИХ ТОВАРОВ
+            otherProducts: MOCK_PRODUCTS_DB
         };
     },
     methods: {
         toggleWishlist(product) {
             this.$emit('toggle-wishlist', product);
         },
+        closeModal(){
+            this.$emit('close')
+        }
     }
 }
 </script>
 
 <style scoped lang="scss">
+.cursor-pointer {
+    cursor: pointer;
+}
 .gallery-container {
     display: flex;
     justify-content: center;

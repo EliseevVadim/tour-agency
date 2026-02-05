@@ -12,7 +12,7 @@
 
             <div class="sidebar-body">
                 <div v-if="items.length === 0" class="empty-message">
-                    Список избранного пуст.
+                    Корзина пуста. Добавьте в корзину хотя бы один товар
                 </div>
 
                 <div v-for="item in items" :key="item.id" class="sidebar-item">
@@ -31,7 +31,9 @@
                             <div class="item-details">
                                 <div v-for="parameter in item.parameters" class="info-parameter pb-3">
                                     <p class="item-name">{{ parameter.name }}:</p>
-                                    <p class="item-value">{{ parameter.value }}</p>
+                                    <p class="item-value">
+                                        {{ parameter.value.join(', ') }}
+                                    </p>
                                 </div>
                             </div>
 
@@ -47,7 +49,7 @@
                     </div>
                 </div>
 
-                <div  v-if="items.length !== 0" class="order-summary d-flex gap-3">
+                <div v-if="items.length !== 0" class="order-summary d-flex gap-3">
                     <div class="order-sum">
                         <p class="item-name">К оплате:</p>
                         <p class="item-value">3650 р.</p>

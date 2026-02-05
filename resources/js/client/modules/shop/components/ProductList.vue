@@ -1,10 +1,12 @@
 <template>
     <div class="product-list-container">
-        <product-detail-modal v-if="modalProductData" :is-visible="isDetailVisible"
-                              :product="modalProductData"
-                              @close="closeModal"
-                              :is-in-wishlist="isInWishlist(modalProductData.id)"
-                              @toggle-wishlist="handleWishlist"/>
+        <ProductDetailModal
+            v-if="modalProductData"
+            :is-visible="isDetailVisible"
+            :product="modalProductData"
+            @close="closeModal"
+            :is-in-wishlist="isInWishlist(modalProductData.id)"
+        />
 
         <div v-for="(group, groupIndex) in displayedGroups" :key="`group-${groupIndex}`">
             <div class="product-grid">
@@ -12,8 +14,6 @@
                     v-for="product in group.products"
                     :key="product.id"
                     :product="product"
-                    :is-in-wishlist="isInWishlist(product.id)"
-                    @toggle-wishlist="handleWishlist"
                     @click="openModalFromCard(product)"
                 />
             </div>
@@ -34,23 +34,18 @@
 <script>
 import ProductCard from "./ProductCard.vue";
 import PromoBlock from "./PromoBlock.vue";
-import eventBus from "../../../../event-bus";
 import ProductDetailModal from "./ProductDetailModal.vue";
+import eventBus from "../../../../event-bus";
 
 const WISHLIST_STORAGE_KEY = 'merchWishlistIds';
 const WISHLIST_FULL_DATA_KEY = 'merchWishlistFullData';
 const FILTERS_SORT_STORAGE_KEY = 'merchFiltersAndSort';
+const ITEMS_PER_PAGE = 12;
 
 const TEMPLATES = {
-    RELEASES: {
-        title: 'Новые выпуски из путешествий',
-    },
-    NEWS: {
-        title: 'Последние новости',
-    },
-    SALES: {
-        title: 'Горящие туры, акции и скидки',
-    }
+    RELEASES: { title: 'Новые выпуски из путешествий' },
+    NEWS: { title: 'Последние новости' },
+    SALES: { title: 'Горящие туры, акции и скидки' }
 };
 
 const PLATFORM_DATA = [
@@ -66,7 +61,14 @@ const PLATFORM_DATA = [
     { idSuffix: '10', platformName: 'Instagram',  imageUrl: '/img/socials/promo-instagram.png', url: 'https://instagram.com/put_club', template: TEMPLATES.SALES }
 ];
 
-const generatePromoBlocks = () => {
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function generatePromoBlocks() {
     return PLATFORM_DATA.map((platform) => ({
         id: `promo${platform.idSuffix}`,
         title: platform.template.title,
@@ -75,14 +77,8 @@ const generatePromoBlocks = () => {
         type: 'promo',
         url: platform.url
     }));
-};
-
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
 }
+
 
 export default {
     name: 'ProductList',
@@ -93,6 +89,7 @@ export default {
     },
     data() {
         return {
+            //TODO: получить список из API
             allProducts: [
                 { id: 1, name: 'Чемодан "В ПУТЬ" 1', oldPrice: 5500, currentPrice: 3650, imageUrl: '/img/merch/test.png', images: ['/img/merch/test.png', '/img/merch/test.png', '/img/merch/test.png', '/img/merch/test.png'], parameters: [{ name: 'Размер', value: ['Маленький', 'Средний', 'Большой'] }, { name: 'Цвет', value: ['Красный', 'Синий', 'Зеленый'] }], maxCount: 3, isHit: true, category_slug: 'clothing' },
                 { id: 2, name: 'Чемодан "В ПУТЬ" 2', oldPrice: 7500, currentPrice: 4650, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: ['Маленький', 'Средний'] }], maxCount: 2, isHit: true, category_slug: 'clothing' },
@@ -101,27 +98,26 @@ export default {
                 { id: 5, name: 'Чемодан "В ПУТЬ" 5', oldPrice: 5500, currentPrice: 1550, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: ['Маленький', 'Средний', 'Большой'] }], maxCount: 5, isHit: true, category_slug: 'clothing' },
                 { id: 6, name: 'Чемодан "В ПУТЬ" 6', oldPrice: 5500, currentPrice: 9650, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: ['Маленький', 'Средний', 'Большой'] }], isHit: true, category_slug: 'clothing' },
 
-                { id: 7, name: 'Аксессуар А', oldPrice: 1500, currentPrice: 1200, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Цвет', value: 'Черный' }], maxCount: 1, isHit: false, category_slug: 'accessories' },
-                { id: 8, name: 'Аксессуар Б', oldPrice: 2000, currentPrice: 1800, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Цвет', value: 'Белый' }], maxCount: 1, isHit: false, category_slug: 'accessories' },
-                { id: 9, name: 'Аксессуар В', oldPrice: 500, currentPrice: 450, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Цвет', value: 'Серый' }], maxCount: 1, isHit: false, category_slug: 'accessories' },
-                { id: 10, name: 'Аксессуар Г', oldPrice: 3000, currentPrice: 2900, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Цвет', value: 'Красный' }], maxCount: 1, isHit: false, category_slug: 'accessories' },
+                { id: 7, name: 'Аксессуар А', oldPrice: 1500, currentPrice: 1200, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Цвет', value: ['Белый', 'Серый', 'Красный'] }], maxCount: 1, isHit: false, category_slug: 'accessories' },
+                { id: 8, name: 'Аксессуар Б', oldPrice: 2000, currentPrice: 1800, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Цвет', value: ['Белый', 'Серый', 'Красный'] }], maxCount: 1, isHit: false, category_slug: 'accessories' },
+                { id: 9, name: 'Аксессуар В', oldPrice: 500, currentPrice: 450, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Цвет', value: ['Белый', 'Серый', 'Красный'] }], maxCount: 1, isHit: false, category_slug: 'accessories' },
+                { id: 10, name: 'Аксессуар Г', oldPrice: 3000, currentPrice: 2900, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Цвет', value: ['Белый', 'Серый', 'Красный'] }], maxCount: 1, isHit: false, category_slug: 'accessories' },
 
-                { id: 11, name: 'Товар Т1', oldPrice: 5500, currentPrice: 3650, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: 'Средний' }], maxCount: 1, isHit: false, category_slug: 'travelGoods' },
-                { id: 12, name: 'Товар Т2', oldPrice: 5500, currentPrice: 3650, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: 'Средний' }], maxCount: 1, isHit: false, category_slug: 'travelGoods' },
-                { id: 13, name: 'Товар Т3', oldPrice: 5500, currentPrice: 3650, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: 'Средний' }], maxCount: 1, isHit: false, category_slug: 'travelGoods' },
-                { id: 14, name: 'Товар Т4', oldPrice: 5500, currentPrice: 3650, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: 'Средний' }], maxCount: 1, isHit: false, category_slug: 'travelGoods' },
+                { id: 11, name: 'Товар Т1', oldPrice: 5500, currentPrice: 3650, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: ['Маленький', 'Средний', 'Большой'] }], maxCount: 1, isHit: false, category_slug: 'travelGoods' },
+                { id: 12, name: 'Товар Т2', oldPrice: 5500, currentPrice: 3650, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: ['Маленький', 'Средний', 'Большой'] }], maxCount: 1, isHit: false, category_slug: 'travelGoods' },
+                { id: 13, name: 'Товар Т3', oldPrice: 5500, currentPrice: 3650, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: ['Маленький', 'Средний', 'Большой'] }], maxCount: 1, isHit: false, category_slug: 'travelGoods' },
+                { id: 14, name: 'Товар Т4', oldPrice: 5500, currentPrice: 3650, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: ['Маленький', 'Средний', 'Большой'] }], maxCount: 1, isHit: false, category_slug: 'travelGoods' },
             ],
 
             wishlistIds: [],
             wishlistFullData: [],
-            displayedCount: 12,
+            displayedCount: ITEMS_PER_PAGE,
             promoBlocks: generatePromoBlocks(),
             shuffledPromoBlocks: [],
 
             currentFilterTag: 'clothing',
             currentSort: 'default',
             isDetailVisible: false,
-            currentModalProductId: null,
             modalProductData: null,
         }
     },
@@ -158,17 +154,24 @@ export default {
         displayedGroups() {
             const groups = [];
             const productsToShow = this.sortedAndFilteredProducts.slice(0, this.displayedCount);
+            const productsPerGroup = 6;
 
-            for (let i = 0; i < productsToShow.length; i += 6) {
-                const groupProducts = productsToShow.slice(i, i + 6);
-                const promoIndex = Math.floor(i / 6) % this.shuffledPromoBlocks.length;
+            for (let i = 0; i < productsToShow.length; i += productsPerGroup) {
+                const groupProducts = productsToShow.slice(i, i + productsPerGroup);
+                const shouldInsertPromo = (i + productsPerGroup) < productsToShow.length || groupProducts.length > 0;
 
-                groups.push({
-                    products: groupProducts,
-                    promo: (i + 6 < productsToShow.length || groupProducts.length > 0)
-                        ? this.shuffledPromoBlocks[promoIndex]
-                        : null
-                });
+                if (shouldInsertPromo) {
+                    const promoIndex = Math.floor(i / productsPerGroup) % this.shuffledPromoBlocks.length;
+                    groups.push({
+                        products: groupProducts,
+                        promo: this.shuffledPromoBlocks[promoIndex]
+                    });
+                } else {
+                    groups.push({
+                        products: groupProducts,
+                        promo: null
+                    });
+                }
             }
 
             return groups;
@@ -180,20 +183,11 @@ export default {
     },
     watch: {
         wishlistIds(newIds) {
-            try {
-                localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(newIds));
-            } catch (e) {
-                console.error("Ошибка сохранения wishlistIds:", e);
-            }
+            this.saveWishlist(WISHLIST_STORAGE_KEY, newIds);
             eventBus.$emit('update-favorites-products', this.wishlistFullData);
         },
-
         wishlistFullData(newData) {
-            try {
-                localStorage.setItem(WISHLIST_FULL_DATA_KEY, JSON.stringify(newData));
-            } catch (e) {
-                console.error("Ошибка сохранения wishlistFullData:", e);
-            }
+            this.saveWishlist(WISHLIST_FULL_DATA_KEY, newData);
             eventBus.$emit('update-favorites-count', newData.length);
         },
         currentSort() {
@@ -204,9 +198,11 @@ export default {
         }
     },
     methods: {
-        fetchProductData(id) {
-            //TODO:Получить список всех товаров
+        initializePromo() {
+            this.shuffledPromoBlocks = [...this.promoBlocks];
+            shuffleArray(this.shuffledPromoBlocks);
         },
+
         openModalFromCard(product) {
             this.modalProductData = product;
             this.isDetailVisible = true;
@@ -220,46 +216,45 @@ export default {
             this.updateBrowserUrl(null);
             document.body.classList.remove('no-scroll');
         },
+
         updateBrowserUrl(productId) {
             const baseUrl = window.location.pathname.split('?')[0];
             const newUrl = productId
                 ? `${baseUrl}?product=${productId}`
                 : baseUrl;
 
-            window.history.pushState({}, '', newUrl);
+            window.history.replaceState({}, '', newUrl);
         },
 
         loadMore() {
-            this.displayedCount += 12;
+            this.displayedCount += ITEMS_PER_PAGE;
         },
 
         loadWishlist() {
-            try {
-                const storedIds = localStorage.getItem(WISHLIST_STORAGE_KEY);
-                this.wishlistIds = storedIds ? JSON.parse(storedIds) : [];
+            this.wishlistIds = this.loadFromStorage(WISHLIST_STORAGE_KEY) || [];
+            this.wishlistFullData = this.loadFromStorage(WISHLIST_FULL_DATA_KEY) || [];
+        },
 
-                const storedFullData = localStorage.getItem(WISHLIST_FULL_DATA_KEY);
-                this.wishlistFullData = storedFullData ? JSON.parse(storedFullData) : [];
+        saveWishlist(key, data) {
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
             } catch (e) {
-                console.error("Не удалось загрузить избранное из localStorage:", e);
-                this.wishlistIds = [];
-                this.wishlistFullData = [];
+                console.error(`Ошибка сохранения в localStorage (${key}):`, e);
             }
         },
 
-        handleWishlist(productFromCard) {
-            const productId = productFromCard.id;
+        handleWishlist(product) {
+            const productId = product.id;
             const index = this.wishlistIds.indexOf(productId);
 
             if (index === -1) {
                 this.wishlistIds.push(productId);
-                this.wishlistFullData.push(productFromCard);
+                if (!this.wishlistFullData.some(p => p.id === productId)) {
+                    this.wishlistFullData.push(product);
+                }
             } else {
                 this.wishlistIds.splice(index, 1);
-                const dataIndex = this.wishlistFullData.findIndex(p => p.id === productId);
-                if (dataIndex !== -1) {
-                    this.wishlistFullData.splice(dataIndex, 1);
-                }
+                this.wishlistFullData = this.wishlistFullData.filter(p => p.id !== productId);
             }
         },
 
@@ -268,16 +263,10 @@ export default {
         },
 
         loadFiltersAndSortFromStorage() {
-            try {
-                const stored = localStorage.getItem(FILTERS_SORT_STORAGE_KEY);
-                if (stored) {
-                    const { tag, sort } = JSON.parse(stored);
-
-                    if (tag) this.currentFilterTag = tag;
-                    if (sort) this.currentSort = sort;
-                }
-            } catch (e) {
-                console.error("Не удалось загрузить фильтры/сортировку из localStorage:", e);
+            const stored = this.loadFromStorage(FILTERS_SORT_STORAGE_KEY);
+            if (stored) {
+                if (stored.tag) this.currentFilterTag = stored.tag;
+                if (stored.sort) this.currentSort = stored.sort;
             }
         },
 
@@ -289,41 +278,47 @@ export default {
                 };
                 localStorage.setItem(FILTERS_SORT_STORAGE_KEY, JSON.stringify(dataToSave));
                 eventBus.$emit('tab-sort-changed');
-
             } catch (e) {
                 console.error("Не удалось сохранить фильтры/сортировку в localStorage:", e);
             }
+        },
+
+        loadFromStorage(key) {
+            try {
+                const stored = localStorage.getItem(key);
+                return stored ? JSON.parse(stored) : null;
+            } catch (e) {
+                console.error(`Не удалось загрузить данные из localStorage (${key}):`, e);
+                return null;
+            }
         }
-    },
-    created() {
-        this.shuffledPromoBlocks = [...this.promoBlocks];
-        shuffleArray(this.shuffledPromoBlocks);
     },
     mounted() {
         this.loadWishlist();
         this.loadFiltersAndSortFromStorage();
+        this.initializePromo();
+
         eventBus.$on('tab-sort-changed', this.loadFiltersAndSortFromStorage);
-        eventBus.$on('update-favorite-products', this.handleWishlist);
+        eventBus.$on('open-product-modal', this.openModalFromCard);
 
         const urlParams = new URLSearchParams(window.location.search);
         const productIdFromUrl = urlParams.get('product');
 
         if (productIdFromUrl) {
             const productToOpen = this.allProducts.find(p => String(p.id) === productIdFromUrl);
-
             if (productToOpen) {
                 this.openModalFromCard(productToOpen);
             } else {
-                window.location.href = "/shop";
+                window.history.replaceState({}, '', window.location.pathname);
             }
         }
     },
     beforeUnmount() {
         eventBus.$off('tab-sort-changed', this.loadFiltersAndSortFromStorage);
-        eventBus.$off('update-favorite-products', this.handleWishlist);
     }
 }
 </script>
+
 <style scoped>
 .product-grid {
     display: grid;
@@ -343,5 +338,11 @@ export default {
     border-radius: 20px;
     padding: 15px 30px;
     font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.load-more-button:hover {
+    background-color: #fff0f0;
 }
 </style>

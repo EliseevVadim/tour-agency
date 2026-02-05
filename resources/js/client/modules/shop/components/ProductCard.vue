@@ -9,7 +9,7 @@
                            :id="'favorites-heart-prod-' + product.id"
                            :name="'favorites-heart-prod-' + product.id"
                            class="product-block-favorites__checkbox">
-                    <label @click.prevent="$emit('toggle-wishlist', {
+                    <label @click.prevent="handleWishlist({
                         id: product.id,
                           name: product.name,
                            price: product.currentPrice,
@@ -48,19 +48,77 @@
 </template>
 
 <script>
+import eventBus from "../../../../event-bus";
+
+const WISHLIST_STORAGE_KEY = 'merchWishlistIds';
+const WISHLIST_FULL_DATA_KEY = 'merchWishlistFullData';
+
 export default {
     name: 'ProductCard',
     props: {
         product: {
             type: Object,
             required: true
-        },
-        isInWishlist: {
-            type: Boolean,
-            default: false
         }
     },
-    emits: ['toggle-wishlist']
+    emits: ['toggle-wishlist'],
+    data() {
+        return {
+            wishlistIds: [],
+            wishlistFullData: []
+        }
+    },
+    computed: {
+        isInWishlist() {
+            return this.wishlistIds.includes(this.product.id);
+        }
+    },
+    watch: {
+        wishlistIds(newIds) {
+            this.saveWishlist(WISHLIST_STORAGE_KEY, newIds);
+            eventBus.$emit('update-favorites-products', this.wishlistFullData);
+        },
+        wishlistFullData(newData) {
+            this.saveWishlist(WISHLIST_FULL_DATA_KEY, newData);
+            eventBus.$emit('update-favorites-count', newData.length);
+        },
+    },
+    methods: {
+        loadFromStorage(key) {
+            try {
+                const stored = localStorage.getItem(key);
+                return stored ? JSON.parse(stored) : null;
+            } catch (e) {
+                console.error(`Не удалось загрузить данные из localStorage (${key}):`, e);
+                return null;
+            }
+        },
+        saveWishlist(key, data) {
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
+            } catch (e) {
+                console.error(`Ошибка сохранения в localStorage (${key}):`, e);
+            }
+        },
+        handleWishlist(product) {
+            const productId = product.id;
+            const index = this.wishlistIds.indexOf(productId);
+
+            if (index === -1) {
+                this.wishlistIds.push(productId);
+                if (!this.wishlistFullData.some(p => p.id === productId)) {
+                    this.wishlistFullData.push(product);
+                }
+            } else {
+                this.wishlistIds.splice(index, 1);
+                this.wishlistFullData = this.wishlistFullData.filter(p => p.id !== productId);
+            }
+        },
+    },
+    mounted() {
+        this.wishlistIds = this.loadFromStorage(WISHLIST_STORAGE_KEY) || [];
+        this.wishlistFullData = this.loadFromStorage(WISHLIST_FULL_DATA_KEY) || [];
+    }
 }
 </script>
 

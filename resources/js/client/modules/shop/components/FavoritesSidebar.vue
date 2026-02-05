@@ -31,13 +31,14 @@
                             <div class="item-details">
                                 <div v-for="parameter in item.parameters" class="info-parameter pb-3">
                                     <p class="item-name">{{ parameter.name }}:</p>
-                                    <p class="item-value">{{ parameter.value }}</p>
+                                    <p class="item-value">
+                                        {{ parameter.value.join(', ') }}
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -71,9 +72,6 @@ export default {
     methods: {
         getFavoritesList(data) {
             this.items = data;
-            /* const wishList = localStorage.getItem(WISHLIST_FULL_DATA_KEY);
-             console.log(JSON.parse(wishList))
-             this.items = wishList ? JSON.parse(wishList) : [];*/
         }
     },
     mounted() {
