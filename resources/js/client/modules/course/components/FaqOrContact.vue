@@ -13,7 +13,7 @@
                     поможем!</span></p>
                 </div>
 
-                <a href="https://t.me/put_club1" class="chat-button btn-cta text-uppercase align-content-center">
+                <a href="https://t.me/putclub_info" class="chat-button btn-cta text-uppercase align-content-center">
                     <span class="flare"></span>
                     открыть чат</a>
             </div>

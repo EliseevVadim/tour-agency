@@ -40,7 +40,7 @@ class PaymentController extends Controller
             return redirect()->route('courses')->with('payment_fail', [
                 'title' => 'Ошибка возврата',
                 'support_link_text' => 'службу заботы',
-                'support_link_url' => route('contacts'),
+                'support_link_url' => 'https://t.me/putclub_info',
             ]);
         }
 
@@ -50,7 +50,7 @@ class PaymentController extends Controller
             return redirect()->route('courses')->with('payment_fail', [
                 'title' => 'Ошибка: Транзакция не найдена в системе.',
                 'support_link_text' => 'службу заботы',
-                'support_link_url' => route('contacts'),
+                'support_link_url' => 'https://t.me/putclub_info',
             ]);
         }
 
@@ -60,14 +60,14 @@ class PaymentController extends Controller
                     'title' => 'Добро пожаловать в увлекательный мир туризма!',
                     'body' => 'Мы рады сообщить, доступ к выбранному Вами пакету отправлен на Вашу почту.',
                     'support_link_text' => 'службу заботы',
-                    'support_link_url' => route('contacts'),
+                    'support_link_url' => 'https://t.me/putclub_info',
                 ]);
 
             } else {
                 return redirect()->route('courses')->with('payment_fail', [
                     'title' => 'К сожалению, оплату не удалось провести. Пожалуйста, попробуйте снова.',
                     'support_link_text' => 'службу заботы',
-                    'support_link_url' => route('contacts'),
+                    'support_link_url' => 'https://t.me/putclub_info',
                 ]);
             }
         } catch (\Exception $exception) {
@@ -75,7 +75,7 @@ class PaymentController extends Controller
                 'title' => 'Системная ошибка',
                 'body' => 'Произошла ошибка при проверке статуса платежа. Пожалуйста, свяжитесь с нами.',
                 'support_link_text' => 'службу заботы',
-                'support_link_url' => route('contacts'),
+                'support_link_url' =>'https://t.me/putclub_info',
             ]);
         }
     }
