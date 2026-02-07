@@ -9,7 +9,7 @@
                            :id="'favorites-heart-prod-' + product.id"
                            :name="'favorites-heart-prod-' + product.id"
                            class="product-block-favorites__checkbox">
-                    <label @click.prevent="handleWishlist({
+                    <label @click.prevent.stop="$emit('toggle-wishlist', {
                         id: product.id,
                           name: product.name,
                            price: product.currentPrice,
@@ -26,8 +26,7 @@
                                 </linearGradient>
                             </defs>
 
-                            <path
-                                fill="none"
+                            <path fill="none"
                                 d="M16.019 1.519C13.832 0.483 11.911 2.068 10.698 3.475 10.2 4.054 9.229 3.99 8.774 3.376 7.629 1.835 5.627 0.117 3.163 1.519 -0.385 3.538 1.163 7.519 2.663 9.519 4.398 11.833 7.65 14.466 9.024 15.532 9.395 15.821 9.914 15.8 10.274 15.498 11.806 14.215 14.425 12.104 16.163 10.019 18.955 6.668 19.519 3.176 16.019 1.519Z"
                                 stroke="white" stroke-width="2"/>
                         </svg>
@@ -51,7 +50,6 @@
 import eventBus from "../../../../event-bus";
 
 const WISHLIST_STORAGE_KEY = 'merchWishlistIds';
-const WISHLIST_FULL_DATA_KEY = 'merchWishlistFullData';
 
 export default {
     name: 'ProductCard',
@@ -64,60 +62,23 @@ export default {
     emits: ['toggle-wishlist'],
     data() {
         return {
-            wishlistIds: [],
-            wishlistFullData: []
+            isInWishlist: false
         }
-    },
-    computed: {
-        isInWishlist() {
-            return this.wishlistIds.includes(this.product.id);
-        }
-    },
-    watch: {
-        wishlistIds(newIds) {
-            this.saveWishlist(WISHLIST_STORAGE_KEY, newIds);
-            eventBus.$emit('update-favorites-products', this.wishlistFullData);
-        },
-        wishlistFullData(newData) {
-            this.saveWishlist(WISHLIST_FULL_DATA_KEY, newData);
-            eventBus.$emit('update-favorites-count', newData.length);
-        },
     },
     methods: {
-        loadFromStorage(key) {
-            try {
-                const stored = localStorage.getItem(key);
-                return stored ? JSON.parse(stored) : null;
-            } catch (e) {
-                console.error(`Не удалось загрузить данные из localStorage (${key}):`, e);
-                return null;
-            }
-        },
-        saveWishlist(key, data) {
-            try {
-                localStorage.setItem(key, JSON.stringify(data));
-            } catch (e) {
-                console.error(`Ошибка сохранения в localStorage (${key}):`, e);
-            }
-        },
-        handleWishlist(product) {
-            const productId = product.id;
-            const index = this.wishlistIds.indexOf(productId);
+        checkInWishlist() {
+            const stored = localStorage.getItem(WISHLIST_STORAGE_KEY);
+            this.wishlistIds = stored ? JSON.parse(stored) : null;
 
-            if (index === -1) {
-                this.wishlistIds.push(productId);
-                if (!this.wishlistFullData.some(p => p.id === productId)) {
-                    this.wishlistFullData.push(product);
-                }
-            } else {
-                this.wishlistIds.splice(index, 1);
-                this.wishlistFullData = this.wishlistFullData.filter(p => p.id !== productId);
-            }
-        },
+            this.isInWishlist = this.wishlistIds.includes(this.product.id);
+        }
     },
     mounted() {
-        this.wishlistIds = this.loadFromStorage(WISHLIST_STORAGE_KEY) || [];
-        this.wishlistFullData = this.loadFromStorage(WISHLIST_FULL_DATA_KEY) || [];
+        eventBus.$on('update-favorites', this.checkInWishlist);
+        this.checkInWishlist();
+    },
+    beforeUnmount() {
+        eventBus.$off('update-favorites');
     }
 }
 </script>

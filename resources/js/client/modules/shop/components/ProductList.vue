@@ -1,12 +1,10 @@
 <template>
     <div class="product-list-container">
-        <ProductDetailModal
-            v-if="modalProductData"
-            :is-visible="isDetailVisible"
-            :product="modalProductData"
-            @close="closeModal"
-            :is-in-wishlist="isInWishlist(modalProductData.id)"
-        />
+        <ProductDetailModal v-if="modalProductData"
+                            :is-visible="isDetailVisible"
+                            :product="modalProductData"
+                            @close="closeModal"
+                            @toggle-wishlist="handleWishlist"/>
 
         <div v-for="(group, groupIndex) in displayedGroups" :key="`group-${groupIndex}`">
             <div class="product-grid">
@@ -14,12 +12,13 @@
                     v-for="product in group.products"
                     :key="product.id"
                     :product="product"
+                    @toggle-wishlist="handleWishlist"
                     @click="openModalFromCard(product)"
                 />
             </div>
 
             <div v-if="group.promo" class="promo-block">
-                <PromoBlock :promo-data="group.promo" />
+                <PromoBlock :promo-data="group.promo"/>
             </div>
         </div>
 
@@ -43,22 +42,82 @@ const FILTERS_SORT_STORAGE_KEY = 'merchFiltersAndSort';
 const ITEMS_PER_PAGE = 12;
 
 const TEMPLATES = {
-    RELEASES: { title: 'Новые выпуски из путешествий' },
-    NEWS: { title: 'Последние новости' },
-    SALES: { title: 'Горящие туры, акции и скидки' }
+    RELEASES: {title: 'Новые выпуски из путешествий'},
+    NEWS: {title: 'Последние новости'},
+    SALES: {title: 'Горящие туры, акции и скидки'}
 };
 
 const PLATFORM_DATA = [
-    { idSuffix: '1', platformName: 'Rutube',     imageUrl: '/img/socials/promo-rutube.png', url: 'https://rutube.ru/channel/37334628/', template: TEMPLATES.RELEASES },
-    { idSuffix: '2', platformName: 'Vkontakte',  imageUrl: '/img/socials/promo-vk.png', url: 'https://vk.com/put_club', template: TEMPLATES.NEWS },
-    { idSuffix: '3', platformName: 'Telegram',   imageUrl: '/img/socials/promo-tg.png', url: 'https://t.me/put_club', template: TEMPLATES.SALES },
-    { idSuffix: '4', platformName: 'Dzen',       imageUrl: '/img/socials/promo-dzen.png', url: 'https://dzen.ru/put_club', template: TEMPLATES.RELEASES },
-    { idSuffix: '5', platformName: 'YouTube',    imageUrl: '/img/socials/promo-youtube.png', url: 'https://www.youtube.com/@put_club', template: TEMPLATES.RELEASES },
-    { idSuffix: '6', platformName: 'TikTok',     imageUrl: '/img/socials/promo-tiktok.png', url: 'https://www.tiktok.com/@put_club', template: TEMPLATES.SALES },
-    { idSuffix: '7', platformName: 'Yappi',      imageUrl: '/img/socials/promo-yappi.png', url: 'https://yappy.media/n/put_club', template: TEMPLATES.SALES },
-    { idSuffix: '8', platformName: 'Одноклассники', imageUrl: '/img/socials/promo-ok.png', url: 'https://ok.ru/group/70000033103318', template: TEMPLATES.SALES },
-    { idSuffix: '9', platformName: 'Max',        imageUrl: '/img/socials/promo-max.png', url: 'https://t.me/put_club', template: TEMPLATES.NEWS },
-    { idSuffix: '10', platformName: 'Instagram',  imageUrl: '/img/socials/promo-instagram.png', url: 'https://instagram.com/put_club', template: TEMPLATES.SALES }
+    {
+        idSuffix: '1',
+        platformName: 'Rutube',
+        imageUrl: '/img/socials/promo-rutube.png',
+        url: 'https://rutube.ru/channel/37334628/',
+        template: TEMPLATES.RELEASES
+    },
+    {
+        idSuffix: '2',
+        platformName: 'Vkontakte',
+        imageUrl: '/img/socials/promo-vk.png',
+        url: 'https://vk.com/put_club',
+        template: TEMPLATES.NEWS
+    },
+    {
+        idSuffix: '3',
+        platformName: 'Telegram',
+        imageUrl: '/img/socials/promo-tg.png',
+        url: 'https://t.me/put_club',
+        template: TEMPLATES.SALES
+    },
+    {
+        idSuffix: '4',
+        platformName: 'Dzen',
+        imageUrl: '/img/socials/promo-dzen.png',
+        url: 'https://dzen.ru/put_club',
+        template: TEMPLATES.RELEASES
+    },
+    {
+        idSuffix: '5',
+        platformName: 'YouTube',
+        imageUrl: '/img/socials/promo-youtube.png',
+        url: 'https://www.youtube.com/@put_club',
+        template: TEMPLATES.RELEASES
+    },
+    {
+        idSuffix: '6',
+        platformName: 'TikTok',
+        imageUrl: '/img/socials/promo-tiktok.png',
+        url: 'https://www.tiktok.com/@put_club',
+        template: TEMPLATES.SALES
+    },
+    {
+        idSuffix: '7',
+        platformName: 'Yappi',
+        imageUrl: '/img/socials/promo-yappi.png',
+        url: 'https://yappy.media/n/put_club',
+        template: TEMPLATES.SALES
+    },
+    {
+        idSuffix: '8',
+        platformName: 'Одноклассники',
+        imageUrl: '/img/socials/promo-ok.png',
+        url: 'https://ok.ru/group/70000033103318',
+        template: TEMPLATES.SALES
+    },
+    {
+        idSuffix: '9',
+        platformName: 'Max',
+        imageUrl: '/img/socials/promo-max.png',
+        url: 'https://t.me/put_club',
+        template: TEMPLATES.NEWS
+    },
+    {
+        idSuffix: '10',
+        platformName: 'Instagram',
+        imageUrl: '/img/socials/promo-instagram.png',
+        url: 'https://instagram.com/put_club',
+        template: TEMPLATES.SALES
+    }
 ];
 
 function shuffleArray(array) {
@@ -79,7 +138,6 @@ function generatePromoBlocks() {
     }));
 }
 
-
 export default {
     name: 'ProductList',
     components: {
@@ -89,24 +147,166 @@ export default {
     },
     data() {
         return {
-            //TODO: получить список из API
             allProducts: [
-                { id: 1, name: 'Чемодан "В ПУТЬ" 1', oldPrice: 5500, currentPrice: 3650, imageUrl: '/img/merch/test.png', images: ['/img/merch/test.png', '/img/merch/test.png', '/img/merch/test.png', '/img/merch/test.png'], parameters: [{ name: 'Размер', value: ['Маленький', 'Средний', 'Большой'] }, { name: 'Цвет', value: ['Красный', 'Синий', 'Зеленый'] }], maxCount: 3, isHit: true, category_slug: 'clothing' },
-                { id: 2, name: 'Чемодан "В ПУТЬ" 2', oldPrice: 7500, currentPrice: 4650, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: ['Маленький', 'Средний'] }], maxCount: 2, isHit: true, category_slug: 'clothing' },
-                { id: 3, name: 'Чемодан "В ПУТЬ" 3', oldPrice: 3500, currentPrice: 8650, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: ['Средний', 'Большой'] }], maxCount: 5, isHit: true, category_slug: 'clothing' },
-                { id: 4, name: 'Чемодан "В ПУТЬ" 4', oldPrice: 5500, currentPrice: 2650, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: ['Маленький', 'Средний', 'Большой'] }], maxCount: 4, isHit: true, category_slug: 'clothing' },
-                { id: 5, name: 'Чемодан "В ПУТЬ" 5', oldPrice: 5500, currentPrice: 1550, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: ['Маленький', 'Средний', 'Большой'] }], maxCount: 5, isHit: true, category_slug: 'clothing' },
-                { id: 6, name: 'Чемодан "В ПУТЬ" 6', oldPrice: 5500, currentPrice: 9650, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: ['Маленький', 'Средний', 'Большой'] }], isHit: true, category_slug: 'clothing' },
+                {
+                    id: 1,
+                    name: 'Чемодан "В ПУТЬ" 1',
+                    oldPrice: 5500,
+                    currentPrice: 3650,
+                    imageUrl: '/img/merch/test.png',
+                    images: ['/img/merch/test.png', '/img/merch/test.png', '/img/merch/test.png', '/img/merch/test.png'],
+                    parameters: [{name: 'Размер', value: ['Маленький', 'Средний', 'Большой']}, {
+                        name: 'Цвет',
+                        value: ['Красный', 'Синий', 'Зеленый']
+                    }],
+                    maxCount: 3,
+                    isHit: true,
+                    category_slug: 'clothing'
+                },
+                {
+                    id: 2,
+                    name: 'Чемодан "В ПУТЬ" 2',
+                    oldPrice: 7500,
+                    currentPrice: 4650,
+                    imageUrl: '/img/merch/test.png',
+                    parameters: [{name: 'Размер', value: ['Маленький', 'Средний']}],
+                    maxCount: 2,
+                    isHit: true,
+                    category_slug: 'clothing'
+                },
+                {
+                    id: 3,
+                    name: 'Чемодан "В ПУТЬ" 3',
+                    oldPrice: 3500,
+                    currentPrice: 8650,
+                    imageUrl: '/img/merch/test.png',
+                    parameters: [{name: 'Размер', value: ['Средний', 'Большой']}],
+                    maxCount: 5,
+                    isHit: true,
+                    category_slug: 'clothing'
+                },
+                {
+                    id: 4,
+                    name: 'Чемодан "В ПУТЬ" 4',
+                    oldPrice: 5500,
+                    currentPrice: 2650,
+                    imageUrl: '/img/merch/test.png',
+                    parameters: [{name: 'Размер', value: ['Маленький', 'Средний', 'Большой']}],
+                    maxCount: 4,
+                    isHit: true,
+                    category_slug: 'clothing'
+                },
+                {
+                    id: 5,
+                    name: 'Чемодан "В ПУТЬ" 5',
+                    oldPrice: 5500,
+                    currentPrice: 1550,
+                    imageUrl: '/img/merch/test.png',
+                    parameters: [{name: 'Размер', value: ['Маленький', 'Средний', 'Большой']}],
+                    maxCount: 5,
+                    isHit: true,
+                    category_slug: 'clothing'
+                },
+                {
+                    id: 6,
+                    name: 'Чемодан "В ПУТЬ" 6',
+                    oldPrice: 5500,
+                    currentPrice: 9650,
+                    imageUrl: '/img/merch/test.png',
+                    parameters: [{name: 'Размер', value: ['Маленький', 'Средний', 'Большой']}],
+                    isHit: true,
+                    category_slug: 'clothing'
+                },
 
-                { id: 7, name: 'Аксессуар А', oldPrice: 1500, currentPrice: 1200, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Цвет', value: ['Белый', 'Серый', 'Красный'] }], maxCount: 1, isHit: false, category_slug: 'accessories' },
-                { id: 8, name: 'Аксессуар Б', oldPrice: 2000, currentPrice: 1800, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Цвет', value: ['Белый', 'Серый', 'Красный'] }], maxCount: 1, isHit: false, category_slug: 'accessories' },
-                { id: 9, name: 'Аксессуар В', oldPrice: 500, currentPrice: 450, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Цвет', value: ['Белый', 'Серый', 'Красный'] }], maxCount: 1, isHit: false, category_slug: 'accessories' },
-                { id: 10, name: 'Аксессуар Г', oldPrice: 3000, currentPrice: 2900, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Цвет', value: ['Белый', 'Серый', 'Красный'] }], maxCount: 1, isHit: false, category_slug: 'accessories' },
+                {
+                    id: 7,
+                    name: 'Аксессуар А',
+                    oldPrice: 1500,
+                    currentPrice: 1200,
+                    imageUrl: '/img/merch/test.png',
+                    parameters: [{name: 'Цвет', value: ['Белый', 'Серый', 'Красный']}],
+                    maxCount: 1,
+                    isHit: false,
+                    category_slug: 'accessories'
+                },
+                {
+                    id: 8,
+                    name: 'Аксессуар Б',
+                    oldPrice: 2000,
+                    currentPrice: 1800,
+                    imageUrl: '/img/merch/test.png',
+                    parameters: [{name: 'Цвет', value: ['Белый', 'Серый', 'Красный']}],
+                    maxCount: 1,
+                    isHit: false,
+                    category_slug: 'accessories'
+                },
+                {
+                    id: 9,
+                    name: 'Аксессуар В',
+                    oldPrice: 500,
+                    currentPrice: 450,
+                    imageUrl: '/img/merch/test.png',
+                    parameters: [{name: 'Цвет', value: ['Белый', 'Серый', 'Красный']}],
+                    maxCount: 1,
+                    isHit: false,
+                    category_slug: 'accessories'
+                },
+                {
+                    id: 10,
+                    name: 'Аксессуар Г',
+                    oldPrice: 3000,
+                    currentPrice: 2900,
+                    imageUrl: '/img/merch/test.png',
+                    parameters: [{name: 'Цвет', value: ['Белый', 'Серый', 'Красный']}],
+                    maxCount: 1,
+                    isHit: false,
+                    category_slug: 'accessories'
+                },
 
-                { id: 11, name: 'Товар Т1', oldPrice: 5500, currentPrice: 3650, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: ['Маленький', 'Средний', 'Большой'] }], maxCount: 1, isHit: false, category_slug: 'travelGoods' },
-                { id: 12, name: 'Товар Т2', oldPrice: 5500, currentPrice: 3650, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: ['Маленький', 'Средний', 'Большой'] }], maxCount: 1, isHit: false, category_slug: 'travelGoods' },
-                { id: 13, name: 'Товар Т3', oldPrice: 5500, currentPrice: 3650, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: ['Маленький', 'Средний', 'Большой'] }], maxCount: 1, isHit: false, category_slug: 'travelGoods' },
-                { id: 14, name: 'Товар Т4', oldPrice: 5500, currentPrice: 3650, imageUrl: '/img/merch/test.png', parameters: [{ name: 'Размер', value: ['Маленький', 'Средний', 'Большой'] }], maxCount: 1, isHit: false, category_slug: 'travelGoods' },
+                {
+                    id: 11,
+                    name: 'Товар Т1',
+                    oldPrice: 5500,
+                    currentPrice: 3650,
+                    imageUrl: '/img/merch/test.png',
+                    parameters: [{name: 'Размер', value: ['Маленький', 'Средний', 'Большой']}],
+                    maxCount: 1,
+                    isHit: false,
+                    category_slug: 'travelGoods'
+                },
+                {
+                    id: 12,
+                    name: 'Товар Т2',
+                    oldPrice: 5500,
+                    currentPrice: 3650,
+                    imageUrl: '/img/merch/test.png',
+                    parameters: [{name: 'Размер', value: ['Маленький', 'Средний', 'Большой']}],
+                    maxCount: 1,
+                    isHit: false,
+                    category_slug: 'travelGoods'
+                },
+                {
+                    id: 13,
+                    name: 'Товар Т3',
+                    oldPrice: 5500,
+                    currentPrice: 3650,
+                    imageUrl: '/img/merch/test.png',
+                    parameters: [{name: 'Размер', value: ['Маленький', 'Средний', 'Большой']}],
+                    maxCount: 1,
+                    isHit: false,
+                    category_slug: 'travelGoods'
+                },
+                {
+                    id: 14,
+                    name: 'Товар Т4',
+                    oldPrice: 5500,
+                    currentPrice: 3650,
+                    imageUrl: '/img/merch/test.png',
+                    parameters: [{name: 'Размер', value: ['Маленький', 'Средний', 'Большой']}],
+                    maxCount: 1,
+                    isHit: false,
+                    category_slug: 'travelGoods'
+                },
             ],
 
             wishlistIds: [],
@@ -119,6 +319,7 @@ export default {
             currentSort: 'default',
             isDetailVisible: false,
             modalProductData: null,
+            isInWishList: false
         }
     },
     computed: {
@@ -182,20 +383,22 @@ export default {
         }
     },
     watch: {
-        wishlistIds(newIds) {
-            this.saveWishlist(WISHLIST_STORAGE_KEY, newIds);
-            eventBus.$emit('update-favorites-products', this.wishlistFullData);
-        },
-        wishlistFullData(newData) {
-            this.saveWishlist(WISHLIST_FULL_DATA_KEY, newData);
-            eventBus.$emit('update-favorites-count', newData.length);
-        },
         currentSort() {
             this.saveFiltersAndSort();
         },
         currentFilterTag() {
             this.saveFiltersAndSort();
-        }
+        },
+        wishlistIds(newIds) {
+            localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(newIds));
+            eventBus.$emit('update-favorites', this.wishlistFullData);
+        },
+
+        wishlistFullData(newData) {
+            localStorage.setItem(WISHLIST_FULL_DATA_KEY, JSON.stringify(newData));
+            eventBus.$emit('update-favorites', newData.length);
+            eventBus.$emit('update-favorites-products', newData)
+        },
     },
     methods: {
         initializePromo() {
@@ -203,9 +406,14 @@ export default {
             shuffleArray(this.shuffledPromoBlocks);
         },
 
+        getProductInWishlist(productId) {
+            return this.wishlistIds.includes(productId);
+        },
+
         openModalFromCard(product) {
             this.modalProductData = product;
             this.isDetailVisible = true;
+            this.isInWishList = this.getProductInWishlist(product.id);
             this.updateBrowserUrl(product.id);
             document.body.classList.add('no-scroll');
         },
@@ -230,17 +438,19 @@ export default {
             this.displayedCount += ITEMS_PER_PAGE;
         },
 
+        loadFromStorage(key) {
+            try {
+                const stored = localStorage.getItem(key);
+                return stored ? JSON.parse(stored) : null;
+            } catch (e) {
+                console.error(`Не удалось загрузить данные из localStorage (${key}):`, e);
+                return null;
+            }
+        },
+
         loadWishlist() {
             this.wishlistIds = this.loadFromStorage(WISHLIST_STORAGE_KEY) || [];
             this.wishlistFullData = this.loadFromStorage(WISHLIST_FULL_DATA_KEY) || [];
-        },
-
-        saveWishlist(key, data) {
-            try {
-                localStorage.setItem(key, JSON.stringify(data));
-            } catch (e) {
-                console.error(`Ошибка сохранения в localStorage (${key}):`, e);
-            }
         },
 
         handleWishlist(product) {
@@ -256,10 +466,8 @@ export default {
                 this.wishlistIds.splice(index, 1);
                 this.wishlistFullData = this.wishlistFullData.filter(p => p.id !== productId);
             }
-        },
 
-        isInWishlist(productId) {
-            return this.wishlistIds.includes(productId);
+            eventBus.$emit('update-favorites');
         },
 
         loadFiltersAndSortFromStorage() {
@@ -282,16 +490,6 @@ export default {
                 console.error("Не удалось сохранить фильтры/сортировку в localStorage:", e);
             }
         },
-
-        loadFromStorage(key) {
-            try {
-                const stored = localStorage.getItem(key);
-                return stored ? JSON.parse(stored) : null;
-            } catch (e) {
-                console.error(`Не удалось загрузить данные из localStorage (${key}):`, e);
-                return null;
-            }
-        }
     },
     mounted() {
         this.loadWishlist();
@@ -315,6 +513,7 @@ export default {
     },
     beforeUnmount() {
         eventBus.$off('tab-sort-changed', this.loadFiltersAndSortFromStorage);
+        eventBus.$off('open-product-modal', this.openModalFromCard);
     }
 }
 </script>

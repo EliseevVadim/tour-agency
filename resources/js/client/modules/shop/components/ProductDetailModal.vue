@@ -1,5 +1,7 @@
 <template>
     <div v-if="isVisible" class="modal-backdrop" @click.self="$emit('close')">
+        <notification-modal :is-visible="isNotificationVisible" @close="isNotificationVisible = false"></notification-modal>
+
         <div class="modal-content">
             <div class="product-header container">
                 <h2 @click="closeModal" class="fw-bold cursor-pointer">Назад</h2>
@@ -45,12 +47,6 @@
                                             </option>
                                         </select>
                                         <div class="select-icon position-absolute">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                 fill="#eb2d26"
-                                                 class="bi bi-chevron-down custom-chevron" viewBox="0 0 16 16">
-                                                <path fill-rule="evenodd"
-                                                      d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
-                                            </svg>
                                         </div>
                                     </div>
                                 </div>
@@ -67,7 +63,7 @@
                                                :id="'heart-prod-' + product.id"
                                                :name="'heart-prod-' + product.id"
                                                class="product-block-favorites__checkbox">
-                                        <label @click.prevent="toggleWishlist({
+                                        <label @click.prevent="$emit('toggle-wishlist', {
                                          id: product.id,
                                           name: product.name,
                                            price: product.currentPrice,
@@ -128,6 +124,8 @@
 
 <script>
 import ProductCard from "./ProductCard.vue";
+import eventBus from "../../../../event-bus";
+import NotificationModal from "../../../modules/shop/components/NotificationModal.vue";
 
 const MOCK_PRODUCTS_DB = [
     { id: 101, name: 'Синяя футболка "Путешествие"', category_slug: 'clothing', currentPrice: 1500, imageUrl: '/img/merch/test.png' },
@@ -136,14 +134,14 @@ const MOCK_PRODUCTS_DB = [
     { id: 104, name: 'Термос "Поход"', category_slug: 'travelGoods', currentPrice: 2500, imageUrl: '/img/merch/test.png' },
     { id: 105, name: 'Брелок "Трек"', category_slug: 'accessories', currentPrice: 400, imageUrl: '/img/merch/test.png' },
 ];
+const WISHLIST_STORAGE_KEY = 'merchWishlistIds';
 
 export default {
     name: "ProductDetailModal",
-    components: {ProductCard},
+    components: {NotificationModal, ProductCard},
     props: {
         isVisible: {type: Boolean, required: true},
-        product: {type: Object, default: null},
-        isInWishlist: {type: Boolean, default: false}
+        product: {type: Object, default: null}
     },
     emits: ['close', 'toggle-wishlist'],
     data() {
@@ -164,17 +162,25 @@ export default {
                     minWidth: 1024,
                     slidesPerPage: 3,
                 }],
-            // TODO: ПОДТЯНУТЬ ИЗ БД ДАННЫЕ ДЛЯ ДРУГИХ ТОВАРОВ
-            otherProducts: MOCK_PRODUCTS_DB
+            otherProducts: MOCK_PRODUCTS_DB,
+            isInWishlist: false,
+            isNotificationVisible: false,
         };
     },
     methods: {
-        toggleWishlist(product) {
-            this.$emit('toggle-wishlist', product);
-        },
-        closeModal(){
+        closeModal() {
             this.$emit('close')
+        },
+        checkInWishlist() {
+            const stored = localStorage.getItem(WISHLIST_STORAGE_KEY);
+            this.wishlistIds = stored ? JSON.parse(stored) : null;
+
+            this.isInWishlist = this.wishlistIds.includes(this.product.id);
         }
+    },
+    mounted() {
+        eventBus.$on('update-favorites', this.checkInWishlist);
+        this.checkInWishlist();
     }
 }
 </script>
@@ -183,6 +189,7 @@ export default {
 .cursor-pointer {
     cursor: pointer;
 }
+
 .gallery-container {
     display: flex;
     justify-content: center;
@@ -191,15 +198,32 @@ export default {
     background: #f5f5f5;
 }
 
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow-y: auto;
+}
+
 .modal-content {
     background: white;
-    height: 100%;
+    height: auto; /* Убрано min-height: 100vh для корректной прокрутки контента */
+    min-height: 100vh;
     overflow: auto;
 }
 
 .product-header {
     margin-top: 50px;
     margin-bottom: 65px;
+}
+
+.product-card {
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 .product-content {
@@ -286,9 +310,13 @@ export default {
     }
 }
 
-.btn-actions .btn-cta {
-    flex-grow: 1;
-    font-size: 1.5rem;
+.price-actions {
+    .btn-actions {
+        .btn-cta {
+            flex-grow: 1;
+            font-size: 1.5rem;
+        }
+    }
 }
 
 .form-group {
@@ -313,11 +341,6 @@ export default {
         appearance: none;
         cursor: pointer;
         outline: none;
-        background: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%23eb2d26%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22bi%20bi-chevron-down%20custom-chevron%22%20viewBox%3D%220%200%2016%2016%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpath%20fill-rule%3D%22evenodd%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20d%3D%22M1.646%204.646a.5.5%200%200%201%20.708%200L8%2010.293l5.646-5.647a.5.5%200%200%201%20.708.708l-6%206a.5.5%200%200%201-.708%200l-6-6a.5.5%200%200%201%200-.708%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fsvg%3E");
-        background: transparent;
-        background-repeat: no-repeat;
-        background-position-x: 96%;
-        background-position-y: 56%;
     }
 
     .select-icon {
@@ -351,6 +374,8 @@ export default {
 
 .another-products {
     padding-top: 115px;
+    max-width: 1400px;
+    margin-bottom: 50px;
 
     h2 {
         padding-bottom: 35px;

@@ -340,6 +340,30 @@ var MOCK_PRODUCTS_DB = [{
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=script&lang=js":
+/*!*******************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=script&lang=js ***!
+  \*******************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  name: 'DataProcessingModal',
+  props: {
+    isVisible: {
+      type: Boolean,
+      required: true,
+      "default": false
+    }
+  }
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/OrderSidebar.vue?vue&type=script&lang=js":
 /*!**************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/OrderSidebar.vue?vue&type=script&lang=js ***!
@@ -404,9 +428,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var _event_bus__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../event-bus */ "./resources/js/event-bus.js");
+/* harmony import */ var _ProductList_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ProductList.vue */ "./resources/js/client/modules/shop/components/ProductList.vue");
+
 
 var WISHLIST_STORAGE_KEY = 'merchWishlistIds';
-var WISHLIST_FULL_DATA_KEY = 'merchWishlistFullData';
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'ProductCard',
   props: {
@@ -418,63 +443,22 @@ var WISHLIST_FULL_DATA_KEY = 'merchWishlistFullData';
   emits: ['toggle-wishlist'],
   data: function data() {
     return {
-      wishlistIds: [],
-      wishlistFullData: []
+      isInWishlist: false
     };
   },
-  computed: {
-    isInWishlist: function isInWishlist() {
-      return this.wishlistIds.includes(this.product.id);
-    }
-  },
-  watch: {
-    wishlistIds: function wishlistIds(newIds) {
-      this.saveWishlist(WISHLIST_STORAGE_KEY, newIds);
-      _event_bus__WEBPACK_IMPORTED_MODULE_0__["default"].$emit('update-favorites-products', this.wishlistFullData);
-    },
-    wishlistFullData: function wishlistFullData(newData) {
-      this.saveWishlist(WISHLIST_FULL_DATA_KEY, newData);
-      _event_bus__WEBPACK_IMPORTED_MODULE_0__["default"].$emit('update-favorites-count', newData.length);
-    }
-  },
   methods: {
-    loadFromStorage: function loadFromStorage(key) {
-      try {
-        var stored = localStorage.getItem(key);
-        return stored ? JSON.parse(stored) : null;
-      } catch (e) {
-        console.error("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0434\u0430\u043D\u043D\u044B\u0435 \u0438\u0437 localStorage (".concat(key, "):"), e);
-        return null;
-      }
-    },
-    saveWishlist: function saveWishlist(key, data) {
-      try {
-        localStorage.setItem(key, JSON.stringify(data));
-      } catch (e) {
-        console.error("\u041E\u0448\u0438\u0431\u043A\u0430 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u044F \u0432 localStorage (".concat(key, "):"), e);
-      }
-    },
-    handleWishlist: function handleWishlist(product) {
-      var productId = product.id;
-      var index = this.wishlistIds.indexOf(productId);
-      if (index === -1) {
-        this.wishlistIds.push(productId);
-        if (!this.wishlistFullData.some(function (p) {
-          return p.id === productId;
-        })) {
-          this.wishlistFullData.push(product);
-        }
-      } else {
-        this.wishlistIds.splice(index, 1);
-        this.wishlistFullData = this.wishlistFullData.filter(function (p) {
-          return p.id !== productId;
-        });
-      }
+    checkInWishlist: function checkInWishlist() {
+      var stored = localStorage.getItem(WISHLIST_STORAGE_KEY);
+      this.wishlistIds = stored ? JSON.parse(stored) : null;
+      this.isInWishlist = this.wishlistIds.includes(this.product.id);
     }
   },
   mounted: function mounted() {
-    this.wishlistIds = this.loadFromStorage(WISHLIST_STORAGE_KEY) || [];
-    this.wishlistFullData = this.loadFromStorage(WISHLIST_FULL_DATA_KEY) || [];
+    _event_bus__WEBPACK_IMPORTED_MODULE_0__["default"].$on('update-favorites', this.checkInWishlist);
+    this.checkInWishlist();
+  },
+  beforeUnmount: function beforeUnmount() {
+    _event_bus__WEBPACK_IMPORTED_MODULE_0__["default"].$off('update-favorites');
   }
 });
 
@@ -492,6 +476,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var _ProductCard_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ProductCard.vue */ "./resources/js/client/modules/shop/components/ProductCard.vue");
+/* harmony import */ var _event_bus__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../../event-bus */ "./resources/js/event-bus.js");
+/* harmony import */ var _modules_shop_components_NotificationModal_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../modules/shop/components/NotificationModal.vue */ "./resources/js/client/modules/shop/components/NotificationModal.vue");
+
+
 
 var MOCK_PRODUCTS_DB = [{
   id: 101,
@@ -524,9 +512,11 @@ var MOCK_PRODUCTS_DB = [{
   currentPrice: 400,
   imageUrl: '/img/merch/test.png'
 }];
+var WISHLIST_STORAGE_KEY = 'merchWishlistIds';
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: "ProductDetailModal",
   components: {
+    NotificationModal: _modules_shop_components_NotificationModal_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
     ProductCard: _ProductCard_vue__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
   props: {
@@ -537,10 +527,6 @@ var MOCK_PRODUCTS_DB = [{
     product: {
       type: Object,
       "default": null
-    },
-    isInWishlist: {
-      type: Boolean,
-      "default": false
     }
   },
   emits: ['close', 'toggle-wishlist'],
@@ -560,17 +546,24 @@ var MOCK_PRODUCTS_DB = [{
         minWidth: 1024,
         slidesPerPage: 3
       }],
-      // TODO: ПОДТЯНУТЬ ИЗ БД ДАННЫЕ ДЛЯ ДРУГИХ ТОВАРОВ
-      otherProducts: MOCK_PRODUCTS_DB
+      otherProducts: MOCK_PRODUCTS_DB,
+      isInWishlist: false,
+      isNotificationVisible: false
     };
   },
   methods: {
-    toggleWishlist: function toggleWishlist(product) {
-      this.$emit('toggle-wishlist', product);
-    },
     closeModal: function closeModal() {
       this.$emit('close');
+    },
+    checkInWishlist: function checkInWishlist() {
+      var stored = localStorage.getItem(WISHLIST_STORAGE_KEY);
+      this.wishlistIds = stored ? JSON.parse(stored) : null;
+      this.isInWishlist = this.wishlistIds.includes(this.product.id);
     }
+  },
+  mounted: function mounted() {
+    _event_bus__WEBPACK_IMPORTED_MODULE_1__["default"].$on('update-favorites', this.checkInWishlist);
+    this.checkInWishlist();
   }
 });
 
@@ -706,7 +699,6 @@ function generatePromoBlocks() {
   },
   data: function data() {
     return {
-      //TODO: получить список из API
       allProducts: [{
         id: 1,
         name: 'Чемодан "В ПУТЬ" 1',
@@ -901,7 +893,8 @@ function generatePromoBlocks() {
       currentFilterTag: 'clothing',
       currentSort: 'default',
       isDetailVisible: false,
-      modalProductData: null
+      modalProductData: null,
+      isInWishList: false
     };
   },
   computed: {
@@ -961,19 +954,20 @@ function generatePromoBlocks() {
     }
   },
   watch: {
-    wishlistIds: function wishlistIds(newIds) {
-      this.saveWishlist(WISHLIST_STORAGE_KEY, newIds);
-      _event_bus__WEBPACK_IMPORTED_MODULE_3__["default"].$emit('update-favorites-products', this.wishlistFullData);
-    },
-    wishlistFullData: function wishlistFullData(newData) {
-      this.saveWishlist(WISHLIST_FULL_DATA_KEY, newData);
-      _event_bus__WEBPACK_IMPORTED_MODULE_3__["default"].$emit('update-favorites-count', newData.length);
-    },
     currentSort: function currentSort() {
       this.saveFiltersAndSort();
     },
     currentFilterTag: function currentFilterTag() {
       this.saveFiltersAndSort();
+    },
+    wishlistIds: function wishlistIds(newIds) {
+      localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(newIds));
+      _event_bus__WEBPACK_IMPORTED_MODULE_3__["default"].$emit('update-favorites', this.wishlistFullData);
+    },
+    wishlistFullData: function wishlistFullData(newData) {
+      localStorage.setItem(WISHLIST_FULL_DATA_KEY, JSON.stringify(newData));
+      _event_bus__WEBPACK_IMPORTED_MODULE_3__["default"].$emit('update-favorites', newData.length);
+      _event_bus__WEBPACK_IMPORTED_MODULE_3__["default"].$emit('update-favorites-products', newData);
     }
   },
   methods: {
@@ -981,9 +975,13 @@ function generatePromoBlocks() {
       this.shuffledPromoBlocks = _toConsumableArray(this.promoBlocks);
       shuffleArray(this.shuffledPromoBlocks);
     },
+    getProductInWishlist: function getProductInWishlist(productId) {
+      return this.wishlistIds.includes(productId);
+    },
     openModalFromCard: function openModalFromCard(product) {
       this.modalProductData = product;
       this.isDetailVisible = true;
+      this.isInWishList = this.getProductInWishlist(product.id);
       this.updateBrowserUrl(product.id);
       document.body.classList.add('no-scroll');
     },
@@ -1001,16 +999,18 @@ function generatePromoBlocks() {
     loadMore: function loadMore() {
       this.displayedCount += ITEMS_PER_PAGE;
     },
+    loadFromStorage: function loadFromStorage(key) {
+      try {
+        var stored = localStorage.getItem(key);
+        return stored ? JSON.parse(stored) : null;
+      } catch (e) {
+        console.error("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0434\u0430\u043D\u043D\u044B\u0435 \u0438\u0437 localStorage (".concat(key, "):"), e);
+        return null;
+      }
+    },
     loadWishlist: function loadWishlist() {
       this.wishlistIds = this.loadFromStorage(WISHLIST_STORAGE_KEY) || [];
       this.wishlistFullData = this.loadFromStorage(WISHLIST_FULL_DATA_KEY) || [];
-    },
-    saveWishlist: function saveWishlist(key, data) {
-      try {
-        localStorage.setItem(key, JSON.stringify(data));
-      } catch (e) {
-        console.error("\u041E\u0448\u0438\u0431\u043A\u0430 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u044F \u0432 localStorage (".concat(key, "):"), e);
-      }
     },
     handleWishlist: function handleWishlist(product) {
       var productId = product.id;
@@ -1028,9 +1028,7 @@ function generatePromoBlocks() {
           return p.id !== productId;
         });
       }
-    },
-    isInWishlist: function isInWishlist(productId) {
-      return this.wishlistIds.includes(productId);
+      _event_bus__WEBPACK_IMPORTED_MODULE_3__["default"].$emit('update-favorites');
     },
     loadFiltersAndSortFromStorage: function loadFiltersAndSortFromStorage() {
       var stored = this.loadFromStorage(FILTERS_SORT_STORAGE_KEY);
@@ -1049,15 +1047,6 @@ function generatePromoBlocks() {
         _event_bus__WEBPACK_IMPORTED_MODULE_3__["default"].$emit('tab-sort-changed');
       } catch (e) {
         console.error("Не удалось сохранить фильтры/сортировку в localStorage:", e);
-      }
-    },
-    loadFromStorage: function loadFromStorage(key) {
-      try {
-        var stored = localStorage.getItem(key);
-        return stored ? JSON.parse(stored) : null;
-      } catch (e) {
-        console.error("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0434\u0430\u043D\u043D\u044B\u0435 \u0438\u0437 localStorage (".concat(key, "):"), e);
-        return null;
       }
     }
   },
@@ -1082,6 +1071,7 @@ function generatePromoBlocks() {
   },
   beforeUnmount: function beforeUnmount() {
     _event_bus__WEBPACK_IMPORTED_MODULE_3__["default"].$off('tab-sort-changed', this.loadFiltersAndSortFromStorage);
+    _event_bus__WEBPACK_IMPORTED_MODULE_3__["default"].$off('open-product-modal', this.openModalFromCard);
   }
 });
 
@@ -1477,6 +1467,84 @@ render._withStripped = true;
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=template&id=5f071dd4&scoped=true":
+/*!******************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=template&id=5f071dd4&scoped=true ***!
+  \******************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   render: () => (/* binding */ render),
+/* harmony export */   staticRenderFns: () => (/* binding */ staticRenderFns)
+/* harmony export */ });
+var render = function render() {
+  var _vm = this,
+    _c = _vm._self._c;
+  return _vm.isVisible ? _c("div", {
+    staticClass: "modal-overlay",
+    on: {
+      click: function click($event) {
+        return _vm.$emit("close");
+      }
+    }
+  }, [_c("div", {
+    staticClass: "notification-card"
+  }, [_c("div", {
+    staticClass: "notification-header d-flex justify-content-end"
+  }, [_c("button", {
+    staticClass: "close-button",
+    on: {
+      click: function click($event) {
+        return _vm.$emit("close");
+      }
+    }
+  }, [_vm._v("\n                ×\n            ")])]), _vm._v(" "), _c("div", {
+    staticClass: "notification-body w-100"
+  }, [_c("h3", {
+    staticClass: "fw-bold mb-2"
+  }, [_vm._v("Сообщить о поступлении товара")]), _vm._v(" "), _c("p", {
+    staticClass: "body-text support-text text-black text-center"
+  }, [_vm._v("\n                Выберите удобный способ для оповещения о повторном наличии данного товара\n            ")]), _vm._v(" "), _vm._m(0), _vm._v(" "), _c("div", {
+    staticClass: "notification-button-wrapper text-center"
+  }, [_c("button", {
+    staticClass: "btn btn-cta notification-btn-close",
+    on: {
+      click: function click($event) {
+        return _vm.$emit("close");
+      }
+    }
+  }, [_vm._v("Получить уведомление")])])])])]) : _vm._e();
+};
+var staticRenderFns = [function () {
+  var _vm = this,
+    _c = _vm._self._c;
+  return _c("div", {
+    staticClass: "notification-inputs d-flex flex-column align-items-center"
+  }, [_c("div", {
+    staticClass: "notification-inside-input"
+  }, [_c("input", {
+    staticClass: "notification-input",
+    attrs: {
+      type: "text",
+      placeholder: "Ваш номер телефона"
+    }
+  })]), _vm._v(" "), _c("div", {
+    staticClass: "notification-inside-input"
+  }, [_c("input", {
+    staticClass: "notification-input",
+    attrs: {
+      type: "text",
+      placeholder: "Ваш email"
+    }
+  })])]);
+}];
+render._withStripped = true;
+
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/OrderSidebar.vue?vue&type=template&id=78817068&scoped=true":
 /*!*************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/OrderSidebar.vue?vue&type=template&id=78817068&scoped=true ***!
@@ -1658,7 +1726,8 @@ var render = function render() {
     on: {
       click: function click($event) {
         $event.preventDefault();
-        return _vm.handleWishlist({
+        $event.stopPropagation();
+        return _vm.$emit("toggle-wishlist", {
           id: _vm.product.id,
           name: _vm.product.name,
           price: _vm.product.currentPrice,
@@ -1749,7 +1818,16 @@ var render = function render() {
         return _vm.$emit("close");
       }
     }
-  }, [_c("div", {
+  }, [_c("notification-modal", {
+    attrs: {
+      "is-visible": _vm.isNotificationVisible
+    },
+    on: {
+      close: function close($event) {
+        _vm.isNotificationVisible = false;
+      }
+    }
+  }), _vm._v(" "), _c("div", {
     staticClass: "modal-content"
   }, [_c("div", {
     staticClass: "product-header container"
@@ -1860,7 +1938,7 @@ var render = function render() {
     on: {
       click: function click($event) {
         $event.preventDefault();
-        return _vm.toggleWishlist({
+        return _vm.$emit("toggle-wishlist", {
           id: _vm.product.id,
           name: _vm.product.name,
           price: _vm.product.currentPrice,
@@ -1958,7 +2036,7 @@ var render = function render() {
         }
       }
     });
-  })], 2)], 1)])])]) : _vm._e();
+  })], 2)], 1)])])], 1) : _vm._e();
 };
 var staticRenderFns = [function () {
   var _vm = this,
@@ -1996,11 +2074,11 @@ var render = function render() {
   }, [_vm.modalProductData ? _c("ProductDetailModal", {
     attrs: {
       "is-visible": _vm.isDetailVisible,
-      product: _vm.modalProductData,
-      "is-in-wishlist": _vm.isInWishlist(_vm.modalProductData.id)
+      product: _vm.modalProductData
     },
     on: {
-      close: _vm.closeModal
+      close: _vm.closeModal,
+      "toggle-wishlist": _vm.handleWishlist
     }
   }) : _vm._e(), _vm._v(" "), _vm._l(_vm.displayedGroups, function (group, groupIndex) {
     return _c("div", {
@@ -2014,6 +2092,7 @@ var render = function render() {
           product: product
         },
         on: {
+          "toggle-wishlist": _vm.handleWishlist,
           click: function click($event) {
             return _vm.openModalFromCard(product);
           }
@@ -2108,6 +2187,30 @@ ___CSS_LOADER_EXPORT___.push([module.id, "body.no-scroll {\n  overflow: hidden !
 
 /***/ }),
 
+/***/ "./node_modules/laravel-mix/node_modules/css-loader/dist/cjs.js??clonedRuleSet-12.use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12.use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12.use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=style&index=0&id=5f071dd4&scoped=true&lang=scss":
+/*!***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/laravel-mix/node_modules/css-loader/dist/cjs.js??clonedRuleSet-12.use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12.use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12.use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=style&index=0&id=5f071dd4&scoped=true&lang=scss ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_laravel_mix_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../../../node_modules/laravel-mix/node_modules/css-loader/dist/runtime/api.js */ "./node_modules/laravel-mix/node_modules/css-loader/dist/runtime/api.js");
+/* harmony import */ var _node_modules_laravel_mix_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_laravel_mix_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0__);
+// Imports
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_laravel_mix_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, ".modal-overlay[data-v-5f071dd4] {\n  background-color: rgba(0, 0, 0, 0.5);\n}\n.notification-card[data-v-5f071dd4] {\n  background-color: white;\n  border-radius: 40px;\n  max-width: 500px;\n  padding: 20px;\n  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);\n}\n.notification-card .body-text[data-v-5f071dd4] {\n  line-height: 1.2;\n  font-size: 1.3rem;\n  font-weight: 500;\n  margin-bottom: 85px;\n}\n.notification-card .notification-body[data-v-5f071dd4] {\n  text-align: start;\n}\n.notification-card .notification-inputs[data-v-5f071dd4] {\n  margin-bottom: 70px;\n  gap: 25px;\n}\n.notification-card .notification-inside-input[data-v-5f071dd4] {\n  display: flex;\n  align-items: center;\n  gap: 4px;\n  width: 100%;\n  padding-bottom: 10px;\n  border-bottom: 2px solid #222;\n  max-width: 300px;\n}\n.notification-card .notification-input[data-v-5f071dd4] {\n  width: 100%;\n  height: 100%;\n  font-size: 1.15rem;\n  font-weight: 100;\n  line-height: 16px;\n  letter-spacing: -0.04em;\n  color: #222;\n  border: none;\n  outline: none;\n}\n.notification-card .notification-input[data-v-5f071dd4]::-moz-placeholder {\n  text-align: center;\n  font-weight: 500;\n}\n.notification-card .notification-input[data-v-5f071dd4]::placeholder {\n  text-align: center;\n  font-weight: 500;\n}\n.notification-card .notification-btn-close[data-v-5f071dd4] {\n  width: 300px;\n  margin-bottom: 30px;\n}\n.modal-overlay[data-v-5f071dd4] {\n  position: fixed;\n  z-index: 9;\n  width: 100%;\n  height: 100%;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}", ""]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
 /***/ "./node_modules/laravel-mix/node_modules/css-loader/dist/cjs.js??clonedRuleSet-12.use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12.use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12.use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/ProductCard.vue?vue&type=style&index=0&id=125c2a1e&scoped=true&lang=scss":
 /*!*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/laravel-mix/node_modules/css-loader/dist/cjs.js??clonedRuleSet-12.use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12.use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12.use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/ProductCard.vue?vue&type=style&index=0&id=125c2a1e&scoped=true&lang=scss ***!
@@ -2149,7 +2252,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_laravel_mix_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, ".cursor-pointer[data-v-30c0c80b] {\n  cursor: pointer;\n}\n.gallery-container[data-v-30c0c80b] {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  min-height: 100vh;\n  background: #f5f5f5;\n}\n.modal-content[data-v-30c0c80b] {\n  background: white;\n  height: 100%;\n  overflow: auto;\n}\n.product-header[data-v-30c0c80b] {\n  margin-top: 50px;\n  margin-bottom: 65px;\n}\n.product-content[data-v-30c0c80b] {\n  display: flex;\n  gap: 20px;\n  border-radius: 12px;\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);\n  background-color: #ffffff;\n  padding: 30px 30px 45px 15px;\n}\n.gallery[data-v-30c0c80b] {\n  display: flex;\n  gap: 20px;\n  flex-basis: 60%;\n  max-height: 530px;\n}\n.image-list[data-v-30c0c80b] {\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  width: 165px;\n}\n.image-wrapper[data-v-30c0c80b] {\n  height: 125px;\n  -o-object-fit: cover;\n     object-fit: cover;\n  position: relative;\n}\n.image-wrapper img[data-v-30c0c80b] {\n  width: 100%;\n  height: 100%;\n  -o-object-fit: cover;\n     object-fit: cover;\n}\n.image-wrapper[data-v-30c0c80b]::after {\n  content: \"\";\n  height: 4px;\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  background-color: #eb2d26;\n}\n.main-image[data-v-30c0c80b] {\n  flex: 1;\n  overflow: hidden;\n  width: 100%;\n}\n.main-image img[data-v-30c0c80b] {\n  width: 100%;\n  height: 100%;\n  display: block;\n  -o-object-fit: cover;\n     object-fit: cover;\n}\n.main-image .img-wrapper[data-v-30c0c80b]::after {\n  content: \"\";\n  height: 4px;\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  background-color: #eb2d26;\n}\n.product-details[data-v-30c0c80b] {\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  flex-basis: 40%;\n  padding-left: 10px;\n}\n.product-details .description[data-v-30c0c80b] {\n  font-size: 1.4rem;\n  line-height: 1;\n  margin-bottom: 20px;\n  margin-top: 20px;\n  font-weight: 500;\n}\n.btn-actions .btn-cta[data-v-30c0c80b] {\n  flex-grow: 1;\n  font-size: 1.5rem;\n}\n.form-group[data-v-30c0c80b] {\n  margin-bottom: 15px;\n}\n.form-group label[data-v-30c0c80b] {\n  font-size: 1.4rem;\n  font-weight: 500;\n  margin-bottom: 5px;\n}\n.select-wrapper .custom-select[data-v-30c0c80b] {\n  width: 263px;\n  max-width: 263px;\n  padding: 15px 25px 10px 20px;\n  font-size: 1.4rem;\n  font-weight: 600;\n  border: 3px solid #ff4040;\n  border-radius: 10px;\n  -webkit-appearance: none;\n     -moz-appearance: none;\n          appearance: none;\n  cursor: pointer;\n  outline: none;\n  background: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%23eb2d26%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20class%3D%22bi%20bi-chevron-down%20custom-chevron%22%20viewBox%3D%220%200%2016%2016%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpath%20fill-rule%3D%22evenodd%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20d%3D%22M1.646%204.646a.5.5%200%200%201%20.708%200L8%2010.293l5.646-5.647a.5.5%200%200%201%20.708.708l-6%206a.5.5%200%200%201-.708%200l-6-6a.5.5%200%200%201%200-.708%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fsvg%3E\");\n  background: transparent;\n  background-repeat: no-repeat;\n  background-position-x: 96%;\n  background-position-y: 56%;\n}\n.select-wrapper .select-icon[data-v-30c0c80b] {\n  right: 10px;\n  top: 15%;\n  transform: translateY(50%);\n}\n.wishlist-btn[data-v-30c0c80b] {\n  background: none;\n  border: none;\n  cursor: pointer;\n  padding: 5px;\n  border-radius: 50%;\n  transition: background-color 0.2s;\n}\n.wishlist-btn .heart-icon[data-v-30c0c80b] {\n  stroke: #000000;\n}\n.size-chart-link a[data-v-30c0c80b] {\n  font-size: 1.4rem;\n  font-weight: 500;\n  color: black;\n  text-underline-offset: 4px;\n}\n.another-products[data-v-30c0c80b] {\n  padding-top: 115px;\n}\n.another-products h2[data-v-30c0c80b] {\n  padding-bottom: 35px;\n}", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "@charset \"UTF-8\";\n.cursor-pointer[data-v-30c0c80b] {\n  cursor: pointer;\n}\n.gallery-container[data-v-30c0c80b] {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  min-height: 100vh;\n  background: #f5f5f5;\n}\n.modal-backdrop[data-v-30c0c80b] {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background-color: rgba(0, 0, 0, 0.5);\n  z-index: 1000;\n  overflow-y: auto;\n}\n.modal-content[data-v-30c0c80b] {\n  background: white;\n  height: auto; /* Убрано min-height: 100vh для корректной прокрутки контента */\n  min-height: 100vh;\n  overflow: auto;\n}\n.product-header[data-v-30c0c80b] {\n  margin-top: 50px;\n  margin-bottom: 65px;\n}\n.product-card[data-v-30c0c80b] {\n  max-width: 1400px;\n  margin: 0 auto;\n}\n.product-content[data-v-30c0c80b] {\n  display: flex;\n  gap: 20px;\n  border-radius: 12px;\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);\n  background-color: #ffffff;\n  padding: 30px 30px 45px 15px;\n}\n.gallery[data-v-30c0c80b] {\n  display: flex;\n  gap: 20px;\n  flex-basis: 60%;\n  max-height: 530px;\n}\n.image-list[data-v-30c0c80b] {\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  width: 165px;\n}\n.image-wrapper[data-v-30c0c80b] {\n  height: 125px;\n  -o-object-fit: cover;\n     object-fit: cover;\n  position: relative;\n}\n.image-wrapper img[data-v-30c0c80b] {\n  width: 100%;\n  height: 100%;\n  -o-object-fit: cover;\n     object-fit: cover;\n}\n.image-wrapper[data-v-30c0c80b]::after {\n  content: \"\";\n  height: 4px;\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  background-color: #eb2d26;\n}\n.main-image[data-v-30c0c80b] {\n  flex: 1;\n  overflow: hidden;\n  width: 100%;\n}\n.main-image img[data-v-30c0c80b] {\n  width: 100%;\n  height: 100%;\n  display: block;\n  -o-object-fit: cover;\n     object-fit: cover;\n}\n.main-image .img-wrapper[data-v-30c0c80b]::after {\n  content: \"\";\n  height: 4px;\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  background-color: #eb2d26;\n}\n.product-details[data-v-30c0c80b] {\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  flex-basis: 40%;\n  padding-left: 10px;\n}\n.product-details .description[data-v-30c0c80b] {\n  font-size: 1.4rem;\n  line-height: 1;\n  margin-bottom: 20px;\n  margin-top: 20px;\n  font-weight: 500;\n}\n.price-actions .btn-actions .btn-cta[data-v-30c0c80b] {\n  flex-grow: 1;\n  font-size: 1.5rem;\n}\n.form-group[data-v-30c0c80b] {\n  margin-bottom: 15px;\n}\n.form-group label[data-v-30c0c80b] {\n  font-size: 1.4rem;\n  font-weight: 500;\n  margin-bottom: 5px;\n}\n.select-wrapper .custom-select[data-v-30c0c80b] {\n  width: 263px;\n  max-width: 263px;\n  padding: 15px 25px 10px 20px;\n  font-size: 1.4rem;\n  font-weight: 600;\n  border: 3px solid #ff4040;\n  border-radius: 10px;\n  -webkit-appearance: none;\n     -moz-appearance: none;\n          appearance: none;\n  cursor: pointer;\n  outline: none;\n  background: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%23eb2d26%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpath%20fill-rule%3D%22evenodd%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20d%3D%22M1.646%204.646a.5.5%200%200%201%20.708%200L8%2010.293l5.646-5.647a.5.5%200%200%201%20.708.708l-6%206a.5.5%200%200%201-.708%200l-6-6a.5.5%200%200%201%200-.708%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Fsvg%3E\");\n  background-repeat: no-repeat;\n  background-position-x: 96%;\n  background-position-y: 56%;\n}\n.select-wrapper .select-icon[data-v-30c0c80b] {\n  right: 10px;\n  top: 15%;\n  transform: translateY(50%);\n}\n.wishlist-btn[data-v-30c0c80b] {\n  background: none;\n  border: none;\n  cursor: pointer;\n  padding: 5px;\n  border-radius: 50%;\n  transition: background-color 0.2s;\n}\n.wishlist-btn .heart-icon[data-v-30c0c80b] {\n  stroke: #000000;\n}\n.size-chart-link a[data-v-30c0c80b] {\n  font-size: 1.4rem;\n  font-weight: 500;\n  color: black;\n  text-underline-offset: 4px;\n}\n.another-products[data-v-30c0c80b] {\n  padding-top: 115px;\n  max-width: 1400px;\n  margin-bottom: 50px;\n}\n.another-products h2[data-v-30c0c80b] {\n  padding-bottom: 35px;\n}", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -2231,6 +2334,36 @@ var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_laravel_mix_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_NavigationTabs_vue_vue_type_style_index_0_id_d52ac860_lang_scss__WEBPACK_IMPORTED_MODULE_1__["default"].locals || {});
+
+/***/ }),
+
+/***/ "./node_modules/style-loader/dist/cjs.js!./node_modules/laravel-mix/node_modules/css-loader/dist/cjs.js??clonedRuleSet-12.use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12.use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12.use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=style&index=0&id=5f071dd4&scoped=true&lang=scss":
+/*!***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader/dist/cjs.js!./node_modules/laravel-mix/node_modules/css-loader/dist/cjs.js??clonedRuleSet-12.use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12.use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12.use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=style&index=0&id=5f071dd4&scoped=true&lang=scss ***!
+  \***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../../../../../../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_laravel_mix_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_NotificationModal_vue_vue_type_style_index_0_id_5f071dd4_scoped_true_lang_scss__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !!../../../../../../node_modules/laravel-mix/node_modules/css-loader/dist/cjs.js??clonedRuleSet-12.use[1]!../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12.use[2]!../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12.use[3]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./NotificationModal.vue?vue&type=style&index=0&id=5f071dd4&scoped=true&lang=scss */ "./node_modules/laravel-mix/node_modules/css-loader/dist/cjs.js??clonedRuleSet-12.use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12.use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12.use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=style&index=0&id=5f071dd4&scoped=true&lang=scss");
+
+            
+
+var options = {};
+
+options.insert = "head";
+options.singleton = false;
+
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_laravel_mix_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_NotificationModal_vue_vue_type_style_index_0_id_5f071dd4_scoped_true_lang_scss__WEBPACK_IMPORTED_MODULE_1__["default"], options);
+
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_laravel_mix_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_NotificationModal_vue_vue_type_style_index_0_id_5f071dd4_scoped_true_lang_scss__WEBPACK_IMPORTED_MODULE_1__["default"].locals || {});
 
 /***/ }),
 
@@ -2673,6 +2806,94 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   staticRenderFns: () => (/* reexport safe */ _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_lib_index_js_vue_loader_options_NavigationTabs_vue_vue_type_template_id_d52ac860__WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
 /* harmony export */ });
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_lib_index_js_vue_loader_options_NavigationTabs_vue_vue_type_template_id_d52ac860__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[2]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./NavigationTabs.vue?vue&type=template&id=d52ac860 */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/NavigationTabs.vue?vue&type=template&id=d52ac860");
+
+
+/***/ }),
+
+/***/ "./resources/js/client/modules/shop/components/NotificationModal.vue":
+/*!***************************************************************************!*\
+  !*** ./resources/js/client/modules/shop/components/NotificationModal.vue ***!
+  \***************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _NotificationModal_vue_vue_type_template_id_5f071dd4_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./NotificationModal.vue?vue&type=template&id=5f071dd4&scoped=true */ "./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=template&id=5f071dd4&scoped=true");
+/* harmony import */ var _NotificationModal_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./NotificationModal.vue?vue&type=script&lang=js */ "./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=script&lang=js");
+/* harmony import */ var _NotificationModal_vue_vue_type_style_index_0_id_5f071dd4_scoped_true_lang_scss__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./NotificationModal.vue?vue&type=style&index=0&id=5f071dd4&scoped=true&lang=scss */ "./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=style&index=0&id=5f071dd4&scoped=true&lang=scss");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+;
+
+
+/* normalize component */
+
+var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
+  _NotificationModal_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"],
+  _NotificationModal_vue_vue_type_template_id_5f071dd4_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render,
+  _NotificationModal_vue_vue_type_template_id_5f071dd4_scoped_true__WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
+  false,
+  null,
+  "5f071dd4",
+  null
+  
+)
+
+/* hot reload */
+if (false) // removed by dead control flow
+{ var api; }
+component.options.__file = "resources/js/client/modules/shop/components/NotificationModal.vue"
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=script&lang=js":
+/*!***************************************************************************************************!*\
+  !*** ./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=script&lang=js ***!
+  \***************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_NotificationModal_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./NotificationModal.vue?vue&type=script&lang=js */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=script&lang=js");
+ /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_NotificationModal_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=style&index=0&id=5f071dd4&scoped=true&lang=scss":
+/*!************************************************************************************************************************************!*\
+  !*** ./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=style&index=0&id=5f071dd4&scoped=true&lang=scss ***!
+  \************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_dist_cjs_js_node_modules_laravel_mix_node_modules_css_loader_dist_cjs_js_clonedRuleSet_12_use_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_dist_cjs_js_clonedRuleSet_12_use_2_node_modules_sass_loader_dist_cjs_js_clonedRuleSet_12_use_3_node_modules_vue_loader_lib_index_js_vue_loader_options_NotificationModal_vue_vue_type_style_index_0_id_5f071dd4_scoped_true_lang_scss__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/style-loader/dist/cjs.js!../../../../../../node_modules/laravel-mix/node_modules/css-loader/dist/cjs.js??clonedRuleSet-12.use[1]!../../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12.use[2]!../../../../../../node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12.use[3]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./NotificationModal.vue?vue&type=style&index=0&id=5f071dd4&scoped=true&lang=scss */ "./node_modules/style-loader/dist/cjs.js!./node_modules/laravel-mix/node_modules/css-loader/dist/cjs.js??clonedRuleSet-12.use[1]!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-12.use[2]!./node_modules/sass-loader/dist/cjs.js??clonedRuleSet-12.use[3]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=style&index=0&id=5f071dd4&scoped=true&lang=scss");
+
+
+/***/ }),
+
+/***/ "./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=template&id=5f071dd4&scoped=true":
+/*!*********************************************************************************************************************!*\
+  !*** ./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=template&id=5f071dd4&scoped=true ***!
+  \*********************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   render: () => (/* reexport safe */ _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_lib_index_js_vue_loader_options_NotificationModal_vue_vue_type_template_id_5f071dd4_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render),
+/* harmony export */   staticRenderFns: () => (/* reexport safe */ _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_lib_index_js_vue_loader_options_NotificationModal_vue_vue_type_template_id_5f071dd4_scoped_true__WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
+/* harmony export */ });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_lib_index_js_vue_loader_options_NotificationModal_vue_vue_type_template_id_5f071dd4_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[2]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./NotificationModal.vue?vue&type=template&id=5f071dd4&scoped=true */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/NotificationModal.vue?vue&type=template&id=5f071dd4&scoped=true");
 
 
 /***/ }),
