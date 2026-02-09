@@ -18,6 +18,23 @@ class PaymentService
         return $client;
     }
 
+    function formatToE164(string $phoneNumber): string
+    {
+        $digits = preg_replace('/[^0-9]+/', '', $phoneNumber);
+        $e164Number = $digits;
+        if (strpos($digits, '8') === 0) {
+            $e164Number = '7' . substr($digits, 1);
+        }
+        elseif (strpos($digits, '7') === 0) {
+            $e164Number = $digits;
+        }
+        elseif (strlen($digits) === 10) {
+            $e164Number = '7' . $digits;
+        }
+
+        return $e164Number;
+    }
+
     /**
      * @param float $amount
      * @param string $description
@@ -37,7 +54,7 @@ class PaymentService
         $idempotenceKey = uniqid('', true);
         $client = $this->getClient();
 
-        $payment = $client->createPayment([
+        $dataPayment = [
             'amount' => [
                 'value'    => $amount,
                 'currency' => 'RUB',
@@ -64,7 +81,8 @@ class PaymentService
                 ],
                 'tax_system_code' => 2,
                 'customer' => [
-                    'email' => $options['email']
+                    'email' => $options['email'],
+                    'phone' => $this->formatToE164($options['phone_number']),
                 ]
             ],
 
@@ -80,7 +98,18 @@ class PaymentService
                 'discount_value' => $options['discount_value'],
             ],
             'description' => $description,
-        ], $idempotenceKey);
+        ];
+
+        $formattedData = json_encode($dataPayment, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+        Log::info('Платежные данные перед отправкой:', [
+            'payment_data' => $formattedData,
+            'idempotence_key' => $idempotenceKey,
+        ]);
+
+        Log::info('start create payment');
+        $payment = $client->createPayment($dataPayment, $idempotenceKey);
+        Log::info('end create payment');
 
         return [
             'url' => $payment->getConfirmation()->getConfirmationUrl(),
