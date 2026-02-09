@@ -15,7 +15,7 @@
                     Корзина пуста. Добавьте в корзину хотя бы один товар
                 </div>
 
-                <div v-for="item in items" :key="item.id" class="sidebar-item">
+                <div v-for="item in items" :key="item.id" class="sidebar-item align-items-start">
                     <div class="sidebar-item-content">
                         <div class="image-wrapper">
                             <button class="close-button position-absolute color-white mt-2"

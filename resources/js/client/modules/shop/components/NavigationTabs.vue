@@ -42,7 +42,7 @@
             </div>
         </div>
 
-        <div class="navigation-tabs d-flex align-items-center gap-2 justify-content-between flex-wrap">
+        <div class="align-items-center d-flex flex-wrap gap-2 justify-content-end justify-content-sm-between navigation-tabs">
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 <h2 class="fw-bolder pe-3">Наш мерч:</h2>
                 <button :disabled="activeTab === tab.id"
@@ -340,7 +340,7 @@ body.no-scroll {
 }
 
 .header-controls-container {
-    @keyframes fadeIn {
+    @keyframes fadeTop {
         0% {
             opacity: 0;
             transform: translateY(-100px);
@@ -350,6 +350,17 @@ body.no-scroll {
             opacity: 1;
             transform: translateY(0);
             background: white;
+        }
+    }
+
+    @keyframes fadeBottom {
+        0% {
+            opacity: 0;
+            transform: translateY(100px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
         }
     }
 
@@ -364,17 +375,24 @@ body.no-scroll {
 
         &.active {
             .sidebar-header {
-                -webkit-animation-duration: 0.3s;
-                animation-duration: 0.3s;
-                -webkit-animation-duration: var(--animate-duration);
-                animation-duration: var(--animate-duration);
+                -webkit-animation-duration: var(--animate-duration, 0.3s);
+                animation-duration: var(--animate-duration, 0.3s);
                 -webkit-animation-fill-mode: both;
                 animation-fill-mode: both;
-                animation-name: fadeIn;
+                animation-name: fadeTop;
             }
 
             .sidebar-body {
                 background: white;
+                -webkit-animation-duration: var(--animate-duration, 0.3s);
+                animation-duration: var(--animate-duration, 0.3s);
+                -webkit-animation-fill-mode: both;
+                animation-fill-mode: both;
+                animation-name: fadeBottom;
+
+                .search-modal-wrap-result {
+                    padding-top: 15px;
+                }
             }
         }
 
@@ -385,14 +403,32 @@ body.no-scroll {
 
         .search-modal-result-items {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-            gap: 50px;
             justify-content: center;
             padding-top: 30px;
         }
+
+        @media (max-width: 767.98px) {
+            .search-modal-result-items {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .search-modal-result-items .product-card {
+                height: 330px;
+                border-radius: 15px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .search-modal-result-items {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 30px;
+            }
+        }
     }
 
-    .search-modal-inside, .search-modal-wrap-search {
+    .search-modal-inside,
+    .search-modal-wrap-search {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -435,6 +471,16 @@ body.no-scroll {
 
     .search-modal-inside-find {
         cursor: pointer;
+    }
+
+    @media (max-width: 997.98px) {
+        .controls-bar {
+            padding-top: 15px;
+        }
+
+        .sort-control button {
+            font-size: 16px !important;
+        }
     }
 }
 </style>

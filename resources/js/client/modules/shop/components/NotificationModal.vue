@@ -20,7 +20,8 @@
                     </div>
                 </div>
                 <div class="notification-button-wrapper text-center">
-                    <button @click="$emit('close')" class="btn btn-cta notification-btn-close">Получить уведомление</button>
+                    <!-- TODO: создать метод для получения уведомления о наличии товара !-->
+                    <button class="btn btn-cta notification-btn-close">Получить уведомление</button>
                 </div>
             </div>
         </div>
@@ -56,7 +57,7 @@ export default {
         line-height: 1.2;
         font-size: 1.3rem;
         font-weight: 500;
-        margin-bottom: 85px;
+        margin-bottom: 55px;
     }
 
     .notification-body {
@@ -98,6 +99,10 @@ export default {
     .notification-btn-close {
         width: 300px;
         margin-bottom: 30px;
+    }
+
+    @media (max-width: 767.98px) {
+        width: 90%;
     }
 }
 

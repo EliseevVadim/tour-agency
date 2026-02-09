@@ -1,5 +1,7 @@
 <template>
     <div class="product-list-container">
+        <OrderModal v-if="false"></OrderModal>
+
         <ProductDetailModal v-if="modalProductData"
                             :is-visible="isDetailVisible"
                             :product="modalProductData"
@@ -35,6 +37,7 @@ import ProductCard from "./ProductCard.vue";
 import PromoBlock from "./PromoBlock.vue";
 import ProductDetailModal from "./ProductDetailModal.vue";
 import eventBus from "../../../../event-bus";
+import OrderModal from "./OrderForm.vue";
 
 const WISHLIST_STORAGE_KEY = 'merchWishlistIds';
 const WISHLIST_FULL_DATA_KEY = 'merchWishlistFullData';
@@ -141,6 +144,7 @@ function generatePromoBlocks() {
 export default {
     name: 'ProductList',
     components: {
+        OrderModal,
         ProductDetailModal,
         PromoBlock,
         ProductCard
@@ -521,8 +525,6 @@ export default {
 <style scoped>
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(304px, 1fr));
-    gap: 50px;
     justify-content: center;
 }
 
@@ -543,5 +545,24 @@ export default {
 
 .load-more-button:hover {
     background-color: #fff0f0;
+}
+
+@media (max-width: 767.98px) {
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+
+        .product-card {
+            height: 330px;
+            border-radius: 15px;
+        }
+    }
+}
+
+@media (min-width: 768px) {
+    .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+    }
 }
 </style>

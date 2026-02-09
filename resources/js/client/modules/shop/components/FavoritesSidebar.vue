@@ -1,5 +1,5 @@
 <template>
-    <div class="sidebar-overlay" :class="{ active: isActive }">
+    <div class="sidebar-favorites sidebar-overlay" :class="{ active: isActive }">
         <div v-if="isActive" class="overlay-backdrop" @click="$emit('close')"></div>
         <div class="sidebar-content" :class="{ active: isActive }">
 
@@ -15,7 +15,7 @@
                     Список избранного пуст.
                 </div>
 
-                <div v-for="item in items" :key="item.id" class="sidebar-item">
+                <div v-for="item in items" :key="item.id" class="sidebar-item align-items-start">
                     <div class="sidebar-item-content">
                         <div class="image-wrapper">
                             <button class="close-button position-absolute color-white mt-2"
@@ -36,6 +36,10 @@
                                     </p>
                                 </div>
                             </div>
+
+                            <p class="product-price fw-bold fs-3">
+                                {{item.price}} р.
+                            </p>
                         </div>
                     </div>
                 </div>

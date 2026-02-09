@@ -85,9 +85,10 @@ export default {
     }
 
     .promo-image {
-        position: static;
+        position: absolute;
         max-width: 180px;
-        width: 50%;
+        top: 58%;
+        width: 20%;
         margin: 0 auto;
     }
 }

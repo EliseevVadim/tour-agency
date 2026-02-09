@@ -1,6 +1,7 @@
 <template>
     <div v-if="isVisible" class="modal-backdrop" @click.self="$emit('close')">
-        <notification-modal :is-visible="isNotificationVisible" @close="isNotificationVisible = false"></notification-modal>
+        <notification-modal :is-visible="isNotificationVisible"
+                            @close="isNotificationVisible = false"></notification-modal>
 
         <div class="modal-content">
             <div class="product-header container">
@@ -55,8 +56,10 @@
                             <div class="price-actions">
                                 <h2 class="mb-2">3650 руб.</h2>
                                 <div class="btn-actions d-flex gap-4 align-items-center">
-                                    <button class="btn btn-cta">
-                                        в корзину
+                                    <!-- TODO: создать метод добавления товара в корзину !-->
+                                    <button @click="isInStock ? true : isNotificationVisible = true" class="btn btn-cta"
+                                            :class="{'out-of-stock': !isInStock}">
+                                        {{ isInStock ? 'в корзину' : 'сообщить о наличии' }}
                                     </button>
                                     <div class="product-block-favorites-wrapp wishlist-icon">
                                         <input type="checkbox" :checked="isInWishlist"
@@ -105,7 +108,7 @@
                         <template #next-arrow='{ disabled }'>
                             <div class="next-button-container">
                                 <span class="carousel-right-icon reviews-carousel-right-icon"
-                                      :class="{'disabled w-100': disabled}">
+                                      :class="{'disabled': disabled}">
                                 </span>
                             </div>
                         </template>
@@ -128,11 +131,35 @@ import eventBus from "../../../../event-bus";
 import NotificationModal from "../../../modules/shop/components/NotificationModal.vue";
 
 const MOCK_PRODUCTS_DB = [
-    { id: 101, name: 'Синяя футболка "Путешествие"', category_slug: 'clothing', currentPrice: 1500, imageUrl: '/img/merch/test.png' },
-    { id: 102, name: 'Красный рюкзак', category_slug: 'accessories', currentPrice: 3500, imageUrl: '/img/merch/test.png' },
-    { id: 103, name: 'Треккинговые ботинки', category_slug: 'clothing', currentPrice: 12000, imageUrl: '/img/merch/test.png' },
-    { id: 104, name: 'Термос "Поход"', category_slug: 'travelGoods', currentPrice: 2500, imageUrl: '/img/merch/test.png' },
-    { id: 105, name: 'Брелок "Трек"', category_slug: 'accessories', currentPrice: 400, imageUrl: '/img/merch/test.png' },
+    {
+        id: 101,
+        name: 'Синяя футболка "Путешествие"',
+        category_slug: 'clothing',
+        currentPrice: 1500,
+        imageUrl: '/img/merch/test.png'
+    },
+    {
+        id: 102,
+        name: 'Красный рюкзак',
+        category_slug: 'accessories',
+        currentPrice: 3500,
+        imageUrl: '/img/merch/test.png'
+    },
+    {
+        id: 103,
+        name: 'Треккинговые ботинки',
+        category_slug: 'clothing',
+        currentPrice: 12000,
+        imageUrl: '/img/merch/test.png'
+    },
+    {
+        id: 104,
+        name: 'Термос "Поход"',
+        category_slug: 'travelGoods',
+        currentPrice: 2500,
+        imageUrl: '/img/merch/test.png'
+    },
+    {id: 105, name: 'Брелок "Трек"', category_slug: 'accessories', currentPrice: 400, imageUrl: '/img/merch/test.png'},
 ];
 const WISHLIST_STORAGE_KEY = 'merchWishlistIds';
 
@@ -167,6 +194,11 @@ export default {
             isNotificationVisible: false,
         };
     },
+    computed: {
+        isInStock() {
+            return false;
+        }
+    },
     methods: {
         closeModal() {
             this.$emit('close')
@@ -190,14 +222,6 @@ export default {
     cursor: pointer;
 }
 
-.gallery-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background: #f5f5f5;
-}
-
 .modal-backdrop {
     position: fixed;
     top: 0;
@@ -211,7 +235,7 @@ export default {
 
 .modal-content {
     background: white;
-    height: auto; /* Убрано min-height: 100vh для корректной прокрутки контента */
+    height: auto;
     min-height: 100vh;
     overflow: auto;
 }
@@ -222,7 +246,6 @@ export default {
 }
 
 .product-card {
-    max-width: 1400px;
     margin: 0 auto;
 }
 
@@ -250,7 +273,6 @@ export default {
 }
 
 .image-wrapper {
-    height: 125px;
     object-fit: cover;
     position: relative;
 
@@ -268,6 +290,10 @@ export default {
         left: 0;
         width: 100%;
         background-color: #EB2D26FF;
+    }
+
+    @media (min-width: 768px) {
+        height: 125px;
     }
 }
 
@@ -299,7 +325,6 @@ export default {
     flex-direction: column;
     justify-content: space-between;
     flex-basis: 40%;
-    padding-left: 10px;
 
     .description {
         font-size: 1.4rem;
@@ -307,15 +332,6 @@ export default {
         margin-bottom: 20px;
         margin-top: 20px;
         font-weight: 500;
-    }
-}
-
-.price-actions {
-    .btn-actions {
-        .btn-cta {
-            flex-grow: 1;
-            font-size: 1.5rem;
-        }
     }
 }
 
@@ -350,6 +366,22 @@ export default {
     }
 }
 
+.price-actions {
+    .btn-actions {
+        .btn-cta {
+            flex-grow: 1;
+            font-size: 1.5rem;
+
+            &.out-of-stock {
+                box-shadow: none;
+                background: #969696;
+                font-weight: 500;
+                cursor: pointer;
+            }
+        }
+    }
+}
+
 .wishlist-btn {
     background: none;
     border: none;
@@ -374,11 +406,60 @@ export default {
 
 .another-products {
     padding-top: 115px;
-    max-width: 1400px;
     margin-bottom: 50px;
 
     h2 {
         padding-bottom: 35px;
     }
+}
+
+@media (max-width: 767.98px) {
+    .product-header {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .product-content {
+        flex-wrap: wrap;
+
+        .gallery {
+            flex-flow: column-reverse;
+
+            .image-list {
+                flex-direction: row;
+                width: 100%;
+            }
+        }
+    }
+
+    .size-chart-link {
+        margin-top: 15px;
+    }
+
+    .another-products {
+        padding-top: 50px;
+    }
+
+    .product-details {
+        flex-basis: auto;
+    }
+
+    .price-actions {
+        h2 {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .btn-actions .btn-cta.out-of-stock {
+            font-size: 16px;
+        }
+    }
+}
+
+.select-wrapper .custom-select {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%23eb2d26%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M1.646%204.646a.5.5%200%200%201%20.708%200L8%2010.293l5.646-5.647a.5.5%200%200%201%20.708.708l-6%206a.5.5%200%200%201-.708%200l-6-6a.5.5%200%200%201%200-.708%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position-x: 96%;
+    background-position-y: 56%;
 }
 </style>

@@ -171,5 +171,18 @@ export default {
         font-size: 1.1rem;
         font-weight: bold;
     }
+
+    @media (max-width: 767.98px) {
+        .hit-sale {
+            font-size: 12px;
+        }
+
+        .old-price {
+            font-size: 10px;
+        }
+        .product-name, .current-price {
+            font-size: 16px;
+        }
+    }
 }
 </style>
