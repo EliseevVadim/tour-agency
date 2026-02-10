@@ -1,5 +1,5 @@
 @extends('layouts.app')
 
 @section('content')
-    <main-shop-content></main-shop-content>
+    <temporary-merch-page></temporary-merch-page>
 @endsection
