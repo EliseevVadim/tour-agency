@@ -16,20 +16,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: "PreviewGallerySection",
-  props: {
-    title: {
-      type: String,
-      "default": "Наши превью модулей"
-    },
-    isShowCoconut: {
-      type: Boolean,
-      "default": true
-    },
-    titleStyle: {
-      type: String,
-      "default": ''
-    }
-  },
   data: function data() {
     return {
       slides: [],
@@ -78,7 +64,7 @@ __webpack_require__.r(__webpack_exports__);
         if (idx === 3) el.classList.add('animate__delay-1-5s');
       });
     },
-    goToPricingAndOpenOpti: function goToPricingAndOpenOpti(slideId) {
+    handleCardClick: function handleCardClick(slideId) {
       this.$emit('open-pricing-package', 'opti');
     }
   },
@@ -134,7 +120,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
       discountDetails: null,
       promoCodeId: null,
       promoCodeType: null,
-      promoCodeValue: null
+      promoCodeValue: null,
+      refId: null
     };
   },
   methods: {
@@ -221,7 +208,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                 amount: _this.currentPackagePrice,
                 promo_code_id: _this.promoCodeId,
                 discount_value: _this.promoCodeValue,
-                discount_type: _this.promoCodeType
+                discount_type: _this.promoCodeType,
+                ref_id: _this.refId
               };
               _context.p = 8;
               _context.n = 9;
@@ -272,6 +260,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
         var name = button.getAttribute('data-bs-name');
         var priceStr = button.getAttribute('data-bs-price');
         var bgUrl = button.getAttribute('data-bs-bg');
+        _this2.refId = button.getAttribute('data-bs-ref-url');
         _this2.promoStatus = button.getAttribute('data-bs-promo-status');
         _this2.promoMessage = button.getAttribute('data-bs-promo-message') || '';
         if (_this2.promoStatus === 'allowed') {
@@ -335,8 +324,7 @@ __webpack_require__.r(__webpack_exports__);
     return {
       loading: true,
       notificationData: null,
-      isNotificationVisible: false,
-      isSuccessType: false
+      isNotificationVisible: false
     };
   },
   props: {
@@ -356,35 +344,28 @@ __webpack_require__.r(__webpack_exports__);
   methods: {
     handleOpenPricing: function handleOpenPricing(packageId) {
       if (this.$refs.pricingSelector) {
-        this.$refs.pricingSelector.togglePackage(packageId);
-        setTimeout(function () {
-          var _document$getElementB;
-          (_document$getElementB = document.getElementById('opti-section')) === null || _document$getElementB === void 0 || _document$getElementB.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }, 100);
+        this.$refs.pricingSelector.togglePackageFromGallery(packageId);
+      }
+    },
+    initializeNotifications: function initializeNotifications() {
+      if (this.initialSuccessData && Object.keys(this.initialSuccessData).length > 0) {
+        this.notificationData = this.initialSuccessData;
+        this.isNotificationVisible = true;
+      } else if (this.initialFailData && Object.keys(this.initialFailData).length > 0) {
+        this.notificationData = this.initialFailData;
+        this.isNotificationVisible = true;
+      } else if (localStorage.getItem('notification')) {
+        this.notificationData = JSON.parse(localStorage.getItem('notification'));
+        this.isNotificationVisible = true;
+        localStorage.removeItem('notification');
+      }
+      if (this.isNotificationVisible) {
+        this.loading = false;
       }
     }
   },
   created: function created() {
-    if (this.initialSuccessData && Object.keys(this.initialSuccessData).length > 0) {
-      this.notificationData = this.initialSuccessData;
-      this.isSuccessType = true;
-      this.isNotificationVisible = true;
-    } else if (this.initialFailData && Object.keys(this.initialFailData).length > 0) {
-      this.notificationData = this.initialFailData;
-      this.isSuccessType = false;
-      this.isNotificationVisible = true;
-    } else if (localStorage.getItem('notification')) {
-      this.notificationData = JSON.parse(localStorage.getItem('notification'));
-      this.isSuccessType = true;
-      this.isNotificationVisible = true;
-      localStorage.removeItem('notification');
-    }
-    if (this.isNotificationVisible) {
-      this.loading = false;
-    }
+    this.initializeNotifications();
   },
   mounted: function mounted() {
     var _this = this;
@@ -672,11 +653,13 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
         }
       }],
       isLoading: true,
+      refId: null,
       promoCode: null,
       promoCodeId: null,
       promoStatus: null,
+      // 'loading', 'allowed', 'denied', 'error'
       promoMessage: null,
-      discountDetails: null
+      discountDetails: null // { type: 'percent' | 'fixed', value: number }
     };
   },
   computed: {
@@ -704,28 +687,13 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
         return Math.round(finalPrice * 100) / 100;
       }
       return this.priceNewUnformatted;
-    },
-    isDisabledPrice: function isDisabledPrice() {
-      return this.isLoading || isNaN(this.finalPrice);
     }
   },
   methods: {
     togglePackage: function togglePackage(packageId) {
       var _this2 = this;
-      if (this.expandedPackage === packageId) {
-        this.$nextTick(function () {
-          var refKey = "package_".concat(packageId);
-          var pkgRefs = _this2.$refs[refKey];
-          if (pkgRefs && pkgRefs.length > 0 && pkgRefs[0] instanceof Element) {
-            pkgRefs[0].scrollIntoView({
-              behavior: 'smooth',
-              block: 'start'
-            });
-          }
-        });
-        return;
-      }
-      this.expandedPackage = this.expandedPackage === packageId ? null : packageId;
+      var isCurrentlyExpanded = this.expandedPackage === packageId;
+      this.expandedPackage = isCurrentlyExpanded ? null : packageId;
       this.$nextTick(function () {
         var refKey = "package_".concat(packageId);
         var pkgRefs = _this2.$refs[refKey];
@@ -735,13 +703,30 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
             block: 'start'
           });
         }
-        if (_this2.promoCode) {
+        if (!isCurrentlyExpanded && _this2.promoCode) {
           _this2.checkPromoCode();
         }
       });
     },
-    getCourses: function getCourses() {
+    togglePackageFromGallery: function togglePackageFromGallery(packageId) {
       var _this3 = this;
+      var wasExpanded = this.expandedPackage === packageId;
+      if (!wasExpanded) {
+        this.expandedPackage = packageId;
+      }
+      this.$nextTick(function () {
+        var refKey = "package_".concat(packageId);
+        var pkgRefs = _this3.$refs[refKey];
+        if (pkgRefs && pkgRefs.length > 0 && pkgRefs[0] instanceof Element) {
+          pkgRefs[0].scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    },
+    getCourses: function getCourses() {
+      var _this4 = this;
       axios__WEBPACK_IMPORTED_MODULE_1___default().get("/api/courses").then(function (response) {
         var packagesObject = response.data.packages;
         if (_typeof(packagesObject) !== 'object' || packagesObject === null) {
@@ -753,18 +738,18 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
           var _packagesObject$key;
           var pkgData = (_packagesObject$key = packagesObject[key]) !== null && _packagesObject$key !== void 0 ? _packagesObject$key : null;
           if (pkgData) {
-            _this3.packageData[index].id = pkgData.id;
-            _this3.packageData[index].name = pkgData.name;
-            _this3.packageData[index].details.priceOld = pkgData.priceOld;
-            _this3.packageData[index].details.priceNew = pkgData.priceNew;
-            _this3.packageData[index].details.buttonText = pkgData.buttonText || 'ПОЛУЧИТЬ ДОСТУП';
+            _this4.packageData[index].id = pkgData.id;
+            _this4.packageData[index].name = pkgData.name;
+            _this4.packageData[index].details.priceOld = pkgData.priceOld;
+            _this4.packageData[index].details.priceNew = pkgData.priceNew;
+            _this4.packageData[index].details.buttonText = pkgData.buttonText || 'ПОЛУЧИТЬ ДОСТУП';
           }
         });
-        if (_this3.promoCode) {
-          _this3.checkPromoCode();
+        if (_this4.promoCode) {
+          _this4.checkPromoCode();
         }
       })["finally"](function () {
-        _this3.isLoading = false;
+        _this4.isLoading = false;
       });
     },
     getPromocodeFromUrl: function getPromocodeFromUrl() {
@@ -775,62 +760,100 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
       }
     },
     checkPromoCode: function checkPromoCode() {
-      var _this4 = this;
+      var _this5 = this;
       return _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
-        var currentId, response, _error$response, _t;
+        var currentId, response, _t;
         return _regenerator().w(function (_context) {
           while (1) switch (_context.p = _context.n) {
             case 0:
-              if (_this4.promoCode) {
+              if (_this5.promoCode) {
                 _context.n = 1;
                 break;
               }
               return _context.a(2);
             case 1:
-              _this4.discountDetails = null;
-              _this4.promoCodeId = null;
-              _this4.promoStatus = 'loading';
-              _this4.promoMessage = 'Проверка промокода...';
-              currentId = _this4.currentPackage.id;
+              _this5.discountDetails = null;
+              _this5.promoCodeId = null;
+              _this5.promoStatus = 'loading';
+              _this5.promoMessage = 'Проверка промокода...';
+              currentId = _this5.currentPackage.id;
               _context.p = 2;
               _context.n = 3;
               return axios__WEBPACK_IMPORTED_MODULE_1___default().post('/api/check-promo-code', {
-                code: _this4.promoCode,
+                code: _this5.promoCode,
                 package_id: currentId
               });
             case 3:
               response = _context.v;
-              _this4.promoStatus = response.data.status;
-              if (_this4.promoStatus === 'allowed') {
-                _this4.discountDetails = response.data.discount_info;
-                _this4.promoCodeId = response.data.promo_id;
-                _this4.promoMessage = response.data.message || 'Промокод успешно применен!';
-              } else {
-                _this4.promoMessage = response.data.message || 'Промокод недействителен для этого пакета.';
-                _this4.discountDetails = null;
-                _this4.promoCodeId = null;
+              _this5.promoStatus = response.data.status;
+              if (_this5.promoStatus === 'allowed') {
+                _this5.discountDetails = response.data.discount_info;
+                _this5.promoCodeId = response.data.promo_id;
+                _this5.promoMessage = response.data.message || 'Промокод успешно применен!';
               }
               _context.n = 5;
               break;
             case 4:
               _context.p = 4;
               _t = _context.v;
-              console.error('Ошибка при проверке кода:', ((_error$response = _t.response) === null || _error$response === void 0 || (_error$response = _error$response.data) === null || _error$response === void 0 ? void 0 : _error$response.message) || 'Ошибка сети');
-              _this4.promoStatus = 'error';
-              _this4.promoMessage = 'Не удалось проверить промокод.';
-              _this4.discountDetails = null;
-              _this4.promoCodeId = null;
+              _this5.promoStatus = 'error';
+              _this5.promoMessage = 'Не удалось проверить промокод.';
+              _this5.discountDetails = null;
+              _this5.promoCodeId = null;
             case 5:
               return _context.a(2);
           }
         }, _callee, null, [[2, 4]]);
       }))();
+    },
+    getRefFromUrl: function getRefFromUrl() {
+      this.isLoading = false;
+      var urlParams = new URLSearchParams(window.location.search);
+      var refCode = urlParams.get('ref');
+      if (refCode && !this.isLoading) {
+        this.applyReferralCode(refCode);
+      }
+    },
+    applyReferralCode: function applyReferralCode(refCode) {
+      var _this6 = this;
+      return _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
+        var response, _t2;
+        return _regenerator().w(function (_context2) {
+          while (1) switch (_context2.p = _context2.n) {
+            case 0:
+              _this6.isLoading = true;
+              _context2.p = 1;
+              _context2.n = 2;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().post('/api/apply-referral', {
+                ref_code: refCode
+              });
+            case 2:
+              response = _context2.v;
+              _this6.refId = response.data.ref_id;
+              console.log(_this6.refId);
+              console.log('Реферальный код применен:', response.data.message);
+              _context2.n = 4;
+              break;
+            case 3:
+              _context2.p = 3;
+              _t2 = _context2.v;
+              console.error('Ошибка применения реферального кода:', _t2.response ? _t2.response.data.message : 'Ошибка сети');
+            case 4:
+              _context2.p = 4;
+              _this6.isLoading = false;
+              return _context2.f(4);
+            case 5:
+              return _context2.a(2);
+          }
+        }, _callee2, null, [[1, 3, 4, 5]]);
+      }))();
     }
   },
   mounted: function mounted() {
-    var _this5 = this;
+    var _this7 = this;
     this.getCourses();
     this.getPromocodeFromUrl();
+    this.getRefFromUrl();
     var orderModal = document.getElementById('orderModal');
     if (orderModal) {
       orderModal.addEventListener('show.bs.modal', function (event) {
@@ -840,6 +863,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
         var finalPrice = button.getAttribute('data-bs-price');
         var originalPrice = button.getAttribute('data-bs-original-price');
         var bgUrl = button.getAttribute('data-bs-bg');
+        var urlForRef = button.getAttribute('data-bs-ref-url');
         var promoStatus = button.getAttribute('data-bs-promo-status');
         var promoMessage = button.getAttribute('data-bs-promo-message');
         var promoType = button.getAttribute('data-bs-promo-type');
@@ -851,33 +875,24 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
         if (modalIdInput) modalIdInput.value = id;
         if (modalTitleSpan) modalTitleSpan.textContent = " \"".concat(name, "\"");
         if (modalPriceP) modalPriceP.textContent = "".concat(finalPrice, " \u0440");
-        _this5.currentPackageId = id;
-        _this5.currentPackageName = name;
-        _this5.currentPackagePrice = finalPrice;
-        _this5.originalPrice = parseFloat(originalPrice) || 0;
-        _this5.currentPackageBg = bgUrl ? "linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url(\"".concat(bgUrl, "\") no-repeat center center / cover") : '';
-        _this5.promoCodeId = promoId;
-        _this5.promoStatus = promoStatus;
-        _this5.promoMessage = promoMessage;
+        _this7.currentPackageId = id;
+        _this7.currentPackageName = name;
+        _this7.currentPackagePrice = finalPrice;
+        _this7.originalPrice = parseFloat(originalPrice) || 0;
+        _this7.currentPackageBg = bgUrl ? "linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url(\"".concat(bgUrl, "\") no-repeat center center / cover") : '';
+        _this7.promoCodeId = promoId;
+        _this7.promoStatus = promoStatus;
+        _this7.promoMessage = promoMessage;
+        _this7.refId = urlForRef;
         if (promoStatus === 'allowed' && promoType && promoValue) {
-          _this5.discountDetails = {
+          _this7.discountDetails = {
             type: promoType,
             value: parseFloat(promoValue)
           };
         } else {
-          _this5.discountDetails = null;
+          _this7.discountDetails = null;
         }
       });
-    }
-  },
-  watch: {
-    promoCode: {
-      handler: function handler(newCode) {
-        if (newCode && !this.isLoading) {
-          this.checkPromoCode();
-        }
-      },
-      immediate: true
     }
   }
 });
@@ -977,8 +992,7 @@ var render = function render() {
       "peek-right": "3%",
       "peek-left": "3%",
       gutter: "30",
-      responsive: _vm.responsive,
-      "no-drag": true
+      responsive: _vm.responsive
     },
     scopedSlots: _vm._u([{
       key: "back-arrow",
@@ -1015,7 +1029,7 @@ var render = function render() {
       on: {
         click: function click($event) {
           $event.preventDefault();
-          return _vm.goToPricingAndOpenOpti(slide.id);
+          return _vm.handleCardClick(slide.id);
         }
       }
     }, [_c("div", {
@@ -1669,7 +1683,8 @@ var render = function render() {
         expanded: _vm.expandedPackage === pkg.id
       },
       attrs: {
-        id: pkg.id + "-section"
+        id: pkg.id + "-section",
+        "aria-hidden": _vm.expandedPackage !== pkg.id ? "true" : null
       }
     }, [_c("div", {
       staticClass: "package-card mb-4",
@@ -1786,6 +1801,7 @@ var render = function render() {
         "data-bs-promo-id": _vm.promoCodeId,
         "data-bs-promo-code": _vm.promoCode,
         "data-bs-promo-status": _vm.promoStatus,
+        "data-bs-ref-url": _vm.refId,
         "data-bs-promo-message": _vm.promoMessage,
         "data-bs-promo-type": _vm.discountDetails ? _vm.discountDetails.type : null,
         "data-bs-promo-value": _vm.discountDetails ? _vm.discountDetails.value : null

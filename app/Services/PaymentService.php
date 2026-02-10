@@ -79,10 +79,10 @@ class PaymentService
                 'promo_code_id' => $options['promo_code_id'],
                 'discount_type' => $options['discount_type'],
                 'discount_value' => $options['discount_value'],
+                'ref_id' => $options['ref_id'],
             ],
             'description' => $description,
         ];
-
         $payment = $client->createPayment($dataPayment, $keyToSend);
 
         return [

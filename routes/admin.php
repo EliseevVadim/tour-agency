@@ -1,12 +1,13 @@
 <?php
 
+use App\Http\Controllers\Admin\ReferralController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PromoCodeController;
 use App\Http\Controllers\ReviewsController;
 use App\Http\Controllers\TeamController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AdminController;
 
 Route::middleware(['admin.auth.hash'])->prefix('admin')->name('admin.')->group(function () {
     Route::view('/team', 'admin.team')->name('team');
@@ -32,5 +33,12 @@ Route::middleware(['admin.auth.hash'])->prefix('admin')->name('admin.')->group(f
         Route::get('/packages', [PromoCodeController::class, 'getPackages'])->name('api.packages.index');
         Route::post('/promo-rules', [PromoCodeController::class, 'store'])->name('api.promo.store');
         Route::get('/promo-codes', [PromoCodeController::class, 'index'])->name('api.promo.index');
+
+        Route::prefix('referrals')->name('referrals.')->group(function () {
+            Route::post('/', [ReferralController::class, 'storeApi'])->name('store-api');
+            Route::get('/', [ReferralController::class, 'indexApi'])->name('index-api');
+            Route::delete('/{referral}', [ReferralController::class, 'destroyApi'])->name('api.referrals.destroy');
+            Route::get('/{referral}/transactions', [ReferralController::class, 'getTransactionsForReferral'])->name('api.referrals.transactions');
+        });
     });
 });

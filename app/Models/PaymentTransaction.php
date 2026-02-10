@@ -39,4 +39,9 @@ class PaymentTransaction extends Model
     {
         return $this->belongsTo(PromoCode::class, 'promo_code_id', 'id');
     }
+
+    public function referral()
+    {
+        return $this->belongsTo(Referral::class, 'ref_id');
+    }
 }

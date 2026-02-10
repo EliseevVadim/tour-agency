@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ReferralController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Api\Course\CoursesController;
 use App\Http\Controllers\ClipController;
@@ -45,6 +46,7 @@ Route::prefix('api')->name('api.')->group(function () {
     Route::get('/reviews', [ReviewsController::class, 'getReviews'])->name('reviews.index');
 
     Route::post('/check-promo-code', [PromoCodeController::class, 'check'])->name('check.promo');
+    Route::post('/apply-referral', [ReferralController::class, 'applyReferral'])->name('api.apply-referral');
 });
 
 Route::post('/telegram/webhook', [TelegramController::class, 'handleWebhook'])->name('telegram.webhook');

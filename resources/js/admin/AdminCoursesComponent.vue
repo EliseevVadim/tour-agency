@@ -7,13 +7,18 @@
                         aria-selected="true">Управление</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="promo-codes-tab" data-bs-toggle="tab"
-                        data-bs-target="#promo-codes" type="button" role="tab" aria-controls="promo-codes-courses"
-                        aria-selected="true">Промокоды</button>
-            </li>
-            <li class="nav-item" role="presentation">
                 <button class="nav-link" id="logs-courses-tab" data-bs-toggle="tab" data-bs-target="#logs-courses"
                         type="button" role="tab" aria-controls="logs-courses" aria-selected="false">История</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="promo-codes-tab" data-bs-toggle="tab"
+                        data-bs-target="#promo-codes" type="button" role="tab" aria-controls="promo-codes-courses"
+                        aria-selected="false">Промокоды</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="referrals-tab" data-bs-toggle="tab"
+                        data-bs-target="#referrals" type="button" role="tab" aria-controls="referrals-courses"
+                        aria-selected="false">Реферальные ссылки</button>
             </li>
         </ul>
         <div class="tab-content py-4" id="coursesTabContent">
@@ -273,16 +278,23 @@
                     <promocodes-component :initial-packages="packages"></promocodes-component>
                 </div>
             </div>
+            <div class="tab-pane fade" id="referrals" role="tabpanel" aria-labelledby="referrals-tab">
+                <div class="container-fluid">
+                    <referrals-component></referrals-component>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
 import PromocodesComponent from "./modules/PromocodesComponent.vue";
+import ReferralGenerator from "./modules/ReferralGeneratorForm.vue";
+import ReferralsComponent from "./modules/ReferralsComponent.vue";
 
 export default {
     name: "AdminCoursesComponent",
-    components: {PromocodesComponent},
+    components: {ReferralsComponent, ReferralGenerator, PromocodesComponent},
     data() {
         return {
             packages: {

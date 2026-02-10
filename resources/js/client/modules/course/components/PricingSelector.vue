@@ -128,6 +128,7 @@
                             :data-bs-promo-id="promoCodeId"
                             :data-bs-promo-code="promoCode"
                             :data-bs-promo-status="promoStatus"
+                            :data-bs-ref-url="refId"
                             :data-bs-promo-message="promoMessage"
                             :data-bs-promo-type="discountDetails ? discountDetails.type : null"
                             :data-bs-promo-value="discountDetails ? discountDetails.value : null">
@@ -265,6 +266,7 @@ export default {
                     }
                 }],
             isLoading: true,
+            refId: null,
             promoCode: null,
             promoCodeId: null,
             promoStatus: null, // 'loading', 'allowed', 'denied', 'error'
@@ -404,10 +406,36 @@ export default {
                 this.promoCodeId = null;
             }
         },
+        getRefFromUrl() {
+            this.isLoading = false
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref');
+
+            if (refCode && !this.isLoading) {
+                this.applyReferralCode(refCode);
+            }
+        },
+        async applyReferralCode(refCode) {
+            this.isLoading = true;
+            try {
+                const response = await axios.post('/api/apply-referral', {
+                    ref_code: refCode
+                });
+                this.refId = response.data.ref_id;
+                console.log(this.refId);
+
+                console.log('Реферальный код применен:', response.data.message);
+            } catch (error) {
+                console.error('Ошибка применения реферального кода:', error.response ? error.response.data.message : 'Ошибка сети');
+            } finally {
+                this.isLoading = false;
+            }
+        },
     },
     mounted() {
         this.getCourses();
         this.getPromocodeFromUrl();
+        this.getRefFromUrl();
 
         const orderModal = document.getElementById('orderModal');
         if (orderModal) {
@@ -419,6 +447,8 @@ export default {
                 const finalPrice = button.getAttribute('data-bs-price');
                 const originalPrice = button.getAttribute('data-bs-original-price');
                 const bgUrl = button.getAttribute('data-bs-bg');
+
+                const urlForRef = button.getAttribute('data-bs-ref-url');
 
                 const promoStatus = button.getAttribute('data-bs-promo-status');
                 const promoMessage = button.getAttribute('data-bs-promo-message');
@@ -443,6 +473,7 @@ export default {
                 this.promoCodeId = promoId;
                 this.promoStatus = promoStatus;
                 this.promoMessage = promoMessage;
+                this.refId = urlForRef;
 
                 if (promoStatus === 'allowed' && promoType && promoValue) {
                     this.discountDetails = {

@@ -123,7 +123,8 @@ export default {
             discountDetails: null,
             promoCodeId: null,
             promoCodeType: null,
-            promoCodeValue: null
+            promoCodeValue: null,
+            refId: null
         }
     },
     methods: {
@@ -200,6 +201,7 @@ export default {
                     promo_code_id: this.promoCodeId,
                     discount_value: this.promoCodeValue,
                     discount_type: this.promoCodeType,
+                    ref_id: this.refId,
                 };
 
                 try {
@@ -244,6 +246,8 @@ export default {
                 const name = button.getAttribute('data-bs-name');
                 const priceStr = button.getAttribute('data-bs-price');
                 const bgUrl = button.getAttribute('data-bs-bg');
+
+                this.refId = button.getAttribute('data-bs-ref-url');
 
                 this.promoStatus = button.getAttribute('data-bs-promo-status');
                 this.promoMessage = button.getAttribute('data-bs-promo-message') || '';

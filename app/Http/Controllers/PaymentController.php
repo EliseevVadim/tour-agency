@@ -162,6 +162,7 @@ class PaymentController extends Controller
             'promo_code_id' => $request->input('promo_code_id'),
             'discount_type' => $request->input('discount_type'),
             'discount_value' => $request->input('discount_value'),
+            'ref_id' => $request->input('ref_id'),
         ];
 
         $idempotencyKey = Uuid::uuid4()->toString();
@@ -229,6 +230,7 @@ class PaymentController extends Controller
 
     protected function handleSucceeded(PaymentTransaction $transaction, array $paymentData)
     {
+        $refId = $paymentData['metadata']['ref_id'] ?? null;
         $promo_code_id = $paymentData['metadata']['promo_code_id'] ?? null;
         $discount_type = $paymentData['metadata']['discount_type'] ?? null;
         $discount_value = $paymentData['metadata']['discount_value'] ?? null;
@@ -239,6 +241,9 @@ class PaymentController extends Controller
         $transaction->payment_at = Carbon::now();
         if ($promo_code_id !== null) {
             $transaction->promo_code_id = $promo_code_id;
+        }
+        if ($refId !== null) {
+            $transaction->ref_id = $refId;
         }
         $transaction->save();
 
