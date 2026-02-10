@@ -40,7 +40,8 @@
 
             <div v-for="pkg in packageData" :key="pkg.id" class="package-container position-relative"
                  :id="pkg.id + '-section'"
-                 :class="{ 'expanded': expandedPackage === pkg.id }" :ref="`package_${pkg.id}`">
+                 :class="{ 'expanded': expandedPackage === pkg.id }" :ref="`package_${pkg.id}`"
+                 :aria-hidden="expandedPackage !== pkg.id ? 'true' : null">
                 <div class="package-card mb-4"
                      :class="{ 'expanded': expandedPackage === pkg.id }">
                     <div class="d-flex align-items-center" @click="togglePackage(pkg.id)">
@@ -266,9 +267,9 @@ export default {
             isLoading: true,
             promoCode: null,
             promoCodeId: null,
-            promoStatus: null,
+            promoStatus: null, // 'loading', 'allowed', 'denied', 'error'
             promoMessage: null,
-            discountDetails: null,
+            discountDetails: null, // { type: 'percent' | 'fixed', value: number }
         };
     },
     computed: {
@@ -292,30 +293,12 @@ export default {
                 return Math.round(finalPrice * 100) / 100;
             }
             return this.priceNewUnformatted;
-        },
-        isDisabledPrice() {
-            return this.isLoading || isNaN(this.finalPrice);
         }
     },
     methods: {
         togglePackage(packageId) {
-            if (this.expandedPackage === packageId) {
-                this.$nextTick(() => {
-                    const refKey = `package_${packageId}`;
-                    const pkgRefs = this.$refs[refKey];
-
-                    if (pkgRefs && pkgRefs.length > 0 && pkgRefs[0] instanceof Element) {
-                        pkgRefs[0].scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start',
-                        });
-                    }
-                });
-                return;
-            }
-
-            this.expandedPackage =
-                this.expandedPackage === packageId ? null : packageId;
+            const isCurrentlyExpanded = this.expandedPackage === packageId;
+            this.expandedPackage = isCurrentlyExpanded ? null : packageId;
 
             this.$nextTick(() => {
                 const refKey = `package_${packageId}`;
@@ -328,8 +311,26 @@ export default {
                     });
                 }
 
-                if (this.promoCode) {
+                if (!isCurrentlyExpanded && this.promoCode) {
                     this.checkPromoCode();
+                }
+            });
+        },
+        togglePackageFromGallery(packageId) {
+            const wasExpanded = this.expandedPackage === packageId;
+
+            if (!wasExpanded) {
+                this.expandedPackage = packageId;
+            }
+            this.$nextTick(() => {
+                const refKey = `package_${packageId}`;
+                const pkgRefs = this.$refs[refKey];
+
+                if (pkgRefs && pkgRefs.length > 0 && pkgRefs[0] instanceof Element) {
+                    pkgRefs[0].scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start',
+                    });
                 }
             });
         },
@@ -394,14 +395,9 @@ export default {
                     this.discountDetails = response.data.discount_info;
                     this.promoCodeId = response.data.promo_id;
                     this.promoMessage = response.data.message || 'Промокод успешно применен!';
-                } else {
-                    this.promoMessage = response.data.message || 'Промокод недействителен для этого пакета.';
-                    this.discountDetails = null;
-                    this.promoCodeId = null;
                 }
 
             } catch (error) {
-                console.error('Ошибка при проверке кода:', error.response?.data?.message || 'Ошибка сети');
                 this.promoStatus = 'error';
                 this.promoMessage = 'Не удалось проверить промокод.';
                 this.discountDetails = null;
@@ -457,16 +453,6 @@ export default {
                     this.discountDetails = null;
                 }
             });
-        }
-    },
-    watch: {
-        promoCode: {
-            handler(newCode) {
-                if (newCode && !this.isLoading) {
-                    this.checkPromoCode();
-                }
-            },
-            immediate: true
         }
     },
 }

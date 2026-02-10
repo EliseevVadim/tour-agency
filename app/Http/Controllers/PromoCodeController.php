@@ -106,7 +106,7 @@ class PromoCodeController extends Controller
             return response()->json([
                 'status' => 'invalid',
                 'message' => $detailedError
-            ], 404);
+            ], 422);
         }
 
         return response()->json([

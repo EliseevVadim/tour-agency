@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Log;
+use Ramsey\Uuid\Uuid;
 use YooKassa\Client;
 
 class PaymentService
@@ -16,23 +17,6 @@ class PaymentService
         );
 
         return $client;
-    }
-
-    function formatToE164(string $phoneNumber): string
-    {
-        $digits = preg_replace('/[^0-9]+/', '', $phoneNumber);
-        $e164Number = $digits;
-        if (strpos($digits, '8') === 0) {
-            $e164Number = '7' . substr($digits, 1);
-        }
-        elseif (strpos($digits, '7') === 0) {
-            $e164Number = $digits;
-        }
-        elseif (strlen($digits) === 10) {
-            $e164Number = '7' . $digits;
-        }
-
-        return $e164Number;
     }
 
     /**
@@ -50,9 +34,9 @@ class PaymentService
      * @throws \YooKassa\Common\Exceptions\TooManyRequestsException
      * @throws \YooKassa\Common\Exceptions\UnauthorizedException
      */
-    public function createPayment(float $amount, string $description, array $options = []): array {
-        $idempotenceKey = uniqid('', true);
+    public function createPayment(float $amount, string $description, array $options = [], string $idempotenceKey = null): array {
         $client = $this->getClient();
+        $keyToSend = $idempotenceKey ?? Uuid::uuid4()->toString();
 
         $dataPayment = [
             'amount' => [
@@ -82,7 +66,6 @@ class PaymentService
                 'tax_system_code' => 2,
                 'customer' => [
                     'email' => $options['email'],
-                    'phone' => $this->formatToE164($options['phone_number']),
                 ]
             ],
 
@@ -100,16 +83,7 @@ class PaymentService
             'description' => $description,
         ];
 
-        $formattedData = json_encode($dataPayment, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-
-        Log::info('Платежные данные перед отправкой:', [
-            'payment_data' => $formattedData,
-            'idempotence_key' => $idempotenceKey,
-        ]);
-
-        Log::info('start create payment');
-        $payment = $client->createPayment($dataPayment, $idempotenceKey);
-        Log::info('end create payment');
+        $payment = $client->createPayment($dataPayment, $keyToSend);
 
         return [
             'url' => $payment->getConfirmation()->getConfirmationUrl(),

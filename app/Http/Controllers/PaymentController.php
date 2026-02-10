@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 use YooKassa\Client;
 use YooKassa\Client\BaseClient;
 use App\Enums\NotificationEventType;
@@ -122,48 +123,58 @@ class PaymentController extends Controller
      * @throws \YooKassa\Common\Exceptions\TooManyRequestsException
      * @throws \YooKassa\Common\Exceptions\UnauthorizedException
      */
+
     public function create(Request $request, PaymentService $service)
     {
+        $email = $request->input('email');
+        $courseName = 'Пакет ' . '"' . $request->input('course_name') . '"';
         $amount = $request->input('amount');
-        $description = 'Пакет ' . '"' . $request->input('course_name') . '"';
+        $packageId = $request->input('package_id');
+
+        $userData = [
+            'full_name' => $request->input('full_name'),
+            'phone_number' => $request->input('phone_number'),
+            'agrees_to_marketing' => $request->boolean('agrees_to_marketing'),
+            'password' => Hash::make(Str::random(12)),
+        ];
 
         $user = User::updateOrCreate(
-            ['email' => $request->input('email')],
-            [
-                'full_name' => $request->input('full_name'),
-                'phone_number' => $request->input('phone_number'),
-                'password' => Hash::make(Str::random(12)),
-                'agrees_to_marketing' => $request->input('agrees_to_marketing'),
-            ]
+            ['email' => $email],
+            $userData
         );
 
         $paymentTransaction = PaymentTransaction::create([
             'user_id' => $user->id,
-            'package_id' => $request->input('package_id'),
+            'package_id' => $packageId,
             'amount' => $amount,
             'status' => 'pending',
-            'payment_method' => null,
         ]);
 
+        $description = 'Пакет "' . $courseName . '"';
+        $paymentData = [
+            'user_id' => $user->id,
+            'transaction_id' => $paymentTransaction->id,
+            'package_id' => $packageId,
+            'course_name' => $description,
+            'full_name' => $request->input('full_name'),
+            'phone_number' => $request->input('phone_number'),
+            'email' => $email,
+            'promo_code_id' => $request->input('promo_code_id'),
+            'discount_type' => $request->input('discount_type'),
+            'discount_value' => $request->input('discount_value'),
+        ];
+
+        $idempotencyKey = Uuid::uuid4()->toString();
         $paymentInfo = $service->createPayment(
             $amount,
             $description,
-            [
-                'user_id' => $user->id,
-                'transaction_id' => $paymentTransaction->id,
-                'package_id' => $request->input('package_id'),
-                'course_name' => $description,
-                'full_name' => $request->input('full_name'),
-                'phone_number' => $request->input('phone_number'),
-                'email' => $request->input('email'),
-                'promo_code_id' => $request->input('promo_code_id'),
-                'discount_type' => $request->input('discount_type'),
-                'discount_value' => $request->input('discount_value'),
-            ]
+            $paymentData,
+            $idempotencyKey
         );
 
-        $paymentTransaction->payment_id = $paymentInfo['id'];
-        $paymentTransaction->save();
+        $paymentTransaction->update([
+            'payment_id' => $paymentInfo['id'],
+        ]);
 
         return $paymentInfo['url'];
     }

@@ -5,9 +5,16 @@
         <div class="container-fluid overflow-hidden">
             <h2 class="travel-directions-title text-center text-uppercase fw-800">Методология курса:</h2>
 
-            <ssr-carousel v-if="slides.length > 0" show-arrows :slidesPerPage="3"
-                          overflow-visible paginate-by-slide peek-right='3%' peek-left='3%' gutter='30'
-                          :responsive='responsive' :no-drag="true">
+            <ssr-carousel v-if="slides.length > 0"
+                          show-arrows
+                          :slidesPerPage="3"
+                          overflow-visible
+                          paginate-by-slide
+                          peek-right='3%'
+                          peek-left='3%'
+                          gutter='30'
+                          :responsive='responsive'>
+
                 <template #back-arrow='{ disabled }'>
                     <span v-if="!disabled" class="carousel-left-icon" :class="{'disabled': disabled}"></span>
                 </template>
@@ -16,7 +23,7 @@
                 </template>
 
                 <div class="travel-card slide preview-card" v-for="slide in slides" :key="slide.id">
-                    <a href="javascript:void(0)" @click.prevent="goToPricingAndOpenOpti(slide.id)" class="travel-card-link">
+                    <a href="javascript:void(0)" @click.prevent="handleCardClick(slide.id)" class="travel-card-link">
                         <div class="travel-card__image-container">
                             <div class="center-play-btn">
                                 <img src="/img/icons/play.svg" alt="play Video">
@@ -32,48 +39,19 @@
 </template>
 
 <script>
-import { debounce } from 'lodash';
+import {debounce} from 'lodash';
+
 export default {
     name: "PreviewGallerySection",
-    props: {
-        title: {
-            type: String,
-            default: "Наши превью модулей"
-        },
-        isShowCoconut: {
-            type: Boolean,
-            default: true
-        },
-        titleStyle: {
-            type: String,
-            default: ''
-        }
-    },
     data() {
         return {
             slides: [],
             loading: true,
             responsive: [
-                {
-                    minWidth: 270,
-                    slidesPerPage: 1,
-                    center: true,
-                    peek: 0,
-                    gutter: 20,
-                    showDots: false
-                },
-                {
-                    minWidth: 768,
-                    slidesPerPage: 2,
-                },
-                {
-                    minWidth: 1024,
-                    slidesPerPage: 3,
-                },
-                {
-                    minWidth: 1366,
-                    slidesPerPage: 3,
-                }
+                {minWidth: 270, slidesPerPage: 1, center: true, peek: 0, gutter: 20, showDots: false},
+                {minWidth: 768, slidesPerPage: 2},
+                {minWidth: 1024, slidesPerPage: 3},
+                {minWidth: 1366, slidesPerPage: 3}
             ],
         }
     },
@@ -107,7 +85,7 @@ export default {
                 if (idx === 3) el.classList.add('animate__delay-1-5s');
             });
         },
-        goToPricingAndOpenOpti(slideId) {
+        handleCardClick(slideId) {
             this.$emit('open-pricing-package', 'opti');
         },
     },

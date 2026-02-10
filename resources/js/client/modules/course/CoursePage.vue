@@ -43,7 +43,6 @@ export default {
             loading: true,
             notificationData: null,
             isNotificationVisible: false,
-            isSuccessType: false,
         }
     },
     props: {
@@ -59,32 +58,30 @@ export default {
     methods: {
         handleOpenPricing(packageId) {
             if (this.$refs.pricingSelector) {
-                this.$refs.pricingSelector.togglePackage(packageId);
-                setTimeout(() => {
-                    document.getElementById('opti-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 100);
+                this.$refs.pricingSelector.togglePackageFromGallery(packageId);
+
             }
         },
+        initializeNotifications() {
+            if (this.initialSuccessData && Object.keys(this.initialSuccessData).length > 0) {
+                this.notificationData = this.initialSuccessData;
+                this.isNotificationVisible = true;
+            } else if (this.initialFailData && Object.keys(this.initialFailData).length > 0) {
+                this.notificationData = this.initialFailData;
+                this.isNotificationVisible = true;
+            } else if(localStorage.getItem('notification')) {
+                this.notificationData = JSON.parse(localStorage.getItem('notification'));
+                this.isNotificationVisible = true;
+                localStorage.removeItem('notification');
+            }
+
+            if (this.isNotificationVisible) {
+                this.loading = false;
+            }
+        }
     },
     created() {
-        if (this.initialSuccessData && Object.keys(this.initialSuccessData).length > 0) {
-            this.notificationData = this.initialSuccessData;
-            this.isSuccessType = true;
-            this.isNotificationVisible = true;
-        } else if (this.initialFailData && Object.keys(this.initialFailData).length > 0) {
-            this.notificationData = this.initialFailData;
-            this.isSuccessType = false;
-            this.isNotificationVisible = true;
-        } else if(localStorage.getItem('notification')) {
-            this.notificationData = JSON.parse(localStorage.getItem('notification'));
-            this.isSuccessType = true;
-            this.isNotificationVisible = true;
-            localStorage.removeItem('notification');
-        }
-
-        if (this.isNotificationVisible) {
-            this.loading = false;
-        }
+        this.initializeNotifications();
     },
     mounted() {
         if (!this.isNotificationVisible) {
