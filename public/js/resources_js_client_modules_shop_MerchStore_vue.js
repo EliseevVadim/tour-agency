@@ -94,31 +94,31 @@ __webpack_require__.r(__webpack_exports__);
 
 var FILTERS_SORT_STORAGE_KEY = 'merchFiltersAndSort';
 var MOCK_PRODUCTS_DB = [{
-  id: 101,
+  id: 1,
   name: 'Синяя футболка "Путешествие"',
   category_slug: 'clothing',
   currentPrice: 1500,
   imageUrl: '/img/merch/test.png'
 }, {
-  id: 102,
+  id: 2,
   name: 'Красный рюкзак',
   category_slug: 'accessories',
   currentPrice: 3500,
   imageUrl: '/img/merch/test.png'
 }, {
-  id: 103,
+  id: 3,
   name: 'Треккинговые ботинки',
   category_slug: 'clothing',
   currentPrice: 12000,
   imageUrl: '/img/merch/test.png'
 }, {
-  id: 104,
+  id: 4,
   name: 'Термос "Поход"',
   category_slug: 'travelGoods',
   currentPrice: 2500,
   imageUrl: '/img/merch/test.png'
 }, {
-  id: 105,
+  id: 5,
   name: 'Брелок "Трек"',
   category_slug: 'accessories',
   currentPrice: 400,
@@ -163,8 +163,6 @@ var MOCK_PRODUCTS_DB = [{
       currentSortValue: 'default',
       isFavoritesOpen: false,
       isOrderOpen: false,
-      favoriteItems: [],
-      orderItems: [],
       isActiveSearch: false,
       searchQuery: '',
       searchResults: [],
@@ -180,13 +178,20 @@ var MOCK_PRODUCTS_DB = [{
     },
     countSearch: function countSearch() {
       return this.searchResults.length;
+    },
+    displaySortText: function displaySortText() {
+      var text = this.currentSortOption.text;
+      var parts = text.split(':');
+      return {
+        prefix: parts[0].trim(),
+        value: parts[1] ? parts[1].trim() : parts[0].trim()
+      };
     }
   },
   watch: {
     activeTab: function activeTab(newTab, oldTab) {
       if (newTab !== oldTab) {
         this.currentSortValue = 'default';
-        this.$emit('tab-changed', newTab);
         this.saveFiltersAndSort();
       }
     },
@@ -211,7 +216,7 @@ var MOCK_PRODUCTS_DB = [{
       }
     },
     searchQuery: function searchQuery() {
-      this.performSearch();
+      this.handleSearchInput();
     }
   },
   methods: {
@@ -260,14 +265,24 @@ var MOCK_PRODUCTS_DB = [{
     },
     toggleSearchOverlay: function toggleSearchOverlay() {
       this.isActiveSearch = !this.isActiveSearch;
-      if (this.isActiveSearch) {
-        document.body.classList.add('no-scroll');
-      } else {
-        this.searchQuery = '';
-      }
     },
     closeSearchOverlay: function closeSearchOverlay() {
       this.isActiveSearch = false;
+    },
+    handleSearchInput: function handleSearchInput() {
+      // TODO: сделать поиск (запрос к бд или локально)
+
+      var query = this.searchQuery.toLowerCase().trim();
+      var body = document.body;
+      if (query.length > 0) {
+        body.classList.add('no-scroll');
+        this.searchResults = MOCK_PRODUCTS_DB.filter(function (p) {
+          return p.name.toLowerCase().includes(query);
+        });
+      } else {
+        body.classList.remove('no-scroll');
+        this.searchResults = [];
+      }
     },
     toggleFavorites: function toggleFavorites() {
       this.isFavoritesOpen = !this.isFavoritesOpen;
@@ -287,21 +302,6 @@ var MOCK_PRODUCTS_DB = [{
       var shouldBlock = this.isFavoritesOpen || this.isOrderOpen || this.isActiveSearch;
       document.body.classList.toggle('no-scroll', shouldBlock);
     },
-    performSearch: function performSearch() {
-      // TODO: сделать поиск (запрос к бд или локально)
-
-      var query = this.searchQuery.toLowerCase().trim();
-      var body = document.body;
-      if (query.length > 0) {
-        body.classList.add('no-scroll');
-        this.searchResults = MOCK_PRODUCTS_DB.filter(function (p) {
-          return p.name.toLowerCase().includes(query);
-        });
-      } else {
-        body.classList.remove('no-scroll');
-        this.searchResults = [];
-      }
-    },
     isInWishlist: function isInWishlist(productId) {
       return this.wishlistIds.includes(productId);
     },
@@ -317,7 +317,6 @@ var MOCK_PRODUCTS_DB = [{
     },
     openModalFromCard: function openModalFromCard(product) {
       _event_bus__WEBPACK_IMPORTED_MODULE_2__["default"].$emit('open-product-modal', product);
-      //this.closeSearchOverlay();
     }
   },
   created: function created() {
@@ -508,6 +507,17 @@ var WISHLIST_STORAGE_KEY = 'merchWishlistIds';
       isInWishlist: false
     };
   },
+  computed: {
+    primaryImageUrl: function primaryImageUrl() {
+      if (!this.product || !this.product.images || this.product.images.length === 0) {
+        return '';
+      }
+      var primaryImageObj = this.product.images.find(function (img) {
+        return img.primary === true;
+      });
+      return primaryImageObj ? primaryImageObj.image : this.product.images[0].image;
+    }
+  },
   methods: {
     checkInWishlist: function checkInWishlist() {
       var stored = localStorage.getItem(WISHLIST_STORAGE_KEY);
@@ -544,35 +554,196 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var MOCK_PRODUCTS_DB = [{
-  id: 101,
-  name: 'Синяя футболка "Путешествие"',
-  category_slug: 'clothing',
-  currentPrice: 1500,
-  imageUrl: '/img/merch/test.png'
+  id: 2,
+  name: "Чемодан",
+  description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
+  oldPrice: 5500,
+  currentPrice: 3650,
+  isHit: true,
+  category_slug: "clothing",
+  images: [{
+    primary: true,
+    image: "/img/merch/test.png"
+  }, {
+    primary: false,
+    image: "/img/merch/test.png"
+  }, {
+    primary: false,
+    image: "/img/merch/test.png"
+  }, {
+    primary: false,
+    image: "/img/merch/test.png"
+  }, {
+    primary: false,
+    image: "/img/merch/test.png"
+  }],
+  attributes: [{
+    name: "Размер",
+    sku_key: "size",
+    options: ["Маленький", "Средний", "Большой"]
+  }, {
+    name: "Цвет",
+    sku_key: "color",
+    options: ["Синий", "Зеленый", "Красный"]
+  }],
+  available_skus: [{
+    "sku": "102-S-BLU",
+    "size": "Маленький",
+    "color": "Синий",
+    "price": 100,
+    stock_qty: 2
+  }, {
+    "sku": "102-S-GRN",
+    "size": "Маленький",
+    "color": "Зеленый",
+    "price": 100,
+    stock_qty: 3
+  }, {
+    "sku": "102-M-GRN",
+    "size": "Средний",
+    "color": "Зеленый",
+    "price": 120,
+    stock_qty: 0
+  }, {
+    "sku": "102-L-BLU",
+    "size": "Большой",
+    "color": "Синий",
+    "price": 150,
+    stock_qty: 0
+  }]
 }, {
-  id: 102,
-  name: 'Красный рюкзак',
-  category_slug: 'accessories',
-  currentPrice: 3500,
-  imageUrl: '/img/merch/test.png'
+  id: 3,
+  name: "Чемодан 3",
+  description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
+  oldPrice: 10500,
+  currentPrice: 7650,
+  isHit: true,
+  category_slug: "clothing",
+  images: [{
+    primary: true,
+    image: "/img/merch/test.png"
+  }, {
+    primary: false,
+    image: "/img/merch/test.png"
+  }, {
+    primary: false,
+    image: "/img/merch/test.png"
+  }, {
+    primary: false,
+    image: "/img/merch/test.png"
+  }, {
+    primary: false,
+    image: "/img/merch/test.png"
+  }],
+  attributes: [{
+    name: "Размер",
+    sku_key: "size",
+    options: ["Маленький", "Средний", "Большой"]
+  }, {
+    name: "Цвет",
+    sku_key: "color",
+    options: ["Синий", "Зеленый", "Красный"]
+  }],
+  available_skus: []
 }, {
-  id: 103,
-  name: 'Треккинговые ботинки',
-  category_slug: 'clothing',
-  currentPrice: 12000,
-  imageUrl: '/img/merch/test.png'
+  id: 4,
+  name: "Чемодан 4",
+  description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
+  oldPrice: 8500,
+  currentPrice: 4450,
+  isHit: true,
+  category_slug: "clothing",
+  images: [{
+    primary: true,
+    image: "/img/merch/test.png"
+  }, {
+    primary: false,
+    image: "/img/merch/test.png"
+  }, {
+    primary: false,
+    image: "/img/merch/test.png"
+  }, {
+    primary: false,
+    image: "/img/merch/test.png"
+  }, {
+    primary: false,
+    image: "/img/merch/test.png"
+  }],
+  attributes: [{
+    name: "Размер",
+    sku_key: "size",
+    options: ["Маленький", "Средний", "Большой"]
+  }],
+  available_skus: [{
+    "sku": "104-S",
+    "size": "Маленький",
+    "price": 100,
+    stock_qty: 2
+  }, {
+    "sku": "104-M",
+    "size": "Средний",
+    "price": 120,
+    stock_qty: 0
+  }]
 }, {
-  id: 104,
-  name: 'Термос "Поход"',
-  category_slug: 'travelGoods',
-  currentPrice: 2500,
-  imageUrl: '/img/merch/test.png'
-}, {
-  id: 105,
-  name: 'Брелок "Трек"',
-  category_slug: 'accessories',
-  currentPrice: 400,
-  imageUrl: '/img/merch/test.png'
+  id: 5,
+  name: "Чемодан 5",
+  description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
+  oldPrice: 4500,
+  currentPrice: 3350,
+  isHit: true,
+  category_slug: "clothing",
+  images: [{
+    primary: true,
+    image: "/img/merch/test.png"
+  }, {
+    primary: false,
+    image: "/img/merch/test.png"
+  }, {
+    primary: false,
+    image: "/img/merch/test.png"
+  }, {
+    primary: false,
+    image: "/img/merch/test.png"
+  }, {
+    primary: false,
+    image: "/img/merch/test.png"
+  }],
+  attributes: [{
+    name: "Размер",
+    sku_key: "size",
+    options: ["Маленький", "Средний", "Большой"]
+  }, {
+    name: "Цвет",
+    sku_key: "color",
+    options: ["Синий", "Зеленый", "Красный"]
+  }, {
+    name: "Материал",
+    sku_key: "material",
+    options: ["Металл", "Пластик"]
+  }],
+  available_skus: [{
+    sku: "104-S-BLUE-PLASTIC",
+    size: "Маленький",
+    color: "Синий",
+    material: "Пластик",
+    price: 1000,
+    stock_qty: 2
+  }, {
+    sku: "104-S-BLUE-METAL",
+    size: "Маленький",
+    color: "Синий",
+    material: "Металл",
+    price: 2000,
+    stock_qty: 0
+  }, {
+    sku: "104-S-RED-PLASTIC",
+    size: "Маленький",
+    color: "Красный",
+    material: "Пластик",
+    price: 2000,
+    stock_qty: 0
+  }]
 }];
 var WISHLIST_STORAGE_KEY = 'merchWishlistIds';
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
@@ -591,7 +762,7 @@ var WISHLIST_STORAGE_KEY = 'merchWishlistIds';
       "default": null
     }
   },
-  emits: ['close', 'toggle-wishlist'],
+  emits: ['close', 'toggle-wishlist', 'change-detail-product'],
   data: function data() {
     return {
       carouselResponsive: [{
@@ -610,12 +781,43 @@ var WISHLIST_STORAGE_KEY = 'merchWishlistIds';
       }],
       otherProducts: MOCK_PRODUCTS_DB,
       isInWishlist: false,
-      isNotificationVisible: false
+      isNotificationVisible: false,
+      selectedAttributes: {},
+      currentSKU: null,
+      activeAttributeOptions: {}
     };
   },
   computed: {
     isInStock: function isInStock() {
-      return false;
+      var _this$product;
+      if (!((_this$product = this.product) !== null && _this$product !== void 0 && (_this$product = _this$product.available_skus) !== null && _this$product !== void 0 && _this$product.length)) {
+        return false;
+      }
+      return !!this.currentSKU && this.currentSKU.stock_qty > 0;
+    },
+    finalPrice: function finalPrice() {
+      var _this$product2;
+      return this.currentSKU ? this.currentSKU.price.toLocaleString() : (_this$product2 = this.product) !== null && _this$product2 !== void 0 && _this$product2.currentPrice ? this.product.currentPrice.toLocaleString() : 'Цену уточняйте';
+    },
+    isVariantSelectionPossible: function isVariantSelectionPossible() {
+      return this.product && this.product.attributes && this.product.attributes.length > 0;
+    },
+    primaryImageUrl: function primaryImageUrl() {
+      var _this$product3, _this$product$images$;
+      if (!((_this$product3 = this.product) !== null && _this$product3 !== void 0 && (_this$product3 = _this$product3.images) !== null && _this$product3 !== void 0 && _this$product3.length)) return '';
+      var primaryImageObj = this.product.images.find(function (img) {
+        return img.primary === true;
+      });
+      return primaryImageObj ? primaryImageObj.image : (_this$product$images$ = this.product.images[0]) === null || _this$product$images$ === void 0 ? void 0 : _this$product$images$.image;
+    },
+    nonPrimaryImageUrls: function nonPrimaryImageUrls() {
+      var _this$product4;
+      if (!((_this$product4 = this.product) !== null && _this$product4 !== void 0 && (_this$product4 = _this$product4.images) !== null && _this$product4 !== void 0 && _this$product4.length)) return [];
+      return this.product.images.filter(function (img) {
+        return !img.primary;
+      }).map(function (img) {
+        return img.image;
+      });
     }
   },
   methods: {
@@ -623,14 +825,174 @@ var WISHLIST_STORAGE_KEY = 'merchWishlistIds';
       this.$emit('close');
     },
     checkInWishlist: function checkInWishlist() {
+      var _this$product5;
+      if (!((_this$product5 = this.product) !== null && _this$product5 !== void 0 && _this$product5.id)) {
+        this.isInWishlist = false;
+        return;
+      }
       var stored = localStorage.getItem(WISHLIST_STORAGE_KEY);
-      this.wishlistIds = stored ? JSON.parse(stored) : null;
-      this.isInWishlist = this.wishlistIds.includes(this.product.id);
+      var wishlistIds = stored ? JSON.parse(stored) : [];
+      this.isInWishlist = wishlistIds.includes(this.product.id);
+    },
+    initializeVariantSelection: function initializeVariantSelection(product) {
+      var _this = this;
+      if (!this.isVariantSelectionPossible) {
+        var hasStock = product.available_skus.some(function (sku) {
+          return sku.stock_qty > 0;
+        });
+        this.currentSKU = {
+          price: product.currentPrice,
+          stock_qty: hasStock ? 1 : 0,
+          sku: product.available_skus.length > 0 ? product.available_skus[0].sku : null
+        };
+        this.selectedAttributes = {};
+        this.activeAttributeOptions = {};
+        return;
+      }
+      var initialSelection = {};
+      var availableSkus = product.available_skus;
+      var leadingAttribute = product.attributes[0];
+      if (leadingAttribute && leadingAttribute.options.length > 0) {
+        this.$set(initialSelection, leadingAttribute.name, leadingAttribute.options[0]);
+      }
+      product.attributes.forEach(function (attr) {
+        if (attr.name !== leadingAttribute.name) {
+          _this.$set(initialSelection, attr.name, null);
+        }
+      });
+      this.selectedAttributes = initialSelection;
+      this.recalculateActiveOptions(product, availableSkus);
+      this.autoSelectFirstAvailable(product, availableSkus);
+      this.findAndUpdateSKU(product, availableSkus);
+    },
+    handleAttributeChange: function handleAttributeChange(changedAttrName, newValue) {
+      var product = this.product;
+      var availableSkus = product.available_skus;
+      this.$set(this.selectedAttributes, changedAttrName, newValue);
+      this.recalculateActiveOptions(product, availableSkus);
+      this.findAndUpdateSKU(product, availableSkus);
+    },
+    recalculateActiveOptions: function recalculateActiveOptions(product, availableSkus) {
+      var newActiveOptions = {};
+      var currentSelections = this.selectedAttributes;
+      var attributes = product.attributes;
+      attributes.forEach(function (attr) {
+        var currentAttrOptions = new Set();
+        var currentAttrKey = attr.sku_key;
+        var matchingSkus = availableSkus.filter(function (sku) {
+          var matches = true;
+          attributes.forEach(function (checkAttr) {
+            var checkAttrName = checkAttr.name;
+            var selectedValue = currentSelections[checkAttrName];
+            var checkSkuKey = checkAttr.sku_key;
+            if (selectedValue !== null && sku[checkSkuKey] !== selectedValue) {
+              matches = false;
+            }
+          });
+          return matches;
+        });
+        matchingSkus.forEach(function (sku) {
+          if (sku[currentAttrKey]) {
+            currentAttrOptions.add(sku[currentAttrKey]);
+          }
+        });
+        newActiveOptions[attr.name] = Array.from(currentAttrOptions).sort();
+      });
+      this.activeAttributeOptions = newActiveOptions;
+    },
+    autoSelectFirstAvailable: function autoSelectFirstAvailable(product, availableSkus) {
+      var _this2 = this;
+      var selectionChanged = false;
+      var attributes = product.attributes;
+      attributes.forEach(function (attr) {
+        var attrName = attr.name;
+        var currentSelection = _this2.selectedAttributes[attrName];
+        var availableOptions = _this2.activeAttributeOptions[attrName] || [];
+        var isAvailableInNextStep = availableOptions.length > 0;
+        var isSelectionInvalid = currentSelection && !availableOptions.includes(currentSelection);
+        if (isSelectionInvalid) {
+          if (isAvailableInNextStep) {
+            var firstValidOption = availableOptions[0];
+            if (_this2.selectedAttributes[attrName] !== firstValidOption) {
+              _this2.$set(_this2.selectedAttributes, attrName, firstValidOption);
+              selectionChanged = true;
+            }
+          } else {
+            var _attributes$;
+            var leadingAttributeName = (_attributes$ = attributes[0]) === null || _attributes$ === void 0 ? void 0 : _attributes$.name;
+            if (attrName !== leadingAttributeName) {
+              if (_this2.selectedAttributes[attrName] !== null) {
+                _this2.$set(_this2.selectedAttributes, attrName, null);
+                selectionChanged = true;
+              }
+            }
+          }
+        } else if (currentSelection === null && isAvailableInNextStep) {
+          var _firstValidOption = availableOptions[0];
+          if (_this2.selectedAttributes[attrName] !== _firstValidOption) {
+            _this2.$set(_this2.selectedAttributes, attrName, _firstValidOption);
+            selectionChanged = true;
+          }
+        }
+      });
+      if (selectionChanged) {
+        this.recalculateActiveOptions(product, availableSkus);
+      }
+    },
+    findAndUpdateSKU: function findAndUpdateSKU(product, availableSkus) {
+      var _this3 = this;
+      if (!this.isVariantSelectionPossible) {
+        var _foundSKU = availableSkus.find(function (sku) {
+          return sku.stock_qty > 0;
+        }) || availableSkus[0];
+        this.currentSKU = _foundSKU || {
+          price: product.currentPrice,
+          stock_qty: 0,
+          sku: null
+        };
+        return;
+      }
+      var requiredAttrsCount = product.attributes.length;
+      var selectedAttrsCount = Object.values(this.selectedAttributes).filter(function (v) {
+        return v !== null;
+      }).length;
+      if (selectedAttrsCount < requiredAttrsCount) {
+        this.currentSKU = null;
+        return;
+      }
+      var foundSKU = availableSkus.find(function (sku) {
+        return product.attributes.every(function (attr) {
+          var skuKey = attr.sku_key;
+          return sku[skuKey] === _this3.selectedAttributes[attr.name];
+        });
+      });
+      this.currentSKU = foundSKU || null;
+    },
+    addToCart: function addToCart() {
+      if (this.currentSKU && this.currentSKU.stock_qty > 0) {
+        console.log("\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D \u0432 \u043A\u043E\u0440\u0437\u0438\u043D\u0443: ".concat(this.product.name, " (SKU: ").concat(this.currentSKU.sku, ")"));
+      } else {
+        this.isNotificationVisible = true;
+      }
+    }
+  },
+  watch: {
+    product: {
+      immediate: true,
+      handler: function handler(newProduct) {
+        if (newProduct) {
+          this.initializeVariantSelection(newProduct);
+          this.checkInWishlist();
+        } else {
+          this.currentSKU = null;
+          this.selectedAttributes = {};
+          this.activeAttributeOptions = {};
+        }
+      }
     }
   },
   mounted: function mounted() {
     _event_bus__WEBPACK_IMPORTED_MODULE_1__["default"].$on('update-favorites', this.checkInWishlist);
-    this.checkInWishlist();
   }
 });
 
@@ -652,6 +1014,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ProductDetailModal_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ProductDetailModal.vue */ "./resources/js/client/modules/shop/components/ProductDetailModal.vue");
 /* harmony import */ var _event_bus__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../event-bus */ "./resources/js/event-bus.js");
 /* harmony import */ var _OrderForm_vue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./OrderForm.vue */ "./resources/js/client/modules/shop/components/OrderForm.vue");
+/* harmony import */ var _data_platform_data_json__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../data/platform_data.json */ "./resources/js/client/modules/shop/data/platform_data.json");
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
@@ -663,82 +1032,11 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
 
 
 
+
 var WISHLIST_STORAGE_KEY = 'merchWishlistIds';
 var WISHLIST_FULL_DATA_KEY = 'merchWishlistFullData';
 var FILTERS_SORT_STORAGE_KEY = 'merchFiltersAndSort';
 var ITEMS_PER_PAGE = 12;
-var TEMPLATES = {
-  RELEASES: {
-    title: 'Новые выпуски из путешествий'
-  },
-  NEWS: {
-    title: 'Последние новости'
-  },
-  SALES: {
-    title: 'Горящие туры, акции и скидки'
-  }
-};
-var PLATFORM_DATA = [{
-  idSuffix: '1',
-  platformName: 'Rutube',
-  imageUrl: '/img/socials/promo-rutube.png',
-  url: 'https://rutube.ru/channel/37334628/',
-  template: TEMPLATES.RELEASES
-}, {
-  idSuffix: '2',
-  platformName: 'Vkontakte',
-  imageUrl: '/img/socials/promo-vk.png',
-  url: 'https://vk.com/put_club',
-  template: TEMPLATES.NEWS
-}, {
-  idSuffix: '3',
-  platformName: 'Telegram',
-  imageUrl: '/img/socials/promo-tg.png',
-  url: 'https://t.me/put_club',
-  template: TEMPLATES.SALES
-}, {
-  idSuffix: '4',
-  platformName: 'Dzen',
-  imageUrl: '/img/socials/promo-dzen.png',
-  url: 'https://dzen.ru/put_club',
-  template: TEMPLATES.RELEASES
-}, {
-  idSuffix: '5',
-  platformName: 'YouTube',
-  imageUrl: '/img/socials/promo-youtube.png',
-  url: 'https://www.youtube.com/@put_club',
-  template: TEMPLATES.RELEASES
-}, {
-  idSuffix: '6',
-  platformName: 'TikTok',
-  imageUrl: '/img/socials/promo-tiktok.png',
-  url: 'https://www.tiktok.com/@put_club',
-  template: TEMPLATES.SALES
-}, {
-  idSuffix: '7',
-  platformName: 'Yappi',
-  imageUrl: '/img/socials/promo-yappi.png',
-  url: 'https://yappy.media/n/put_club',
-  template: TEMPLATES.SALES
-}, {
-  idSuffix: '8',
-  platformName: 'Одноклассники',
-  imageUrl: '/img/socials/promo-ok.png',
-  url: 'https://ok.ru/group/70000033103318',
-  template: TEMPLATES.SALES
-}, {
-  idSuffix: '9',
-  platformName: 'Max',
-  imageUrl: '/img/socials/promo-max.png',
-  url: 'https://t.me/put_club',
-  template: TEMPLATES.NEWS
-}, {
-  idSuffix: '10',
-  platformName: 'Instagram',
-  imageUrl: '/img/socials/promo-instagram.png',
-  url: 'https://instagram.com/put_club',
-  template: TEMPLATES.SALES
-}];
 function shuffleArray(array) {
   for (var i = array.length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1));
@@ -746,18 +1044,6 @@ function shuffleArray(array) {
     array[i] = _ref[0];
     array[j] = _ref[1];
   }
-}
-function generatePromoBlocks() {
-  return PLATFORM_DATA.map(function (platform) {
-    return {
-      id: "promo".concat(platform.idSuffix),
-      title: platform.template.title,
-      description: "\u043C\u043E\u0436\u043D\u043E \u043F\u043E\u0441\u043C\u043E\u0442\u0440\u0435\u0442\u044C \u0443 \u043D\u0430\u0441 \u0432 ".concat(platform.platformName),
-      imageUrl: platform.imageUrl,
-      type: 'promo',
-      url: platform.url
-    };
-  });
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'ProductList',
@@ -771,130 +1057,275 @@ function generatePromoBlocks() {
     return {
       allProducts: [{
         id: 1,
-        name: 'Чемодан "В ПУТЬ" 1',
+        name: "Чемодан \"В ПУТЬ\" (Общая Акция)",
+        description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
         oldPrice: 5500,
         currentPrice: 3650,
-        imageUrl: '/img/merch/test.png',
-        images: ['/img/merch/test.png', '/img/merch/test.png', '/img/merch/test.png', '/img/merch/test.png'],
-        parameters: [{
-          name: 'Размер',
-          value: ['Маленький', 'Средний', 'Большой']
-        }, {
-          name: 'Цвет',
-          value: ['Красный', 'Синий', 'Зеленый']
-        }],
-        maxCount: 3,
         isHit: true,
-        category_slug: 'clothing'
+        category_slug: "clothing",
+        images: [{
+          primary: true,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
+        }],
+        attributes: [{
+          name: "Размер",
+          sku_key: "size",
+          options: ["Маленький", "Средний", "Большой"]
+        }, {
+          name: "Цвет",
+          sku_key: "color",
+          options: ["Синий", "Зеленый", "Красный"]
+        }],
+        available_skus: [{
+          "sku": "101-M-BLU",
+          "size": "Средний",
+          "color": "Синий",
+          "price": 120,
+          stock_qty: 4
+        }, {
+          "sku": "101-M-GRN",
+          "size": "Средний",
+          "color": "Зеленый",
+          "price": 120,
+          stock_qty: 0
+        }, {
+          "sku": "101-L-BLU",
+          "size": "Большой",
+          "color": "Синий",
+          "price": 150,
+          stock_qty: 0
+        }, {
+          "sku": "101-L-RED",
+          "size": "Большой",
+          "color": "Красный",
+          "price": 150,
+          stock_qty: 2
+        }]
       }, {
         id: 2,
-        name: 'Чемодан "В ПУТЬ" 2',
-        oldPrice: 7500,
-        currentPrice: 4650,
-        imageUrl: '/img/merch/test.png',
-        parameters: [{
-          name: 'Размер',
-          value: ['Маленький', 'Средний']
-        }],
-        maxCount: 2,
+        name: "Чемодан",
+        description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
+        oldPrice: 5500,
+        currentPrice: 3650,
         isHit: true,
-        category_slug: 'clothing'
+        category_slug: "clothing",
+        images: [{
+          primary: true,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
+        }],
+        attributes: [{
+          name: "Размер",
+          sku_key: "size",
+          options: ["Маленький", "Средний", "Большой"]
+        }, {
+          name: "Цвет",
+          sku_key: "color",
+          options: ["Синий", "Зеленый", "Красный"]
+        }],
+        available_skus: [{
+          "sku": "102-S-BLU",
+          "size": "Маленький",
+          "color": "Синий",
+          "price": 100,
+          stock_qty: 2
+        }, {
+          "sku": "102-S-GRN",
+          "size": "Маленький",
+          "color": "Зеленый",
+          "price": 100,
+          stock_qty: 3
+        }, {
+          "sku": "102-M-GRN",
+          "size": "Средний",
+          "color": "Зеленый",
+          "price": 120,
+          stock_qty: 0
+        }, {
+          "sku": "102-L-BLU",
+          "size": "Большой",
+          "color": "Синий",
+          "price": 150,
+          stock_qty: 0
+        }]
       }, {
         id: 3,
-        name: 'Чемодан "В ПУТЬ" 3',
-        oldPrice: 3500,
-        currentPrice: 8650,
-        imageUrl: '/img/merch/test.png',
-        parameters: [{
-          name: 'Размер',
-          value: ['Средний', 'Большой']
-        }],
-        maxCount: 5,
+        name: "Чемодан 3",
+        description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
+        oldPrice: 10500,
+        currentPrice: 7650,
         isHit: true,
-        category_slug: 'clothing'
+        category_slug: "clothing",
+        images: [{
+          primary: true,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
+        }],
+        attributes: [{
+          name: "Размер",
+          sku_key: "size",
+          options: ["Маленький", "Средний", "Большой"]
+        }, {
+          name: "Цвет",
+          sku_key: "color",
+          options: ["Синий", "Зеленый", "Красный"]
+        }],
+        available_skus: []
       }, {
         id: 4,
-        name: 'Чемодан "В ПУТЬ" 4',
-        oldPrice: 5500,
-        currentPrice: 2650,
-        imageUrl: '/img/merch/test.png',
-        parameters: [{
-          name: 'Размер',
-          value: ['Маленький', 'Средний', 'Большой']
-        }],
-        maxCount: 4,
+        name: "Чемодан 4",
+        description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
+        oldPrice: 8500,
+        currentPrice: 4450,
         isHit: true,
-        category_slug: 'clothing'
+        category_slug: "clothing",
+        images: [{
+          primary: true,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
+        }],
+        attributes: [{
+          name: "Размер",
+          sku_key: "size",
+          options: ["Маленький", "Средний", "Большой"]
+        }],
+        available_skus: [{
+          "sku": "104-S",
+          "size": "Маленький",
+          "price": 100,
+          stock_qty: 2
+        }, {
+          "sku": "104-M",
+          "size": "Средний",
+          "price": 120,
+          stock_qty: 0
+        }]
       }, {
         id: 5,
-        name: 'Чемодан "В ПУТЬ" 5',
-        oldPrice: 5500,
-        currentPrice: 1550,
-        imageUrl: '/img/merch/test.png',
-        parameters: [{
-          name: 'Размер',
-          value: ['Маленький', 'Средний', 'Большой']
-        }],
-        maxCount: 5,
+        name: "Чемодан 5",
+        description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
+        oldPrice: 4500,
+        currentPrice: 3350,
         isHit: true,
-        category_slug: 'clothing'
-      }, {
-        id: 6,
-        name: 'Чемодан "В ПУТЬ" 6',
-        oldPrice: 5500,
-        currentPrice: 9650,
-        imageUrl: '/img/merch/test.png',
-        parameters: [{
-          name: 'Размер',
-          value: ['Маленький', 'Средний', 'Большой']
+        category_slug: "clothing",
+        images: [{
+          primary: true,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
+        }, {
+          primary: false,
+          image: "/img/merch/test.png"
         }],
-        isHit: true,
-        category_slug: 'clothing'
+        attributes: [{
+          name: "Размер",
+          sku_key: "size",
+          options: ["Маленький", "Средний", "Большой"]
+        }, {
+          name: "Цвет",
+          sku_key: "color",
+          options: ["Синий", "Зеленый", "Красный"]
+        }, {
+          name: "Материал",
+          sku_key: "material",
+          options: ["Металл", "Пластик"]
+        }],
+        available_skus: [{
+          sku: "104-S-BLUE-PLASTIC",
+          size: "Маленький",
+          color: "Синий",
+          material: "Пластик",
+          price: 1000,
+          stock_qty: 2
+        }, {
+          sku: "104-S-BLUE-METAL",
+          size: "Маленький",
+          color: "Синий",
+          material: "Металл",
+          price: 2000,
+          stock_qty: 0
+        }, {
+          sku: "104-S-RED-PLASTIC",
+          size: "Маленький",
+          color: "Красный",
+          material: "Пластик",
+          price: 2000,
+          stock_qty: 0
+        }]
       }, {
         id: 7,
         name: 'Аксессуар А',
+        description: 'Наше авторское обучение для людей которые хотят работать в сфере туризма на ' + 'полную или частичную занятость, или путешествовать с огромными скидками.',
         oldPrice: 1500,
         currentPrice: 1200,
-        imageUrl: '/img/merch/test.png',
-        parameters: [{
-          name: 'Цвет',
-          value: ['Белый', 'Серый', 'Красный']
+        images: [{
+          primary: true,
+          image: '/img/merch/test.png'
+        }, {
+          primary: false,
+          image: '/img/merch/test.png'
+        }, {
+          primary: false,
+          image: '/img/merch/test.png'
+        }, {
+          primary: false,
+          image: '/img/merch/test.png'
+        }, {
+          primary: false,
+          image: '/img/merch/test.png'
         }],
-        maxCount: 1,
-        isHit: false,
-        category_slug: 'accessories'
-      }, {
-        id: 8,
-        name: 'Аксессуар Б',
-        oldPrice: 2000,
-        currentPrice: 1800,
-        imageUrl: '/img/merch/test.png',
-        parameters: [{
-          name: 'Цвет',
-          value: ['Белый', 'Серый', 'Красный']
-        }],
-        maxCount: 1,
-        isHit: false,
-        category_slug: 'accessories'
-      }, {
-        id: 9,
-        name: 'Аксессуар В',
-        oldPrice: 500,
-        currentPrice: 450,
-        imageUrl: '/img/merch/test.png',
-        parameters: [{
-          name: 'Цвет',
-          value: ['Белый', 'Серый', 'Красный']
-        }],
-        maxCount: 1,
-        isHit: false,
-        category_slug: 'accessories'
-      }, {
-        id: 10,
-        name: 'Аксессуар Г',
-        oldPrice: 3000,
-        currentPrice: 2900,
-        imageUrl: '/img/merch/test.png',
         parameters: [{
           name: 'Цвет',
           value: ['Белый', 'Серый', 'Красный']
@@ -905,48 +1336,25 @@ function generatePromoBlocks() {
       }, {
         id: 11,
         name: 'Товар Т1',
+        description: 'Наше авторское обучение для людей которые хотят работать в сфере туризма на ' + 'полную или частичную занятость, или путешествовать с огромными скидками.',
         oldPrice: 5500,
         currentPrice: 3650,
-        imageUrl: '/img/merch/test.png',
-        parameters: [{
-          name: 'Размер',
-          value: ['Маленький', 'Средний', 'Большой']
+        images: [{
+          primary: true,
+          image: '/img/merch/test.png'
+        }, {
+          primary: false,
+          image: '/img/merch/test.png'
+        }, {
+          primary: false,
+          image: '/img/merch/test.png'
+        }, {
+          primary: false,
+          image: '/img/merch/test.png'
+        }, {
+          primary: false,
+          image: '/img/merch/test.png'
         }],
-        maxCount: 1,
-        isHit: false,
-        category_slug: 'travelGoods'
-      }, {
-        id: 12,
-        name: 'Товар Т2',
-        oldPrice: 5500,
-        currentPrice: 3650,
-        imageUrl: '/img/merch/test.png',
-        parameters: [{
-          name: 'Размер',
-          value: ['Маленький', 'Средний', 'Большой']
-        }],
-        maxCount: 1,
-        isHit: false,
-        category_slug: 'travelGoods'
-      }, {
-        id: 13,
-        name: 'Товар Т3',
-        oldPrice: 5500,
-        currentPrice: 3650,
-        imageUrl: '/img/merch/test.png',
-        parameters: [{
-          name: 'Размер',
-          value: ['Маленький', 'Средний', 'Большой']
-        }],
-        maxCount: 1,
-        isHit: false,
-        category_slug: 'travelGoods'
-      }, {
-        id: 14,
-        name: 'Товар Т4',
-        oldPrice: 5500,
-        currentPrice: 3650,
-        imageUrl: '/img/merch/test.png',
         parameters: [{
           name: 'Размер',
           value: ['Маленький', 'Средний', 'Большой']
@@ -958,13 +1366,14 @@ function generatePromoBlocks() {
       wishlistIds: [],
       wishlistFullData: [],
       displayedCount: ITEMS_PER_PAGE,
-      promoBlocks: generatePromoBlocks(),
+      promoBlocks: [],
       shuffledPromoBlocks: [],
       currentFilterTag: 'clothing',
       currentSort: 'default',
       isDetailVisible: false,
       modalProductData: null,
-      isInWishList: false
+      isInWishList: false,
+      platformData: []
     };
   },
   computed: {
@@ -1100,6 +1509,10 @@ function generatePromoBlocks() {
       }
       _event_bus__WEBPACK_IMPORTED_MODULE_3__["default"].$emit('update-favorites');
     },
+    changeDetailProduct: function changeDetailProduct(product) {
+      this.modalProductData = product;
+      this.updateBrowserUrl(product.id);
+    },
     loadFiltersAndSortFromStorage: function loadFiltersAndSortFromStorage() {
       var stored = this.loadFromStorage(FILTERS_SORT_STORAGE_KEY);
       if (stored) {
@@ -1118,9 +1531,34 @@ function generatePromoBlocks() {
       } catch (e) {
         console.error("Не удалось сохранить фильтры/сортировку в localStorage:", e);
       }
+    },
+    getPlatformData: function getPlatformData() {
+      var TEMPLATES = _data_platform_data_json__WEBPACK_IMPORTED_MODULE_5__.TEMPLATES;
+      var PLATFORM_DATA_RAW = _data_platform_data_json__WEBPACK_IMPORTED_MODULE_5__.PLATFORM_DATA;
+      if (PLATFORM_DATA_RAW) {
+        this.platformData = PLATFORM_DATA_RAW.map(function (item) {
+          return _objectSpread(_objectSpread({}, item), {}, {
+            template: TEMPLATES[item.template]
+          });
+        });
+      }
+      this.promoBlocks = this.generatePromoBlocks();
+    },
+    generatePromoBlocks: function generatePromoBlocks() {
+      return this.platformData.map(function (platform) {
+        return {
+          id: "promo".concat(platform.idSuffix),
+          title: platform.template.title,
+          description: "\u043C\u043E\u0436\u043D\u043E \u043F\u043E\u0441\u043C\u043E\u0442\u0440\u0435\u0442\u044C \u0443 \u043D\u0430\u0441 \u0432 ".concat(platform.platformName),
+          imageUrl: platform.imageUrl,
+          type: 'promo',
+          url: platform.url
+        };
+      });
     }
   },
   mounted: function mounted() {
+    this.getPlatformData();
     this.loadWishlist();
     this.loadFiltersAndSortFromStorage();
     this.initializePromo();
@@ -1471,21 +1909,7 @@ var render = function render() {
       src: "/img/merch/shopping-bag-icon.png",
       alt: "Корзина"
     }
-  })])]), _vm._v(" "), _c("FavoritesSidebar", {
-    attrs: {
-      isActive: _vm.isFavoritesOpen
-    },
-    on: {
-      close: _vm.closeFavorites
-    }
-  }), _vm._v(" "), _c("OrderSidebar", {
-    attrs: {
-      "is-active": _vm.isOrderOpen
-    },
-    on: {
-      close: _vm.closeOrder
-    }
-  })], 1), _vm._v(" "), _c("div", {
+  })])])]), _vm._v(" "), _c("div", {
     staticClass: "sort-control-wrapper text-end"
   }, [_c("div", {
     staticClass: "dropdown sort-control"
@@ -1497,7 +1921,7 @@ var render = function render() {
       "data-bs-toggle": "dropdown",
       "aria-expanded": "false"
     }
-  }, [_vm._v("\n\n                " + _vm._s(_vm.currentSortOption.text.split(":")[0]) + ":\n                "), _c("b", [_vm._v(_vm._s(_vm.currentSortOption.text.split(":")[1] || _vm.currentSortOption.text.split(":")[0]))]), _vm._v(" "), _c("svg", {
+  }, [_vm._v("\n\n                " + _vm._s(_vm.displaySortText.prefix) + ":\n                "), _c("b", [_vm._v(_vm._s(_vm.displaySortText.value))]), _vm._v(" "), _c("svg", {
     staticClass: "bi bi-chevron-down custom-chevron",
     attrs: {
       xmlns: "http://www.w3.org/2000/svg",
@@ -1531,7 +1955,21 @@ var render = function render() {
         }
       }
     }, [_vm._v("\n                        " + _vm._s(option.text) + "\n                    ")])]);
-  }), 0)])])]);
+  }), 0)])]), _vm._v(" "), _c("FavoritesSidebar", {
+    attrs: {
+      isActive: _vm.isFavoritesOpen
+    },
+    on: {
+      close: _vm.closeFavorites
+    }
+  }), _vm._v(" "), _c("OrderSidebar", {
+    attrs: {
+      "is-active": _vm.isOrderOpen
+    },
+    on: {
+      close: _vm.closeOrder
+    }
+  })], 1);
 };
 var staticRenderFns = [];
 render._withStripped = true;
@@ -1558,6 +1996,7 @@ var render = function render() {
     staticClass: "modal-overlay",
     on: {
       click: function click($event) {
+        if ($event.target !== $event.currentTarget) return null;
         return _vm.$emit("close");
       }
     }
@@ -2023,7 +2462,7 @@ var render = function render() {
   }, [_c("img", {
     staticClass: "product-img",
     attrs: {
-      src: _vm.product.imageUrl,
+      src: _vm.primaryImageUrl,
       alt: _vm.product.name
     }
   }), _vm._v(" "), _c("div", {
@@ -2133,13 +2572,7 @@ var render = function render() {
   var _vm = this,
     _c = _vm._self._c;
   return _vm.isVisible ? _c("div", {
-    staticClass: "modal-backdrop",
-    on: {
-      click: function click($event) {
-        if ($event.target !== $event.currentTarget) return null;
-        return _vm.$emit("close");
-      }
-    }
+    staticClass: "modal-backdrop"
   }, [_c("notification-modal", {
     attrs: {
       "is-visible": _vm.isNotificationVisible
@@ -2158,7 +2591,7 @@ var render = function render() {
     on: {
       click: _vm.closeModal
     }
-  }, [_vm._v("Назад")])]), _vm._v(" "), _vm.product ? _c("div", [_c("div", {
+  }, [_vm._v("Назад")])]), _vm._v(" "), _vm.product ? _c("div", {
     staticClass: "product-card container"
   }, [_c("div", {
     staticClass: "product-content"
@@ -2168,7 +2601,7 @@ var render = function render() {
     staticClass: "gallery"
   }, [_c("div", {
     staticClass: "image-list"
-  }, _vm._l(_vm.product.images, function (image, idx) {
+  }, _vm._l(_vm.nonPrimaryImageUrls, function (image, idx) {
     return _c("div", {
       staticClass: "image-wrapper position-relative"
     }, [_c("img", {
@@ -2184,45 +2617,65 @@ var render = function render() {
     staticClass: "img-wrapper h-100"
   }, [_c("img", {
     attrs: {
-      src: _vm.product.imageUrl,
+      src: _vm.primaryImageUrl,
       alt: "Основное изображение"
     }
   })])])]), _vm._v(" "), _vm._m(0)]), _vm._v(" "), _c("div", {
     staticClass: "product-details"
   }, [_c("h2", [_vm._v(_vm._s(_vm.product.name))]), _vm._v(" "), _c("p", {
     staticClass: "description"
-  }, [_vm._v("\n                            Наше авторское обучение для людей которые хотят работать в сфере туризма на полную или\n                            частичную занятость, или путешествовать с огромными скидками.\n                        ")]), _vm._v(" "), _c("div", {
+  }, [_vm._v("\n                        " + _vm._s(_vm.product.description) + "\n                    ")]), _vm._v(" "), _vm.product.available_skus.length > 0 ? _c("div", {
     staticClass: "options"
-  }, _vm._l(_vm.product.parameters, function (parameter, idx) {
+  }, _vm._l(_vm.product.attributes, function (attr, index) {
     return _c("div", {
-      key: idx,
+      key: attr.name,
       staticClass: "form-group"
     }, [_c("label", {
       attrs: {
-        "for": "select-" + idx
+        "for": "select-" + attr.name
       }
-    }, [_vm._v(_vm._s(parameter.name) + ":")]), _vm._v(" "), _c("div", {
+    }, [_vm._v(_vm._s(attr.name) + ":")]), _vm._v(" "), _c("div", {
       staticClass: "select-wrapper position-relative"
     }, [_c("select", {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: _vm.selectedAttributes[attr.name],
+        expression: "selectedAttributes[attr.name]"
+      }],
       staticClass: "custom-select",
       attrs: {
-        id: "select-" + idx
+        id: "select-" + attr.name,
+        disabled: !_vm.isVariantSelectionPossible
+      },
+      on: {
+        change: [function ($event) {
+          var $$selectedVal = Array.prototype.filter.call($event.target.options, function (o) {
+            return o.selected;
+          }).map(function (o) {
+            var val = "_value" in o ? o._value : o.value;
+            return val;
+          });
+          _vm.$set(_vm.selectedAttributes, attr.name, $event.target.multiple ? $$selectedVal : $$selectedVal[0]);
+        }, function ($event) {
+          return _vm.handleAttributeChange(attr.name, _vm.selectedAttributes[attr.name]);
+        }]
       }
-    }, _vm._l(parameter.value, function (value) {
+    }, _vm._l(attr.options, function (option) {
       return _c("option", {
-        key: value,
+        key: option,
         domProps: {
-          value: value
+          value: option
         }
-      }, [_vm._v("\n                                            " + _vm._s(value) + "\n                                        ")]);
+      }, [_vm._v("\n                                        " + _vm._s(option) + "\n                                    ")]);
     }), 0), _vm._v(" "), _c("div", {
       staticClass: "select-icon position-absolute"
     })])]);
-  }), 0), _vm._v(" "), _c("div", {
+  }), 0) : _vm._e(), _vm._v(" "), _c("div", {
     staticClass: "price-actions"
-  }, [_c("h2", {
+  }, [_vm._v("\n                        " + _vm._s(_vm.currentSKU) + "\n                        "), _vm.currentSKU ? _c("h2", {
     staticClass: "mb-2"
-  }, [_vm._v("3650 руб.")]), _vm._v(" "), _c("div", {
+  }, [_vm._v(_vm._s(_vm.finalPrice) + " руб.")]) : _vm._e(), _vm._v(" "), _c("div", {
     staticClass: "btn-actions d-flex gap-4 align-items-center"
   }, [_c("button", {
     staticClass: "btn btn-cta",
@@ -2230,11 +2683,9 @@ var render = function render() {
       "out-of-stock": !_vm.isInStock
     },
     on: {
-      click: function click($event) {
-        _vm.isInStock ? true : _vm.isNotificationVisible = true;
-      }
+      click: _vm.addToCart
     }
-  }, [_vm._v("\n                                    " + _vm._s(_vm.isInStock ? "в корзину" : "сообщить о наличии") + "\n                                ")]), _vm._v(" "), _c("div", {
+  }, [_vm._v("\n                                " + _vm._s(_vm.isInStock ? "в корзину" : "сообщить о наличии") + "\n                            ")]), _vm._v(" "), _c("div", {
     staticClass: "product-block-favorites-wrapp wishlist-icon"
   }, [_c("input", {
     staticClass: "product-block-favorites__checkbox",
@@ -2302,7 +2753,7 @@ var render = function render() {
       stroke: "black",
       "stroke-width": "2"
     }
-  })])])])])])])])])]) : _vm._e(), _vm._v(" "), _c("div", {
+  })])])])])])])])]) : _vm._e(), _vm._v(" "), _c("div", {
     staticClass: "another-products container"
   }, [_c("h2", {
     staticClass: "fw-bold"
@@ -2340,15 +2791,15 @@ var render = function render() {
         })])];
       }
     }], null, false, 1606006649)
-  }, [_vm._v(" "), _vm._v(" "), _vm._l(_vm.otherProducts, function (product) {
+  }, [_vm._v(" "), _vm._v(" "), _vm._l(_vm.otherProducts, function (otherProduct) {
     return _c("ProductCard", {
-      key: product.id,
+      key: otherProduct.id,
       attrs: {
-        product: product
+        product: otherProduct
       },
       on: {
         click: function click($event) {
-          return _vm.openModalFromCard(product);
+          return _vm.$emit("change-detail-product", otherProduct);
         }
       }
     });
@@ -2394,7 +2845,8 @@ var render = function render() {
     },
     on: {
       close: _vm.closeModal,
-      "toggle-wishlist": _vm.handleWishlist
+      "toggle-wishlist": _vm.handleWishlist,
+      "change-detail-product": _vm.changeDetailProduct
     }
   }) : _vm._e(), _vm._v(" "), _vm._l(_vm.displayedGroups, function (group, groupIndex) {
     return _c("div", {
@@ -3778,6 +4230,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_lib_index_js_vue_loader_options_PromoBlock_vue_vue_type_template_id_72383ddc_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!../../../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[2]!../../../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./PromoBlock.vue?vue&type=template&id=72383ddc&scoped=true */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/client/modules/shop/components/PromoBlock.vue?vue&type=template&id=72383ddc&scoped=true");
 
+
+/***/ }),
+
+/***/ "./resources/js/client/modules/shop/data/platform_data.json":
+/*!******************************************************************!*\
+  !*** ./resources/js/client/modules/shop/data/platform_data.json ***!
+  \******************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = /*#__PURE__*/JSON.parse('{"TEMPLATES":{"RELEASES":{"title":"Новые выпуски из путешествий"},"NEWS":{"title":"Последние новости"},"SALES":{"title":"Горящие туры, акции и скидки"}},"PLATFORM_DATA":[{"idSuffix":"1","platformName":"Rutube","imageUrl":"/img/socials/promo-rutube.png","url":"https://rutube.ru/channel/37334628/","template":"RELEASES"},{"idSuffix":"2","platformName":"Vkontakte","imageUrl":"/img/socials/promo-vk.png","url":"https://vk.com/put_club","template":"NEWS"},{"idSuffix":"3","platformName":"Telegram","imageUrl":"/img/socials/promo-tg.png","url":"https://t.me/put_club","template":"SALES"},{"idSuffix":"4","platformName":"Dzen","imageUrl":"/img/socials/promo-dzen.png","url":"https://dzen.ru/put_club","template":"RELEASES"},{"idSuffix":"5","platformName":"YouTube","imageUrl":"/img/socials/promo-youtube.png","url":"https://www.youtube.com/@put_club","template":"RELEASES"},{"idSuffix":"6","platformName":"TikTok","imageUrl":"/img/socials/promo-tiktok.png","url":"https://www.tiktok.com/@put_club","template":"SALES"},{"idSuffix":"7","platformName":"Yappi","imageUrl":"/img/socials/promo-yappi.png","url":"https://yappy.media/n/put_club","template":"SALES"},{"idSuffix":"8","platformName":"Одноклассники","imageUrl":"/img/socials/promo-ok.png","url":"https://ok.ru/group/70000033103318","template":"SALES"},{"idSuffix":"9","platformName":"Max","imageUrl":"/img/socials/promo-max.png","url":"https://t.me/put_club","template":"NEWS"},{"idSuffix":"10","platformName":"Instagram","imageUrl":"/img/socials/promo-instagram.png","url":"https://instagram.com/put_club","template":"SALES"}]}');
 
 /***/ }),
 

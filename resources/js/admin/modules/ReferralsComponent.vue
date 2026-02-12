@@ -1,21 +1,37 @@
 <template>
     <div class="referral-manager">
-        <div v-if="showTransactionsModal" class="modal fade show d-block backdrop-gray" tabindex="-1" aria-hidden="false">
+        <div v-if="showTransactionsModal" class="modal fade show d-block backdrop-gray" tabindex="-1"
+             aria-hidden="false">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Транзакции для: {{ currentReferral.full_name }} ({{ currentReferral.ref_code }})</h5>
-                        <button type="button" class="btn-close" @click="closeTransactionsModal" aria-label="Close"></button>
+                        <h5 class="modal-title">Транзакции для: {{ currentReferral.full_name }}
+                            ({{ currentReferral.ref_code }})</h5>
+                        <button type="button" class="btn-close" @click="closeTransactionsModal"
+                                aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="d-flex justify-content-end mb-3">
+                        <div class="d-flex justify-content-end mb-3 gap-2">
                             <div class="d-flex align-items-center gap-2">
                                 <label for="txnStatusFilter" class="form-label mb-0 fw-bold">Фильтр Статуса:</label>
-                                <select id="txnStatusFilter" v-model="filterTxnStatus" @change="fetchTransactionsForReferral(currentReferral.id)" class="form-select form-select-sm w-auto">
+                                <select id="txnStatusFilter" v-model="filterTxnStatus"
+                                        @change="fetchTransactionsForReferral(currentReferral.id)"
+                                        class="form-select form-select-sm w-auto">
                                     <option value="">Все статусы</option>
                                     <option value="succeeded">Успешные</option>
                                     <option value="pending">В ожидании</option>
                                     <option value="cancelled">Отклоненные</option>
+                                </select>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <label for="payoutFilter" class="form-label mb-0 fw-bold">Фильтр Выплаты:</label>
+                                <select id="payoutFilter"
+                                        v-model="filterPayoutStatus"
+                                        @change="fetchTransactionsForReferral(currentReferral.id)"
+                                        class="form-select form-select-sm w-auto">
+                                    <option value="">Все статусы</option>
+                                    <option :value="true">Выплачено</option>
+                                    <option :value="false">В ожидании</option>
                                 </select>
                             </div>
                         </div>
@@ -26,7 +42,7 @@
                         </div>
 
                         <div v-else-if="referralTransactions.length === 0" class="alert alert-warning">
-                            По этой реферальной ссылке пока нет успешных транзакций.
+                            Данных не найдено.
                         </div>
 
                         <div v-else class="table-responsive">
@@ -38,6 +54,7 @@
                                     <th>Сумма</th>
                                     <th>Статус</th>
                                     <th>Дата</th>
+                                    <th>Выплата</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -51,12 +68,21 @@
                                             'bg-danger': txn.status === 'cancelled',
                                             'bg-secondary': txn.status === 'pending',
                                         }">
-                                            {{ txn.status === 'succeeded' ? 'Успешно' : ''}}
-                                            {{ txn.status === 'cancelled' ? 'Отменен' : ''}}
-                                            {{ txn.status === 'pending' ? ' В ожидании' : ''}}
+                                            {{ txn.status === 'succeeded' ? 'Успешно' : '' }}
+                                            {{ txn.status === 'cancelled' ? 'Отменен' : '' }}
+                                            {{ txn.status === 'pending' ? ' В ожидании' : '' }}
                                         </span>
                                     </td>
                                     <td>{{ new Date(txn.created_at).toLocaleDateString() }}</td>
+                                    <td class="text-center">
+                                        <input
+                                            type="checkbox"
+                                            :id="'paid-' + txn.id"
+                                            :checked="!!txn.paid_referral_fee"
+                                            @change="toggleReferralPaid(txn.id, !!txn.paid_referral_fee)"
+                                            :disabled="txn.status !== 'succeeded' || !!txn.paid_referral_fee"
+                                            :title="txn.status !== 'succeeded' ? 'Можно платить только за успешные транзакции' : 'Отметить отметку о выплате'">
+                                    </td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -238,6 +264,7 @@ export default {
             isLoadingTransactions: false,
 
             filterTxnStatus: '',
+            filterPayoutStatus: '',
         };
     },
     computed: {
@@ -355,14 +382,15 @@ export default {
             this.referralTransactions = [];
 
             const params = {
-                status: this.filterTxnStatus
+                status: this.filterTxnStatus,
+                payout_paid: this.filterPayoutStatus
             };
 
             try {
-                const response = await axios.get(`/admin/api/referrals/${referralId}/transactions`, { params });
+                const response = await axios.get(`/admin/api/referrals/${referralId}/transactions`, {params});
                 this.referralTransactions = response.data.transactions;
             } catch (error) {
-               // console.error("Ошибка загрузки транзакций:", error);
+                // console.error("Ошибка загрузки транзакций:", error);
             } finally {
                 this.isLoadingTransactions = false;
             }
@@ -379,6 +407,21 @@ export default {
             this.showTransactionsModal = false;
             this.currentReferral = null;
             this.referralTransactions = [];
+        },
+
+        async toggleReferralPaid(transactionId, isPaid) {
+            try {
+                await axios.put(`/admin/api/transactions/${transactionId}/mark-referral-paid`).then(() => {
+                    this.fetchTransactionsForReferral(this.currentReferral.id);
+                });
+
+            } catch (error) {
+                console.error(`Ошибка при обновлении статуса транзакции ${transactionId}:`, error.response ? error.response.data : error.message);
+                const transaction = this.referralTransactions.find(t => t.id === transactionId);
+                if (transaction) {
+                    transaction.is_referral_paid = !isPaid;
+                }
+            }
         }
     }
 }
@@ -394,6 +437,6 @@ export default {
 }
 
 .backdrop-gray {
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0, 0, 0, 0.5);
 }
 </style>

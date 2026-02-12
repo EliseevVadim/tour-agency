@@ -29,6 +29,8 @@ Route::middleware(['admin.auth.hash'])->prefix('admin')->name('admin.')->group(f
         Route::delete('/review/{id}', [ReviewsController::class, 'destroy'])->name('review.destroy');
 
         Route::get('/transactions', [PaymentController::class, 'index'])->name('transactions.index');
+        Route::put('/transactions/{id}/mark-referral-paid', [ReferralController::class, 'markReferralPaid'])
+            ->name('transactions.mark_referral_paid');
 
         Route::get('/packages', [PromoCodeController::class, 'getPackages'])->name('api.packages.index');
         Route::post('/promo-rules', [PromoCodeController::class, 'store'])->name('api.promo.store');

@@ -4,21 +4,25 @@
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="manage-courses-tab" data-bs-toggle="tab"
                         data-bs-target="#manage-courses" type="button" role="tab" aria-controls="manage-courses"
-                        aria-selected="true">Управление</button>
+                        aria-selected="true">Управление
+                </button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="logs-courses-tab" data-bs-toggle="tab" data-bs-target="#logs-courses"
-                        type="button" role="tab" aria-controls="logs-courses" aria-selected="false">История</button>
+                        type="button" role="tab" aria-controls="logs-courses" aria-selected="false">История
+                </button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="promo-codes-tab" data-bs-toggle="tab"
                         data-bs-target="#promo-codes" type="button" role="tab" aria-controls="promo-codes-courses"
-                        aria-selected="false">Промокоды</button>
+                        aria-selected="false">Промокоды
+                </button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="referrals-tab" data-bs-toggle="tab"
                         data-bs-target="#referrals" type="button" role="tab" aria-controls="referrals-courses"
-                        aria-selected="false">Реферальные ссылки</button>
+                        aria-selected="false">Реферальные ссылки
+                </button>
             </li>
         </ul>
         <div class="tab-content py-4" id="coursesTabContent">
@@ -77,7 +81,8 @@
                                                v-model="packages.mini.contentLink">
                                     </div>
 
-                                    <button type="submit" class="btn btn-primary" :disabled="!isDataLoaded">Сохранить "Мини"
+                                    <button type="submit" class="btn btn-primary" :disabled="!isDataLoaded">Сохранить
+                                        "Мини"
                                     </button>
                                 </form>
                             </div>
@@ -135,7 +140,8 @@
                                                v-model="packages.opti.contentLink">
                                     </div>
 
-                                    <button type="submit" class="btn btn-primary" :disabled="!isDataLoaded">Сохранить "Опти"
+                                    <button type="submit" class="btn btn-primary" :disabled="!isDataLoaded">Сохранить
+                                        "Опти"
                                     </button>
                                 </form>
                             </div>
@@ -193,7 +199,8 @@
                                                v-model="packages.maxi.contentLink">
                                     </div>
 
-                                    <button type="submit" class="btn btn-primary" :disabled="!isDataLoaded">Сохранить "Макси"
+                                    <button type="submit" class="btn btn-primary" :disabled="!isDataLoaded">Сохранить
+                                        "Макси"
                                     </button>
                                 </form>
                             </div>
@@ -206,7 +213,8 @@
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="d-flex align-items-center">
                             <label for="statusFilter" class="me-1 fw-medium">Статус:</label>
-                            <select id="statusFilter" v-model="filters.status" @change="fetchData" class="form-select" style="width:200px;">
+                            <select id="statusFilter" v-model="filters.status" @change="fetchData" class="form-select"
+                                    style="width:200px;">
                                 <option :value="null">Все</option>
                                 <option v-for="s in statuses" :key="s" :value="s">{{ s }}</option>
                             </select>
@@ -225,6 +233,7 @@
                                 <th>Метод</th>
                                 <th>Сумма</th>
                                 <th>Оплачено</th>
+                                <th>Код рефа</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -246,6 +255,12 @@
                                 <td>{{ t.payment_method ?? '-' }}</td>
                                 <td>{{ formatMoney(t.amount) }} р</td>
                                 <td>{{ t.payment_at ? formatDate(t.payment_at) : '-' }}</td>
+                                <td class="text-center">
+                                    <p v-if="t.referral">
+                                        {{ t.referral.ref_code }}
+                                    </p>
+                                    <p v-else>-</p>
+                                </td>
                             </tr>
                             <tr v-if="transactions.length === 0">
                                 <td colspan="8" class="text-center text-muted py-5">
@@ -262,7 +277,8 @@
                                 <a class="page-link" href="#" @click.prevent="goToPage(meta.current_page - 1)">«</a>
                             </li>
 
-                            <li v-for="page in pages" :key="page" class="page-item" :class="{ active: page === meta.current_page }">
+                            <li v-for="page in pages" :key="page" class="page-item"
+                                :class="{ active: page === meta.current_page }">
                                 <a class="page-link" href="#" @click.prevent="goToPage(page)">{{ page }}</a>
                             </li>
 
@@ -326,11 +342,10 @@ export default {
             },
             transactions: [],
             meta: {},
-            links: { next: null, prev: null },
-            statuses: ['succeeded',
-            'pending',
-            'canceled']
-        };
+            links: {next: null, prev: null},
+            statuses: ['succeeded', 'pending', 'canceled'],
+            baseDomain: window.location.origin,
+        }
     },
     computed: {
         pages() {
@@ -356,8 +371,8 @@ export default {
     methods: {
         async fetchData(page = 1) {
             try {
-                const { data } = await axios.get('/admin/api/transactions', {
-                    params: { ...this.filters, page },
+                const {data} = await axios.get('/admin/api/transactions', {
+                    params: {...this.filters, page},
                 });
 
                 this.transactions = data.data;

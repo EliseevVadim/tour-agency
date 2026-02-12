@@ -18,11 +18,14 @@ class PaymentTransaction extends Model
         'payment_method',
         'amount',
         'payment_at',
+        'ref_id',
+        'paid_referral_fee',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'payment_at' => 'datetime',
+        'paid_referral_fee' => 'datetime',
     ];
 
     public function user()

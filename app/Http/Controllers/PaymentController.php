@@ -85,7 +85,7 @@ class PaymentController extends Controller
     {
         $status = $request->input('status');
 
-        $query = PaymentTransaction::with(['user', 'package'])
+        $query = PaymentTransaction::with(['user', 'package', 'referral'])
             ->orderByDesc('id');
 
         if ($status) {
