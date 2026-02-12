@@ -68,27 +68,20 @@ class ReferralController extends Controller
         $referral = Referral::with('transactions')->findOrFail($referralId);
         $transactionsQuery = $referral->transactions();
 
-        // 1. Фильтр по статусу транзакции
         if ($statusFilter) {
             $transactionsQuery->where('status', $statusFilter);
         }
 
-        // 2. Фильтр по выплате (по полю paid_referral_fee)
         if ($payoutFilter === 'true' || $payoutFilter === 'false') {
             $isPaid = ($payoutFilter === 'true');
 
             if ($isPaid) {
-                // Фильтр: Выплачено (дата существует)
                 $transactionsQuery->whereNotNull('paid_referral_fee');
             } else {
-                // Фильтр: В ожидании (дата NULL)
                 $transactionsQuery->whereNull('paid_referral_fee');
             }
         }
 
-        // 3. СОРТИРОВКА
-
-        // Приоритет 1: Статус 'succeeded' наверху
         $transactionsQuery->orderByRaw("
         CASE
             WHEN status = 'succeeded' THEN 0
@@ -96,12 +89,7 @@ class ReferralController extends Controller
         END ASC
     ");
 
-        // Приоритет 2: Сортировка по дате paid_referral_fee.
-        // Если вы хотите, чтобы НЕвыплаченные (NULL) шли НАВЕРХ, а выплаченные (с датой) шли ВНИЗ,
-        // сортируем по полю даты в порядке ASC. (NULLS FIRST по умолчанию во многих СУБД)
         $transactionsQuery->orderBy('paid_referral_fee', 'asc');
-
-        // Приоритет 3: По дате создания (для стабильности, если даты совпадают)
         $transactionsQuery->orderBy('created_at', 'desc');
 
         $transactions = $transactionsQuery->get();
@@ -136,6 +124,29 @@ class ReferralController extends Controller
         }
 
         return response()->json(['message' => 'Реферальный код не найден'], 404);
+    }
+
+    public function getReferral($id)
+    {
+        try {
+            $referral = Referral::findOrFail($id);
+            return response()->json([
+                'success' => true,
+                'referral' => $referral
+            ], 200);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Реферал с ID ' . $id . ' не найден.'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Произошла ошибка при получении реферала.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function markReferralPaid(int $id)

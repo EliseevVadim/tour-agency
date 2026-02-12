@@ -80,6 +80,9 @@ class PaymentService
                 'discount_type' => $options['discount_type'],
                 'discount_value' => $options['discount_value'],
                 'ref_id' => $options['ref_id'],
+                'ref_code' => $options['ref_code'],
+                'full_name_ref' => $options['full_name_ref'],
+                'tg_username' => $options['tg_username'],
             ],
             'description' => $description,
         ];

@@ -204,6 +204,16 @@ export default {
                     ref_id: this.refId,
                 };
 
+                axios.post(`/api/get-referral/${this.refId}`)
+                    .then((response) => {
+                        if (response.status === 200 && response.data.success && response.data.referral) {
+                            const referral = response.data.referral;
+                            paymentData.ref_code = referral.ref_code;
+                            paymentData.full_name_ref = referral.full_name;
+                            paymentData.tg_username = referral.tg_username;
+                        }
+                    });
+
                 try {
                     const response = await axios.post('/payments/create', paymentData);
 

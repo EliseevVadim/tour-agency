@@ -35,7 +35,10 @@ class NotificationService
     }
 
     public function sendPurchaseNotification(string $courseName, string $userName, string $phone,
-                                             string $email, float $amount, string $promoInfo = ''): bool
+                                             string $email, float $amount, string $promoInfo = '',
+                                             ?string $referralCode = null,
+                                             ?string $referralName = null,
+                                             ?string $referralTelegramUsername = null): bool
     {
         $chatId = $this->getChatId('sales_channel');
 
@@ -44,10 +47,29 @@ class NotificationService
             return false;
         }
 
+        $referralMessagePart = '';
+
+        if ($referralCode && $referralName && $referralTelegramUsername) {
+             $referralMessagePart = sprintf(
+                 "Использован реф-код: %s от [%s](https://t.me/%s)",
+                 $referralCode,
+                 $referralName,
+                 ltrim($referralTelegramUsername, '@')
+             );
+        } elseif ($referralCode && $referralName) {
+            $referralMessagePart = sprintf(
+                "Использован реф-код: %s от %s",
+                $referralCode,
+                $referralName
+            );
+        } elseif ($referralCode) {
+            $referralMessagePart = sprintf("Использован реф-код: %s", $referralCode);
+        }
+
         $message = sprintf(
             "%s %s оплатил(а) курс %s за %.2f р \n\n" .
             "Email: %s \n" .
-            "Телефон: %s\n\n %s",
+            "Телефон: %s\n\n %s \n\n",
             self::ICON_SUCCESS,
             $userName,
             $courseName,
@@ -57,7 +79,11 @@ class NotificationService
             $promoInfo
         );
 
-        return $this->sendToTelegram($chatId, $message);
+        if ($referralMessagePart) {
+            $message .= $referralMessagePart;
+        }
+
+        return $this->sendToTelegram($chatId, $message, 'MarkdownV2');
     }
 
     public function sendPresentationNotification(string $userName, string $phone, string $email): bool
@@ -82,8 +108,16 @@ class NotificationService
         return $this->sendToTelegram($chatId, $message);
     }
 
-    public function sendPaymentFailedNotification(string $courseName, string $userName, string $phone,
-                                                  string $email, float $amount): bool
+    public function sendPaymentFailedNotification(
+        string $courseName,
+        string $userName,
+        string $phone,
+        string $email,
+        string $promoInfo = '',
+        ?string $referralCode = null,
+        ?string $referralName = null,
+        ?string $referralTelegramUsername = null
+    ): bool
     {
         $chatId = $this->getChatId('not_sales_channel');
 
@@ -92,10 +126,29 @@ class NotificationService
             return false;
         }
 
+        $referralMessagePart = '';
+
+        if ($referralCode && $referralName && $referralTelegramUsername) {
+            $referralMessagePart = sprintf(
+                "Использован реф-код: %s от [%s](https://t.me/%s)",
+                $referralCode,
+                $referralName,
+                ltrim($referralTelegramUsername, '@')
+            );
+        } elseif ($referralCode && $referralName) {
+            $referralMessagePart = sprintf(
+                "Использован реф-код: %s от %s",
+                $referralCode,
+                $referralName
+            );
+        } elseif ($referralCode) {
+            $referralMessagePart = sprintf("Использован реф-код: %s", $referralCode);
+        }
+
         $message = sprintf(
-            "%s У %s попытка оплаты за курс %s не удалась\n\n" .
+            "%s У %s попытка оплаты за курс %s не удалась\n\n" . // Добавлена сумма в сообщение
             "Email: %s \n" .
-            "Телефон: %s \n" ,
+            "Телефон: %s \n",
             self::ICON_FAILURE,
             $userName,
             $courseName,
@@ -103,6 +156,14 @@ class NotificationService
             $phone
         );
 
-        return $this->sendToTelegram($chatId, $message);
+        if ($promoInfo) {
+            $message .= "Промо-инфо: " . $promoInfo . "\n";
+        }
+
+        if ($referralMessagePart) {
+            $message .= "\n" . $referralMessagePart;
+        }
+
+        return $this->sendToTelegram($chatId, $message, 'MarkdownV2');
     }
 }

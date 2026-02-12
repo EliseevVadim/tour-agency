@@ -76,7 +76,7 @@ class PaymentController extends Controller
                 'title' => 'Системная ошибка',
                 'body' => 'Произошла ошибка при проверке статуса платежа. Пожалуйста, свяжитесь с нами.',
                 'support_link_text' => 'службу заботы',
-                'support_link_url' =>'https://t.me/putclub_info',
+                'support_link_url' => 'https://t.me/putclub_info',
             ]);
         }
     }
@@ -130,6 +130,9 @@ class PaymentController extends Controller
         $courseName = 'Пакет ' . '"' . $request->input('course_name') . '"';
         $amount = $request->input('amount');
         $packageId = $request->input('package_id');
+        $refCode = $request->input('ref_code');
+        $fullNameRef = $request->input('full_name_ref');
+        $tgUserName = $request->input('tg_username');
 
         $userData = [
             'full_name' => $request->input('full_name'),
@@ -150,12 +153,11 @@ class PaymentController extends Controller
             'status' => 'pending',
         ]);
 
-        $description = 'Пакет "' . $courseName . '"';
         $paymentData = [
             'user_id' => $user->id,
             'transaction_id' => $paymentTransaction->id,
             'package_id' => $packageId,
-            'course_name' => $description,
+            'course_name' => $courseName,
             'full_name' => $request->input('full_name'),
             'phone_number' => $request->input('phone_number'),
             'email' => $email,
@@ -163,12 +165,15 @@ class PaymentController extends Controller
             'discount_type' => $request->input('discount_type'),
             'discount_value' => $request->input('discount_value'),
             'ref_id' => $request->input('ref_id'),
+            'ref_code' => $refCode,
+            'full_name_ref' => $fullNameRef,
+            'tg_username' => $tgUserName,
         ];
 
         $idempotencyKey = Uuid::uuid4()->toString();
         $paymentInfo = $service->createPayment(
             $amount,
-            $description,
+            $courseName,
             $paymentData,
             $idempotencyKey
         );
@@ -295,13 +300,20 @@ class PaymentController extends Controller
             );
         }
 
+        $refCode = $paymentData['metadata']['ref_code'] ?? null;
+        $fullNameRef = $paymentData['metadata']['full_name_ref'] ?? null;
+        $tgUsername = $paymentData['metadata']['tg_username'] ?? null;
+
         app(NotificationService::class)->sendPurchaseNotification(
             $courseName ?? 'Unknown Package',
             $userName ?? 'Guest',
             $phone,
             $email ?? 'Unknown',
             (float)$paymentData['amount']['value'],
-            $promo_info
+            $promo_info,
+            $refCode,
+            $fullNameRef,
+            $tgUsername
         );
 
         Mail::to($email)->queue(new PurchaseConfirmationMail(
@@ -313,7 +325,13 @@ class PaymentController extends Controller
 
     protected function handleCanceled(PaymentTransaction $transaction, array $paymentData)
     {
-        Log::info('Transaction canceled');
+        Log::info('Transaction canceled', ['transaction_id' => $transaction->id, 'payment_data' => $paymentData]);
+
+        $refCode = $paymentData['metadata']['ref_code'] ?? null;
+        $fullNameRef = $paymentData['metadata']['full_name_ref'] ?? null;
+        $tgUsername = $paymentData['metadata']['tg_username'] ?? null;
+
+        $promoInfo = $paymentData['metadata']['promo_info'] ?? null;
 
         $transaction->status = 'canceled';
         $transaction->save();
@@ -323,7 +341,11 @@ class PaymentController extends Controller
             $paymentData['metadata']['full_name'] ?? 'Guest',
             $paymentData['metadata']['phone_number'] ?? 'Unknown',
             $paymentData['metadata']['email'] ?? 'Unknown',
-            (float)$paymentData['amount']['value']
+            (float)$paymentData['amount']['value'],
+            $promoInfo,
+            $refCode,
+            $fullNameRef,
+            $tgUsername
         );
     }
 

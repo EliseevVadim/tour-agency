@@ -422,9 +422,6 @@ export default {
                     ref_code: refCode
                 });
                 this.refId = response.data.ref_id;
-                console.log(this.refId);
-
-                console.log('Реферальный код применен:', response.data.message);
             } catch (error) {
                 console.error('Ошибка применения реферального кода:', error.response ? error.response.data.message : 'Ошибка сети');
             } finally {

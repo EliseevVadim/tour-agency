@@ -20,7 +20,7 @@
         <preview-gallery-section @open-pricing-package="handleOpenPricing"></preview-gallery-section>
         <faq-or-contact></faq-or-contact>
 
-        <app-footer></app-footer>
+        <app-footer :is-page-courses="true"></app-footer>
     </div>
 </template>
 

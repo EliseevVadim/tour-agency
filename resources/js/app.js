@@ -17,6 +17,7 @@ const SocialPageContent = () => import('./client/SocialsPage.vue');
 const MainShopContent = () => import('./client/modules/shop/MerchStore.vue');
 const CoursePageContent = () => import('./client/modules/course/CoursePage.vue');
 
+const SvedeniyaContent = () => import('./client/Svedeniya.vue');
 const TemporaryMerch = () => import('./client/modules/shop/TemplateMerch.vue');
 
 Vue.component('main-component', MainComponentContent);
@@ -26,6 +27,7 @@ Vue.component('main-shop-content', MainShopContent);
 Vue.component('main-courses-content', CoursePageContent);
 
 Vue.component('temporary-merch-page', TemporaryMerch);
+Vue.component('svedeniya-component', SvedeniyaContent);
 
 
 Vue.component('admin-team-component', require('./admin/TeamComponent.vue').default);

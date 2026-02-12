@@ -14,6 +14,10 @@
                         </li>
                         <li class="d-none d-md-block">+7(495)129-99-96</li>
                         <li class="d-none d-md-block">ИНН 616814736851</li>
+                        <li v-if="isPageCourses">
+                            <a href="/svedeniya-ob-obrazovatelnoj-organizacii"
+                               class="text-white">Сведения об образовательной организации</a>
+                        </li>
                     </ul>
                 </div>
                 <div class="footer-middle-column col-lg-4">
@@ -143,8 +147,7 @@
                 </div>
                 <a @click.prevent="openInfoModal" href="#"
                    class="justify-content-center align-items-end copyright-item d-flex">Информация о распространении
-                    персональных
-                    данных<br> и изображений граждан, опубликованных на сайте</a>
+                    персональных данных<br> и изображений граждан, опубликованных на сайте</a>
             </div>
         </div>
     </footer>
@@ -156,6 +159,9 @@ import NotificationModal from "../../modals/NotificationModal.vue";
 export default {
     name: "Footer",
     components: {NotificationModal},
+    props: {
+        isPageCourses: {type: Boolean, default: false},
+    },
     data() {
         return {
             isInfoModalVisible: false,

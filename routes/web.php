@@ -11,6 +11,8 @@ use App\Http\Controllers\ReviewsController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TelegramController;
 use App\Http\Controllers\VideoController;
+use App\Services\NotificationService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -47,7 +49,48 @@ Route::prefix('api')->name('api.')->group(function () {
 
     Route::post('/check-promo-code', [PromoCodeController::class, 'check'])->name('check.promo');
     Route::post('/apply-referral', [ReferralController::class, 'applyReferral'])->name('api.apply-referral');
+    Route::post('/get-referral/{id}', [ReferralController::class, 'getReferral'])->name('api.get-referral');
 });
 
 Route::post('/telegram/webhook', [TelegramController::class, 'handleWebhook'])->name('telegram.webhook');
 Route::get('/payment/return', [PaymentController::class, 'handleReturn'])->name('payment.return');
+
+Route::view('/svedeniya-ob-obrazovatelnoj-organizacii', 'svedeniya');
+
+Route::get('/test-telegram-notification', function () {
+    $courseName = 'Мастер-класс по Laravel';
+    $userName = 'Тестовый Пользователь';
+    $phone = '+79123456789';
+    $email = 'test@example.com';
+    $amount = 1234.56;
+    $promoInfo = 'Скидка 10% на первый курс';
+
+    $referralCode = 'TESTREF123';
+    $referralName = 'Тест Реферал';
+    $referralTelegramIdentifier = 'myaw_m';
+
+    try {
+        $notificationService = app(NotificationService::class);
+
+        $success = $notificationService->sendPurchaseNotification(
+            $courseName,
+            $userName,
+            $phone,
+            $email,
+            $amount,
+            $promoInfo,
+            $referralCode,
+            $referralName,
+            $referralTelegramIdentifier
+        );
+
+        if ($success) {
+            return "Уведомление успешно отправлено в Telegram!";
+        } else {
+            return "Не удалось отправить уведомление в Telegram. Проверьте логи.";
+        }
+    } catch (\Exception $e) {
+        Log::error("Error sending Telegram notification: " . $e->getMessage());
+        return "Произошла ошибка при отправке уведомления: " . $e->getMessage();
+    }
+});

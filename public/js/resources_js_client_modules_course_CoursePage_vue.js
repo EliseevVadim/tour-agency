@@ -211,6 +211,14 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                 discount_type: _this.promoCodeType,
                 ref_id: _this.refId
               };
+              axios__WEBPACK_IMPORTED_MODULE_0___default().post("/api/get-referral/".concat(_this.refId)).then(function (response) {
+                if (response.status === 200 && response.data.success && response.data.referral) {
+                  var referral = response.data.referral;
+                  paymentData.ref_code = referral.ref_code;
+                  paymentData.full_name_ref = referral.full_name;
+                  paymentData.tg_username = referral.tg_username;
+                }
+              });
               _context.p = 8;
               _context.n = 9;
               return axios__WEBPACK_IMPORTED_MODULE_0___default().post('/payments/create', paymentData);
@@ -830,8 +838,6 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
             case 2:
               response = _context2.v;
               _this6.refId = response.data.ref_id;
-              console.log(_this6.refId);
-              console.log('Реферальный код применен:', response.data.message);
               _context2.n = 4;
               break;
             case 3:
@@ -1404,7 +1410,11 @@ var render = function render() {
     on: {
       "open-pricing-package": _vm.handleOpenPricing
     }
-  }), _vm._v(" "), _c("faq-or-contact"), _vm._v(" "), _c("app-footer")], 1);
+  }), _vm._v(" "), _c("faq-or-contact"), _vm._v(" "), _c("app-footer", {
+    attrs: {
+      "is-page-courses": true
+    }
+  })], 1);
 };
 var staticRenderFns = [];
 render._withStripped = true;
