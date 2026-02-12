@@ -1,5 +1,5 @@
 <template>
-    <div v-if="isVisible" class="modal-overlay" @click="$emit('close')">
+    <div v-if="isVisible" class="modal-overlay" @click.self="$emit('close')">
         <div class="notification-card">
             <div class="notification-header d-flex justify-content-end">
                 <button class="close-button" @click="$emit('close')">

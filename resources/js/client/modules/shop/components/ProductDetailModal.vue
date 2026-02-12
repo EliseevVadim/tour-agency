@@ -1,72 +1,74 @@
 <template>
-    <div v-if="isVisible" class="modal-backdrop" @click.self="$emit('close')">
-        <notification-modal :is-visible="isNotificationVisible"
-                            @close="isNotificationVisible = false"></notification-modal>
+    <div v-if="isVisible" class="modal-backdrop">
+        <notification-modal
+            :is-visible="isNotificationVisible"
+            @close="isNotificationVisible = false"
+        ></notification-modal>
 
         <div class="modal-content">
             <div class="product-header container">
                 <h2 @click="closeModal" class="fw-bold cursor-pointer">Назад</h2>
             </div>
 
-            <div v-if="product">
-                <div class="product-card container">
-                    <div class="product-content">
-                        <div class="d-flex flex-column gallery-wrapper justify-content-between">
-                            <div class="gallery">
-                                <div class="image-list">
-                                    <div v-for="(image, idx) in product.images" class="image-wrapper position-relative">
-                                        <img :src="image" :alt="'Вид-' + idx" :key="'thumbnail-' + idx"/>
-                                    </div>
-                                </div>
-
-                                <div class="main-image position-relative">
-                                    <div class="img-wrapper h-100">
-                                        <img :src="product.imageUrl" alt="Основное изображение">
-                                    </div>
+            <div v-if="product" class="product-card container">
+                <div class="product-content">
+                    <div class="d-flex flex-column gallery-wrapper justify-content-between">
+                        <div class="gallery">
+                            <div class="image-list">
+                                <div v-for="(image, idx) in nonPrimaryImageUrls"
+                                     class="image-wrapper position-relative">
+                                    <img :src="image" :alt="'Вид-' + idx" :key="'thumbnail-' + idx"/>
                                 </div>
                             </div>
-                            <div class="size-chart-link">
-                                <a href="#">Таблица размеров</a>
+                            <div class="main-image position-relative">
+                                <div class="img-wrapper h-100">
+                                    <img :src="primaryImageUrl" alt="Основное изображение">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="size-chart-link">
+                            <a href="#">Таблица размеров</a>
+                        </div>
+                    </div>
+
+                    <div class="product-details">
+                        <h2>{{ product.name }}</h2>
+                        <p class="description">
+                            {{ product.description }}
+                        </p>
+
+                        <div v-if="product.available_skus.length > 0" class="options">
+                            <div v-for="(attr, index) in product.attributes" :key="attr.name" class="form-group">
+                                <label :for="'select-' + attr.name">{{ attr.name }}:</label>
+                                <div class="select-wrapper position-relative">
+                                    <select :id="'select-' + attr.name" class="custom-select"
+                                            v-model="selectedAttributes[attr.name]"
+                                            @change="handleAttributeChange(attr.name, selectedAttributes[attr.name])"
+                                            :disabled="!isVariantSelectionPossible">
+
+                                        <option v-for="option in attr.options" :key="option" :value="option">
+                                            {{ option }}
+                                        </option>
+                                    </select>
+                                    <div class="select-icon position-absolute"></div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="product-details">
-                            <h2>{{ product.name }}</h2>
-
-                            <p class="description">
-                                Наше авторское обучение для людей которые хотят работать в сфере туризма на полную или
-                                частичную занятость, или путешествовать с огромными скидками.
-                            </p>
-
-                            <div class="options">
-                                <div class="form-group" v-for="(parameter, idx) in product.parameters" :key="idx">
-                                    <label :for="'select-' + idx">{{ parameter.name }}:</label>
-                                    <div class="select-wrapper position-relative">
-                                        <select :id="'select-' + idx" class="custom-select">
-                                            <option v-for="value in parameter.value" :key="value" :value="value">
-                                                {{ value }}
-                                            </option>
-                                        </select>
-                                        <div class="select-icon position-absolute">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="price-actions">
-                                <h2 class="mb-2">3650 руб.</h2>
-                                <div class="btn-actions d-flex gap-4 align-items-center">
-                                    <!-- TODO: создать метод добавления товара в корзину !-->
-                                    <button @click="isInStock ? true : isNotificationVisible = true" class="btn btn-cta"
-                                            :class="{'out-of-stock': !isInStock}">
-                                        {{ isInStock ? 'в корзину' : 'сообщить о наличии' }}
-                                    </button>
-                                    <div class="product-block-favorites-wrapp wishlist-icon">
-                                        <input type="checkbox" :checked="isInWishlist"
-                                               :id="'heart-prod-' + product.id"
-                                               :name="'heart-prod-' + product.id"
-                                               class="product-block-favorites__checkbox">
-                                        <label @click.prevent="$emit('toggle-wishlist', {
+                        <div class="price-actions">
+                            {{ currentSKU }}
+                            <h2 v-if="currentSKU" class="mb-2">{{ finalPrice }} руб.</h2>
+                            <div class="btn-actions d-flex gap-4 align-items-center">
+                                <button @click="addToCart" class="btn btn-cta"
+                                        :class="{'out-of-stock': !isInStock}">
+                                    {{ isInStock ? 'в корзину' : 'сообщить о наличии' }}
+                                </button>
+                                <div class="product-block-favorites-wrapp wishlist-icon">
+                                    <input type="checkbox" :checked="isInWishlist"
+                                           :id="'heart-prod-' + product.id"
+                                           :name="'heart-prod-' + product.id"
+                                           class="product-block-favorites__checkbox">
+                                    <label @click.prevent="$emit('toggle-wishlist', {
                                          id: product.id,
                                           name: product.name,
                                            price: product.currentPrice,
@@ -74,22 +76,20 @@
                                               parameters: product.parameters,
                                                 maxCount: product.maxCount
                                         })" :for="'heart-prod-' + product.id" class="product-block-favorites__label">
-                                            <svg width="30" height="25" viewBox="0 0 20 17"
-                                                 xmlns="http://www.w3.org/2000/svg">
-                                                <defs>
-                                                    <linearGradient id="favoriteGradient" x1="0%" y1="0%" x2="100%"
-                                                                    y2="0%">
-                                                        <stop offset="0%" style="stop-color:#dd0024;stop-opacity:1"/>
-                                                        <stop offset="100%" style="stop-color:#fb6228;stop-opacity:1"/>
-                                                    </linearGradient>
-                                                </defs>
-
-                                                <path fill="none"
-                                                      d="M16.019 1.519C13.832 0.483 11.911 2.068 10.698 3.475 10.2 4.054 9.229 3.99 8.774 3.376 7.629 1.835 5.627 0.117 3.163 1.519 -0.385 3.538 1.163 7.519 2.663 9.519 4.398 11.833 7.65 14.466 9.024 15.532 9.395 15.821 9.914 15.8 10.274 15.498 11.806 14.215 14.425 12.104 16.163 10.019 18.955 6.668 19.519 3.176 16.019 1.519Z"
-                                                      stroke="black" stroke-width="2"/>
-                                            </svg>
-                                        </label>
-                                    </div>
+                                        <svg width="30" height="25" viewBox="0 0 20 17"
+                                             xmlns="http://www.w3.org/2000/svg">
+                                            <defs>
+                                                <linearGradient id="favoriteGradient" x1="0%" y1="0%" x2="100%"
+                                                                y2="0%">
+                                                    <stop offset="0%" style="stop-color:#dd0024;stop-opacity:1"/>
+                                                    <stop offset="100%" style="stop-color:#fb6228;stop-opacity:1"/>
+                                                </linearGradient>
+                                            </defs>
+                                            <path fill="none"
+                                                  d="M16.019 1.519C13.832 0.483 11.911 2.068 10.698 3.475 10.2 4.054 9.229 3.99 8.774 3.376 7.629 1.835 5.627 0.117 3.163 1.519 -0.385 3.538 1.163 7.519 2.663 9.519 4.398 11.833 7.65 14.466 9.024 15.532 9.395 15.821 9.914 15.8 10.274 15.498 11.806 14.215 14.425 12.104 16.163 10.019 18.955 6.668 19.519 3.176 16.019 1.519Z"
+                                                  stroke="black" stroke-width="2"/>
+                                        </svg>
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -102,8 +102,8 @@
                 <div class="another-products-slider">
                     <ssr-carousel :slides-per-page='1' paginate-by-slide show-arrows :responsive='carouselResponsive'>
                         <template #back-arrow='{ disabled }'>
-                        <span class="carousel-left-icon reviews-carousel-left-icon"
-                              :class="{'disabled': disabled}"></span>
+                            <span class="carousel-left-icon reviews-carousel-left-icon"
+                                  :class="{'disabled': disabled}"></span>
                         </template>
                         <template #next-arrow='{ disabled }'>
                             <div class="next-button-container">
@@ -113,10 +113,10 @@
                             </div>
                         </template>
                         <ProductCard
-                            v-for="product in otherProducts"
-                            :key="product.id"
-                            :product="product"
-                            @click="openModalFromCard(product)"
+                            v-for="otherProduct in otherProducts"
+                            :key="otherProduct.id"
+                            :product="otherProduct"
+                            @click="$emit('change-detail-product', otherProduct)"
                         />
                     </ssr-carousel>
                 </div>
@@ -130,37 +130,123 @@ import ProductCard from "./ProductCard.vue";
 import eventBus from "../../../../event-bus";
 import NotificationModal from "../../../modules/shop/components/NotificationModal.vue";
 
-const MOCK_PRODUCTS_DB = [
+const MOCK_PRODUCTS_DB = [{
+    id: 2,
+    name: "Чемодан",
+    description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
+    oldPrice: 5500,
+    currentPrice: 3650,
+    isHit: true,
+    category_slug: "clothing",
+    images: [
+        {primary: true, image: "/img/merch/test.png"},
+        {primary: false, image: "/img/merch/test.png"},
+        {primary: false, image: "/img/merch/test.png"},
+        {primary: false, image: "/img/merch/test.png"},
+        {primary: false, image: "/img/merch/test.png"},
+    ],
+    attributes: [
+        {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
+        {name: "Цвет", sku_key: "color", options: ["Синий", "Зеленый", "Красный"]}
+    ],
+    available_skus: [
+        {"sku": "102-S-BLU", "size": "Маленький", "color": "Синий", "price": 100, stock_qty: 2},
+        {"sku": "102-S-GRN", "size": "Маленький", "color": "Зеленый", "price": 100, stock_qty: 3},
+        {"sku": "102-M-GRN", "size": "Средний", "color": "Зеленый", "price": 120, stock_qty: 0},
+        {"sku": "102-L-BLU", "size": "Большой", "color": "Синий", "price": 150, stock_qty: 0},
+    ]
+},
     {
-        id: 101,
-        name: 'Синяя футболка "Путешествие"',
-        category_slug: 'clothing',
-        currentPrice: 1500,
-        imageUrl: '/img/merch/test.png'
+        id: 3,
+        name: "Чемодан 3",
+        description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
+        oldPrice: 10500,
+        currentPrice: 7650,
+        isHit: true,
+        category_slug: "clothing",
+        images: [
+            {primary: true, image: "/img/merch/test.png"},
+            {primary: false, image: "/img/merch/test.png"},
+            {primary: false, image: "/img/merch/test.png"},
+            {primary: false, image: "/img/merch/test.png"},
+            {primary: false, image: "/img/merch/test.png"},
+        ],
+        attributes: [
+            {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
+            {name: "Цвет", sku_key: "color", options: ["Синий", "Зеленый", "Красный"]}
+        ],
+        available_skus: []
     },
     {
-        id: 102,
-        name: 'Красный рюкзак',
-        category_slug: 'accessories',
-        currentPrice: 3500,
-        imageUrl: '/img/merch/test.png'
+        id: 4,
+        name: "Чемодан 4",
+        description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
+        oldPrice: 8500,
+        currentPrice: 4450,
+        isHit: true,
+        category_slug: "clothing",
+        images: [
+            {primary: true, image: "/img/merch/test.png"},
+            {primary: false, image: "/img/merch/test.png"},
+            {primary: false, image: "/img/merch/test.png"},
+            {primary: false, image: "/img/merch/test.png"},
+            {primary: false, image: "/img/merch/test.png"},
+        ],
+        attributes: [
+            {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
+        ],
+        available_skus: [
+            {"sku": "104-S", "size": "Маленький", "price": 100, stock_qty: 2},
+            {"sku": "104-M", "size": "Средний", "price": 120, stock_qty: 0},
+        ]
     },
     {
-        id: 103,
-        name: 'Треккинговые ботинки',
-        category_slug: 'clothing',
-        currentPrice: 12000,
-        imageUrl: '/img/merch/test.png'
-    },
-    {
-        id: 104,
-        name: 'Термос "Поход"',
-        category_slug: 'travelGoods',
-        currentPrice: 2500,
-        imageUrl: '/img/merch/test.png'
-    },
-    {id: 105, name: 'Брелок "Трек"', category_slug: 'accessories', currentPrice: 400, imageUrl: '/img/merch/test.png'},
-];
+        id: 5,
+        name: "Чемодан 5",
+        description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
+        oldPrice: 4500,
+        currentPrice: 3350,
+        isHit: true,
+        category_slug: "clothing",
+        images: [
+            {primary: true, image: "/img/merch/test.png"},
+            {primary: false, image: "/img/merch/test.png"},
+            {primary: false, image: "/img/merch/test.png"},
+            {primary: false, image: "/img/merch/test.png"},
+            {primary: false, image: "/img/merch/test.png"},
+        ],
+        attributes: [
+            {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
+            {name: "Цвет", sku_key: "color", options: ["Синий", "Зеленый", "Красный"]},
+            {name: "Материал", sku_key: "material", options: ["Металл", "Пластик"]}
+        ],
+        available_skus: [
+            {
+                sku: "104-S-BLUE-PLASTIC",
+                size: "Маленький",
+                color: "Синий",
+                material: "Пластик",
+                price: 1000,
+                stock_qty: 2
+            },
+            {
+                sku: "104-S-BLUE-METAL",
+                size: "Маленький",
+                color: "Синий",
+                material: "Металл",
+                price: 2000,
+                stock_qty: 0
+            },
+            {
+                sku: "104-S-RED-PLASTIC",
+                size: "Маленький",
+                color: "Красный",
+                material: "Пластик",
+                price: 2000,
+                stock_qty: 0
+            },
+        ]
+    }];
 const WISHLIST_STORAGE_KEY = 'merchWishlistIds';
 
 export default {
@@ -170,7 +256,7 @@ export default {
         isVisible: {type: Boolean, required: true},
         product: {type: Object, default: null}
     },
-    emits: ['close', 'toggle-wishlist'],
+    emits: ['close', 'toggle-wishlist', 'change-detail-product'],
     data() {
         return {
             carouselResponsive: [{
@@ -192,31 +278,224 @@ export default {
             otherProducts: MOCK_PRODUCTS_DB,
             isInWishlist: false,
             isNotificationVisible: false,
+
+            selectedAttributes: {},
+            currentSKU: null,
+            activeAttributeOptions: {},
         };
     },
     computed: {
         isInStock() {
-            return false;
-        }
+            if (!this.product?.available_skus?.length) {
+                return false;
+            }
+            return !!this.currentSKU && this.currentSKU.stock_qty > 0;
+        },
+        finalPrice() {
+            return this.currentSKU ? this.currentSKU.price.toLocaleString() : (this.product?.currentPrice ? this.product.currentPrice.toLocaleString() : 'Цену уточняйте');
+        },
+        isVariantSelectionPossible() {
+            return this.product && this.product.attributes && this.product.attributes.length > 0;
+        },
+        primaryImageUrl() {
+            if (!this.product?.images?.length) return '';
+            const primaryImageObj = this.product.images.find(img => img.primary === true);
+            return primaryImageObj ? primaryImageObj.image : this.product.images[0]?.image;
+        },
+        nonPrimaryImageUrls() {
+            if (!this.product?.images?.length) return [];
+            return this.product.images.filter(img => !img.primary).map(img => img.image);
+        },
     },
     methods: {
         closeModal() {
             this.$emit('close')
         },
-        checkInWishlist() {
-            const stored = localStorage.getItem(WISHLIST_STORAGE_KEY);
-            this.wishlistIds = stored ? JSON.parse(stored) : null;
 
-            this.isInWishlist = this.wishlistIds.includes(this.product.id);
+        checkInWishlist() {
+            if (!this.product?.id) {
+                this.isInWishlist = false;
+                return;
+            }
+            const stored = localStorage.getItem(WISHLIST_STORAGE_KEY);
+            const wishlistIds = stored ? JSON.parse(stored) : [];
+            this.isInWishlist = wishlistIds.includes(this.product.id)
+        },
+
+        initializeVariantSelection(product) {
+            if (!this.isVariantSelectionPossible) {
+                const hasStock = product.available_skus.some(sku => sku.stock_qty > 0);
+                this.currentSKU = {
+                    price: product.currentPrice,
+                    stock_qty: hasStock ? 1 : 0,
+                    sku: product.available_skus.length > 0 ? product.available_skus[0].sku : null
+                };
+                this.selectedAttributes = {};
+                this.activeAttributeOptions = {};
+                return;
+            }
+
+            const initialSelection = {};
+            const availableSkus = product.available_skus;
+
+            const leadingAttribute = product.attributes[0];
+            if (leadingAttribute && leadingAttribute.options.length > 0) {
+                this.$set(initialSelection, leadingAttribute.name, leadingAttribute.options[0]);
+            }
+
+            product.attributes.forEach(attr => {
+                if (attr.name !== leadingAttribute.name) {
+                    this.$set(initialSelection, attr.name, null);
+                }
+            });
+            this.selectedAttributes = initialSelection;
+
+            this.recalculateActiveOptions(product, availableSkus);
+            this.autoSelectFirstAvailable(product, availableSkus);
+            this.findAndUpdateSKU(product, availableSkus);
+        },
+
+        handleAttributeChange(changedAttrName, newValue) {
+            const product = this.product;
+            const availableSkus = product.available_skus;
+
+            this.$set(this.selectedAttributes, changedAttrName, newValue);
+
+            this.recalculateActiveOptions(product, availableSkus);
+            this.findAndUpdateSKU(product, availableSkus);
+        },
+
+        recalculateActiveOptions(product, availableSkus) {
+            const newActiveOptions = {};
+            const currentSelections = this.selectedAttributes;
+            const attributes = product.attributes;
+
+            attributes.forEach(attr => {
+                const currentAttrOptions = new Set();
+                const currentAttrKey = attr.sku_key;
+
+                const matchingSkus = availableSkus.filter(sku => {
+                    let matches = true;
+
+                    attributes.forEach(checkAttr => {
+                        const checkAttrName = checkAttr.name;
+                        const selectedValue = currentSelections[checkAttrName];
+                        const checkSkuKey = checkAttr.sku_key;
+
+                        if (selectedValue !== null && sku[checkSkuKey] !== selectedValue) {
+                            matches = false;
+                        }
+                    });
+                    return matches;
+                });
+
+                matchingSkus.forEach(sku => {
+                    if (sku[currentAttrKey]) {
+                        currentAttrOptions.add(sku[currentAttrKey]);
+                    }
+                });
+
+                newActiveOptions[attr.name] = Array.from(currentAttrOptions).sort();
+            });
+
+            this.activeAttributeOptions = newActiveOptions;
+        },
+
+        autoSelectFirstAvailable(product, availableSkus) {
+            let selectionChanged = false;
+            const attributes = product.attributes;
+
+            attributes.forEach(attr => {
+                const attrName = attr.name;
+                const currentSelection = this.selectedAttributes[attrName];
+                const availableOptions = this.activeAttributeOptions[attrName] || [];
+
+                const isAvailableInNextStep = availableOptions.length > 0;
+                const isSelectionInvalid = currentSelection && !availableOptions.includes(currentSelection);
+
+                if (isSelectionInvalid) {
+                    if (isAvailableInNextStep) {
+                        const firstValidOption = availableOptions[0];
+                        if (this.selectedAttributes[attrName] !== firstValidOption) {
+                            this.$set(this.selectedAttributes, attrName, firstValidOption);
+                            selectionChanged = true;
+                        }
+                    } else {
+                        const leadingAttributeName = attributes[0]?.name;
+                        if (attrName !== leadingAttributeName) {
+                            if (this.selectedAttributes[attrName] !== null) {
+                                this.$set(this.selectedAttributes, attrName, null);
+                                selectionChanged = true;
+                            }
+                        }
+                    }
+                } else if (currentSelection === null && isAvailableInNextStep) {
+                    const firstValidOption = availableOptions[0];
+                    if (this.selectedAttributes[attrName] !== firstValidOption) {
+                        this.$set(this.selectedAttributes, attrName, firstValidOption);
+                        selectionChanged = true;
+                    }
+                }
+            });
+
+            if (selectionChanged) {
+                this.recalculateActiveOptions(product, availableSkus);
+            }
+        },
+
+        findAndUpdateSKU(product, availableSkus) {
+            if (!this.isVariantSelectionPossible) {
+                const foundSKU = availableSkus.find(sku => sku.stock_qty > 0) || availableSkus[0];
+                this.currentSKU = foundSKU || {price: product.currentPrice, stock_qty: 0, sku: null};
+                return;
+            }
+
+            const requiredAttrsCount = product.attributes.length;
+            const selectedAttrsCount = Object.values(this.selectedAttributes).filter(v => v !== null).length;
+
+            if (selectedAttrsCount < requiredAttrsCount) {
+                this.currentSKU = null;
+                return;
+            }
+
+            const foundSKU = availableSkus.find(sku => {
+                return product.attributes.every(attr => {
+                    const skuKey = attr.sku_key;
+                    return sku[skuKey] === this.selectedAttributes[attr.name];
+                });
+            });
+
+            this.currentSKU = foundSKU || null;
+        },
+
+        addToCart() {
+            if (this.currentSKU && this.currentSKU.stock_qty > 0) {
+                console.log(`Добавлен в корзину: ${this.product.name} (SKU: ${this.currentSKU.sku})`);
+            } else {
+                this.isNotificationVisible = true;
+            }
+        }
+    },
+    watch: {
+        product: {
+            immediate: true,
+            handler(newProduct) {
+                if (newProduct) {
+                    this.initializeVariantSelection(newProduct);
+                    this.checkInWishlist();
+                } else {
+                    this.currentSKU = null;
+                    this.selectedAttributes = {};
+                    this.activeAttributeOptions = {};
+                }
+            }
         }
     },
     mounted() {
         eventBus.$on('update-favorites', this.checkInWishlist);
-        this.checkInWishlist();
     }
 }
 </script>
-
 <style scoped lang="scss">
 .cursor-pointer {
     cursor: pointer;

@@ -1,6 +1,7 @@
 <template>
     <div class="header-controls-container">
-        <div v-if="isActiveSearch" class="sidebar-search-top sidebar-overlay" :class="{ active: isActiveSearch }"  @click.self="closeSearchOverlay">
+        <div v-if="isActiveSearch" class="sidebar-search-top sidebar-overlay" :class="{ active: isActiveSearch }"
+             @click.self="closeSearchOverlay">
             <header class="sidebar-header">
                 <div class="container search-modal-wrap-search">
                     <div class="search-modal-inside">
@@ -42,7 +43,8 @@
             </div>
         </div>
 
-        <div class="align-items-center d-flex flex-wrap gap-2 justify-content-end justify-content-sm-between navigation-tabs">
+        <div
+            class="align-items-center d-flex flex-wrap gap-2 justify-content-end justify-content-sm-between navigation-tabs">
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 <h2 class="fw-bolder pe-3">Наш мерч:</h2>
                 <button :disabled="activeTab === tab.id"
@@ -67,9 +69,6 @@
                     <img src="/img/merch/shopping-bag-icon.png" alt="Корзина">
                 </button>
             </div>
-
-            <FavoritesSidebar :isActive="isFavoritesOpen" @close="closeFavorites"/>
-            <OrderSidebar :is-active="isOrderOpen" @close="closeOrder"/>
         </div>
 
         <div class="sort-control-wrapper text-end">
@@ -77,8 +76,8 @@
                 <button class="btn btn-light dropdown-toggle" type="button" id="sortButton"
                         data-bs-toggle="dropdown" aria-expanded="false">
 
-                    {{ currentSortOption.text.split(':')[0] }}:
-                    <b>{{ currentSortOption.text.split(':')[1] || currentSortOption.text.split(':')[0] }}</b>
+                    {{ displaySortText.prefix }}:
+                    <b>{{ displaySortText.value }}</b>
 
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#eb2d26"
                          class="bi bi-chevron-down custom-chevron" viewBox="0 0 16 16">
@@ -95,6 +94,8 @@
                 </ul>
             </div>
         </div>
+        <FavoritesSidebar :isActive="isFavoritesOpen" @close="closeFavorites"/>
+        <OrderSidebar :is-active="isOrderOpen" @close="closeOrder"/>
     </div>
 </template>
 
@@ -107,11 +108,23 @@ import ProductCard from "./ProductCard.vue";
 const FILTERS_SORT_STORAGE_KEY = 'merchFiltersAndSort';
 
 const MOCK_PRODUCTS_DB = [
-    { id: 101, name: 'Синяя футболка "Путешествие"', category_slug: 'clothing', currentPrice: 1500, imageUrl: '/img/merch/test.png' },
-    { id: 102, name: 'Красный рюкзак', category_slug: 'accessories', currentPrice: 3500, imageUrl: '/img/merch/test.png' },
-    { id: 103, name: 'Треккинговые ботинки', category_slug: 'clothing', currentPrice: 12000, imageUrl: '/img/merch/test.png' },
-    { id: 104, name: 'Термос "Поход"', category_slug: 'travelGoods', currentPrice: 2500, imageUrl: '/img/merch/test.png' },
-    { id: 105, name: 'Брелок "Трек"', category_slug: 'accessories', currentPrice: 400, imageUrl: '/img/merch/test.png' },
+    {
+        id: 1,
+        name: 'Синяя футболка "Путешествие"',
+        category_slug: 'clothing',
+        currentPrice: 1500,
+        imageUrl: '/img/merch/test.png'
+    },
+    {id: 2, name: 'Красный рюкзак', category_slug: 'accessories', currentPrice: 3500, imageUrl: '/img/merch/test.png'},
+    {
+        id: 3,
+        name: 'Треккинговые ботинки',
+        category_slug: 'clothing',
+        currentPrice: 12000,
+        imageUrl: '/img/merch/test.png'
+    },
+    {id: 4, name: 'Термос "Поход"', category_slug: 'travelGoods', currentPrice: 2500, imageUrl: '/img/merch/test.png'},
+    {id: 5, name: 'Брелок "Трек"', category_slug: 'accessories', currentPrice: 400, imageUrl: '/img/merch/test.png'},
 ];
 
 export default {
@@ -139,13 +152,9 @@ export default {
             isFavoritesOpen: false,
             isOrderOpen: false,
 
-            favoriteItems: [],
-            orderItems: [],
-
             isActiveSearch: false,
             searchQuery: '',
             searchResults: [],
-
             wishlistIds: [],
         }
     },
@@ -156,6 +165,15 @@ export default {
         },
         countSearch() {
             return this.searchResults.length;
+        },
+        displaySortText() {
+            const text = this.currentSortOption.text;
+            const parts = text.split(':');
+
+            return {
+                prefix: parts[0].trim(),
+                value: parts[1] ? parts[1].trim() : parts[0].trim()
+            };
         }
     },
 
@@ -163,7 +181,6 @@ export default {
         activeTab(newTab, oldTab) {
             if (newTab !== oldTab) {
                 this.currentSortValue = 'default';
-                this.$emit('tab-changed', newTab);
                 this.saveFiltersAndSort();
             }
         },
@@ -190,7 +207,7 @@ export default {
             }
         },
         searchQuery() {
-            this.performSearch();
+            this.handleSearchInput();
         },
     },
 
@@ -215,7 +232,6 @@ export default {
                     sort: this.currentSortValue
                 };
                 localStorage.setItem(FILTERS_SORT_STORAGE_KEY, JSON.stringify(dataToSave));
-
                 eventBus.$emit('tab-sort-changed');
 
             } catch (e) {
@@ -243,15 +259,27 @@ export default {
 
         toggleSearchOverlay() {
             this.isActiveSearch = !this.isActiveSearch;
-            if (this.isActiveSearch) {
-                document.body.classList.add('no-scroll');
-            } else {
-                this.searchQuery = '';
-            }
         },
 
         closeSearchOverlay() {
             this.isActiveSearch = false;
+        },
+
+        handleSearchInput() {
+            // TODO: сделать поиск (запрос к бд или локально)
+
+            const query = this.searchQuery.toLowerCase().trim();
+            const body = document.body;
+
+            if (query.length > 0) {
+                body.classList.add('no-scroll');
+                this.searchResults = MOCK_PRODUCTS_DB.filter(p =>
+                    p.name.toLowerCase().includes(query)
+                );
+            } else {
+                body.classList.remove('no-scroll');
+                this.searchResults = [];
+            }
         },
 
         toggleFavorites() {
@@ -277,23 +305,6 @@ export default {
             document.body.classList.toggle('no-scroll', shouldBlock);
         },
 
-        performSearch() {
-            // TODO: сделать поиск (запрос к бд или локально)
-
-            const query = this.searchQuery.toLowerCase().trim();
-            const body = document.body;
-
-            if (query.length > 0) {
-                body.classList.add('no-scroll');
-                this.searchResults = MOCK_PRODUCTS_DB.filter(p =>
-                    p.name.toLowerCase().includes(query)
-                );
-            } else {
-                body.classList.remove('no-scroll');
-                this.searchResults = [];
-            }
-        },
-
         isInWishlist(productId) {
             return this.wishlistIds.includes(productId);
         },
@@ -313,7 +324,6 @@ export default {
 
         openModalFromCard(product) {
             eventBus.$emit('open-product-modal', product);
-            //this.closeSearchOverlay();
         }
     },
 

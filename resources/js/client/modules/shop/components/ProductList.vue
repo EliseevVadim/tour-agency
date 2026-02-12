@@ -6,7 +6,8 @@
                             :is-visible="isDetailVisible"
                             :product="modalProductData"
                             @close="closeModal"
-                            @toggle-wishlist="handleWishlist"/>
+                            @toggle-wishlist="handleWishlist"
+                            @change-detail-product="changeDetailProduct"/>
 
         <div v-for="(group, groupIndex) in displayedGroups" :key="`group-${groupIndex}`">
             <div class="product-grid">
@@ -39,106 +40,18 @@ import ProductDetailModal from "./ProductDetailModal.vue";
 import eventBus from "../../../../event-bus";
 import OrderModal from "./OrderForm.vue";
 
+import rawData from '../data/platform_data.json';
+
 const WISHLIST_STORAGE_KEY = 'merchWishlistIds';
 const WISHLIST_FULL_DATA_KEY = 'merchWishlistFullData';
 const FILTERS_SORT_STORAGE_KEY = 'merchFiltersAndSort';
 const ITEMS_PER_PAGE = 12;
-
-const TEMPLATES = {
-    RELEASES: {title: 'Новые выпуски из путешествий'},
-    NEWS: {title: 'Последние новости'},
-    SALES: {title: 'Горящие туры, акции и скидки'}
-};
-
-const PLATFORM_DATA = [
-    {
-        idSuffix: '1',
-        platformName: 'Rutube',
-        imageUrl: '/img/socials/promo-rutube.png',
-        url: 'https://rutube.ru/channel/37334628/',
-        template: TEMPLATES.RELEASES
-    },
-    {
-        idSuffix: '2',
-        platformName: 'Vkontakte',
-        imageUrl: '/img/socials/promo-vk.png',
-        url: 'https://vk.com/put_club',
-        template: TEMPLATES.NEWS
-    },
-    {
-        idSuffix: '3',
-        platformName: 'Telegram',
-        imageUrl: '/img/socials/promo-tg.png',
-        url: 'https://t.me/put_club',
-        template: TEMPLATES.SALES
-    },
-    {
-        idSuffix: '4',
-        platformName: 'Dzen',
-        imageUrl: '/img/socials/promo-dzen.png',
-        url: 'https://dzen.ru/put_club',
-        template: TEMPLATES.RELEASES
-    },
-    {
-        idSuffix: '5',
-        platformName: 'YouTube',
-        imageUrl: '/img/socials/promo-youtube.png',
-        url: 'https://www.youtube.com/@put_club',
-        template: TEMPLATES.RELEASES
-    },
-    {
-        idSuffix: '6',
-        platformName: 'TikTok',
-        imageUrl: '/img/socials/promo-tiktok.png',
-        url: 'https://www.tiktok.com/@put_club',
-        template: TEMPLATES.SALES
-    },
-    {
-        idSuffix: '7',
-        platformName: 'Yappi',
-        imageUrl: '/img/socials/promo-yappi.png',
-        url: 'https://yappy.media/n/put_club',
-        template: TEMPLATES.SALES
-    },
-    {
-        idSuffix: '8',
-        platformName: 'Одноклассники',
-        imageUrl: '/img/socials/promo-ok.png',
-        url: 'https://ok.ru/group/70000033103318',
-        template: TEMPLATES.SALES
-    },
-    {
-        idSuffix: '9',
-        platformName: 'Max',
-        imageUrl: '/img/socials/promo-max.png',
-        url: 'https://t.me/put_club',
-        template: TEMPLATES.NEWS
-    },
-    {
-        idSuffix: '10',
-        platformName: 'Instagram',
-        imageUrl: '/img/socials/promo-instagram.png',
-        url: 'https://instagram.com/put_club',
-        template: TEMPLATES.SALES
-    }
-];
 
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
     }
-}
-
-function generatePromoBlocks() {
-    return PLATFORM_DATA.map((platform) => ({
-        id: `promo${platform.idSuffix}`,
-        title: platform.template.title,
-        description: `можно посмотреть у нас в ${platform.platformName}`,
-        imageUrl: platform.imageUrl,
-        type: 'promo',
-        url: platform.url
-    }));
 }
 
 export default {
@@ -154,158 +67,180 @@ export default {
             allProducts: [
                 {
                     id: 1,
-                    name: 'Чемодан "В ПУТЬ" 1',
+                    name: "Чемодан \"В ПУТЬ\" (Общая Акция)",
+                    description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
                     oldPrice: 5500,
                     currentPrice: 3650,
-                    imageUrl: '/img/merch/test.png',
-                    images: ['/img/merch/test.png', '/img/merch/test.png', '/img/merch/test.png', '/img/merch/test.png'],
-                    parameters: [{name: 'Размер', value: ['Маленький', 'Средний', 'Большой']}, {
-                        name: 'Цвет',
-                        value: ['Красный', 'Синий', 'Зеленый']
-                    }],
-                    maxCount: 3,
                     isHit: true,
-                    category_slug: 'clothing'
+                    category_slug: "clothing",
+                    images: [
+                        {primary: true, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                    ],
+                    attributes: [
+                        {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
+                        {name: "Цвет", sku_key: "color", options: ["Синий", "Зеленый", "Красный"]}
+                    ],
+                    available_skus: [
+                        {"sku": "101-M-BLU", "size": "Средний", "color": "Синий", "price": 120, stock_qty: 4},
+                        {"sku": "101-M-GRN", "size": "Средний", "color": "Зеленый", "price": 120, stock_qty: 0},
+                        {"sku": "101-L-BLU", "size": "Большой", "color": "Синий", "price": 150, stock_qty: 0},
+                        {"sku": "101-L-RED", "size": "Большой", "color": "Красный", "price": 150, stock_qty: 2}
+                    ]
                 },
                 {
                     id: 2,
-                    name: 'Чемодан "В ПУТЬ" 2',
-                    oldPrice: 7500,
-                    currentPrice: 4650,
-                    imageUrl: '/img/merch/test.png',
-                    parameters: [{name: 'Размер', value: ['Маленький', 'Средний']}],
-                    maxCount: 2,
+                    name: "Чемодан",
+                    description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
+                    oldPrice: 5500,
+                    currentPrice: 3650,
                     isHit: true,
-                    category_slug: 'clothing'
+                    category_slug: "clothing",
+                    images: [
+                        {primary: true, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                    ],
+                    attributes: [
+                        {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
+                        {name: "Цвет", sku_key: "color", options: ["Синий", "Зеленый", "Красный"]}
+                    ],
+                    available_skus: [
+                        {"sku": "102-S-BLU", "size": "Маленький", "color": "Синий", "price": 100, stock_qty: 2},
+                        {"sku": "102-S-GRN", "size": "Маленький", "color": "Зеленый", "price": 100, stock_qty: 3},
+                        {"sku": "102-M-GRN", "size": "Средний", "color": "Зеленый", "price": 120, stock_qty: 0},
+                        {"sku": "102-L-BLU", "size": "Большой", "color": "Синий", "price": 150, stock_qty: 0},
+                    ]
                 },
                 {
                     id: 3,
-                    name: 'Чемодан "В ПУТЬ" 3',
-                    oldPrice: 3500,
-                    currentPrice: 8650,
-                    imageUrl: '/img/merch/test.png',
-                    parameters: [{name: 'Размер', value: ['Средний', 'Большой']}],
-                    maxCount: 5,
+                    name: "Чемодан 3",
+                    description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
+                    oldPrice: 10500,
+                    currentPrice: 7650,
                     isHit: true,
-                    category_slug: 'clothing'
+                    category_slug: "clothing",
+                    images: [
+                        {primary: true, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                    ],
+                    attributes: [
+                        {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
+                        {name: "Цвет", sku_key: "color", options: ["Синий", "Зеленый", "Красный"]}
+                    ],
+                    available_skus: []
                 },
                 {
                     id: 4,
-                    name: 'Чемодан "В ПУТЬ" 4',
-                    oldPrice: 5500,
-                    currentPrice: 2650,
-                    imageUrl: '/img/merch/test.png',
-                    parameters: [{name: 'Размер', value: ['Маленький', 'Средний', 'Большой']}],
-                    maxCount: 4,
+                    name: "Чемодан 4",
+                    description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
+                    oldPrice: 8500,
+                    currentPrice: 4450,
                     isHit: true,
-                    category_slug: 'clothing'
+                    category_slug: "clothing",
+                    images: [
+                        {primary: true, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                    ],
+                    attributes: [
+                        {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
+                    ],
+                    available_skus: [
+                        {"sku": "104-S", "size": "Маленький", "price": 100, stock_qty: 2},
+                        {"sku": "104-M", "size": "Средний", "price": 120, stock_qty: 0},
+                    ]
                 },
                 {
                     id: 5,
-                    name: 'Чемодан "В ПУТЬ" 5',
-                    oldPrice: 5500,
-                    currentPrice: 1550,
-                    imageUrl: '/img/merch/test.png',
-                    parameters: [{name: 'Размер', value: ['Маленький', 'Средний', 'Большой']}],
-                    maxCount: 5,
+                    name: "Чемодан 5",
+                    description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
+                    oldPrice: 4500,
+                    currentPrice: 3350,
                     isHit: true,
-                    category_slug: 'clothing'
+                    category_slug: "clothing",
+                    images: [
+                        {primary: true, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                        {primary: false, image: "/img/merch/test.png"},
+                    ],
+                    attributes: [
+                        {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
+                        {name: "Цвет", sku_key: "color", options: ["Синий", "Зеленый", "Красный"]},
+                        {name: "Материал", sku_key: "material", options: ["Металл", "Пластик"]}
+                    ],
+                    available_skus: [
+                        {
+                            sku: "104-S-BLUE-PLASTIC",
+                            size: "Маленький",
+                            color: "Синий",
+                            material: "Пластик",
+                            price: 1000,
+                            stock_qty: 2
+                        },
+                        {
+                            sku: "104-S-BLUE-METAL",
+                            size: "Маленький",
+                            color: "Синий",
+                            material: "Металл",
+                            price: 2000,
+                            stock_qty: 0
+                        },
+                        {
+                            sku: "104-S-RED-PLASTIC",
+                            size: "Маленький",
+                            color: "Красный",
+                            material: "Пластик",
+                            price: 2000,
+                            stock_qty: 0
+                        },
+                    ]
                 },
-                {
-                    id: 6,
-                    name: 'Чемодан "В ПУТЬ" 6',
-                    oldPrice: 5500,
-                    currentPrice: 9650,
-                    imageUrl: '/img/merch/test.png',
-                    parameters: [{name: 'Размер', value: ['Маленький', 'Средний', 'Большой']}],
-                    isHit: true,
-                    category_slug: 'clothing'
-                },
-
                 {
                     id: 7,
                     name: 'Аксессуар А',
+                    description: 'Наше авторское обучение для людей которые хотят работать в сфере туризма на ' +
+                        'полную или частичную занятость, или путешествовать с огромными скидками.',
                     oldPrice: 1500,
                     currentPrice: 1200,
-                    imageUrl: '/img/merch/test.png',
+                    images: [
+                        {primary: true, image: '/img/merch/test.png'},
+                        {primary: false, image: '/img/merch/test.png'},
+                        {primary: false, image: '/img/merch/test.png'},
+                        {primary: false, image: '/img/merch/test.png'},
+                        {primary: false, image: '/img/merch/test.png'}
+                    ],
                     parameters: [{name: 'Цвет', value: ['Белый', 'Серый', 'Красный']}],
                     maxCount: 1,
                     isHit: false,
                     category_slug: 'accessories'
                 },
-                {
-                    id: 8,
-                    name: 'Аксессуар Б',
-                    oldPrice: 2000,
-                    currentPrice: 1800,
-                    imageUrl: '/img/merch/test.png',
-                    parameters: [{name: 'Цвет', value: ['Белый', 'Серый', 'Красный']}],
-                    maxCount: 1,
-                    isHit: false,
-                    category_slug: 'accessories'
-                },
-                {
-                    id: 9,
-                    name: 'Аксессуар В',
-                    oldPrice: 500,
-                    currentPrice: 450,
-                    imageUrl: '/img/merch/test.png',
-                    parameters: [{name: 'Цвет', value: ['Белый', 'Серый', 'Красный']}],
-                    maxCount: 1,
-                    isHit: false,
-                    category_slug: 'accessories'
-                },
-                {
-                    id: 10,
-                    name: 'Аксессуар Г',
-                    oldPrice: 3000,
-                    currentPrice: 2900,
-                    imageUrl: '/img/merch/test.png',
-                    parameters: [{name: 'Цвет', value: ['Белый', 'Серый', 'Красный']}],
-                    maxCount: 1,
-                    isHit: false,
-                    category_slug: 'accessories'
-                },
-
                 {
                     id: 11,
                     name: 'Товар Т1',
+                    description: 'Наше авторское обучение для людей которые хотят работать в сфере туризма на ' +
+                        'полную или частичную занятость, или путешествовать с огромными скидками.',
                     oldPrice: 5500,
                     currentPrice: 3650,
-                    imageUrl: '/img/merch/test.png',
-                    parameters: [{name: 'Размер', value: ['Маленький', 'Средний', 'Большой']}],
-                    maxCount: 1,
-                    isHit: false,
-                    category_slug: 'travelGoods'
-                },
-                {
-                    id: 12,
-                    name: 'Товар Т2',
-                    oldPrice: 5500,
-                    currentPrice: 3650,
-                    imageUrl: '/img/merch/test.png',
-                    parameters: [{name: 'Размер', value: ['Маленький', 'Средний', 'Большой']}],
-                    maxCount: 1,
-                    isHit: false,
-                    category_slug: 'travelGoods'
-                },
-                {
-                    id: 13,
-                    name: 'Товар Т3',
-                    oldPrice: 5500,
-                    currentPrice: 3650,
-                    imageUrl: '/img/merch/test.png',
-                    parameters: [{name: 'Размер', value: ['Маленький', 'Средний', 'Большой']}],
-                    maxCount: 1,
-                    isHit: false,
-                    category_slug: 'travelGoods'
-                },
-                {
-                    id: 14,
-                    name: 'Товар Т4',
-                    oldPrice: 5500,
-                    currentPrice: 3650,
-                    imageUrl: '/img/merch/test.png',
+                    images: [
+                        {primary: true, image: '/img/merch/test.png'},
+                        {primary: false, image: '/img/merch/test.png'},
+                        {primary: false, image: '/img/merch/test.png'},
+                        {primary: false, image: '/img/merch/test.png'},
+                        {primary: false, image: '/img/merch/test.png'}
+                    ],
                     parameters: [{name: 'Размер', value: ['Маленький', 'Средний', 'Большой']}],
                     maxCount: 1,
                     isHit: false,
@@ -316,14 +251,16 @@ export default {
             wishlistIds: [],
             wishlistFullData: [],
             displayedCount: ITEMS_PER_PAGE,
-            promoBlocks: generatePromoBlocks(),
+            promoBlocks: [],
             shuffledPromoBlocks: [],
 
             currentFilterTag: 'clothing',
             currentSort: 'default',
             isDetailVisible: false,
             modalProductData: null,
-            isInWishList: false
+            isInWishList: false,
+
+            platformData: []
         }
     },
     computed: {
@@ -384,7 +321,7 @@ export default {
 
         canLoadMore() {
             return this.displayedCount < this.sortedAndFilteredProducts.length;
-        }
+        },
     },
     watch: {
         currentSort() {
@@ -474,6 +411,11 @@ export default {
             eventBus.$emit('update-favorites');
         },
 
+        changeDetailProduct(product) {
+            this.modalProductData = product;
+            this.updateBrowserUrl(product.id);
+        },
+
         loadFiltersAndSortFromStorage() {
             const stored = this.loadFromStorage(FILTERS_SORT_STORAGE_KEY);
             if (stored) {
@@ -494,8 +436,31 @@ export default {
                 console.error("Не удалось сохранить фильтры/сортировку в localStorage:", e);
             }
         },
+        getPlatformData() {
+            const TEMPLATES = rawData.TEMPLATES;
+            const PLATFORM_DATA_RAW = rawData.PLATFORM_DATA;
+
+            if (PLATFORM_DATA_RAW) {
+                this.platformData = PLATFORM_DATA_RAW.map(item => ({
+                    ...item,
+                    template: TEMPLATES[item.template]
+                }));
+            }
+            this.promoBlocks = this.generatePromoBlocks();
+        },
+        generatePromoBlocks() {
+            return this.platformData.map((platform) => ({
+                id: `promo${platform.idSuffix}`,
+                title: platform.template.title,
+                description: `можно посмотреть у нас в ${platform.platformName}`,
+                imageUrl: platform.imageUrl,
+                type: 'promo',
+                url: platform.url
+            }));
+        }
     },
     mounted() {
+        this.getPlatformData();
         this.loadWishlist();
         this.loadFiltersAndSortFromStorage();
         this.initializePromo();

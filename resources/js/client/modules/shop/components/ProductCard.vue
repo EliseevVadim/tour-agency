@@ -1,7 +1,7 @@
 <template>
     <div class="product-card position-relative" @click="$emit('click', product)">
         <div class="product-image-container">
-            <img :src="product.imageUrl" :alt="product.name" class="product-img">
+            <img :src="primaryImageUrl" :alt="product.name" class="product-img">
 
             <div class="product-right-info">
                 <div class="product-block-favorites-wrapp wishlist-icon">
@@ -27,8 +27,8 @@
                             </defs>
 
                             <path fill="none"
-                                d="M16.019 1.519C13.832 0.483 11.911 2.068 10.698 3.475 10.2 4.054 9.229 3.99 8.774 3.376 7.629 1.835 5.627 0.117 3.163 1.519 -0.385 3.538 1.163 7.519 2.663 9.519 4.398 11.833 7.65 14.466 9.024 15.532 9.395 15.821 9.914 15.8 10.274 15.498 11.806 14.215 14.425 12.104 16.163 10.019 18.955 6.668 19.519 3.176 16.019 1.519Z"
-                                stroke="white" stroke-width="2"/>
+                                  d="M16.019 1.519C13.832 0.483 11.911 2.068 10.698 3.475 10.2 4.054 9.229 3.99 8.774 3.376 7.629 1.835 5.627 0.117 3.163 1.519 -0.385 3.538 1.163 7.519 2.663 9.519 4.398 11.833 7.65 14.466 9.024 15.532 9.395 15.821 9.914 15.8 10.274 15.498 11.806 14.215 14.425 12.104 16.163 10.019 18.955 6.668 19.519 3.176 16.019 1.519Z"
+                                  stroke="white" stroke-width="2"/>
                         </svg>
                     </label>
                 </div>
@@ -63,6 +63,16 @@ export default {
     data() {
         return {
             isInWishlist: false
+        }
+    },
+    computed: {
+        primaryImageUrl() {
+            if (!this.product || !this.product.images || this.product.images.length === 0) {
+                return '';
+            }
+
+            const primaryImageObj = this.product.images.find(img => img.primary === true);
+            return primaryImageObj ? primaryImageObj.image : this.product.images[0].image;
         }
     },
     methods: {
