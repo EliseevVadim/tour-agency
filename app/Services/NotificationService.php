@@ -40,7 +40,9 @@ class NotificationService
                                              ?string $referralName = null,
                                              ?string $referralTelegramUsername = null): bool
     {
-        $chatId = $this->getChatId('sales_channel');
+        $chatId = -5165801456;
+        Log::info('$chatId');
+        Log::info($chatId);
 
         if (!$chatId) {
             Log::warning("Telegram Chat ID 'sales_channel' not configured.");
@@ -114,7 +116,7 @@ class NotificationService
         string $phone,
         string $email,
         float $amount,
-        string $promoInfo = '',
+        ?string $promoInfo = null,
         ?string $referralCode = null,
         ?string $referralName = null,
         ?string $referralTelegramUsername = null
