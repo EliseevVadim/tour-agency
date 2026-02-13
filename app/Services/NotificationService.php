@@ -12,61 +12,74 @@ class NotificationService
     private const ICON_FAILURE = "❌";
     private const ICON_INFO = "⚠️";
 
+    private const PARSE_MODE = 'MarkdownV2';
+
     protected function getChatId(string $channelKey): ?string
     {
         return Config::get("bot_channels.{$channelKey}");
     }
 
-    /**
-     * Приватный метод для отправки сообщения через SDK
-     */
-    protected function sendToTelegram(string $chatId, string $message): bool
+    private function escapeMarkdownV2(string $text): string
+    {
+        return preg_replace('/([_*\\[\\]\\(\\)\\~`>#+\\-=.!|{}\/\\\\])/u', '\\\\$1', $text);
+    }
+
+    protected function sendToTelegram(string $chatId, string $message, string $parseMode = 'HTML'): bool
     {
         try {
+            if ($parseMode === 'MarkdownV2') {
+                $message = $this->escapeMarkdownV2($message);
+            }
+
             Telegram::sendMessage([
                 'chat_id' => $chatId,
                 'text'    => $message,
+                'parse_mode' => $parseMode,
             ]);
             return true;
         } catch (\Exception $e) {
-            Log::error("Telegram SDK Error: " . $e->getMessage(), ['context' => 'NotificationService']);
+            Log::error("Telegram SDK Error: " . $e->getMessage(), ['context' => 'NotificationService', 'message' => $message]);
             return false;
         }
     }
 
-    public function sendPurchaseNotification(string $courseName, string $userName, string $phone,
-                                             string $email, float $amount, string $promoInfo = '',
-                                             ?string $referralCode = null,
-                                             ?string $referralName = null,
-                                             ?string $referralTelegramUsername = null): bool
+    protected function buildReferralMessage(?string $referralCode, ?string $referralName, ?string $referralTelegramUsername): string
     {
-        $chatId = -5165801456;
-        Log::info('$chatId');
-        Log::info($chatId);
+        if (!$referralCode) {
+            return '';
+        }
+
+        $usernamePart = $referralTelegramUsername
+            ? sprintf("[%s](https://t.me/%s)", $referralName, ltrim($referralTelegramUsername, '@'))
+            : $referralName;
+
+        if ($referralName) {
+            return sprintf("Использован реф-код: %s от %s", $referralCode, $usernamePart);
+        }
+
+        return sprintf("Использован реф-код: %s", $referralCode);
+    }
+
+    public function sendPurchaseNotification(
+        string $courseName,
+        string $userName,
+        string $phone,
+        string $email,
+        float $amount,
+        string $promoInfo = '',
+        ?string $referralCode = null,
+        ?string $referralName = null,
+        ?string $referralTelegramUsername = null
+    ): bool
+    {
+        $chatId = $this->getChatId('sales_channel');
 
         if (!$chatId) {
             Log::warning("Telegram Chat ID 'sales_channel' not configured.");
             return false;
         }
 
-        $referralMessagePart = '';
-
-        if ($referralCode && $referralName && $referralTelegramUsername) {
-            $referralMessagePart = sprintf(
-                "Использован реф-код: %s от [%s](https://t.me/%s)",
-                $referralCode,
-                $referralName,
-                ltrim($referralTelegramUsername, '@')
-            );
-        } elseif ($referralCode && $referralName) {
-            $referralMessagePart = sprintf(
-                "Использован реф-код: %s от %s",
-                $referralCode,
-                $referralName
-            );
-        } elseif ($referralCode) {
-            $referralMessagePart = sprintf("Использован реф-код: %s", $referralCode);
-        }
+        $referralMessagePart = $this->buildReferralMessage($referralCode, $referralName, $referralTelegramUsername);
 
         $message = sprintf(
             "%s %s оплатил(а) курс %s за %.2f р \n\n" .
@@ -85,7 +98,7 @@ class NotificationService
             $message .= $referralMessagePart;
         }
 
-        return $this->sendToTelegram($chatId, $message, 'MarkdownV2');
+        return $this->sendToTelegram($chatId, $message, self::PARSE_MODE);
     }
 
     public function sendPresentationNotification(string $userName, string $phone, string $email): bool
@@ -107,7 +120,7 @@ class NotificationService
             $phone
         );
 
-        return $this->sendToTelegram($chatId, $message);
+        return $this->sendToTelegram($chatId, $message, 'HTML');
     }
 
     public function sendPaymentFailedNotification(
@@ -129,24 +142,7 @@ class NotificationService
             return false;
         }
 
-        $referralMessagePart = '';
-
-        if ($referralCode && $referralName && $referralTelegramUsername) {
-            $referralMessagePart = sprintf(
-                "Использован реф-код: %s от [%s](https://t.me/%s)",
-                $referralCode,
-                $referralName,
-                ltrim($referralTelegramUsername, '@')
-            );
-        } elseif ($referralCode && $referralName) {
-            $referralMessagePart = sprintf(
-                "Использован реф-код: %s от %s",
-                $referralCode,
-                $referralName
-            );
-        } elseif ($referralCode) {
-            $referralMessagePart = sprintf("Использован реф-код: %s", $referralCode);
-        }
+        $referralMessagePart = $this->buildReferralMessage($referralCode, $referralName, $referralTelegramUsername);
 
         $message = sprintf(
             "%s У %s попытка оплаты за курс %s не удалась\n\n" .
@@ -167,6 +163,6 @@ class NotificationService
             $message .= "\n" . $referralMessagePart;
         }
 
-        return $this->sendToTelegram($chatId, $message, 'MarkdownV2');
+        return $this->sendToTelegram($chatId, $message, self::PARSE_MODE);
     }
 }
