@@ -209,8 +209,6 @@ class PaymentController extends Controller
         $transaction->save();
 
         $paymentStatus = $paymentData['status'];
-        Log::info('Get paymentStatus');
-        Log::info($paymentStatus);
 
         switch ($paymentStatus) {
             case 'succeeded':
@@ -251,8 +249,6 @@ class PaymentController extends Controller
             $transaction->ref_id = $refId;
         }
         $transaction->save();
-
-        Log::info('Transaction succeeded');
 
         if ($transaction->promo_code_id) {
             $promo = PromoCode::find($transaction->promo_code_id);

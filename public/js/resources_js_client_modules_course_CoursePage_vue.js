@@ -211,7 +211,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                 discount_type: _this.promoCodeType,
                 ref_id: _this.refId
               };
-              axios__WEBPACK_IMPORTED_MODULE_0___default().post("/api/get-referral/".concat(_this.refId)).then(function (response) {
+              _context.n = 8;
+              return axios__WEBPACK_IMPORTED_MODULE_0___default().post("/api/get-referral/".concat(_this.refId)).then(function (response) {
                 if (response.status === 200 && response.data.success && response.data.referral) {
                   var referral = response.data.referral;
                   paymentData.ref_code = referral.ref_code;
@@ -219,6 +220,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                   paymentData.tg_username = referral.tg_username;
                 }
               });
+            case 8:
               _context.p = 8;
               _context.n = 9;
               return axios__WEBPACK_IMPORTED_MODULE_0___default().post('/payments/create', paymentData);

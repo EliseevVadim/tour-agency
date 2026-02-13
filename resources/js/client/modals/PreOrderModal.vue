@@ -204,7 +204,7 @@ export default {
                     ref_id: this.refId,
                 };
 
-                axios.post(`/api/get-referral/${this.refId}`)
+                await axios.post(`/api/get-referral/${this.refId}`)
                     .then((response) => {
                         if (response.status === 200 && response.data.success && response.data.referral) {
                             const referral = response.data.referral;

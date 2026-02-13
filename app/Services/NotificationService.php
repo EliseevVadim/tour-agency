@@ -50,12 +50,12 @@ class NotificationService
         $referralMessagePart = '';
 
         if ($referralCode && $referralName && $referralTelegramUsername) {
-             $referralMessagePart = sprintf(
-                 "Использован реф-код: %s от [%s](https://t.me/%s)",
-                 $referralCode,
-                 $referralName,
-                 ltrim($referralTelegramUsername, '@')
-             );
+            $referralMessagePart = sprintf(
+                "Использован реф-код: %s от [%s](https://t.me/%s)",
+                $referralCode,
+                $referralName,
+                ltrim($referralTelegramUsername, '@')
+            );
         } elseif ($referralCode && $referralName) {
             $referralMessagePart = sprintf(
                 "Использован реф-код: %s от %s",
@@ -113,6 +113,7 @@ class NotificationService
         string $userName,
         string $phone,
         string $email,
+        float $amount,
         string $promoInfo = '',
         ?string $referralCode = null,
         ?string $referralName = null,
@@ -146,7 +147,7 @@ class NotificationService
         }
 
         $message = sprintf(
-            "%s У %s попытка оплаты за курс %s не удалась\n\n" . // Добавлена сумма в сообщение
+            "%s У %s попытка оплаты за курс %s не удалась\n\n" .
             "Email: %s \n" .
             "Телефон: %s \n",
             self::ICON_FAILURE,
