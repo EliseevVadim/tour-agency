@@ -112,6 +112,12 @@ class PaymentController extends Controller
             'status' => 'pending',
         ]);
 
+        $refId = $request->input('ref_id');
+        if ($refId) {
+            $paymentTransaction->ref_id = $refId;
+            $paymentTransaction->save();
+        }
+
         $paymentData = [
             'user_id' => $user->id,
             'transaction_id' => $paymentTransaction->id,
