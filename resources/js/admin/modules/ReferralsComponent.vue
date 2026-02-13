@@ -20,7 +20,7 @@
                                     <option value="">Все статусы</option>
                                     <option value="succeeded">Успешные</option>
                                     <option value="pending">В ожидании</option>
-                                    <option value="cancelled">Отклоненные</option>
+                                    <option value="canceled">Отклоненные</option>
                                 </select>
                             </div>
                             <div class="d-flex align-items-center gap-2">
@@ -65,11 +65,11 @@
                                     <td>
                                         <span class="badge" :class="{
                                             'bg-success': txn.status === 'succeeded',
-                                            'bg-danger': txn.status === 'cancelled',
+                                            'bg-danger': txn.status === 'canceled',
                                             'bg-secondary': txn.status === 'pending',
                                         }">
                                             {{ txn.status === 'succeeded' ? 'Успешно' : '' }}
-                                            {{ txn.status === 'cancelled' ? 'Отменен' : '' }}
+                                            {{ txn.status === 'canceled' ? 'Отменен' : '' }}
                                             {{ txn.status === 'pending' ? ' В ожидании' : '' }}
                                         </span>
                                     </td>
