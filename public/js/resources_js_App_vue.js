@@ -1699,7 +1699,68 @@ __webpack_require__.r(__webpack_exports__);
 var render = function render() {
   var _vm = this,
     _c = _vm._self._c;
-  return  false ? 0 : _vm._e();
+  return _c("section", {
+    staticClass: "team-section container"
+  }, [_c("h2", {
+    staticClass: "team-section-title text-center"
+  }, [_vm._v("Наша команда:")]), _vm._v(" "), _vm.members.length > 0 ? _c("ssr-carousel", {
+    ref: "teamCarousel",
+    staticClass: "custom-carousel",
+    attrs: {
+      "show-dots": "",
+      "slides-per-page": 1,
+      "paginate-by-slide": ""
+    },
+    on: {
+      change: _vm.openTelegram
+    },
+    model: {
+      value: _vm.slide,
+      callback: function callback($$v) {
+        _vm.slide = $$v;
+      },
+      expression: "slide"
+    }
+  }, _vm._l(_vm.slides, function (slide, slideIndex) {
+    return _c("div", {
+      key: slideIndex,
+      staticClass: "carousel-slide"
+    }, [_c("div", {
+      staticClass: "team-members-container"
+    }, [_vm._l(slide, function (member, memberIndex) {
+      return _c("div", {
+        key: memberIndex,
+        staticClass: "team-member",
+        "class": {
+          "top-row": memberIndex < _vm.memberIdx,
+          "bottom-row": memberIndex >= _vm.memberIdx
+        }
+      }, [_c("img", {
+        "class": {
+          placeholder: memberIndex < _vm.membersPerSlide && slideIndex > 0
+        },
+        attrs: {
+          src: "/img/team/" + member.image_url,
+          alt: member.name
+        }
+      }), _vm._v(" "), _c("div", {
+        staticClass: "team-member-content"
+      }, [_c("h3", {
+        "class": {
+          placeholder: memberIndex < _vm.membersPerSlide && slideIndex > 0
+        }
+      }, [_vm._v(_vm._s(member.name))]), _vm._v(" "), _c("p", {
+        "class": {
+          placeholder: memberIndex < _vm.membersPerSlide && slideIndex > 0
+        }
+      }, [_vm._v(_vm._s(member.position))])])]);
+    }), _vm._v(" "), _vm._l(_vm.emptySlots(slide.length), function (emptySlot) {
+      return _c("div", {
+        key: "empty-" + emptySlot,
+        staticClass: "team-member empty-slot"
+      });
+    })], 2)]);
+  }), 0) : _vm._e()], 1);
 };
 var staticRenderFns = [];
 render._withStripped = true;
