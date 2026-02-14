@@ -9,14 +9,7 @@
                            :id="'favorites-heart-prod-' + product.id"
                            :name="'favorites-heart-prod-' + product.id"
                            class="product-block-favorites__checkbox">
-                    <label @click.prevent.stop="$emit('toggle-wishlist', {
-                        id: product.id,
-                          name: product.name,
-                           price: product.currentPrice,
-                            imageUrl: product.imageUrl,
-                            parameters: product.parameters,
-                            maxCount: product.maxCount
-                    })"
+                    <label @click.prevent.stop="$emit('toggle-wishlist', product)"
                            :for="'favorites-heart-prod-' + product.id" class="product-block-favorites__label">
                         <svg width="30" height="25" viewBox="0 0 20 17" xmlns="http://www.w3.org/2000/svg">
                             <defs>

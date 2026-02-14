@@ -467,6 +467,7 @@ export default {
 
         eventBus.$on('tab-sort-changed', this.loadFiltersAndSortFromStorage);
         eventBus.$on('open-product-modal', this.openModalFromCard);
+        eventBus.$on('toggle-product-wishlist', this.handleWishlist);
 
         const urlParams = new URLSearchParams(window.location.search);
         const productIdFromUrl = urlParams.get('product');
@@ -483,6 +484,7 @@ export default {
     beforeUnmount() {
         eventBus.$off('tab-sort-changed', this.loadFiltersAndSortFromStorage);
         eventBus.$off('open-product-modal', this.openModalFromCard);
+        eventBus.$off('toggle-product-wishlist', this.handleWishlist);
     }
 }
 </script>

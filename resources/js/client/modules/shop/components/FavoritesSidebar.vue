@@ -15,30 +15,29 @@
                     Список избранного пуст.
                 </div>
 
-                <div v-for="item in items" :key="item.id" class="sidebar-item align-items-start">
+                <div v-for="item in items" :key="item.id" class="sidebar-item align-items-start cursor-pointer"  @click="openProductModal(item)">
                     <div class="sidebar-item-content">
                         <div class="image-wrapper">
                             <button class="close-button position-absolute color-white mt-2"
-                                    @click="eventBus.$emit('update-favorite-products', item)">
+                                    @click.prevent.stop="eventBus.$emit('toggle-product-wishlist', item)">
                                 &times;
                             </button>
-                            <img :src="item.imageUrl" alt="Product Image" class="item-image">
+                            <img :src="getPrimaryImageUrl(item)" alt="Product Image" class="item-image">
                         </div>
 
                         <div class="detail-info-section">
                             <h3 class="product-title">{{ item.name }}</h3>
-
                             <div class="item-details">
-                                <div v-for="parameter in item.parameters" class="info-parameter pb-3">
-                                    <p class="item-name">{{ parameter.name }}:</p>
+                                <div v-for="attribute in item.attributes" class="info-parameter pb-3">
+                                    <p class="item-name">{{ attribute.name }}:</p>
                                     <p class="item-value">
-                                        {{ parameter.value.join(', ') }}
+                                        {{ attribute.options.join(', ') }}
                                     </p>
                                 </div>
                             </div>
 
                             <p class="product-price fw-bold fs-3">
-                                {{item.price}} р.
+                                {{item.currentPrice}} р.
                             </p>
                         </div>
                     </div>
@@ -76,6 +75,14 @@ export default {
     methods: {
         getFavoritesList(data) {
             this.items = data;
+        },
+        getPrimaryImageUrl(product) {
+            if (!product?.images?.length) return '';
+            const primaryImageObj = product.images.find(img => img.primary === true);
+            return primaryImageObj ? primaryImageObj.image : product.images[0]?.image;
+        },
+        openProductModal(product){
+            eventBus.$emit('open-product-modal', product);
         }
     },
     mounted() {
