@@ -146,7 +146,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     paymentClick: function paymentClick() {
       var _this = this;
       return _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
-        var _this$formData2, fullName, email, phone, agreesToPolitics, isPromoAllowed, presentationData, response, paymentData, _response, _t, _t2;
+        var _this$formData2, fullName, email, phone, agreesToPolitics, isPromoAllowed, presentationData, response, paymentData, urlParams, refCode, _response, _t, _t2;
         return _regenerator().w(function (_context) {
           while (1) switch (_context.p = _context.n) {
             case 0:
@@ -211,6 +211,13 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                 discount_type: _this.promoCodeType,
                 ref_id: _this.refId
               };
+              _this.isLoading = false;
+              urlParams = new URLSearchParams(window.location.search);
+              refCode = urlParams.get('ref');
+              if (!(refCode && !_this.isLoading)) {
+                _context.n = 8;
+                break;
+              }
               _context.n = 8;
               return axios__WEBPACK_IMPORTED_MODULE_0___default().post("/api/get-referral/".concat(_this.refId)).then(function (response) {
                 if (response.status === 200 && response.data.success && response.data.referral) {
