@@ -146,7 +146,6 @@ export default {
             }
         },
         submitOrder() {
-            console.log('Заказ оформлен с количеством:', this.order.quantity);
             alert('Заказ оформлен!');
             this.closeModal();
         },

@@ -15,7 +15,8 @@
                     Список избранного пуст.
                 </div>
 
-                <div v-for="item in items" :key="item.id" class="sidebar-item align-items-start cursor-pointer"  @click="openProductModal(item)">
+                <div v-for="item in items" :key="item.id" class="sidebar-item align-items-start cursor-pointer"
+                     @click="openProductModal(item)">
                     <div class="sidebar-item-content">
                         <div class="image-wrapper">
                             <button class="close-button position-absolute color-white mt-2"
@@ -36,8 +37,8 @@
                                 </div>
                             </div>
 
-                            <p class="product-price fw-bold fs-3">
-                                {{item.currentPrice}} р.
+                            <p v-if="item.currentPrice" class="product-price fw-bold fs-3">
+                                {{ item.currentPrice }} р.
                             </p>
                         </div>
                     </div>
@@ -81,7 +82,7 @@ export default {
             const primaryImageObj = product.images.find(img => img.primary === true);
             return primaryImageObj ? primaryImageObj.image : product.images[0]?.image;
         },
-        openProductModal(product){
+        openProductModal(product) {
             eventBus.$emit('open-product-modal', product);
         }
     },

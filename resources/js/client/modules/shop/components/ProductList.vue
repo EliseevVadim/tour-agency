@@ -2,6 +2,7 @@
     <div class="product-list-container">
         <OrderModal v-if="false"></OrderModal>
 
+
         <ProductDetailModal v-if="modalProductData"
                             :is-visible="isDetailVisible"
                             :product="modalProductData"
@@ -74,11 +75,12 @@ export default {
                     isHit: true,
                     category_slug: "clothing",
                     images: [
-                        {primary: true, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
+                        {primary: true, image: "/img/previews/Module_02/2.0.png"},
+                        {primary: false, image: "/img/previews/Module_02/2.1.png"},
+                        {primary: false, image: "/img/previews/Module_02/2.2.png"},
+                        {primary: false, image: "/img/previews/Module_02/2.3.png"},
+                        {primary: false, image: "/img/previews/Module_02/2.4.png"},
+                        {primary: false, image: "/img/previews/Module_02/2.5.png"},
                     ],
                     attributes: [
                         {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
@@ -170,11 +172,14 @@ export default {
                     isHit: true,
                     category_slug: "clothing",
                     images: [
-                        {primary: true, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
+                        {primary: true, image: "/img/previews/Module_02/2.0.png"},
+                        {primary: false, image: "/img/previews/Module_02/2.1.png"},
+                        {primary: false, image: "/img/previews/Module_02/2.2.png"},
+                        {primary: false, image: "/img/previews/Module_02/2.3.png"},
+                        {primary: false, image: "/img/previews/Module_02/2.4.png"},
+                        {primary: false, image: "/img/previews/Module_02/2.5.png"},
+                        {primary: false, image: "/img/previews/Module_02/2.6.png"},
+                        {primary: false, image: "/img/previews/Module_02/2.7.png"},
                     ],
                     attributes: [
                         {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
@@ -457,6 +462,9 @@ export default {
                 type: 'promo',
                 url: platform.url
             }));
+        },
+        closeDetailModal(){
+            this.isDetailVisible = false
         }
     },
     mounted() {
@@ -468,6 +476,7 @@ export default {
         eventBus.$on('tab-sort-changed', this.loadFiltersAndSortFromStorage);
         eventBus.$on('open-product-modal', this.openModalFromCard);
         eventBus.$on('toggle-product-wishlist', this.handleWishlist);
+        eventBus.$on('cart-updated', this.closeDetailModal);
 
         const urlParams = new URLSearchParams(window.location.search);
         const productIdFromUrl = urlParams.get('product');

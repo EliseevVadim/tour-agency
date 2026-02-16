@@ -19,20 +19,20 @@
                     <div class="sidebar-item-content">
                         <div class="image-wrapper">
                             <button class="close-button position-absolute color-white mt-2"
-                                    @click="eventBus.$emit('update-order-products', item)">
+                                    @click="removeItem(item)">
                                 &times;
                             </button>
-                            <img :src="item.imageUrl" alt="Product Image" class="item-image">
+                            <img :src="item.image" alt="Product Image" class="item-image">
                         </div>
 
                         <div class="detail-info-section">
                             <h3 class="product-title">{{ item.name }}</h3>
 
                             <div class="item-details">
-                                <div v-for="parameter in item.parameters" class="info-parameter pb-3">
-                                    <p class="item-name">{{ parameter.name }}:</p>
+                                <div v-for="attribute in item.attributes" class="info-parameter pb-1">
+                                    <p class="item-name">{{ attribute.name }}:</p>
                                     <p class="item-value">
-                                        {{ parameter.value.join(', ') }}
+                                        {{ item.current_sku[attribute.sku_key] }}
                                     </p>
                                 </div>
                             </div>
@@ -40,9 +40,9 @@
                             <div class="quantity-control item-details">
                                 <span class="item-name">Количество:</span>
                                 <div class="align-items-center d-flex quantity-counter">
-                                    <button class="quantity-button plus" @click="incrementQuantity">+</button>
-                                    <span class="quantity-value">{{ quantity }}</span>
-                                    <button class="quantity-button minus" @click="decrementQuantity">-</button>
+                                    <button class="quantity-button plus" @click="updateQuantity(item, 1)">+</button>
+                                    <span class="quantity-value">{{ item.quantity }}</span>
+                                    <button class="quantity-button minus" @click="updateQuantity(item, -1)">-</button>
                                 </div>
                             </div>
                         </div>
@@ -52,9 +52,9 @@
                 <div v-if="items.length !== 0" class="order-summary d-flex gap-3">
                     <div class="order-sum">
                         <p class="item-name">К оплате:</p>
-                        <p class="item-value">3650 р.</p>
+                        <p class="item-value">{{ totalPrice }} р.</p>
                     </div>
-                    <button class="btn btn-cta py-2">
+                    <button @click="proceedToCheckout" class="btn btn-cta py-2">
                         <span class="flare"></span>
                         Оформить заказ
                     </button>
@@ -67,7 +67,7 @@
 <script>
 import eventBus from "../../../../event-bus";
 
-const WISHLIST_FULL_DATA_KEY = 'merchWishlistFullData';
+const CART_STORAGE_KEY = 'shoppingCart';
 
 export default {
     name: 'OrderSidebar',
@@ -85,23 +85,96 @@ export default {
     data() {
         return {
             items: [],
-            quantity: 1
+            quantity: 1,
+            totalPrice: 0,
         }
     },
     methods: {
-        incrementQuantity() {
-            this.quantity++;
+        getPrimaryImageUrl(product) {
+            if (!product?.images?.length) return '';
+            const primaryImageObj = product.images.find(img => img.primary === true);
+            return primaryImageObj ? primaryImageObj.image : product.images[0]?.image;
         },
-        decrementQuantity() {
-            if (this.quantity > 1) {
-                this.quantity--;
+
+        getCartFromStorage() {
+            const cartData = localStorage.getItem(CART_STORAGE_KEY);
+            return cartData ? JSON.parse(cartData) : [];
+        },
+
+        saveCartToStorage(cart) {
+            localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+        },
+
+        loadCart() {
+            this.items = this.getCartFromStorage();
+            this.calculateSummary();
+        },
+
+        calculateSummary() {
+            this.totalPrice = this.items.reduce((sum, item) => {
+                return sum + (item.current_sku.price * item.quantity);
+            }, 0);
+        },
+
+        removeItem(itemToRemove) {
+            const updatedCart = this.items.filter(item =>
+                item.productId !== itemToRemove.productId || item.sku !== itemToRemove.sku
+            );
+            this.items = updatedCart;
+            this.saveCartToStorage(updatedCart);
+            this.calculateSummary();
+            eventBus.$emit('cart-updated');
+        },
+
+        updateQuantity(item, change) {
+            const newQuantity = item.quantity + change;
+            const availableStock = this.getAvailableStockForSKU(item.productId, item.sku);
+
+            if (newQuantity <= 0) {
+                this.removeItem(item);
+                return;
             }
-        }
+
+            if (newQuantity > availableStock) {
+                //TODO: ГЛЯНУТЬ ЧТО ПО ЛИМИТАМ
+                alert('Извините, достигнут лимит. Это максимально возможное количество товаров в наличии')
+                return;
+            }
+
+            const index = this.items.findIndex(i => i.sku === item.sku && i.productId === item.productId);
+            if (index !== -1) {
+                this.items[index].quantity = newQuantity;
+                this.saveCartToStorage(this.items);
+                this.calculateSummary();
+                eventBus.$emit('cart-updated');
+            }
+        },
+
+        getAvailableStockForSKU(productId, sku) {
+            const product = this.items ? this.items.find(p => p.productId === productId) : null;
+            if (!product) {
+                return 0;
+            }
+
+            if (product.current_sku.stock_qty)
+                return product.current_sku.stock_qty;
+            return 0;
+        },
+
+        proceedToCheckout() {
+            if (this.items.length === 0) {
+                console.log("Корзина пуста, оформление невозможно.");
+                return;
+            }
+            console.log("Открыть оформление");
+
+            //TODO: ОТКРЫТЬ МОДАЛЬНОЕ ОКНО С ОФОРМЛЕНИЕМ ЗАКАЗА, А ЭТО ЗАКРЫТЬ
+        },
     },
     emits: ['close', 'remove', 'update:quantity'],
     mounted() {
-        const wishList = localStorage.getItem(WISHLIST_FULL_DATA_KEY);
-        this.items = wishList ? JSON.parse(wishList) : [];
+        this.loadCart();
+        eventBus.$on('cart-updated', this.loadCart);
     }
 }
 </script>

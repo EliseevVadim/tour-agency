@@ -324,6 +324,10 @@ export default {
 
         openModalFromCard(product) {
             eventBus.$emit('open-product-modal', product);
+        },
+
+        openSidebarOrder() {
+            this.isOrderOpen = true;
         }
     },
 
@@ -331,6 +335,7 @@ export default {
         eventBus.$on('update-favorites-products', (fullData) => {
             this.wishlistIds = fullData.map(p => p.id);
         });
+        eventBus.$on('cart-updated', this.openSidebarOrder);
     },
 
     mounted() {
@@ -340,6 +345,7 @@ export default {
 
     beforeUnmount() {
         eventBus.$off('update-favorites-products');
+        eventBus.$off('cart-updated', this.openSidebarOrder);
         document.body.classList.remove('no-scroll');
     }
 }

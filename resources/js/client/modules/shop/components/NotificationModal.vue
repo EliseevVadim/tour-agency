@@ -62,6 +62,10 @@ export default {
 
     .notification-body {
         text-align: start;
+
+        h3 {
+            font-size: 1.47rem;
+        }
     }
 
     .notification-inputs {

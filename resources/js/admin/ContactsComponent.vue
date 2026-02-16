@@ -67,7 +67,6 @@ export default {
         },
         saveContacts() {
             axios.put('/admin/api/contacts', this.contactLinks).then(response => {
-                console.log('Успешно сохранено:', response.data.message);
                 alert('Ссылки успешно сохранены!');
             })
                 .catch(error => {

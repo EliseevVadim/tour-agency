@@ -5,6 +5,10 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import Vue from 'vue';
 import SsrCarousel from 'vue-ssr-carousel'
 import ssrCarouselCss from 'vue-ssr-carousel/index.css'
+
+import VueAwesomeSwiper from 'vue-awesome-swiper';
+import 'swiper/css/swiper.css';
+
 import 'animate.css';
 import VueMask from 'v-mask';
 
@@ -37,6 +41,7 @@ Vue.component('admin-courses-component', require('./admin/AdminCoursesComponent.
 
 Vue.component('ssr-carousel', SsrCarousel);
 Vue.use(VueMask);
+Vue.use(VueAwesomeSwiper);
 
 const app = new Vue({
     el: '#app',

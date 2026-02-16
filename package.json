@@ -29,8 +29,10 @@
         "autoprefixer": "^10.4.21",
         "jquery": "^3.7.1",
         "popper.js": "^1.16.1",
+        "swiper": "^5.4.5",
         "tiny-emitter": "^2.1.0",
         "v-mask": "^2.3.0",
+        "vue-awesome-swiper": "^4.1.1",
         "vue-ssr-carousel": "^2.5.0"
     }
 }

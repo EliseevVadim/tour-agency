@@ -9,24 +9,34 @@
             <div class="product-header container">
                 <h2 @click="closeModal" class="fw-bold cursor-pointer">Назад</h2>
             </div>
-
             <div v-if="product" class="product-card container">
                 <div class="product-content">
                     <div class="d-flex flex-column gallery-wrapper justify-content-between">
                         <div class="gallery">
                             <div class="image-list">
-                                <div v-for="(image, idx) in nonPrimaryImageUrls"
+                                <swiper class="vertical-swiper" :options="swiperOptions"
+                                        @ready="onSwiperReady">
+                                    <swiper-slide v-for="(image, idx) in primaryImageUrl" :key="'thumbnail-' + idx">
+                                        <div class="slide image-wrapper position-relative"
+                                             @click="goToSpecificSlide(idx)">
+                                            <img :src="image.image" :alt="'Вид-' + idx"/>
+                                        </div>
+                                    </swiper-slide>
+                                </swiper>
+                            </div>
+                            <div v-if="false" class="image-list">
+                                <div v-for="(image, idx) in primaryImageUrl"
                                      class="image-wrapper position-relative">
-                                    <img :src="image" :alt="'Вид-' + idx" :key="'thumbnail-' + idx"/>
+                                    <img :src="image.image" :alt="'Вид-' + idx" :key="'thumbnail-' + idx"/>
                                 </div>
                             </div>
                             <div class="main-image position-relative">
                                 <div class="img-wrapper h-100">
-                                    <img :src="primaryImageUrl" alt="Основное изображение">
+                                    <img :src="product.images[vSwiperIndex]?.image" alt="Основное изображение">
                                 </div>
                             </div>
                         </div>
-                        <div class="size-chart-link">
+                        <div v-if="false" class="size-chart-link">
                             <a href="#">Таблица размеров</a>
                         </div>
                     </div>
@@ -56,7 +66,6 @@
                         </div>
 
                         <div class="price-actions">
-                            {{ currentSKU }}
                             <h2 v-if="currentSKU" class="mb-2">{{ finalPrice }} руб.</h2>
                             <div class="btn-actions d-flex gap-4 align-items-center">
                                 <button @click="addToCart" class="btn btn-cta"
@@ -68,14 +77,8 @@
                                            :id="'heart-prod-' + product.id"
                                            :name="'heart-prod-' + product.id"
                                            class="product-block-favorites__checkbox">
-                                    <label @click.prevent="$emit('toggle-wishlist', {
-                                         id: product.id,
-                                          name: product.name,
-                                           price: product.currentPrice,
-                                            imageUrl: product.imageUrl,
-                                              parameters: product.parameters,
-                                                maxCount: product.maxCount
-                                        })" :for="'heart-prod-' + product.id" class="product-block-favorites__label">
+                                    <label @click.prevent="$emit('toggle-wishlist', product)"
+                                           :for="'heart-prod-' + product.id" class="product-block-favorites__label">
                                         <svg width="30" height="25" viewBox="0 0 20 17"
                                              xmlns="http://www.w3.org/2000/svg">
                                             <defs>
@@ -248,6 +251,7 @@ const MOCK_PRODUCTS_DB = [{
         ]
     }];
 const WISHLIST_STORAGE_KEY = 'merchWishlistIds';
+const SHOPPING_CART_KEY = 'shoppingCart';
 
 export default {
     name: "ProductDetailModal",
@@ -259,6 +263,8 @@ export default {
     emits: ['close', 'toggle-wishlist', 'change-detail-product'],
     data() {
         return {
+            vSwiperRef: null,
+            vSwiperIndex: 0,
             carouselResponsive: [{
                 minWidth: 270,
                 slidesPerPage: 1,
@@ -285,6 +291,15 @@ export default {
         };
     },
     computed: {
+        swiperOptions() {
+            return {
+                direction: 'vertical',
+                slidesPerView: 4,
+                mousewheel: true,
+                spaceBetween: 12,
+                loop: false
+            };
+        },
         isInStock() {
             if (!this.product?.available_skus?.length) {
                 return false;
@@ -299,15 +314,29 @@ export default {
         },
         primaryImageUrl() {
             if (!this.product?.images?.length) return '';
-            const primaryImageObj = this.product.images.find(img => img.primary === true);
-            return primaryImageObj ? primaryImageObj.image : this.product.images[0]?.image;
-        },
-        nonPrimaryImageUrls() {
-            if (!this.product?.images?.length) return [];
-            return this.product.images.filter(img => !img.primary).map(img => img.image);
+            const images = this.product.images;
+            const primaryImageObj = images.find(img => img.primary === true);
+            const secondaryImages = images.filter(img => img.primary !== true);
+            const sortedImages = [];
+            if (primaryImageObj) {
+                sortedImages.push(primaryImageObj);
+            }
+            sortedImages.push(...secondaryImages);
+            return sortedImages;
         },
     },
     methods: {
+        onSwiperReady(swiper) {
+            this.vSwiperRef = swiper;
+            this.vSwiperIndex = swiper.activeIndex;
+        },
+        goToSpecificSlide(targetIndex) {
+            if (this.vSwiperRef) {
+                this.vSwiperRef.slideTo(targetIndex);
+                this.vSwiperIndex = targetIndex;
+            }
+        },
+
         closeModal() {
             this.$emit('close')
         },
@@ -468,12 +497,77 @@ export default {
             this.currentSKU = foundSKU || null;
         },
 
+        getCartFromStorage() {
+            const cartData = localStorage.getItem(SHOPPING_CART_KEY);
+            return cartData ? JSON.parse(cartData) : [];
+        },
+
+        saveCartToStorage(cart) {
+            localStorage.setItem('shoppingCart', JSON.stringify(cart));
+        },
+
+
         addToCart() {
-            if (this.currentSKU && this.currentSKU.stock_qty > 0) {
-                console.log(`Добавлен в корзину: ${this.product.name} (SKU: ${this.currentSKU.sku})`);
-            } else {
+            if (!this.currentSKU || this.currentSKU.stock_qty <= 0) {
                 this.isNotificationVisible = true;
+                return;
             }
+
+            const cart = this.getCartFromStorage();
+            const productId = this.product.id;
+            const currentSKUData = this.currentSKU;
+            const sku = currentSKUData.sku;
+            const requestedQuantity = this.quantity || 1;
+            const availableStock = currentSKUData.stock_qty;
+
+            const existingItemIndex = cart.findIndex(item =>
+                item.productId === productId && item.sku === sku
+            );
+
+            let finalQuantity = requestedQuantity;
+            let quantityAddedLog = `Запрошено: ${requestedQuantity}`;
+
+            if (existingItemIndex !== -1) {
+                const currentCartQuantity = cart[existingItemIndex].quantity;
+                const potentialTotal = currentCartQuantity + requestedQuantity;
+
+                if (potentialTotal > availableStock) {
+                    finalQuantity = availableStock - currentCartQuantity;
+                    quantityAddedLog = `Доступно всего ${availableStock}. Добавлено ${finalQuantity} шт. (вместо запрошенных ${requestedQuantity})`;
+
+                    if (finalQuantity <= 0) {
+                        //TODO: Если в корзине уже ровно столько, сколько есть на складе
+                        alert('Извините, достигнут лимит. Это максимально возможное количество товаров в наличии')
+                        return;
+                    }
+                    cart[existingItemIndex].quantity = availableStock;
+
+                } else {
+                    cart[existingItemIndex].quantity = potentialTotal;
+                }
+
+            } else {
+                if (requestedQuantity > availableStock) {
+                    finalQuantity = availableStock;
+                    quantityAddedLog = `Добавлено только ${availableStock} шт. (из запрошенных ${requestedQuantity})`;
+                }
+
+                const cartItem = {
+                    productId: productId,
+                    sku: sku,
+                    name: this.product.name,
+                    image: this.primaryImageUrl,
+                    current_sku: this.currentSKU,
+                    quantity: finalQuantity,
+                    attributes: this.product.attributes
+                };
+                cart.push(cartItem);
+            }
+
+            this.saveCartToStorage(cart);
+            eventBus.$emit('cart-updated');
+
+            this.isNotificationVisible = false;
         }
     },
     watch: {
@@ -542,9 +636,9 @@ export default {
 }
 
 .image-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    /* display: flex;
+     flex-direction: column;
+     gap: 10px;*/
     width: 165px;
 }
 
@@ -737,5 +831,19 @@ export default {
     background-repeat: no-repeat;
     background-position-x: 96%;
     background-position-y: 56%;
+}
+</style>
+
+<style lang="scss">
+.gallery .image-list {
+    overflow: hidden;
+}
+
+.gallery .swiper-container {
+    height: 100%;
+}
+
+.gallery .swiper-slide {
+    max-height: 135px;
 }
 </style>
