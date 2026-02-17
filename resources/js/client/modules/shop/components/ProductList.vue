@@ -43,6 +43,16 @@ import OrderModal from "./OrderForm.vue";
 
 import rawData from '../data/platform_data.json';
 
+/*
+*  {
+            "idSuffix": "10",
+            "platformName": "Instagram",
+            "imageUrl": "/img/socials/promo-instagram.png",
+            "url": "https://instagram.com/put_club",
+            "template": "SALES"
+        }
+* */
+
 const WISHLIST_STORAGE_KEY = 'merchWishlistIds';
 const WISHLIST_FULL_DATA_KEY = 'merchWishlistFullData';
 const FILTERS_SORT_STORAGE_KEY = 'merchFiltersAndSort';

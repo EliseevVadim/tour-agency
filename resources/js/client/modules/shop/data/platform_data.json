@@ -72,15 +72,7 @@
             "platformName": "Max",
             "imageUrl": "/img/socials/promo-max.png",
             "url": "https://t.me/put_club",
-
             "template": "NEWS"
-        },
-        {
-            "idSuffix": "10",
-            "platformName": "Instagram",
-            "imageUrl": "/img/socials/promo-instagram.png",
-            "url": "https://instagram.com/put_club",
-            "template": "SALES"
         }
     ]
 }

@@ -10,7 +10,8 @@
             <div class="social-icons-bg position-absolute">
                 <img class="social-icon tg-icon" src="/img/socials/tg-icon.png" alt="icon telegram">
                 <img class="social-icon youtube-icon" src="/img/socials/youtube-icon.png" alt="icon youtube">
-                <img class="social-icon insta-icon" src="/img/socials/instagram-icon.png" alt="icon instagram">
+                <img v-if="false" class="social-icon insta-icon" src="/img/socials/instagram-icon.png"
+                     alt="icon instagram">
                 <img class="social-icon tiktok-icon" src="/img/socials/tiktok-icon.png" alt="icon tiktok">
             </div>
 
@@ -26,13 +27,13 @@
                     <a :href="item.link" class="social-card h-100">
                         <img alt="" class="social-image w-100" :src="'/img/socials/' + (idx + 1) +'.jpg'">
                         <div class="social-link-button" :style="'background-color:'+ item.color">
-                            {{ item.title }}
+                            {{ item.title }} {{ item.note }}
                             <span style="font-size: 1.5em;">⟶</span>
                         </div>
                     </a>
                 </div>
             </div>
-
+            <p class="mt-4 color-lightgray">* - принадлежит Meta, признанной экстремистской и запрещенной в России</p>
         </section>
 
         <app-footer></app-footer>
@@ -65,7 +66,8 @@ export default {
                 {
                     title: 'Instagram',
                     link: 'https://instagram.com/put_club',
-                    color: '#fc145c'
+                    color: '#fc145c',
+                    note: "*"
                 },
                 {
                     title: 'Dzen',
@@ -119,3 +121,8 @@ export default {
     }
 }
 </script>
+<style>
+.color-lightgray {
+    color: lightgray;
+}
+</style>

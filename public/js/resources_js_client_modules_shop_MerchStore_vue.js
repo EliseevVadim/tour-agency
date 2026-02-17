@@ -1194,6 +1194,17 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
 
 
 
+
+/*
+*  {
+            "idSuffix": "10",
+            "platformName": "Instagram",
+            "imageUrl": "/img/socials/promo-instagram.png",
+            "url": "https://instagram.com/put_club",
+            "template": "SALES"
+        }
+* */
+
 var WISHLIST_STORAGE_KEY = 'merchWishlistIds';
 var WISHLIST_FULL_DATA_KEY = 'merchWishlistFullData';
 var FILTERS_SORT_STORAGE_KEY = 'merchFiltersAndSort';
@@ -4485,7 +4496,7 @@ __webpack_require__.r(__webpack_exports__);
 /***/ ((module) => {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"TEMPLATES":{"RELEASES":{"title":"Новые выпуски из путешествий"},"NEWS":{"title":"Последние новости"},"SALES":{"title":"Горящие туры, акции и скидки"}},"PLATFORM_DATA":[{"idSuffix":"1","platformName":"Rutube","imageUrl":"/img/socials/promo-rutube.png","url":"https://rutube.ru/channel/37334628/","template":"RELEASES"},{"idSuffix":"2","platformName":"Vkontakte","imageUrl":"/img/socials/promo-vk.png","url":"https://vk.com/put_club","template":"NEWS"},{"idSuffix":"3","platformName":"Telegram","imageUrl":"/img/socials/promo-tg.png","url":"https://t.me/put_club","template":"SALES"},{"idSuffix":"4","platformName":"Dzen","imageUrl":"/img/socials/promo-dzen.png","url":"https://dzen.ru/put_club","template":"RELEASES"},{"idSuffix":"5","platformName":"YouTube","imageUrl":"/img/socials/promo-youtube.png","url":"https://www.youtube.com/@put_club","template":"RELEASES"},{"idSuffix":"6","platformName":"TikTok","imageUrl":"/img/socials/promo-tiktok.png","url":"https://www.tiktok.com/@put_club","template":"SALES"},{"idSuffix":"7","platformName":"Yappi","imageUrl":"/img/socials/promo-yappi.png","url":"https://yappy.media/n/put_club","template":"SALES"},{"idSuffix":"8","platformName":"Одноклассники","imageUrl":"/img/socials/promo-ok.png","url":"https://ok.ru/group/70000033103318","template":"SALES"},{"idSuffix":"9","platformName":"Max","imageUrl":"/img/socials/promo-max.png","url":"https://t.me/put_club","template":"NEWS"},{"idSuffix":"10","platformName":"Instagram","imageUrl":"/img/socials/promo-instagram.png","url":"https://instagram.com/put_club","template":"SALES"}]}');
+module.exports = /*#__PURE__*/JSON.parse('{"TEMPLATES":{"RELEASES":{"title":"Новые выпуски из путешествий"},"NEWS":{"title":"Последние новости"},"SALES":{"title":"Горящие туры, акции и скидки"}},"PLATFORM_DATA":[{"idSuffix":"1","platformName":"Rutube","imageUrl":"/img/socials/promo-rutube.png","url":"https://rutube.ru/channel/37334628/","template":"RELEASES"},{"idSuffix":"2","platformName":"Vkontakte","imageUrl":"/img/socials/promo-vk.png","url":"https://vk.com/put_club","template":"NEWS"},{"idSuffix":"3","platformName":"Telegram","imageUrl":"/img/socials/promo-tg.png","url":"https://t.me/put_club","template":"SALES"},{"idSuffix":"4","platformName":"Dzen","imageUrl":"/img/socials/promo-dzen.png","url":"https://dzen.ru/put_club","template":"RELEASES"},{"idSuffix":"5","platformName":"YouTube","imageUrl":"/img/socials/promo-youtube.png","url":"https://www.youtube.com/@put_club","template":"RELEASES"},{"idSuffix":"6","platformName":"TikTok","imageUrl":"/img/socials/promo-tiktok.png","url":"https://www.tiktok.com/@put_club","template":"SALES"},{"idSuffix":"7","platformName":"Yappi","imageUrl":"/img/socials/promo-yappi.png","url":"https://yappy.media/n/put_club","template":"SALES"},{"idSuffix":"8","platformName":"Одноклассники","imageUrl":"/img/socials/promo-ok.png","url":"https://ok.ru/group/70000033103318","template":"SALES"},{"idSuffix":"9","platformName":"Max","imageUrl":"/img/socials/promo-max.png","url":"https://t.me/put_club","template":"NEWS"}]}');
 
 /***/ }),
 
