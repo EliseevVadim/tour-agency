@@ -123,6 +123,7 @@ export default {
 </script>
 <style>
 .color-lightgray {
-    color: lightgray;
+    color: black;
+    font-size: 10px;
 }
 </style>
