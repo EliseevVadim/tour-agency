@@ -16,7 +16,7 @@
                             <div class="image-list">
                                 <swiper class="vertical-swiper" :options="swiperOptions"
                                         @ready="onSwiperReady">
-                                    <swiper-slide v-for="(image, idx) in primaryImageUrl" :key="'thumbnail-' + idx">
+                                    <swiper-slide v-for="(image, idx) in sortedImages" :key="'thumbnail-' + idx">
                                         <div class="slide image-wrapper position-relative"
                                              @click="goToSpecificSlide(idx)">
                                             <img :src="image.image" :alt="'Вид-' + idx"/>
@@ -25,7 +25,7 @@
                                 </swiper>
                             </div>
                             <div v-if="false" class="image-list">
-                                <div v-for="(image, idx) in primaryImageUrl"
+                                <div v-for="(image, idx) in sortedImages"
                                      class="image-wrapper position-relative">
                                     <img :src="image.image" :alt="'Вид-' + idx" :key="'thumbnail-' + idx"/>
                                 </div>
@@ -312,7 +312,7 @@ export default {
         isVariantSelectionPossible() {
             return this.product && this.product.attributes && this.product.attributes.length > 0;
         },
-        primaryImageUrl() {
+        sortedImages() {
             if (!this.product?.images?.length) return '';
             const images = this.product.images;
             const primaryImageObj = images.find(img => img.primary === true);
@@ -351,32 +351,40 @@ export default {
             this.isInWishlist = wishlistIds.includes(this.product.id)
         },
 
+
+
         initializeVariantSelection(product) {
             if (!this.isVariantSelectionPossible) {
-                const hasStock = product.available_skus.some(sku => sku.stock_qty > 0);
-                this.currentSKU = {
-                    price: product.currentPrice,
-                    stock_qty: hasStock ? 1 : 0,
-                    sku: product.available_skus.length > 0 ? product.available_skus[0].sku : null
-                };
+                const foundSKU = product.available_skus.find(sku => sku.stock_qty > 0) || product.available_skus[0];
+                this.currentSKU = foundSKU ? {
+                    price: foundSKU.price || product.currentPrice,
+                    stock_qty: foundSKU.stock_qty,
+                    sku: foundSKU.sku
+                } : {price: product.currentPrice, stock_qty: 0, sku: null};
                 this.selectedAttributes = {};
                 this.activeAttributeOptions = {};
                 return;
             }
 
-            const initialSelection = {};
             const availableSkus = product.available_skus;
-
-            const leadingAttribute = product.attributes[0];
-            if (leadingAttribute && leadingAttribute.options.length > 0) {
-                this.$set(initialSelection, leadingAttribute.name, leadingAttribute.options[0]);
-            }
+            const initialSelection = {};
 
             product.attributes.forEach(attr => {
-                if (attr.name !== leadingAttribute.name) {
-                    this.$set(initialSelection, attr.name, null);
+                const attrName = attr.name;
+                const skuKey = attr.sku_key;
+                let initialValue = null;
+
+                if (product.current_sku) {
+                    initialValue = product.current_sku[skuKey] || product.current_sku[attrName];
+                }
+
+                if (initialValue && attr.options.includes(initialValue)) {
+                    this.$set(initialSelection, attrName, initialValue);
+                } else {
+                    this.$set(initialSelection, attrName, null);
                 }
             });
+
             this.selectedAttributes = initialSelection;
 
             this.recalculateActiveOptions(product, availableSkus);
@@ -436,11 +444,13 @@ export default {
 
             attributes.forEach(attr => {
                 const attrName = attr.name;
+
                 const currentSelection = this.selectedAttributes[attrName];
                 const availableOptions = this.activeAttributeOptions[attrName] || [];
 
                 const isAvailableInNextStep = availableOptions.length > 0;
                 const isSelectionInvalid = currentSelection && !availableOptions.includes(currentSelection);
+
 
                 if (isSelectionInvalid) {
                     if (isAvailableInNextStep) {
@@ -506,7 +516,6 @@ export default {
             localStorage.setItem('shoppingCart', JSON.stringify(cart));
         },
 
-
         addToCart() {
             if (!this.currentSKU || this.currentSKU.stock_qty <= 0) {
                 this.isNotificationVisible = true;
@@ -525,7 +534,6 @@ export default {
             );
 
             let finalQuantity = requestedQuantity;
-            let quantityAddedLog = `Запрошено: ${requestedQuantity}`;
 
             if (existingItemIndex !== -1) {
                 const currentCartQuantity = cart[existingItemIndex].quantity;
@@ -533,7 +541,6 @@ export default {
 
                 if (potentialTotal > availableStock) {
                     finalQuantity = availableStock - currentCartQuantity;
-                    quantityAddedLog = `Доступно всего ${availableStock}. Добавлено ${finalQuantity} шт. (вместо запрошенных ${requestedQuantity})`;
 
                     if (finalQuantity <= 0) {
                         //TODO: Если в корзине уже ровно столько, сколько есть на складе
@@ -549,17 +556,17 @@ export default {
             } else {
                 if (requestedQuantity > availableStock) {
                     finalQuantity = availableStock;
-                    quantityAddedLog = `Добавлено только ${availableStock} шт. (из запрошенных ${requestedQuantity})`;
                 }
 
                 const cartItem = {
                     productId: productId,
                     sku: sku,
                     name: this.product.name,
-                    image: this.primaryImageUrl,
+                    images: this.sortedImages,
                     current_sku: this.currentSKU,
                     quantity: finalQuantity,
-                    attributes: this.product.attributes
+                    attributes: this.product.attributes,
+                    available_skus: this.product.available_skus
                 };
                 cart.push(cartItem);
             }

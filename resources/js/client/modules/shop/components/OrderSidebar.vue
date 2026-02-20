@@ -15,14 +15,15 @@
                     Корзина пуста. Добавьте в корзину хотя бы один товар
                 </div>
 
-                <div v-for="item in items" :key="item.id" class="sidebar-item align-items-start">
+                <div v-for="item in items" :key="item.id" class="sidebar-item align-items-start cursor-pointer"
+                     @click="openProductModal(item)">
                     <div class="sidebar-item-content">
                         <div class="image-wrapper">
                             <button class="close-button position-absolute color-white mt-2"
                                     @click="removeItem(item)">
                                 &times;
                             </button>
-                            <img :src="item.image" alt="Product Image" class="item-image">
+                            <img :src="getPrimaryImageUrl(item)" alt="Product Image" class="item-image">
                         </div>
 
                         <div class="detail-info-section">
@@ -170,6 +171,11 @@ export default {
 
             //TODO: ОТКРЫТЬ МОДАЛЬНОЕ ОКНО С ОФОРМЛЕНИЕМ ЗАКАЗА, А ЭТО ЗАКРЫТЬ
         },
+
+        openProductModal(product) {
+            eventBus.$emit('open-product-modal', product);
+            this.$emit('close');
+        }
     },
     emits: ['close', 'remove', 'update:quantity'],
     mounted() {

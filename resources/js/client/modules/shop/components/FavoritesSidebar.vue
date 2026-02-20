@@ -84,6 +84,7 @@ export default {
         },
         openProductModal(product) {
             eventBus.$emit('open-product-modal', product);
+            this.$emit('close');
         }
     },
     mounted() {
