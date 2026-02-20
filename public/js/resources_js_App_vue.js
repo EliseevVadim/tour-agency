@@ -1242,7 +1242,7 @@ var render = function render() {
   }, [_c("h2", [_vm._v("Наша атрибутика")]), _vm._v(" "), _c("h3", {
     staticClass: "mb-3"
   }, [_vm._v("выбери свою")]), _vm._v(" "), _c("a", {
-    staticClass: "btn btn-cta btn-open rounded-3",
+    staticClass: "position-relative btn btn-cta synthwave-laser-button btn-open rounded-3",
     attrs: {
       href: "/shop",
       target: "_blank"
@@ -1252,9 +1252,7 @@ var render = function render() {
         $event.stopPropagation();
       }
     }
-  }, [_c("span", {
-    staticClass: "flare"
-  }), _vm._v("\n                посмотреть\n            ")])]), _vm._v(" "), _vm._m(0)])]);
+  }, [_vm._v("\n                посмотреть\n            ")])]), _vm._v(" "), _vm._m(0)])]);
 };
 var staticRenderFns = [function () {
   var _vm = this,
@@ -1418,7 +1416,7 @@ var render = function render() {
   }, [_vm._m(1), _vm._v(" "), _c("p", {
     staticClass: "promo-description"
   }, [_vm._v("Наш авторский курс для людей которые хотят работать в сфере туризма на\n                полную или частичную занятость, или путешествовать с огромными скидками.")]), _vm._v(" "), _c("a", {
-    staticClass: "btn btn-cta btn-open rounded-3",
+    staticClass: "btn btn-cta btn-glow btn-open rounded-3",
     attrs: {
       href: "/courses"
     },
@@ -1427,9 +1425,7 @@ var render = function render() {
         $event.stopPropagation();
       }
     }
-  }, [_c("span", {
-    staticClass: "flare"
-  }), _vm._v("\n                посмотреть\n            ")])])])]);
+  }, [_vm._v("\n                посмотреть\n            ")])])])]);
 };
 var staticRenderFns = [function () {
   var _vm = this,

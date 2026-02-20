@@ -7,7 +7,7 @@
                 </div>
                 <div class="modal-body">
                     <h2 class="order-title text-center mb-4">Ваш заказ</h2>
-                    <p class="order-subtitle text-center">Внимательно заполняйте <br> поля ниже</p>
+                    <p class="order-subtitle text-center">Заполните <br> поля ниже</p>
                     <form @submit.prevent="paymentClick">
                         <input id="idCourse" class="idCourse" type="text" hidden :value="currentPackageId">
                         <input id="originalPrice" type="text" hidden :value="currentPackagePrice">
@@ -19,7 +19,7 @@
                                    @input="checkFormValidity">
                         </div>
                         <div class="mb-3">
-                            <label for="email" class="form-label">На данную почту придет доступ к курсу:</label>
+                            <label for="email" class="form-label">На почту придет вся актуальная информация:</label>
                             <input type="email" class="form-control ta-input" id="email" placeholder="Email"
                                    v-model="formData.email" @input="checkFormValidity" autocomplete="email">
                         </div>

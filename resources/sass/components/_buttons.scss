@@ -82,6 +82,78 @@
     }
 }
 
+@keyframes glow {
+    0% {
+        box-shadow: 0 0 0 0 #dd0024;
+    }
+
+    50% {
+        box-shadow: 0 0 30px 0 #dd0024;
+    }
+}
+
+.btn-cta.btn-glow {
+    color: #fff;
+    animation: glow 2s linear infinite;
+}
+
+.synthwave-laser-button {
+    position: relative;
+    z-index: 1;
+    transition:
+        box-shadow 0.3s ease,
+        transform 0.3s ease;
+}
+
+.synthwave-laser-button::before,
+.synthwave-laser-button::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    filter: blur(5px);
+    transform: translateX(-100%);
+    animation: laser-glow 2.5s infinite linear;
+}
+
+.synthwave-laser-button::before {
+    background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(251, 98, 40, 0.7),
+            transparent
+    );
+}
+
+.synthwave-laser-button::after {
+    animation-delay: 1.25s;
+    background: linear-gradient(
+            90deg,
+            transparent,
+            rgb(221, 0, 36),
+            transparent
+    );
+}
+
+@keyframes laser-glow {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.synthwave-laser-button:active {
+    transform: scale(0.95);
+    box-shadow:
+        inset 0 0 15px $btn-cta-gradient-start,
+        0 0 35px rgba(255, 100, 0, 0.8);
+}
+
 .btn-open {
     font-size: 1.56rem;
     padding: 0;

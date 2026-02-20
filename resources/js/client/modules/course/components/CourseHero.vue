@@ -6,9 +6,6 @@
                     <source src="/videos/movie.mp4" type="video/mp4">
                 </video>
             </div>
-            <div v-if="false" class="hero-background-image">
-                <img src="/img/course-hero.png" alt="Hero Background">
-            </div>
             <div class="hero-main-text">
                 <h2 class="hero-main-title">Авторский курс</h2>
                 <h1 class="hero-highlight-title">«ПУТЬ В ТУРИЗМ»</h1>

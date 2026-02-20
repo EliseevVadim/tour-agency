@@ -1,9 +1,10 @@
 .pricing-selector {
     .pre-order-modal {
-        .modal-content{
+        .modal-content {
             border-radius: 25px;
             overflow: hidden;
         }
+
         .modal-content::before {
             content: '';
             position: absolute;
@@ -29,7 +30,7 @@
             align-items: center;
         }
 
-        label{
+        label {
             padding-left: 20px;
             line-height: 1.3;
         }
@@ -50,7 +51,7 @@
             color: white;
             overflow: hidden;
 
-            &::before{
+            &::before {
                 content: '';
                 position: absolute;
                 top: 0;
@@ -68,7 +69,7 @@
         }
 
         .politics {
-            width: 90%px;
+            width: 90% px;
             margin-left: auto;
             margin-right: auto;
         }
@@ -164,12 +165,22 @@
         display: block;
     }
 
-    .title-course {
+    .timer-course {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
         z-index: 1;
+
+        .timer p {
+            background-image: linear-gradient(135deg, #dd0024, #fb6228);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 5px rgba(255, 98, 40, 0.3), 0 0 10px rgba(221, 0, 36, 0.2);
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
     }
 
     .package-card {
@@ -340,6 +351,7 @@
                     width: 60px;
                 }
             }
+
             .benefit-description {
                 font-size: 1.8rem;
                 line-height: 1.1;
@@ -499,6 +511,16 @@
 
         .course-persons img {
             width: 96%;
+        }
+        .title-course {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+        .timer {
+            margin-bottom: 10px !important;
+        }
+        .timer-course .timer p {
+            font-size: 2rem;
         }
         .package-card {
             border-radius: 20px;

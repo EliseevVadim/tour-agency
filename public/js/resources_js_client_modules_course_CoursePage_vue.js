@@ -665,7 +665,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
           summary: '<b>Пакет "Макси"</b> – это полное погружение в мир туризма с возможностью стать частью нашей крупнейшей сети и начать собственный бизнес с поддержкой.',
           priceOld: 45000,
           priceNew: 37000,
-          buttonText: 'ПОДРОБНЕЕ'
+          buttonText: 'ПОЛУЧИТЬ ПРЕЗЕНТАЦИЮ'
         }
       }],
       isLoading: true,
@@ -675,10 +675,28 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
       promoStatus: null,
       // 'loading', 'allowed', 'denied', 'error'
       promoMessage: null,
-      discountDetails: null // { type: 'percent' | 'fixed', value: number }
+      discountDetails: null,
+      // { type: 'percent' | 'fixed', value: number }
+      INITIAL_TIME_SECONDS: 129600,
+      time: 0,
+      interval: null,
+      isRunning: false
     };
   },
   computed: {
+    formattedTime: function formattedTime() {
+      var totalSeconds = this.time;
+      if (totalSeconds <= 0) {
+        return "00:00:00:00";
+      }
+      var secondsInDay = 24 * 60 * 60;
+      var days = Math.floor(totalSeconds / secondsInDay);
+      var remainingSecondsAfterDays = totalSeconds % secondsInDay;
+      var hours = Math.floor(remainingSecondsAfterDays / 3600);
+      var minutes = Math.floor(remainingSecondsAfterDays % 3600 / 60);
+      var seconds = Math.floor(remainingSecondsAfterDays % 60);
+      return "".concat(String(days).padStart(2, '0'), ":").concat(String(hours).padStart(2, '0'), ":").concat(String(minutes).padStart(2, '0'), ":").concat(String(seconds).padStart(2, '0'));
+    },
     currentPackage: function currentPackage() {
       var _this = this;
       return this.packageData.find(function (pkg) {
@@ -706,30 +724,34 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
     }
   },
   methods: {
-    togglePackage: function togglePackage(packageId) {
+    saveTime: function saveTime() {
+      localStorage.setItem('countdownTimeLeft', this.time);
+    },
+    startCountdown: function startCountdown() {
       var _this2 = this;
+      if (this.isRunning || this.time <= 0) return;
+      this.isRunning = true;
+      this.interval = setInterval(function () {
+        if (_this2.time > 0) {
+          _this2.time--;
+          _this2.saveTime();
+        } else {
+          _this2.stopCountdown();
+        }
+      }, 1000);
+    },
+    stopCountdown: function stopCountdown() {
+      if (this.interval) {
+        clearInterval(this.interval);
+        this.interval = null;
+        this.isRunning = false;
+      }
+      localStorage.removeItem('countdownTimeLeft');
+    },
+    togglePackage: function togglePackage(packageId) {
+      var _this3 = this;
       var isCurrentlyExpanded = this.expandedPackage === packageId;
       this.expandedPackage = isCurrentlyExpanded ? null : packageId;
-      this.$nextTick(function () {
-        var refKey = "package_".concat(packageId);
-        var pkgRefs = _this2.$refs[refKey];
-        if (pkgRefs && pkgRefs.length > 0 && pkgRefs[0] instanceof Element) {
-          pkgRefs[0].scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }
-        if (!isCurrentlyExpanded && _this2.promoCode) {
-          _this2.checkPromoCode();
-        }
-      });
-    },
-    togglePackageFromGallery: function togglePackageFromGallery(packageId) {
-      var _this3 = this;
-      var wasExpanded = this.expandedPackage === packageId;
-      if (!wasExpanded) {
-        this.expandedPackage = packageId;
-      }
       this.$nextTick(function () {
         var refKey = "package_".concat(packageId);
         var pkgRefs = _this3.$refs[refKey];
@@ -739,10 +761,30 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
             block: 'start'
           });
         }
+        if (!isCurrentlyExpanded && _this3.promoCode) {
+          _this3.checkPromoCode();
+        }
+      });
+    },
+    togglePackageFromGallery: function togglePackageFromGallery(packageId) {
+      var _this4 = this;
+      var wasExpanded = this.expandedPackage === packageId;
+      if (!wasExpanded) {
+        this.expandedPackage = packageId;
+      }
+      this.$nextTick(function () {
+        var refKey = "package_".concat(packageId);
+        var pkgRefs = _this4.$refs[refKey];
+        if (pkgRefs && pkgRefs.length > 0 && pkgRefs[0] instanceof Element) {
+          pkgRefs[0].scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
       });
     },
     getCourses: function getCourses() {
-      var _this4 = this;
+      var _this5 = this;
       axios__WEBPACK_IMPORTED_MODULE_1___default().get("/api/courses").then(function (response) {
         var packagesObject = response.data.packages;
         if (_typeof(packagesObject) !== 'object' || packagesObject === null) {
@@ -754,18 +796,18 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
           var _packagesObject$key;
           var pkgData = (_packagesObject$key = packagesObject[key]) !== null && _packagesObject$key !== void 0 ? _packagesObject$key : null;
           if (pkgData) {
-            _this4.packageData[index].id = pkgData.id;
-            _this4.packageData[index].name = pkgData.name;
-            _this4.packageData[index].details.priceOld = pkgData.priceOld;
-            _this4.packageData[index].details.priceNew = pkgData.priceNew;
-            _this4.packageData[index].details.buttonText = pkgData.buttonText || 'ПОЛУЧИТЬ ДОСТУП';
+            _this5.packageData[index].id = pkgData.id;
+            _this5.packageData[index].name = pkgData.name;
+            _this5.packageData[index].details.priceOld = pkgData.priceOld;
+            _this5.packageData[index].details.priceNew = pkgData.priceNew;
+            _this5.packageData[index].details.buttonText = pkgData.buttonText || 'ПОЛУЧИТЬ ДОСТУП';
           }
         });
-        if (_this4.promoCode) {
-          _this4.checkPromoCode();
+        if (_this5.promoCode) {
+          _this5.checkPromoCode();
         }
       })["finally"](function () {
-        _this4.isLoading = false;
+        _this5.isLoading = false;
       });
     },
     getPromocodeFromUrl: function getPromocodeFromUrl() {
@@ -776,46 +818,46 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
       }
     },
     checkPromoCode: function checkPromoCode() {
-      var _this5 = this;
+      var _this6 = this;
       return _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
         var currentId, response, _t;
         return _regenerator().w(function (_context) {
           while (1) switch (_context.p = _context.n) {
             case 0:
-              if (_this5.promoCode) {
+              if (_this6.promoCode) {
                 _context.n = 1;
                 break;
               }
               return _context.a(2);
             case 1:
-              _this5.discountDetails = null;
-              _this5.promoCodeId = null;
-              _this5.promoStatus = 'loading';
-              _this5.promoMessage = 'Проверка промокода...';
-              currentId = _this5.currentPackage.id;
+              _this6.discountDetails = null;
+              _this6.promoCodeId = null;
+              _this6.promoStatus = 'loading';
+              _this6.promoMessage = 'Проверка промокода...';
+              currentId = _this6.currentPackage.id;
               _context.p = 2;
               _context.n = 3;
               return axios__WEBPACK_IMPORTED_MODULE_1___default().post('/api/check-promo-code', {
-                code: _this5.promoCode,
+                code: _this6.promoCode,
                 package_id: currentId
               });
             case 3:
               response = _context.v;
-              _this5.promoStatus = response.data.status;
-              if (_this5.promoStatus === 'allowed') {
-                _this5.discountDetails = response.data.discount_info;
-                _this5.promoCodeId = response.data.promo_id;
-                _this5.promoMessage = response.data.message || 'Промокод успешно применен!';
+              _this6.promoStatus = response.data.status;
+              if (_this6.promoStatus === 'allowed') {
+                _this6.discountDetails = response.data.discount_info;
+                _this6.promoCodeId = response.data.promo_id;
+                _this6.promoMessage = response.data.message || 'Промокод успешно применен!';
               }
               _context.n = 5;
               break;
             case 4:
               _context.p = 4;
               _t = _context.v;
-              _this5.promoStatus = 'error';
-              _this5.promoMessage = 'Не удалось проверить промокод.';
-              _this5.discountDetails = null;
-              _this5.promoCodeId = null;
+              _this6.promoStatus = 'error';
+              _this6.promoMessage = 'Не удалось проверить промокод.';
+              _this6.discountDetails = null;
+              _this6.promoCodeId = null;
             case 5:
               return _context.a(2);
           }
@@ -831,13 +873,13 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
       }
     },
     applyReferralCode: function applyReferralCode(refCode) {
-      var _this6 = this;
+      var _this7 = this;
       return _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
         var response, _t2;
         return _regenerator().w(function (_context2) {
           while (1) switch (_context2.p = _context2.n) {
             case 0:
-              _this6.isLoading = true;
+              _this7.isLoading = true;
               _context2.p = 1;
               _context2.n = 2;
               return axios__WEBPACK_IMPORTED_MODULE_1___default().post('/api/apply-referral', {
@@ -845,7 +887,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
               });
             case 2:
               response = _context2.v;
-              _this6.refId = response.data.ref_id;
+              _this7.refId = response.data.ref_id;
               _context2.n = 4;
               break;
             case 3:
@@ -854,7 +896,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
               console.error('Ошибка применения реферального кода:', _t2.response ? _t2.response.data.message : 'Ошибка сети');
             case 4:
               _context2.p = 4;
-              _this6.isLoading = false;
+              _this7.isLoading = false;
               return _context2.f(4);
             case 5:
               return _context2.a(2);
@@ -864,7 +906,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
     }
   },
   mounted: function mounted() {
-    var _this7 = this;
+    var _this8 = this;
     this.getCourses();
     this.getPromocodeFromUrl();
     this.getRefFromUrl();
@@ -889,25 +931,37 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
         if (modalIdInput) modalIdInput.value = id;
         if (modalTitleSpan) modalTitleSpan.textContent = " \"".concat(name, "\"");
         if (modalPriceP) modalPriceP.textContent = "".concat(finalPrice, " \u0440");
-        _this7.currentPackageId = id;
-        _this7.currentPackageName = name;
-        _this7.currentPackagePrice = finalPrice;
-        _this7.originalPrice = parseFloat(originalPrice) || 0;
-        _this7.currentPackageBg = bgUrl ? "linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url(\"".concat(bgUrl, "\") no-repeat center center / cover") : '';
-        _this7.promoCodeId = promoId;
-        _this7.promoStatus = promoStatus;
-        _this7.promoMessage = promoMessage;
-        _this7.refId = urlForRef;
+        _this8.currentPackageId = id;
+        _this8.currentPackageName = name;
+        _this8.currentPackagePrice = finalPrice;
+        _this8.originalPrice = parseFloat(originalPrice) || 0;
+        _this8.currentPackageBg = bgUrl ? "linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url(\"".concat(bgUrl, "\") no-repeat center center / cover") : '';
+        _this8.promoCodeId = promoId;
+        _this8.promoStatus = promoStatus;
+        _this8.promoMessage = promoMessage;
+        _this8.refId = urlForRef;
         if (promoStatus === 'allowed' && promoType && promoValue) {
-          _this7.discountDetails = {
+          _this8.discountDetails = {
             type: promoType,
             value: parseFloat(promoValue)
           };
         } else {
-          _this7.discountDetails = null;
+          _this8.discountDetails = null;
         }
       });
     }
+    var savedTime = localStorage.getItem('countdownTimeLeft');
+    if (savedTime !== null) {
+      var parsedTime = parseInt(savedTime, 10);
+      if (parsedTime > 0 && parsedTime <= this.INITIAL_TIME_SECONDS) {
+        this.time = parsedTime;
+      } else {
+        this.time = this.INITIAL_TIME_SECONDS;
+      }
+    } else {
+      this.time = this.INITIAL_TIME_SECONDS;
+    }
+    this.startCountdown();
   }
 });
 
@@ -1163,7 +1217,7 @@ var render = function render() {
     attrs: {
       "for": "email"
     }
-  }, [_vm._v("На данную почту придет доступ к курсу:")]), _vm._v(" "), _c("input", {
+  }, [_vm._v("На почту придет вся актуальная информация:")]), _vm._v(" "), _c("input", {
     directives: [{
       name: "model",
       rawName: "v-model",
@@ -1329,7 +1383,7 @@ var staticRenderFns = [function () {
     _c = _vm._self._c;
   return _c("p", {
     staticClass: "order-subtitle text-center"
-  }, [_vm._v("Внимательно заполняйте "), _c("br"), _vm._v(" поля ниже")]);
+  }, [_vm._v("Заполните "), _c("br"), _vm._v(" поля ниже")]);
 }, function () {
   var _vm = this,
     _c = _vm._self._c;
@@ -1467,7 +1521,7 @@ var render = function render() {
       src: "/videos/movie.mp4",
       type: "video/mp4"
     }
-  })])]), _vm._v(" "),  false ? 0 : _vm._e(), _vm._v(" "), _vm._m(0), _vm._v(" "), _c("div", {
+  })])]), _vm._v(" "), _vm._m(0), _vm._v(" "), _c("div", {
     staticClass: "scroll-indicator"
   }, [_c("div", {
     staticClass: "scroll-arrow-container"
@@ -1577,9 +1631,9 @@ var staticRenderFns = [function () {
     staticClass: "course-modules-header title-course"
   }, [_vm._v("О КУРСЕ:")]), _vm._v(" "), _c("p", {
     staticClass: "course-description"
-  }, [_vm._v("\n                Наш курс включает в себя "), _c("span", {
+  }, [_vm._v("\n                Наш курс рассчитан на 30 дней и включает в себя "), _c("span", {
     staticClass: "fw-800"
-  }, [_vm._v("9 уникальных модулей,")]), _vm._v(" каждый из которых покажет\n                тебе основные нюансы связанные с работой туристического агента.\n            ")])]), _vm._v(" "), _c("div", {
+  }, [_vm._v("9 уникальных модулей,")]), _vm._v("\n                каждый из которых покажет тебе основные нюансы связанные с работой туристического агента.\n            ")])]), _vm._v(" "), _c("div", {
     staticClass: "course-modules-right"
   }, [_c("div", {
     staticClass: "gradient-circle"
@@ -1691,7 +1745,17 @@ var render = function render() {
     staticClass: "pre-order-modal"
   }), _vm._v(" "), _vm._m(0), _vm._v(" "), !_vm.isLoading && _vm.packageData.length > 0 ? _c("div", {
     staticClass: "select-course-section position-relative"
-  }, [_vm._m(1), _vm._v(" "), _vm._l(_vm.packageData, function (pkg) {
+  }, [_c("div", {
+    staticClass: "person-wrapper"
+  }, [_vm._m(1), _vm._v(" "), _c("div", {
+    staticClass: "timer-course"
+  }, [_c("h2", {
+    staticClass: "title-course text-center"
+  }, [_vm._v("До старта осталось:")]), _vm._v(" "), _c("div", {
+    staticClass: "timer text-center mb-4"
+  }, [_c("p", [_vm._v(_vm._s(_vm.formattedTime))])]), _vm._v(" "), _c("h2", {
+    staticClass: "title-course text-center"
+  }, [_vm._v("ВЫБЕРИ СВОЙ ПАКЕТ:")])])]), _vm._v(" "), _vm._l(_vm.packageData, function (pkg) {
     return _c("div", {
       key: pkg.id,
       ref: "package_".concat(pkg.id),
@@ -1826,7 +1890,7 @@ var render = function render() {
       }
     }, [_c("span", {
       staticClass: "flare"
-    }), _vm._v("\n                    " + _vm._s(pkg.details.buttonText) + "\n                ")]), _vm._v(" "), pkg.id != "maxi" ? _c("div", {
+    }), _vm._v("\n                    " + _vm._s(pkg.id != "maxi" ? pkg.details.buttonText : "ПОЛУЧИТЬ ПРЕЗЕНТАЦИЮ") + "\n                ")]), _vm._v(" "), pkg.id != "maxi" ? _c("div", {
       staticClass: "mark-price"
     }, [_c("span", {
       staticClass: "price-old text-decoration-line-through fw-medium"
@@ -1881,17 +1945,13 @@ var staticRenderFns = [function () {
   var _vm = this,
     _c = _vm._self._c;
   return _c("div", {
-    staticClass: "person-wrapper"
-  }, [_c("div", {
     staticClass: "course-persons"
   }, [_c("img", {
     attrs: {
       src: "/img/packets/course-persons.png",
       alt: "course persons"
     }
-  })]), _vm._v(" "), _c("h2", {
-    staticClass: "title-course text-center"
-  }, [_vm._v("ВЫБЕРИ СВОЙ ПАКЕТ:")])]);
+  })]);
 }, function () {
   var _vm = this,
     _c = _vm._self._c;

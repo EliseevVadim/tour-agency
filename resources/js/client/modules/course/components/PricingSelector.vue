@@ -35,7 +35,13 @@
                 <div class="course-persons">
                     <img src="/img/packets/course-persons.png" alt="course persons">
                 </div>
-                <h2 class="title-course text-center">ВЫБЕРИ СВОЙ ПАКЕТ:</h2>
+                <div class="timer-course">
+                    <h2 class="title-course text-center">До старта осталось:</h2>
+                    <div class="timer text-center mb-4">
+                        <p>{{formattedTime}}</p>
+                    </div>
+                    <h2 class="title-course text-center">ВЫБЕРИ СВОЙ ПАКЕТ:</h2>
+                </div>
             </div>
 
             <div v-for="pkg in packageData" :key="pkg.id" class="package-container position-relative"
@@ -133,7 +139,7 @@
                             :data-bs-promo-type="discountDetails ? discountDetails.type : null"
                             :data-bs-promo-value="discountDetails ? discountDetails.value : null">
                         <span class="flare"></span>
-                        {{ pkg.details.buttonText }}
+                        {{ pkg.id != 'maxi' ? pkg.details.buttonText : 'ПОЛУЧИТЬ ПРЕЗЕНТАЦИЮ' }}
                     </button>
                     <div v-if="pkg.id != 'maxi'" class="mark-price">
                         <span class="price-old text-decoration-line-through fw-medium">{{
@@ -262,7 +268,7 @@ export default {
                         summary: '<b>Пакет "Макси"</b> – это полное погружение в мир туризма с возможностью стать частью нашей крупнейшей сети и начать собственный бизнес с поддержкой.',
                         priceOld: 45000,
                         priceNew: 37000,
-                        buttonText: 'ПОДРОБНЕЕ'
+                        buttonText: 'ПОЛУЧИТЬ ПРЕЗЕНТАЦИЮ'
                     }
                 }],
             isLoading: true,
@@ -272,9 +278,31 @@ export default {
             promoStatus: null, // 'loading', 'allowed', 'denied', 'error'
             promoMessage: null,
             discountDetails: null, // { type: 'percent' | 'fixed', value: number }
+            INITIAL_TIME_SECONDS: 129600,
+            time: 0,
+            interval: null,
+            isRunning: false,
         };
     },
     computed: {
+        formattedTime() {
+            const totalSeconds = this.time;
+
+            if (totalSeconds <= 0) {
+                return "00:00:00:00";
+            }
+
+            const secondsInDay = 24 * 60 * 60;
+            const days = Math.floor(totalSeconds / secondsInDay);
+
+            const remainingSecondsAfterDays = totalSeconds % secondsInDay;
+
+            const hours = Math.floor(remainingSecondsAfterDays / 3600);
+            const minutes = Math.floor((remainingSecondsAfterDays % 3600) / 60);
+            const seconds = Math.floor(remainingSecondsAfterDays % 60);
+
+            return `${String(days).padStart(2, '0')}:${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        },
         currentPackage() {
             return this.packageData.find(pkg => pkg.id === this.expandedPackage) || this.packageData[1];
         },
@@ -298,6 +326,33 @@ export default {
         }
     },
     methods: {
+        saveTime() {
+            localStorage.setItem('countdownTimeLeft', this.time);
+        },
+
+        startCountdown() {
+            if (this.isRunning || this.time <= 0) return;
+
+            this.isRunning = true;
+            this.interval = setInterval(() => {
+                if (this.time > 0) {
+                    this.time--;
+                    this.saveTime();
+                } else {
+                    this.stopCountdown();
+                }
+            }, 1000);
+        },
+
+        stopCountdown() {
+            if (this.interval) {
+                clearInterval(this.interval);
+                this.interval = null;
+                this.isRunning = false;
+            }
+            localStorage.removeItem('countdownTimeLeft');
+        },
+
         togglePackage(packageId) {
             const isCurrentlyExpanded = this.expandedPackage === packageId;
             this.expandedPackage = isCurrentlyExpanded ? null : packageId;
@@ -482,6 +537,21 @@ export default {
                 }
             });
         }
+
+        const savedTime = localStorage.getItem('countdownTimeLeft');
+
+        if (savedTime !== null) {
+            const parsedTime = parseInt(savedTime, 10);
+            if (parsedTime > 0 && parsedTime <= this.INITIAL_TIME_SECONDS) {
+                this.time = parsedTime;
+            } else {
+                this.time = this.INITIAL_TIME_SECONDS;
+            }
+        } else {
+            this.time = this.INITIAL_TIME_SECONDS;
+        }
+
+        this.startCountdown();
     },
 }
 </script>
