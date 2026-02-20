@@ -34,10 +34,13 @@ Vue.component('temporary-merch-page', TemporaryMerch);
 Vue.component('svedeniya-component', SvedeniyaContent);
 
 
+const AdminProductsContent = () => import('./admin/AdminProductsContent.vue');
+
 Vue.component('admin-team-component', require('./admin/TeamComponent.vue').default);
 Vue.component('admin-reviews-component', require('./admin/ReviewsComponent.vue').default);
 Vue.component('admin-contacts-component', require('./admin/ContactsComponent.vue').default);
 Vue.component('admin-courses-component', require('./admin/AdminCoursesComponent.vue').default);
+Vue.component('admin-products-component', AdminProductsContent);
 
 Vue.component('ssr-carousel', SsrCarousel);
 Vue.use(VueMask);

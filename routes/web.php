@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Course\CoursesController;
 use App\Http\Controllers\ClipController;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PromoCodeController;
 use App\Http\Controllers\ReviewsController;
 use App\Http\Controllers\TeamController;
@@ -50,6 +51,8 @@ Route::prefix('api')->name('api.')->group(function () {
     Route::post('/check-promo-code', [PromoCodeController::class, 'check'])->name('check.promo');
     Route::post('/apply-referral', [ReferralController::class, 'applyReferral'])->name('api.apply-referral');
     Route::post('/get-referral/{id}', [ReferralController::class, 'getReferral'])->name('api.get-referral');
+
+    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 });
 
 Route::post('/telegram/webhook', [TelegramController::class, 'handleWebhook'])->name('telegram.webhook');

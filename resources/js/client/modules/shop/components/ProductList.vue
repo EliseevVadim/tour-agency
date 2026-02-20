@@ -75,193 +75,7 @@ export default {
     },
     data() {
         return {
-            allProducts: [
-                {
-                    id: 1,
-                    name: "Чемодан \"В ПУТЬ\" (Общая Акция)",
-                    description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
-                    oldPrice: 5500,
-                    currentPrice: 3650,
-                    isHit: true,
-                    category_slug: "clothing",
-                    images: [
-                        {primary: true, image: "/img/previews/Module_02/2.0.png"},
-                        {primary: false, image: "/img/previews/Module_02/2.1.png"},
-                        {primary: false, image: "/img/previews/Module_02/2.2.png"},
-                        {primary: false, image: "/img/previews/Module_02/2.3.png"},
-                        {primary: false, image: "/img/previews/Module_02/2.4.png"},
-                        {primary: false, image: "/img/previews/Module_02/2.5.png"},
-                    ],
-                    attributes: [
-                        {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
-                        {name: "Цвет", sku_key: "color", options: ["Синий", "Зеленый", "Красный"]}
-                    ],
-                    available_skus: [
-                        {"sku": "101-M-BLU", "size": "Средний", "color": "Синий", "price": 120, stock_qty: 4},
-                        {"sku": "101-M-GRN", "size": "Средний", "color": "Зеленый", "price": 120, stock_qty: 0},
-                        {"sku": "101-L-BLU", "size": "Большой", "color": "Синий", "price": 150, stock_qty: 0},
-                        {"sku": "101-L-RED", "size": "Большой", "color": "Красный", "price": 150, stock_qty: 2}
-                    ]
-                },
-                {
-                    id: 2,
-                    name: "Чемодан",
-                    description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
-                    oldPrice: 5500,
-                    currentPrice: 3650,
-                    isHit: true,
-                    category_slug: "clothing",
-                    images: [
-                        {primary: true, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
-                    ],
-                    attributes: [
-                        {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
-                        {name: "Цвет", sku_key: "color", options: ["Синий", "Зеленый", "Красный"]}
-                    ],
-                    available_skus: [
-                        {"sku": "102-S-BLU", "size": "Маленький", "color": "Синий", "price": 100, stock_qty: 2},
-                        {"sku": "102-S-GRN", "size": "Маленький", "color": "Зеленый", "price": 100, stock_qty: 3},
-                        {"sku": "102-M-GRN", "size": "Средний", "color": "Зеленый", "price": 120, stock_qty: 0},
-                        {"sku": "102-L-BLU", "size": "Большой", "color": "Синий", "price": 150, stock_qty: 0},
-                    ]
-                },
-                {
-                    id: 3,
-                    name: "Чемодан 3",
-                    description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
-                    oldPrice: 10500,
-                    currentPrice: 7650,
-                    isHit: true,
-                    category_slug: "clothing",
-                    images: [
-                        {primary: true, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
-                    ],
-                    attributes: [
-                        {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
-                        {name: "Цвет", sku_key: "color", options: ["Синий", "Зеленый", "Красный"]}
-                    ],
-                    available_skus: []
-                },
-                {
-                    id: 4,
-                    name: "Чемодан 4",
-                    description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
-                    oldPrice: 8500,
-                    currentPrice: 4450,
-                    isHit: true,
-                    category_slug: "clothing",
-                    images: [
-                        {primary: true, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
-                        {primary: false, image: "/img/merch/test.png"},
-                    ],
-                    attributes: [
-                        {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
-                    ],
-                    available_skus: [
-                        {"sku": "104-S", "size": "Маленький", "price": 100, stock_qty: 2},
-                        {"sku": "104-M", "size": "Средний", "price": 120, stock_qty: 0},
-                    ]
-                },
-                {
-                    id: 5,
-                    name: "Чемодан 5",
-                    description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
-                    oldPrice: 4500,
-                    currentPrice: 3350,
-                    isHit: true,
-                    category_slug: "clothing",
-                    images: [
-                        {primary: true, image: "/img/previews/Module_02/2.0.png"},
-                        {primary: false, image: "/img/previews/Module_02/2.1.png"},
-                        {primary: false, image: "/img/previews/Module_02/2.2.png"},
-                        {primary: false, image: "/img/previews/Module_02/2.3.png"},
-                        {primary: false, image: "/img/previews/Module_02/2.4.png"},
-                        {primary: false, image: "/img/previews/Module_02/2.5.png"},
-                        {primary: false, image: "/img/previews/Module_02/2.6.png"},
-                        {primary: false, image: "/img/previews/Module_02/2.7.png"},
-                    ],
-                    attributes: [
-                        {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
-                        {name: "Цвет", sku_key: "color", options: ["Синий", "Зеленый", "Красный"]},
-                        {name: "Материал", sku_key: "material", options: ["Металл", "Пластик"]}
-                    ],
-                    available_skus: [
-                        {
-                            sku: "104-S-BLUE-PLASTIC",
-                            size: "Маленький",
-                            color: "Синий",
-                            material: "Пластик",
-                            price: 1000,
-                            stock_qty: 2
-                        },
-                        {
-                            sku: "104-S-BLUE-METAL",
-                            size: "Маленький",
-                            color: "Синий",
-                            material: "Металл",
-                            price: 2000,
-                            stock_qty: 0
-                        },
-                        {
-                            sku: "104-S-RED-PLASTIC",
-                            size: "Маленький",
-                            color: "Красный",
-                            material: "Пластик",
-                            price: 2000,
-                            stock_qty: 0
-                        },
-                    ]
-                },
-                {
-                    id: 7,
-                    name: 'Аксессуар А',
-                    description: 'Наше авторское обучение для людей которые хотят работать в сфере туризма на ' +
-                        'полную или частичную занятость, или путешествовать с огромными скидками.',
-                    oldPrice: 1500,
-                    currentPrice: 1200,
-                    images: [
-                        {primary: true, image: '/img/merch/test.png'},
-                        {primary: false, image: '/img/merch/test.png'},
-                        {primary: false, image: '/img/merch/test.png'},
-                        {primary: false, image: '/img/merch/test.png'},
-                        {primary: false, image: '/img/merch/test.png'}
-                    ],
-                    parameters: [{name: 'Цвет', value: ['Белый', 'Серый', 'Красный']}],
-                    maxCount: 1,
-                    isHit: false,
-                    category_slug: 'accessories'
-                },
-                {
-                    id: 11,
-                    name: 'Товар Т1',
-                    description: 'Наше авторское обучение для людей которые хотят работать в сфере туризма на ' +
-                        'полную или частичную занятость, или путешествовать с огромными скидками.',
-                    oldPrice: 5500,
-                    currentPrice: 3650,
-                    images: [
-                        {primary: true, image: '/img/merch/test.png'},
-                        {primary: false, image: '/img/merch/test.png'},
-                        {primary: false, image: '/img/merch/test.png'},
-                        {primary: false, image: '/img/merch/test.png'},
-                        {primary: false, image: '/img/merch/test.png'}
-                    ],
-                    parameters: [{name: 'Размер', value: ['Маленький', 'Средний', 'Большой']}],
-                    maxCount: 1,
-                    isHit: false,
-                    category_slug: 'travelGoods'
-                },
-            ],
+            allProducts: [],
 
             wishlistIds: [],
             wishlistFullData: [],
@@ -357,6 +171,19 @@ export default {
         },
     },
     methods: {
+        async fetchProducts() {
+            try {
+                const response = await axios.get(`/api/products`);
+                if (response.data.success) {
+                    this.allProducts = response.data.data;
+                }
+
+            } catch (err) {
+                console.error("Ошибка при получении продуктов:", err);
+
+            }
+        },
+
         initializePromo() {
             this.shuffledPromoBlocks = [...this.promoBlocks];
             shuffleArray(this.shuffledPromoBlocks);
@@ -478,6 +305,7 @@ export default {
         }
     },
     mounted() {
+        this.fetchProducts();
         this.getPlatformData();
         this.loadWishlist();
         this.loadFiltersAndSortFromStorage();

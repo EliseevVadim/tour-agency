@@ -73,6 +73,7 @@ var WISHLIST_FULL_DATA_KEY = 'merchWishlistFullData';
     },
     openProductModal: function openProductModal(product) {
       _event_bus__WEBPACK_IMPORTED_MODULE_0__["default"].$emit('open-product-modal', product);
+      this.$emit('close');
     }
   },
   mounted: function mounted() {
@@ -550,6 +551,10 @@ var CART_STORAGE_KEY = 'shoppingCart';
       console.log("Открыть оформление");
 
       //TODO: ОТКРЫТЬ МОДАЛЬНОЕ ОКНО С ОФОРМЛЕНИЕМ ЗАКАЗА, А ЭТО ЗАКРЫТЬ
+    },
+    openProductModal: function openProductModal(product) {
+      _event_bus__WEBPACK_IMPORTED_MODULE_0__["default"].$emit('open-product-modal', product);
+      this.$emit('close');
     }
   },
   emits: ['close', 'remove', 'update:quantity'],
@@ -902,7 +907,7 @@ var SHOPPING_CART_KEY = 'shoppingCart';
     isVariantSelectionPossible: function isVariantSelectionPossible() {
       return this.product && this.product.attributes && this.product.attributes.length > 0;
     },
-    primaryImageUrl: function primaryImageUrl() {
+    sortedImages: function sortedImages() {
       var _this$product3;
       if (!((_this$product3 = this.product) !== null && _this$product3 !== void 0 && (_this$product3 = _this$product3.images) !== null && _this$product3 !== void 0 && _this$product3.length)) return '';
       var images = this.product.images;
@@ -947,27 +952,35 @@ var SHOPPING_CART_KEY = 'shoppingCart';
     initializeVariantSelection: function initializeVariantSelection(product) {
       var _this = this;
       if (!this.isVariantSelectionPossible) {
-        var hasStock = product.available_skus.some(function (sku) {
+        var foundSKU = product.available_skus.find(function (sku) {
           return sku.stock_qty > 0;
-        });
-        this.currentSKU = {
+        }) || product.available_skus[0];
+        this.currentSKU = foundSKU ? {
+          price: foundSKU.price || product.currentPrice,
+          stock_qty: foundSKU.stock_qty,
+          sku: foundSKU.sku
+        } : {
           price: product.currentPrice,
-          stock_qty: hasStock ? 1 : 0,
-          sku: product.available_skus.length > 0 ? product.available_skus[0].sku : null
+          stock_qty: 0,
+          sku: null
         };
         this.selectedAttributes = {};
         this.activeAttributeOptions = {};
         return;
       }
-      var initialSelection = {};
       var availableSkus = product.available_skus;
-      var leadingAttribute = product.attributes[0];
-      if (leadingAttribute && leadingAttribute.options.length > 0) {
-        this.$set(initialSelection, leadingAttribute.name, leadingAttribute.options[0]);
-      }
+      var initialSelection = {};
       product.attributes.forEach(function (attr) {
-        if (attr.name !== leadingAttribute.name) {
-          _this.$set(initialSelection, attr.name, null);
+        var attrName = attr.name;
+        var skuKey = attr.sku_key;
+        var initialValue = null;
+        if (product.current_sku) {
+          initialValue = product.current_sku[skuKey] || product.current_sku[attrName];
+        }
+        if (initialValue && attr.options.includes(initialValue)) {
+          _this.$set(initialSelection, attrName, initialValue);
+        } else {
+          _this.$set(initialSelection, attrName, null);
         }
       });
       this.selectedAttributes = initialSelection;
@@ -1100,13 +1113,11 @@ var SHOPPING_CART_KEY = 'shoppingCart';
         return item.productId === productId && item.sku === sku;
       });
       var finalQuantity = requestedQuantity;
-      var quantityAddedLog = "\u0417\u0430\u043F\u0440\u043E\u0448\u0435\u043D\u043E: ".concat(requestedQuantity);
       if (existingItemIndex !== -1) {
         var currentCartQuantity = cart[existingItemIndex].quantity;
         var potentialTotal = currentCartQuantity + requestedQuantity;
         if (potentialTotal > availableStock) {
           finalQuantity = availableStock - currentCartQuantity;
-          quantityAddedLog = "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u0432\u0441\u0435\u0433\u043E ".concat(availableStock, ". \u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E ").concat(finalQuantity, " \u0448\u0442. (\u0432\u043C\u0435\u0441\u0442\u043E \u0437\u0430\u043F\u0440\u043E\u0448\u0435\u043D\u043D\u044B\u0445 ").concat(requestedQuantity, ")");
           if (finalQuantity <= 0) {
             //TODO: Если в корзине уже ровно столько, сколько есть на складе
             alert('Извините, достигнут лимит. Это максимально возможное количество товаров в наличии');
@@ -1119,16 +1130,16 @@ var SHOPPING_CART_KEY = 'shoppingCart';
       } else {
         if (requestedQuantity > availableStock) {
           finalQuantity = availableStock;
-          quantityAddedLog = "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u043E \u0442\u043E\u043B\u044C\u043A\u043E ".concat(availableStock, " \u0448\u0442. (\u0438\u0437 \u0437\u0430\u043F\u0440\u043E\u0448\u0435\u043D\u043D\u044B\u0445 ").concat(requestedQuantity, ")");
         }
         var cartItem = {
           productId: productId,
           sku: sku,
           name: this.product.name,
-          image: this.primaryImageUrl,
+          images: this.sortedImages,
           current_sku: this.currentSKU,
           quantity: finalQuantity,
-          attributes: this.product.attributes
+          attributes: this.product.attributes,
+          available_skus: this.product.available_skus
         };
         cart.push(cartItem);
       }
@@ -1182,6 +1193,10 @@ function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t =
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
+function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
@@ -1227,326 +1242,7 @@ function shuffleArray(array) {
   },
   data: function data() {
     return {
-      allProducts: [{
-        id: 1,
-        name: "Чемодан \"В ПУТЬ\" (Общая Акция)",
-        description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
-        oldPrice: 5500,
-        currentPrice: 3650,
-        isHit: true,
-        category_slug: "clothing",
-        images: [{
-          primary: true,
-          image: "/img/previews/Module_02/2.0.png"
-        }, {
-          primary: false,
-          image: "/img/previews/Module_02/2.1.png"
-        }, {
-          primary: false,
-          image: "/img/previews/Module_02/2.2.png"
-        }, {
-          primary: false,
-          image: "/img/previews/Module_02/2.3.png"
-        }, {
-          primary: false,
-          image: "/img/previews/Module_02/2.4.png"
-        }, {
-          primary: false,
-          image: "/img/previews/Module_02/2.5.png"
-        }],
-        attributes: [{
-          name: "Размер",
-          sku_key: "size",
-          options: ["Маленький", "Средний", "Большой"]
-        }, {
-          name: "Цвет",
-          sku_key: "color",
-          options: ["Синий", "Зеленый", "Красный"]
-        }],
-        available_skus: [{
-          "sku": "101-M-BLU",
-          "size": "Средний",
-          "color": "Синий",
-          "price": 120,
-          stock_qty: 4
-        }, {
-          "sku": "101-M-GRN",
-          "size": "Средний",
-          "color": "Зеленый",
-          "price": 120,
-          stock_qty: 0
-        }, {
-          "sku": "101-L-BLU",
-          "size": "Большой",
-          "color": "Синий",
-          "price": 150,
-          stock_qty: 0
-        }, {
-          "sku": "101-L-RED",
-          "size": "Большой",
-          "color": "Красный",
-          "price": 150,
-          stock_qty: 2
-        }]
-      }, {
-        id: 2,
-        name: "Чемодан",
-        description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
-        oldPrice: 5500,
-        currentPrice: 3650,
-        isHit: true,
-        category_slug: "clothing",
-        images: [{
-          primary: true,
-          image: "/img/merch/test.png"
-        }, {
-          primary: false,
-          image: "/img/merch/test.png"
-        }, {
-          primary: false,
-          image: "/img/merch/test.png"
-        }, {
-          primary: false,
-          image: "/img/merch/test.png"
-        }, {
-          primary: false,
-          image: "/img/merch/test.png"
-        }],
-        attributes: [{
-          name: "Размер",
-          sku_key: "size",
-          options: ["Маленький", "Средний", "Большой"]
-        }, {
-          name: "Цвет",
-          sku_key: "color",
-          options: ["Синий", "Зеленый", "Красный"]
-        }],
-        available_skus: [{
-          "sku": "102-S-BLU",
-          "size": "Маленький",
-          "color": "Синий",
-          "price": 100,
-          stock_qty: 2
-        }, {
-          "sku": "102-S-GRN",
-          "size": "Маленький",
-          "color": "Зеленый",
-          "price": 100,
-          stock_qty: 3
-        }, {
-          "sku": "102-M-GRN",
-          "size": "Средний",
-          "color": "Зеленый",
-          "price": 120,
-          stock_qty: 0
-        }, {
-          "sku": "102-L-BLU",
-          "size": "Большой",
-          "color": "Синий",
-          "price": 150,
-          stock_qty: 0
-        }]
-      }, {
-        id: 3,
-        name: "Чемодан 3",
-        description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
-        oldPrice: 10500,
-        currentPrice: 7650,
-        isHit: true,
-        category_slug: "clothing",
-        images: [{
-          primary: true,
-          image: "/img/merch/test.png"
-        }, {
-          primary: false,
-          image: "/img/merch/test.png"
-        }, {
-          primary: false,
-          image: "/img/merch/test.png"
-        }, {
-          primary: false,
-          image: "/img/merch/test.png"
-        }, {
-          primary: false,
-          image: "/img/merch/test.png"
-        }],
-        attributes: [{
-          name: "Размер",
-          sku_key: "size",
-          options: ["Маленький", "Средний", "Большой"]
-        }, {
-          name: "Цвет",
-          sku_key: "color",
-          options: ["Синий", "Зеленый", "Красный"]
-        }],
-        available_skus: []
-      }, {
-        id: 4,
-        name: "Чемодан 4",
-        description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
-        oldPrice: 8500,
-        currentPrice: 4450,
-        isHit: true,
-        category_slug: "clothing",
-        images: [{
-          primary: true,
-          image: "/img/merch/test.png"
-        }, {
-          primary: false,
-          image: "/img/merch/test.png"
-        }, {
-          primary: false,
-          image: "/img/merch/test.png"
-        }, {
-          primary: false,
-          image: "/img/merch/test.png"
-        }, {
-          primary: false,
-          image: "/img/merch/test.png"
-        }],
-        attributes: [{
-          name: "Размер",
-          sku_key: "size",
-          options: ["Маленький", "Средний", "Большой"]
-        }],
-        available_skus: [{
-          "sku": "104-S",
-          "size": "Маленький",
-          "price": 100,
-          stock_qty: 2
-        }, {
-          "sku": "104-M",
-          "size": "Средний",
-          "price": 120,
-          stock_qty: 0
-        }]
-      }, {
-        id: 5,
-        name: "Чемодан 5",
-        description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
-        oldPrice: 4500,
-        currentPrice: 3350,
-        isHit: true,
-        category_slug: "clothing",
-        images: [{
-          primary: true,
-          image: "/img/previews/Module_02/2.0.png"
-        }, {
-          primary: false,
-          image: "/img/previews/Module_02/2.1.png"
-        }, {
-          primary: false,
-          image: "/img/previews/Module_02/2.2.png"
-        }, {
-          primary: false,
-          image: "/img/previews/Module_02/2.3.png"
-        }, {
-          primary: false,
-          image: "/img/previews/Module_02/2.4.png"
-        }, {
-          primary: false,
-          image: "/img/previews/Module_02/2.5.png"
-        }, {
-          primary: false,
-          image: "/img/previews/Module_02/2.6.png"
-        }, {
-          primary: false,
-          image: "/img/previews/Module_02/2.7.png"
-        }],
-        attributes: [{
-          name: "Размер",
-          sku_key: "size",
-          options: ["Маленький", "Средний", "Большой"]
-        }, {
-          name: "Цвет",
-          sku_key: "color",
-          options: ["Синий", "Зеленый", "Красный"]
-        }, {
-          name: "Материал",
-          sku_key: "material",
-          options: ["Металл", "Пластик"]
-        }],
-        available_skus: [{
-          sku: "104-S-BLUE-PLASTIC",
-          size: "Маленький",
-          color: "Синий",
-          material: "Пластик",
-          price: 1000,
-          stock_qty: 2
-        }, {
-          sku: "104-S-BLUE-METAL",
-          size: "Маленький",
-          color: "Синий",
-          material: "Металл",
-          price: 2000,
-          stock_qty: 0
-        }, {
-          sku: "104-S-RED-PLASTIC",
-          size: "Маленький",
-          color: "Красный",
-          material: "Пластик",
-          price: 2000,
-          stock_qty: 0
-        }]
-      }, {
-        id: 7,
-        name: 'Аксессуар А',
-        description: 'Наше авторское обучение для людей которые хотят работать в сфере туризма на ' + 'полную или частичную занятость, или путешествовать с огромными скидками.',
-        oldPrice: 1500,
-        currentPrice: 1200,
-        images: [{
-          primary: true,
-          image: '/img/merch/test.png'
-        }, {
-          primary: false,
-          image: '/img/merch/test.png'
-        }, {
-          primary: false,
-          image: '/img/merch/test.png'
-        }, {
-          primary: false,
-          image: '/img/merch/test.png'
-        }, {
-          primary: false,
-          image: '/img/merch/test.png'
-        }],
-        parameters: [{
-          name: 'Цвет',
-          value: ['Белый', 'Серый', 'Красный']
-        }],
-        maxCount: 1,
-        isHit: false,
-        category_slug: 'accessories'
-      }, {
-        id: 11,
-        name: 'Товар Т1',
-        description: 'Наше авторское обучение для людей которые хотят работать в сфере туризма на ' + 'полную или частичную занятость, или путешествовать с огромными скидками.',
-        oldPrice: 5500,
-        currentPrice: 3650,
-        images: [{
-          primary: true,
-          image: '/img/merch/test.png'
-        }, {
-          primary: false,
-          image: '/img/merch/test.png'
-        }, {
-          primary: false,
-          image: '/img/merch/test.png'
-        }, {
-          primary: false,
-          image: '/img/merch/test.png'
-        }, {
-          primary: false,
-          image: '/img/merch/test.png'
-        }],
-        parameters: [{
-          name: 'Размер',
-          value: ['Маленький', 'Средний', 'Большой']
-        }],
-        maxCount: 1,
-        isHit: false,
-        category_slug: 'travelGoods'
-      }],
+      allProducts: [],
       wishlistIds: [],
       wishlistFullData: [],
       displayedCount: ITEMS_PER_PAGE,
@@ -1634,6 +1330,33 @@ function shuffleArray(array) {
     }
   },
   methods: {
+    fetchProducts: function fetchProducts() {
+      var _this2 = this;
+      return _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+        var response, _t;
+        return _regenerator().w(function (_context) {
+          while (1) switch (_context.p = _context.n) {
+            case 0:
+              _context.p = 0;
+              _context.n = 1;
+              return axios.get("/api/products");
+            case 1:
+              response = _context.v;
+              if (response.data.success) {
+                _this2.allProducts = response.data.data;
+              }
+              _context.n = 3;
+              break;
+            case 2:
+              _context.p = 2;
+              _t = _context.v;
+              console.error("Ошибка при получении продуктов:", _t);
+            case 3:
+              return _context.a(2);
+          }
+        }, _callee, null, [[0, 2]]);
+      }))();
+    },
     initializePromo: function initializePromo() {
       this.shuffledPromoBlocks = _toConsumableArray(this.promoBlocks);
       shuffleArray(this.shuffledPromoBlocks);
@@ -1745,6 +1468,7 @@ function shuffleArray(array) {
     }
   },
   mounted: function mounted() {
+    this.fetchProducts();
     this.getPlatformData();
     this.loadWishlist();
     this.loadFiltersAndSortFromStorage();
@@ -2553,7 +2277,12 @@ var render = function render() {
   }, [_vm._v("\n                Корзина пуста. Добавьте в корзину хотя бы один товар\n            ")]) : _vm._e(), _vm._v(" "), _vm._l(_vm.items, function (item) {
     return _c("div", {
       key: item.id,
-      staticClass: "sidebar-item align-items-start"
+      staticClass: "sidebar-item align-items-start cursor-pointer",
+      on: {
+        click: function click($event) {
+          return _vm.openProductModal(item);
+        }
+      }
     }, [_c("div", {
       staticClass: "sidebar-item-content"
     }, [_c("div", {
@@ -2568,7 +2297,7 @@ var render = function render() {
     }, [_vm._v("\n                            ×\n                        ")]), _vm._v(" "), _c("img", {
       staticClass: "item-image",
       attrs: {
-        src: item.image,
+        src: _vm.getPrimaryImageUrl(item),
         alt: "Product Image"
       }
     })]), _vm._v(" "), _c("div", {
@@ -2799,7 +2528,7 @@ var render = function render() {
     on: {
       ready: _vm.onSwiperReady
     }
-  }, _vm._l(_vm.primaryImageUrl, function (image, idx) {
+  }, _vm._l(_vm.sortedImages, function (image, idx) {
     return _c("swiper-slide", {
       key: "thumbnail-" + idx
     }, [_c("div", {

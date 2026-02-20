@@ -14,6 +14,7 @@ Route::middleware(['admin.auth.hash'])->prefix('admin')->name('admin.')->group(f
     Route::view('/reviews', 'admin.reviews')->name('reviews');
     Route::view('/contacts', 'admin.contacts')->name('contacts');
     Route::view('/courses', 'admin.courses')->name('courses');
+    Route::view('/products', 'admin.products')->name('products');
 
     Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
 
