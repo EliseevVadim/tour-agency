@@ -125,7 +125,19 @@
                 </div>
                 <div v-if="expandedPackage === pkg.id"
                      class="btn-container d-flex flex-column justify-content-center text-center">
-                    <button data-bs-toggle="modal" data-bs-target="#orderModal" class="btn btn-cta btn-price"
+                    <button v-if="pkg.id !== 'maxi'" class="btn btn-cta btn-price" @click="goToPayment(pkg.id)">
+                        <span class="flare"></span>
+                        {{ pkg.id !== 'maxi' ? pkg.details.buttonText : 'ПОЛУЧИТЬ ПРЕЗЕНТАЦИЮ' }}
+                    </button>
+                    <div v-if="pkg.id !== 'maxi'" class="mark-price">
+                        <span class="price-old text-decoration-line-through fw-medium">{{
+                                pkg.details.priceOld
+                            }} р</span>
+                        <span class="price-new">{{
+                                promoStatus === 'allowed' ? finalPrice : pkg.details.priceNew
+                            }} р</span>
+                    </div>
+                    <button v-if="pkg.id === 'maxi'" data-bs-toggle="modal" data-bs-target="#orderModal" class="btn btn-cta btn-price"
                             :data-bs-id="pkg.id"
                             :data-bs-name="pkg.name"
                             :data-bs-price="finalPrice"
@@ -141,14 +153,6 @@
                         <span class="flare"></span>
                         {{ pkg.id != 'maxi' ? pkg.details.buttonText : 'ПОЛУЧИТЬ ПРЕЗЕНТАЦИЮ' }}
                     </button>
-                    <div v-if="pkg.id != 'maxi'" class="mark-price">
-                        <span class="price-old text-decoration-line-through fw-medium">{{
-                                pkg.details.priceOld
-                            }} р</span>
-                        <span class="price-new">{{
-                                promoStatus === 'allowed' ? finalPrice : pkg.details.priceNew
-                            }} р</span>
-                    </div>
                 </div>
             </div>
         </div>
@@ -278,6 +282,7 @@ export default {
                 }],
             isLoading: true,
             refId: null,
+            refCode: null,
             promoCode: null,
             promoCodeId: null,
             promoStatus: null, // 'loading', 'allowed', 'denied', 'error'
@@ -482,12 +487,27 @@ export default {
                     ref_code: refCode
                 });
                 this.refId = response.data.ref_id;
+                this.refCode = response.data.ref_code;
             } catch (error) {
                 console.error('Ошибка применения реферального кода:', error.response ? error.response.data.message : 'Ошибка сети');
             } finally {
                 this.isLoading = false;
             }
         },
+        goToPayment(pkgId){
+            let baseUrl = '';
+            if (pkgId === 'opti') {
+                baseUrl = 'https://putclub.getcourse.ru/pay_opti';
+            } else if (pkgId === 'mini') {
+                baseUrl = 'https://putclub.getcourse.ru/pay_mini';
+            }
+
+            let params = '';
+            if (this.refCode) {
+                params = `?utm_medium=${this.refCode}`;
+            }
+            window.location.href = baseUrl + params;
+        }
     },
     mounted() {
         this.getCourses();

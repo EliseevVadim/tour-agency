@@ -673,6 +673,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
       }],
       isLoading: true,
       refId: null,
+      refCode: null,
       promoCode: null,
       promoCodeId: null,
       promoStatus: null,
@@ -891,6 +892,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
             case 2:
               response = _context2.v;
               _this7.refId = response.data.ref_id;
+              _this7.refCode = response.data.ref_code;
               _context2.n = 4;
               break;
             case 3:
@@ -906,6 +908,19 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
           }
         }, _callee2, null, [[1, 3, 4, 5]]);
       }))();
+    },
+    goToPayment: function goToPayment(pkgId) {
+      var baseUrl = '';
+      if (pkgId === 'opti') {
+        baseUrl = 'https://putclub.getcourse.ru/pay_opti';
+      } else if (pkgId === 'mini') {
+        baseUrl = 'https://putclub.getcourse.ru/pay_mini';
+      }
+      var params = '';
+      if (this.refCode) {
+        params = "?utm_medium=".concat(this.refCode);
+      }
+      window.location.href = baseUrl + params;
     }
   },
   mounted: function mounted() {
@@ -1873,7 +1888,22 @@ var render = function render() {
       }
     }) : _vm._e()])]) : _vm._e()]), _vm._v(" "), _vm.expandedPackage === pkg.id ? _c("div", {
       staticClass: "btn-container d-flex flex-column justify-content-center text-center"
-    }, [_c("button", {
+    }, [pkg.id !== "maxi" ? _c("button", {
+      staticClass: "btn btn-cta btn-price",
+      on: {
+        click: function click($event) {
+          return _vm.goToPayment(pkg.id);
+        }
+      }
+    }, [_c("span", {
+      staticClass: "flare"
+    }), _vm._v("\n                    " + _vm._s(pkg.id !== "maxi" ? pkg.details.buttonText : "ПОЛУЧИТЬ ПРЕЗЕНТАЦИЮ") + "\n                ")]) : _vm._e(), _vm._v(" "), pkg.id !== "maxi" ? _c("div", {
+      staticClass: "mark-price"
+    }, [_c("span", {
+      staticClass: "price-old text-decoration-line-through fw-medium"
+    }, [_vm._v(_vm._s(pkg.details.priceOld) + " р")]), _vm._v(" "), _c("span", {
+      staticClass: "price-new"
+    }, [_vm._v(_vm._s(_vm.promoStatus === "allowed" ? _vm.finalPrice : pkg.details.priceNew) + " р")])]) : _vm._e(), _vm._v(" "), pkg.id === "maxi" ? _c("button", {
       staticClass: "btn btn-cta btn-price",
       attrs: {
         "data-bs-toggle": "modal",
@@ -1893,13 +1923,7 @@ var render = function render() {
       }
     }, [_c("span", {
       staticClass: "flare"
-    }), _vm._v("\n                    " + _vm._s(pkg.id != "maxi" ? pkg.details.buttonText : "ПОЛУЧИТЬ ПРЕЗЕНТАЦИЮ") + "\n                ")]), _vm._v(" "), pkg.id != "maxi" ? _c("div", {
-      staticClass: "mark-price"
-    }, [_c("span", {
-      staticClass: "price-old text-decoration-line-through fw-medium"
-    }, [_vm._v(_vm._s(pkg.details.priceOld) + " р")]), _vm._v(" "), _c("span", {
-      staticClass: "price-new"
-    }, [_vm._v(_vm._s(_vm.promoStatus === "allowed" ? _vm.finalPrice : pkg.details.priceNew) + " р")])]) : _vm._e()]) : _vm._e()]);
+    }), _vm._v("\n                    " + _vm._s(pkg.id != "maxi" ? pkg.details.buttonText : "ПОЛУЧИТЬ ПРЕЗЕНТАЦИЮ") + "\n                ")]) : _vm._e()]) : _vm._e()]);
   })], 2) : _vm._e()], 1);
 };
 var staticRenderFns = [function () {

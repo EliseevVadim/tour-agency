@@ -119,7 +119,8 @@ class ReferralController extends Controller
 
             return response()->json([
                 'message' => 'Реферальная привязка установлена.',
-                'ref_id' => $referral->id
+                'ref_id' => $referral->id,
+                'ref_code' => $referral->ref_code
             ]);
         }
 
