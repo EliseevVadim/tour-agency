@@ -504,7 +504,7 @@ export default {
 
             let params = '';
             if (this.refCode) {
-                params = `?utm_medium=${this.refCode}`;
+                params = `/?utm_medium=${this.refCode}`;
             }
             window.location.href = baseUrl + params;
         }
