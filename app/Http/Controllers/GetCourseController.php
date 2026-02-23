@@ -43,6 +43,8 @@ class GetCourseController extends Controller
         $packageId = $data['package'];
         $package = Package::query()->where('id_getCourse', $packageId)->firstOrFail();
 
+        Log::info( '$data->payment_id');
+        Log::info( $data->payment_id);
         $paymentTransaction = PaymentTransaction::create([
             'user_id' => $user->id,
             'package_id' => $package->id ?? null,
