@@ -104,7 +104,9 @@ class GetCourseController extends Controller
 
     public function handleFailurePayment(Request $request)
     {
+        Log::info('start failure payment');
         $data = $request->all();
+        Log::info(json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
         $transaction = PaymentTransaction::query()
             ->where('payment_id', $data['payment_id'] ?? null)
