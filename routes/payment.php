@@ -7,3 +7,5 @@ Route::post('/payments/create', [PaymentController::class, 'create'])->name('pay
 
 Route::post('/payments/callback', [PaymentController::class, 'callback'])
     ->name('payment.callback');
+
+Route::post('/gc-payments/create', [PaymentController::class, 'cancel'])->name('gc-payment.create');

@@ -146,7 +146,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     paymentClick: function paymentClick() {
       var _this = this;
       return _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
-        var _this$formData2, fullName, email, phone, agreesToPolitics, isPromoAllowed, presentationData, response, paymentData, urlParams, refCode, _response, _t, _t2;
+        var _this$formData2, fullName, email, phone, agreesToPolitics, isPromoAllowed, presentationData, response, paymentData, urlParams, refCode, _t;
         return _regenerator().w(function (_context) {
           while (1) switch (_context.p = _context.n) {
             case 0:
@@ -195,7 +195,7 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
               _this.isDisabled = false;
               return _context.f(5);
             case 6:
-              _context.n = 12;
+              _context.n = 9;
               break;
             case 7:
               paymentData = {
@@ -228,35 +228,34 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
                 }
               });
             case 8:
-              _context.p = 8;
-              _context.n = 9;
-              return axios__WEBPACK_IMPORTED_MODULE_0___default().post('/payments/create', paymentData);
+              if (paymentData.package_id === 'opti') {
+                window.location.href = 'https://putclub.getcourse.ru/pay_opti';
+              } else if (paymentData.package_id === 'mini') {
+                window.location.href = 'https://putclub.getcourse.ru/pay_mini';
+              }
+
+              // МЕТОД ПО СОЗДАНИЮ ПЛАТЕЖКИ В ЮКАССЕ
+              /*try {
+                  const response = await axios.post('/payments/create', paymentData);
+                    if (response.status === 200) {
+                      window.location.href = response.data;
+                  } else {
+                      alert('Ошибка при создании платежа.');
+                  }
+              } catch (error) {
+                  console.error('Payment API Error:', error);
+                    if (error.response && error.response.status === 400) {
+                      alert(error.response.data.message || 'Промокод стал невалидным или данные некорректны.');
+                  } else {
+                      alert('Произошла ошибка при запросе к серверу.');
+                  }
+              } finally {
+                  this.isDisabled = false;
+              }*/
             case 9:
-              _response = _context.v;
-              if (_response.status === 200) {
-                window.location.href = _response.data;
-              } else {
-                alert('Ошибка при создании платежа.');
-              }
-              _context.n = 11;
-              break;
-            case 10:
-              _context.p = 10;
-              _t2 = _context.v;
-              console.error('Payment API Error:', _t2);
-              if (_t2.response && _t2.response.status === 400) {
-                alert(_t2.response.data.message || 'Промокод стал невалидным или данные некорректны.');
-              } else {
-                alert('Произошла ошибка при запросе к серверу.');
-              }
-            case 11:
-              _context.p = 11;
-              _this.isDisabled = false;
-              return _context.f(11);
-            case 12:
               return _context.a(2);
           }
-        }, _callee, null, [[8, 10, 11, 12], [2, 4, 5, 6]]);
+        }, _callee, null, [[2, 4, 5, 6]]);
       }))();
     }
   },

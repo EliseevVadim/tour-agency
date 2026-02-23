@@ -220,7 +220,14 @@ export default {
                         });
                 }
 
-                try {
+                if(paymentData.package_id === 'opti'){
+                    window.location.href = 'https://putclub.getcourse.ru/pay_opti';
+                } else if(paymentData.package_id === 'mini'){
+                    window.location.href = 'https://putclub.getcourse.ru/pay_mini';
+                }
+
+                // МЕТОД ПО СОЗДАНИЮ ПЛАТЕЖКИ В ЮКАССЕ
+                /*try {
                     const response = await axios.post('/payments/create', paymentData);
 
                     if (response.status === 200) {
@@ -238,7 +245,7 @@ export default {
                     }
                 } finally {
                     this.isDisabled = false;
-                }
+                }*/
             }
         },
     },

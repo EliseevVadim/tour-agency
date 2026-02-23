@@ -59,3 +59,6 @@ Route::post('/telegram/webhook', [TelegramController::class, 'handleWebhook'])->
 Route::get('/payment/return', [PaymentController::class, 'handleReturn'])->name('payment.return');
 
 Route::view('/svedeniya-ob-obrazovatelnoj-organizacii', 'svedeniya');
+
+
+Route::post('/gc-webhook-handler', [\App\Http\Controllers\GetCourseController::class, 'handleData'])->name('gc-webhook.handler');
