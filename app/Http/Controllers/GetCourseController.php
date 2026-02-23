@@ -44,13 +44,13 @@ class GetCourseController extends Controller
         $package = Package::query()->where('id_getCourse', $packageId)->firstOrFail();
 
         Log::info( '$data->payment_id');
-        Log::info( $data->payment_id);
+        Log::info( $data['payment_id']);
         $paymentTransaction = PaymentTransaction::create([
             'user_id' => $user->id,
             'package_id' => $package->id ?? null,
             'amount' => $package->price_new ?? null,
             'status' => 'pending',
-            'payment_id' => $data->payment_id ?? null,
+            'payment_id' => $data['payment_id'] ?? null,
         ]);
 
         $refName = $data['ref'];
