@@ -105,8 +105,7 @@ class GetCourseController extends Controller
         Log::info('sent success notification to tg');
 
         Mail::to($data['email'])->queue(new PurchaseConfirmationMail(
-            $package->name,
-            $data['full_name'],
+            $package->id,
             $link,
         ));
         Log::info('sent success notification to mail');

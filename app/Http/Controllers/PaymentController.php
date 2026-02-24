@@ -227,7 +227,6 @@ class PaymentController extends Controller
 
         Mail::to($email)->queue(new PurchaseConfirmationMail(
             $courseName,
-            $userName,
             $link,
         ));
     }
