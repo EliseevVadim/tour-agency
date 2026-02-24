@@ -21,14 +21,16 @@ class PaymentTransaction extends Model
         'payment_at',
         'ref_id',
         'paid_referral_fee',
-        'expires_at'
+        'expires_at',
+        'send_notification',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'payment_at' => 'datetime',
         'paid_referral_fee' => 'datetime',
-        'expires_at' => 'datetime'
+        'expires_at' => 'datetime',
+        'send_notification' => 'boolean',
     ];
 
     public function user()

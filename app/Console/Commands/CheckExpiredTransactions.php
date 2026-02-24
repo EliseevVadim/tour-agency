@@ -26,6 +26,7 @@ class CheckExpiredTransactions extends Command
         $this->info('Starting check for expired transactions...');
 
         $expiredTransactions = PaymentTransaction::where('status', 'pending')
+            ->where('send_notification', false)
             ->where('expires_at', '<=', Carbon::now())
             ->get();
 
@@ -74,6 +75,9 @@ class CheckExpiredTransactions extends Command
             $ref->full_name ?? null,
             $ref->tg_username ?? null
         );
+
+        $transaction->send_notification = true;
+        $transaction->save();
 
         Log::info("Payment expiry handled for Transaction ID {$transaction->id}. Notification sent.");
     }
