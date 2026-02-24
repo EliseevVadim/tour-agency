@@ -57,6 +57,7 @@ Route::prefix('api')->name('api.')->group(function () {
 
 Route::post('/telegram/webhook', [TelegramController::class, 'handleWebhook'])->name('telegram.webhook');
 Route::get('/payment/return', [PaymentController::class, 'handleReturn'])->name('payment.return');
+Route::get('/gc-payment/return', [\App\Http\Controllers\GetCourseController::class, 'handleSuccessReturn'])->name('gc-payment.return');
 
 Route::view('/svedeniya-ob-obrazovatelnoj-organizacii', 'svedeniya');
 

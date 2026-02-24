@@ -21,6 +21,8 @@ use Telegram;
 class GetCourseController extends Controller
 {
     protected NotificationService $notificationService;
+    const SUPPORT_LINK = 'https://t.me/putclub_info';
+    const SUCCESS_ROUTE = 'courses';
 
     public function __construct(NotificationService $notificationService)
     {
@@ -166,5 +168,15 @@ class GetCourseController extends Controller
             Log::error("Failed to create Telegram link for chat ID {$chatId}: " . $e->getMessage());
             return null;
         }
+    }
+
+    public function handleSuccessReturn(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        return redirect()->route(self::SUCCESS_ROUTE)->with('payment_success', [
+            'title' => 'Добро пожаловать в увлекательный мир туризма!',
+            'body' => 'Мы рады сообщить, доступ к выбранному Вами пакету отправлен на Вашу почту.',
+            'support_link_text' => 'службу заботы',
+            'support_link_url' => self::SUPPORT_LINK,
+        ]);
     }
 }
