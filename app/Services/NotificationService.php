@@ -66,7 +66,7 @@ class NotificationService
         string $phone,
         string $email,
         float $amount,
-        string $promoInfo = '',
+        ?string $promoInfo = null,
         ?string $referralCode = null,
         ?string $referralName = null,
         ?string $referralTelegramUsername = null
