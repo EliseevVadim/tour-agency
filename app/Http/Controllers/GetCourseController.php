@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
+use Telegram;
 
 class GetCourseController extends Controller
 {
@@ -43,8 +44,8 @@ class GetCourseController extends Controller
         $packageId = $data['package'];
         $package = Package::query()->where('id_getCourse', $packageId)->firstOrFail();
 
-        Log::info( '$data->payment_id');
-        Log::info( $data['payment_id']);
+        Log::info('$data->payment_id');
+        Log::info($data['payment_id']);
         $paymentTransaction = PaymentTransaction::create([
             'user_id' => $user->id,
             'package_id' => $package->id ?? null,
@@ -66,48 +67,56 @@ class GetCourseController extends Controller
 
     public function handleSuccessPayment(Request $request)
     {
-        /* $transaction->status = 'succeeded';
-         $transaction->payment_method = $paymentData['payment_method']['type'] ?? 'unknown';
-         $transaction->payment_at = Carbon::now();
-         $transaction->promo_code_id = $metadata['promo_code_id'] ?? $transaction->promo_code_id;
-         $transaction->ref_id = $metadata['ref_id'] ?? $transaction->ref_id;
+        Log::info('start success payment');
+        $data = $request->all();
+        $transaction = PaymentTransaction::query()
+            ->where('payment_id', $data['payment_id'] ?? null)
+            ->first();
 
-         $this->processPromoCodeUsage($transaction);
+        $package = Package::query()
+            ->where('id_getCourse', $data['package'] ?? null)
+            ->first();
 
-         $courseName = $metadata['course_name'];
-         $email = $metadata['email'];
-         $userName = $metadata['full_name'];
-         $phone = $metadata['phone_number'];
+        if (!$transaction || !$package) {
+            Log::warning("Payment Success: Transaction or Package not found for GC data.", $data);
+            return response()->json(['status' => 'error', 'message' => 'Data not found'], 404);
+        }
 
-         $packageLink = $transaction->package->content_link ?? null;
-         $link = $this->getTelegramLink($packageLink) ? $this->getTelegramLink($packageLink) : "#";
+        $transaction->status = 'succeeded';
+        $transaction->payment_at = Carbon::now();
 
-         $promoInfo = $this->formatPromoInfo($metadata);
-         $this->notificationService->sendPurchaseNotification(
-             $courseName ?? 'Unknown Package',
-             $userName ?? 'Guest',
-             $phone,
-             $email ?? 'Unknown',
-             $amount,
-             $promoInfo,
-             $metadata['ref_code'] ?? null,
-             $metadata['full_name_ref'] ?? null,
-             $metadata['tg_username'] ?? null
-         );
+        $transaction->save();
+        $ref = $transaction->referral;
 
-         Mail::to($email)->queue(new PurchaseConfirmationMail(
-             $courseName,
-             $userName,
-             $link,
-         ));*/
+        $packageLink = $transaction->package->content_link ?? null;
+        $link = $this->getTelegramLink($packageLink) ? $this->getTelegramLink($packageLink) : "#";
+
+        $this->notificationService->sendPurchaseNotification(
+            $package->name ?? 'Unknown Package',
+            $data['full_name'] ?? 'Guest',
+            $data['phone_number'] ?? 'Unknown',
+            $data['email'] ?? 'Unknown',
+            $package->price_new,
+            null,
+            $ref->ref_code ?? null,
+            $ref->full_name ?? null,
+            $ref->tg_username ?? null
+        );
+        Log::info('sent success notification to tg');
+
+        Mail::to($data['email'])->queue(new PurchaseConfirmationMail(
+            $package->name,
+            $data['full_name'],
+            $link,
+        ));
+        Log::info('sent success notification to mail');
+
     }
 
     public function handleFailurePayment(Request $request)
     {
         Log::info('start failure payment');
         $data = $request->all();
-        Log::info(json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-
         $transaction = PaymentTransaction::query()
             ->where('payment_id', $data['payment_id'] ?? null)
             ->first();
@@ -137,7 +146,26 @@ class GetCourseController extends Controller
             $ref->full_name ?? null,
             $ref->tg_username ?? null
         );
+        Log::info('sent failure payment in telegram');
 
         return response()->json(['status' => 'success', 'message' => 'Transaction marked as canceled and notification sent'], 200);
+    }
+
+    public function getTelegramLink($chatId)
+    {
+        if (!$chatId) return null;
+
+        try {
+            $parameters = [
+                'chat_id' => $chatId,
+                'member_limit' => 1,
+                'name' => 'one_time_link',
+            ];
+            $response = Telegram::createChatInviteLink($parameters);
+            return $response->invite_link;
+        } catch (\Exception $e) {
+            Log::error("Failed to create Telegram link for chat ID {$chatId}: " . $e->getMessage());
+            return null;
+        }
     }
 }
