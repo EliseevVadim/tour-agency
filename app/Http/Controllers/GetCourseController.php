@@ -54,6 +54,7 @@ class GetCourseController extends Controller
             'amount' => $package->price_new ?? null,
             'status' => 'pending',
             'payment_id' => $data['payment_id'] ?? null,
+            'payment_link' => $data['payment_link'] ?? null,
         ]);
 
         $refName = $data['ref'];
@@ -145,7 +146,8 @@ class GetCourseController extends Controller
             null,
             $ref->ref_code ?? null,
             $ref->full_name ?? null,
-            $ref->tg_username ?? null
+            $ref->tg_username ?? null,
+            $transaction->payment_link
         );
         Log::info('sent failure payment in telegram');
 

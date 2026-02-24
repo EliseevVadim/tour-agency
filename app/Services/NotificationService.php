@@ -132,7 +132,8 @@ class NotificationService
         ?string $promoInfo = null,
         ?string $referralCode = null,
         ?string $referralName = null,
-        ?string $referralTelegramUsername = null
+        ?string $referralTelegramUsername = null,
+        ?string $payment_link  = null
     ): bool
     {
         $chatId = $this->getChatId('not_sales_channel');
@@ -146,11 +147,13 @@ class NotificationService
 
         $message = sprintf(
             "%s У %s попытка оплаты за курс %s не удалась\n\n" .
+            "Ссылка на оплату: %s \n" .
             "Email: %s \n" .
             "Телефон: %s \n",
             self::ICON_FAILURE,
             $userName,
             $courseName,
+            $payment_link,
             $email,
             $phone
         );

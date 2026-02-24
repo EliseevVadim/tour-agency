@@ -14,18 +14,21 @@ class PaymentTransaction extends Model
         'package_id',
         'promo_code_id',
         'payment_id',
+        'payment_link',
         'status',
         'payment_method',
         'amount',
         'payment_at',
         'ref_id',
         'paid_referral_fee',
+        'expires_at'
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'payment_at' => 'datetime',
         'paid_referral_fee' => 'datetime',
+        'expires_at' => 'datetime'
     ];
 
     public function user()
