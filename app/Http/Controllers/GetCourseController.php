@@ -55,6 +55,7 @@ class GetCourseController extends Controller
             'status' => 'pending',
             'payment_id' => $data['payment_id'] ?? null,
             'payment_link' => $data['payment_link'] ?? null,
+            'expires_at' => Carbon::now()->addHour(),
         ]);
 
         $refName = $data['ref'];

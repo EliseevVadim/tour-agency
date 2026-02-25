@@ -73,7 +73,8 @@ class CheckExpiredTransactions extends Command
             null,
             $ref->ref_code ?? null,
             $ref->full_name ?? null,
-            $ref->tg_username ?? null
+            $ref->tg_username ?? null,
+            $transaction->payment_link
         );
 
         $transaction->send_notification = true;
