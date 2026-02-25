@@ -497,9 +497,9 @@ export default {
         goToPayment(pkgId){
             let baseUrl = '';
             if (pkgId === 'opti') {
-                baseUrl = 'https://putclub.getcourse.ru/pay_opti';
+                baseUrl = 'https://courses.putclub.ru/pay_opti';
             } else if (pkgId === 'mini') {
-                baseUrl = 'https://putclub.getcourse.ru/pay_mini';
+                baseUrl = 'https://courses.putclub.ru/pay_mini';
             }
 
             let params = '';
