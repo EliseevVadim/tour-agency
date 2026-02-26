@@ -9,6 +9,8 @@ use App\Http\Controllers\ReviewsController;
 use App\Http\Controllers\TeamController;
 use Illuminate\Support\Facades\Route;
 
+Route::redirect('/admin', '/admin/team')->name('admin.index');
+
 Route::middleware(['admin.auth.hash'])->prefix('admin')->name('admin.')->group(function () {
     Route::view('/team', 'admin.team')->name('team');
     Route::view('/reviews', 'admin.reviews')->name('reviews');

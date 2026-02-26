@@ -572,7 +572,7 @@ export default {
             }
 
             this.saveCartToStorage(cart);
-            eventBus.$emit('cart-updated');
+            eventBus.$emit('cart:updated');
 
             this.isNotificationVisible = false;
         }

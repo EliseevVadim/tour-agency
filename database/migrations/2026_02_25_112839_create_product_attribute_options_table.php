@@ -15,11 +15,12 @@ class CreateProductAttributeOptionsTable extends Migration
     {
         Schema::create('product_attribute_options', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('attribute_id')->constrained('product_attributes')->onDelete('cascade');
+            $table->foreignId('attribute_id')->constrained('product_attributes')->cascadeOnDelete();
             $table->string('value');
-            $table->unique(['attribute_id', 'value']);
-
             $table->timestamps();
+
+            $table->unique(['attribute_id', 'value']);
+            $table->index('attribute_id');
         });
     }
 

@@ -20,7 +20,7 @@
                     <div class="sidebar-item-content">
                         <div class="image-wrapper">
                             <button class="close-button position-absolute color-white mt-2"
-                                    @click.prevent.stop="eventBus.$emit('toggle-product-wishlist', item)">
+                                    @click.prevent.stop="eventBus.$emit('product-wishlist:toggle', item)">
                                 &times;
                             </button>
                             <img :src="getPrimaryImageUrl(item)" alt="Product Image" class="item-image">
@@ -83,7 +83,7 @@ export default {
             return primaryImageObj ? primaryImageObj.image : product.images[0]?.image;
         },
         openProductModal(product) {
-            eventBus.$emit('open-product-modal', product);
+            eventBus.$emit('product-modal:open', product);
             this.$emit('close');
         }
     },

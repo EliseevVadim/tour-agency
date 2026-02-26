@@ -14,15 +14,54 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $products = Product::with([
+        $query = Product::with([
             'category',
             'attributes.options',
-            'skus.options'
-        ])->get();
+            'skus.options.attribute'
+        ]);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('description', 'LIKE', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('category')) {
+            $query->whereHas('category', function ($q) use ($request) {
+                $q->where('slug', $request->category);
+            });
+        }
+
+        $perPage = $request->get('per_page', 12);
+        $products = $query->paginate($perPage);
 
         return response()->json([
             'success' => true,
-            'data' => ProductResource::collection($products)
+            'data' => ProductResource::collection($products),
+            'meta' => [
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+                'per_page' => $products->perPage(),
+                'total' => $products->total(),
+            ]
+        ]);
+    }
+
+
+    public function show(Product $product)
+    {
+        $product->load([
+            'category',
+            'attributes.options',
+            'skus.options.attribute'
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => new ProductResource($product)
         ]);
     }
 
@@ -32,19 +71,22 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'current_price' => 'required|integer',
+            'old_price' => 'nullable|integer',
+            'is_hit' => 'nullable|boolean',
             'category_id' => 'required|exists:categories,id',
+            'images' => 'nullable|array',
             'attributes' => 'required|array',
             'available_skus' => 'required|array',
         ]);
 
+        DB::beginTransaction();
+
         try {
-            DB::beginTransaction();
-            $product = Product::create($request->only([
-                'name', 'description', 'old_price', 'current_price', 'is_hit', 'category_id'
-            ]));
+            $product = Product::create($request->only(
+                'name', 'description', 'images', 'old_price', 'current_price', 'is_hit', 'category_id'
+            ));
 
-            $createdAttributeMap = [];
-
+            $attributeMap = [];
             foreach ($request->input('attributes') as $attrData) {
                 $attribute = ProductAttribute::create([
                     'product_id' => $product->id,
@@ -52,69 +94,51 @@ class ProductController extends Controller
                     'sku_key' => $attrData['sku_key'],
                 ]);
 
-                $attributeMap = [];
-                foreach ($attrData['options'] as $optionValue) {
+                $optMap = [];
+                foreach ($attrData['options'] as $value) {
                     $option = ProductAttributeOption::create([
                         'attribute_id' => $attribute->id,
-                        'value' => $optionValue,
+                        'value' => $value,
                     ]);
-                    $attributeMap[$optionValue] = $option->id;
+                    $optMap[$value] = $option->id;
                 }
-                $createdAttributeMap[$attrData['sku_key']] = $attributeMap;
+
+                $attributeMap[$attrData['sku_key']] = $optMap;
             }
 
-            $pivotData = [];
-            foreach ($request->input('available_skus') as $skuItem) {
-                ProductSku::create([
-                    'sku' => $skuItem['sku'],
+            foreach ($request->input('available_skus') as $skuData) {
+                $sku = ProductSku::create([
+                    'sku' => $skuData['sku'],
                     'product_id' => $product->id,
-                    'price' => $skuItem['price'],
-                    'stock_qty' => $skuItem['stock_qty'],
+                    'price' => $skuData['price'],
+                    'stock_qty' => $skuData['stock_qty'],
                 ]);
 
-                foreach ($createdAttributeMap as $skuKey => $attributeOptionsMap) {
-                    if (isset($skuItem[$skuKey])) {
-                        $currentOptionValue = $skuItem[$skuKey];
-                        $optionId = $attributeOptionsMap[$currentOptionValue] ?? null;
-
-                        if ($optionId) {
-                            $pivotData[] = ['sku' => $skuItem['sku'], 'option_id' => $optionId];
-                        }
+                $optionIds = [];
+                foreach ($attributeMap as $skuKey => $values) {
+                    if (isset($skuData[$skuKey]) && isset($values[$skuData[$skuKey]])) {
+                        $optionIds[] = $values[$skuData[$skuKey]];
                     }
                 }
-            }
-
-            if (!empty($pivotData)) {
-                DB::table('sku_option_pivot')->insert($pivotData);
+                $sku->options()->sync($optionIds);
             }
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Продукт успешно создан.',
-                'data' => new ProductResource($product->load(['category', 'attributes.options', 'skus.options']))
+                'message' => 'Продукт успешно создан',
+                'data' => new ProductResource($product->load('category', 'attributes.options', 'skus.options')),
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Ошибка при создании продукта.',
+                'message' => 'Ошибка при создании продукта',
                 'error_details' => $e->getMessage()
             ], 500);
         }
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param \App\Models\Product $product
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Product $product)
-    {
-        //
     }
 
     /**

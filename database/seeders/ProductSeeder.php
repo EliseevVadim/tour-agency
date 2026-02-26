@@ -9,110 +9,136 @@ use App\Models\ProductAttributeOption;
 use App\Models\ProductSku;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ProductSeeder extends Seeder
 {
     public function run(): void
     {
-        $category = Category::where('slug', 'clothing')->first();
-        if (!$category) {
-            $this->command->error("Категория 'clothing' не найдена. Запустите CategoriesTableSeeder сначала.");
+        $categories = Category::whereIn('slug', ['clothing', 'accessories', 'travelGoods'])
+            ->get()->keyBy('slug');
+
+        if ($categories->count() < 3) {
+            $this->command->error("Не все категории найдены. Убедитесь, что есть clothing, accessories, travelGoods.");
             return;
         }
 
-        $productData = [
-            'name' => 'Чемодан "В ПУТЬ" (Общая Акция)',
-            'description' => 'Наш самый популярный чемодан. Цена зависит от размера и цвета.',
-            'images' => [
-                ['primary' => true, 'image' => '/img/previews/Module_02/2.0.png'],
-                ['primary' => false, 'image' => '/img/previews/Module_02/2.1.png'],
-                ['primary' => false, 'image' => '/img/previews/Module_02/2.2.png'],
-                ['primary' => false, 'image' => '/img/previews/Module_02/2.3.png'],
-                ['primary' => false, 'image' => '/img/previews/Module_02/2.4.png'],
-                ['primary' => false, 'image' => '/img/previews/Module_02/2.5.png'],
-                ['primary' => false, 'image' => '/img/previews/Module_02/2.6.png'],
-                ['primary' => false, 'image' => '/img/previews/Module_02/2.7.png'],
-            ],
-            'old_price' => 5500,
-            'current_price' => 3650,
-            'is_hit' => true,
-            'category_id' => $category->id,
+        $sizes = ['Маленький', 'Средний', 'Большой'];
+        $colors = ['Синий', 'Зеленый', 'Красный'];
+        $materials = ['Кожа', 'Ткань', 'Пластик'];
+        $imagesTemplate = [
+            '/img/previews/Module_02/2.0.png',
+            '/img/previews/Module_02/2.1.png',
+            '/img/previews/Module_02/2.2.png',
+            '/img/previews/Module_02/2.3.png',
         ];
 
-        $attributesData = [
-            [
-                "name" => "Размер",
-                "sku_key" => "size",
-                "options" => ["Маленький", "Средний", "Большой"]
-            ],
-            [
-                "name" => "Цвет",
-                "sku_key" => "color",
-                "options" => ["Синий", "Зеленый", "Красный"]
-            ]
-        ];
+        for ($i = 1; $i <= 40; $i++) {
+            $categorySlug = array_rand($categories->toArray());
+            $category = $categories[$categorySlug];
 
-        $skusData = [
-            ["sku" => "101-M-BLU", "size" => "Средний", "color" => "Синий", "price" => 120, "stock_qty" => 4],
-            ["sku" => "101-M-GRN", "size" => "Средний", "color" => "Зеленый", "price" => 120, "stock_qty" => 0],
-            ["sku" => "101-L-BLU", "size" => "Большой", "color" => "Синий", "price" => 150, "stock_qty" => 0],
-            ["sku" => "101-L-RED", "size" => "Большой", "color" => "Красный", "price" => 150, "stock_qty" => 2]
-        ];
-
-        $product = Product::create($productData);
-
-        $this->command->info("Продукт ID {$product->id} создан.");
-
-        $createdAttributes = [];
-
-        foreach ($attributesData as $attr) {
-            $attribute = ProductAttribute::create([
-                'product_id' => $product->id,
-                'name' => $attr['name'],
-                'sku_key' => $attr['sku_key'],
+            $product = Product::create([
+                'name' => "Продукт {$i} - " . Str::random(5),
+                'description' => "Описание продукта {$i}. Категория: {$category->name}.",
+                'images' => array_map(fn($img, $idx) => ['primary' => $idx===0, 'image'=>$img], $imagesTemplate, array_keys($imagesTemplate)),
+                'old_price' => rand(1000, 5000),
+                'current_price' => rand(500, 4000),
+                'is_hit' => rand(0,1) ? true : false,
+                'category_id' => $category->id,
             ]);
 
-            $createdAttributes[$attr['sku_key']] = ['id' => $attribute->id, 'options' => []];
+            $attributeVariants = [
+                ['size','color'],
+                ['material'],
+                ['size','color','material'],
+                []
+            ];
 
-            foreach ($attr['options'] as $optionValue) {
-                $option = ProductAttributeOption::create([
-                    'attribute_id' => $attribute->id,
-                    'value' => $optionValue,
+            $selectedVariant = $attributeVariants[array_rand($attributeVariants)];
+
+            $createdAttributes = [];
+
+            foreach ($selectedVariant as $attrKey) {
+                switch ($attrKey) {
+                    case 'size': $options = $sizes; $name = 'Размер'; break;
+                    case 'color': $options = $colors; $name = 'Цвет'; break;
+                    case 'material': $options = $materials; $name = 'Материал'; break;
+                }
+
+                $attribute = ProductAttribute::create([
+                    'product_id'=>$product->id,
+                    'name'=>$name,
+                    'sku_key'=>$attrKey
                 ]);
 
-                $createdAttributes[$attr['sku_key']]['options'][$optionValue] = $option->id;
+                $createdAttributes[$attrKey] = ['id'=>$attribute->id,'options'=>[]];
+
+                foreach ($options as $value) {
+                    $option = ProductAttributeOption::create([
+                        'attribute_id'=>$attribute->id,
+                        'value'=>$value
+                    ]);
+                    $createdAttributes[$attrKey]['options'][$value] = $option->id;
+                }
             }
+
+            $skuCounter = 100 + $i*10;
+
+            if (empty($selectedVariant)) {
+                ProductSku::create([
+                    'sku' => "SKU{$skuCounter}",
+                    'product_id' => $product->id,
+                    'price' => $product->current_price,
+                    'stock_qty' => rand(0,10)
+                ]);
+            } else {
+                $optionsArrays = [];
+                foreach ($selectedVariant as $key) {
+                    $optionsArrays[] = array_keys($createdAttributes[$key]['options']);
+                }
+
+                $combinations = $this->cartesian($optionsArrays);
+
+                foreach ($combinations as $combo) {
+                    $skuCode = "SKU{$skuCounter}-" . implode('-', array_map(fn($v)=>Str::upper(substr($v,0,3)),$combo));
+                    $price = $product->current_price + rand(-200,200);
+                    $stock = rand(0,20);
+
+                    $sku = ProductSku::create([
+                        'sku'=>$skuCode,
+                        'product_id'=>$product->id,
+                        'price'=>$price,
+                        'stock_qty'=>$stock
+                    ]);
+
+                    $optionIds = [];
+                    foreach ($selectedVariant as $idx => $key) {
+                        $optionIds[] = $createdAttributes[$key]['options'][$combo[$idx]];
+                    }
+
+                    $sku->options()->sync($optionIds);
+
+                    $skuCounter++;
+                }
+            }
+
+            $this->command->info("Продукт {$product->id} с SKU создан.");
         }
 
-        $this->command->info("Атрибуты и опции созданы.");
-
-        $pivotData = [];
-
-        foreach ($skusData as $skuItem) {
-            $sku = ProductSku::create([
-                'sku' => $skuItem['sku'],
-                'product_id' => $product->id,
-                'price' => $skuItem['price'],
-                'stock_qty' => $skuItem['stock_qty'],
-            ]);
-
-            $sizeId = $createdAttributes['size']['options'][$skuItem['size']] ?? null;
-            $colorId = $createdAttributes['color']['options'][$skuItem['color']] ?? null;
-
-            if ($sizeId && $colorId) {
-                $pivotData[] = [
-                    'sku' => $skuItem['sku'],
-                    'option_id' => $sizeId,
-                ];
-                $pivotData[] = [
-                    'sku' => $skuItem['sku'],
-                    'option_id' => $colorId,
-                ];
-            }
-        }
-
-        DB::table('sku_option_pivot')->insert($pivotData);
-
-        $this->command->info("SKU и связи созданы для товара {$product->name}.");
+        $this->command->info("Сидирование 40 товаров с разными атрибутами завершено.");
     }
-};
+
+    private function cartesian($arrays) {
+        $result = [[]];
+        foreach ($arrays as $property => $property_values) {
+            $tmp = [];
+            foreach ($result as $result_item) {
+                foreach ($property_values as $property_value) {
+                    $tmp[] = array_merge($result_item, [$property_value]);
+                }
+            }
+            $result = $tmp;
+        }
+        return $result;
+    }
+}

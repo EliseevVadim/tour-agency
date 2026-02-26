@@ -25,9 +25,9 @@ class ProductAttributeOption extends Model
     {
         return $this->belongsToMany(
             ProductSku::class,
-            'sku_option_pivot',
+            'product_sku_option',
             'option_id',
-            'sku'
+            'product_sku_id'
         );
     }
 }

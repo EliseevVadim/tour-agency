@@ -9,8 +9,6 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $table = 'products';
-
     protected $fillable = [
         'name',
         'description',
@@ -22,8 +20,8 @@ class Product extends Model
     ];
 
     protected $casts = [
-        'is_hit' => 'boolean',
         'images' => 'array',
+        'is_hit' => 'boolean',
     ];
 
     public function category()
@@ -31,15 +29,13 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function skus()
-    {
-        // Связь с таблицей product_skus
-        return $this->hasMany(ProductSku::class);
-    }
-
     public function attributes()
     {
-        // Связь с таблицей product_attributes
         return $this->hasMany(ProductAttribute::class);
+    }
+
+    public function skus()
+    {
+        return $this->hasMany(ProductSku::class);
     }
 }

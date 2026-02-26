@@ -124,7 +124,7 @@ export default {
             this.items = updatedCart;
             this.saveCartToStorage(updatedCart);
             this.calculateSummary();
-            eventBus.$emit('cart-updated');
+            eventBus.$emit('cart:updated');
         },
 
         updateQuantity(item, change) {
@@ -147,7 +147,7 @@ export default {
                 this.items[index].quantity = newQuantity;
                 this.saveCartToStorage(this.items);
                 this.calculateSummary();
-                eventBus.$emit('cart-updated');
+                eventBus.$emit('cart:updated');
             }
         },
 
@@ -173,14 +173,14 @@ export default {
         },
 
         openProductModal(product) {
-            eventBus.$emit('open-product-modal', product);
+            eventBus.$emit('product-modal:open', product);
             this.$emit('close');
         }
     },
     emits: ['close', 'remove', 'update:quantity'],
     mounted() {
         this.loadCart();
-        eventBus.$on('cart-updated', this.loadCart);
+        eventBus.$on('cart:updated', this.loadCart);
     }
 }
 </script>

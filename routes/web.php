@@ -53,6 +53,7 @@ Route::prefix('api')->name('api.')->group(function () {
     Route::post('/get-referral/{id}', [ReferralController::class, 'getReferral'])->name('api.get-referral');
 
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+    Route::get('/products/{product}', [ProductController::class, 'show']);
 });
 
 Route::post('/telegram/webhook', [TelegramController::class, 'handleWebhook'])->name('telegram.webhook');

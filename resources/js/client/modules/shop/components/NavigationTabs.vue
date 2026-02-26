@@ -29,7 +29,7 @@
             <div class="sidebar-body" v-if="searchQuery.trim().length > 0">
                 <div class="container search-modal-wrap-result" :class="{'active': searchQuery.trim().length > 0}">
                     <div class="search-modal-result">
-                        <h3>{{ countSearch }} результатов по запросу: {{ searchQuery }}</h3>
+                        <h3>{{ listMeta.total }} результатов по запросу: {{ searchQuery }}</h3>
                         <div class="search-modal-result-items">
                             <ProductCard
                                 v-for="product in searchResults"
@@ -37,6 +37,31 @@
                                 :product="product"
                                 @click="openModalFromCard(product)"
                             />
+                        </div>
+                        <div class="search-modal-pagination mt-5">
+                            <nav v-if="listMeta.last_page > 1" aria-label="Pagination">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item" :class="{ disabled: listMeta.current_page === 1 }">
+                                        <a class="page-link" href="#" aria-label="Previous"
+                                           @click.prevent="goToPage(listMeta.current_page - 1)">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+
+                                    <li v-for="page in paginationPages" :key="page"
+                                        class="page-item" :class="{ active: page === listMeta.current_page }">
+                                        <a class="page-link" href="#" @click.prevent="goToPage(page)">{{ page }}</a>
+                                    </li>
+
+                                    <li class="page-item"
+                                        :class="{ disabled: listMeta.current_page === listMeta.last_page }">
+                                        <a class="page-link" href="#" aria-label="Next"
+                                           @click.prevent="goToPage(listMeta.current_page + 1)">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                 </div>
@@ -94,6 +119,7 @@
                 </ul>
             </div>
         </div>
+
         <FavoritesSidebar :isActive="isFavoritesOpen" @close="closeFavorites"/>
         <OrderSidebar :is-active="isOrderOpen" @close="closeOrder"/>
     </div>
@@ -106,26 +132,6 @@ import eventBus from "../../../../event-bus";
 import ProductCard from "./ProductCard.vue";
 
 const FILTERS_SORT_STORAGE_KEY = 'merchFiltersAndSort';
-
-const MOCK_PRODUCTS_DB = [
-    {
-        id: 1,
-        name: 'Синяя футболка "Путешествие"',
-        category_slug: 'clothing',
-        currentPrice: 1500,
-        imageUrl: '/img/merch/test.png'
-    },
-    {id: 2, name: 'Красный рюкзак', category_slug: 'accessories', currentPrice: 3500, imageUrl: '/img/merch/test.png'},
-    {
-        id: 3,
-        name: 'Треккинговые ботинки',
-        category_slug: 'clothing',
-        currentPrice: 12000,
-        imageUrl: '/img/merch/test.png'
-    },
-    {id: 4, name: 'Термос "Поход"', category_slug: 'travelGoods', currentPrice: 2500, imageUrl: '/img/merch/test.png'},
-    {id: 5, name: 'Брелок "Трек"', category_slug: 'accessories', currentPrice: 400, imageUrl: '/img/merch/test.png'},
-];
 
 export default {
     name: 'NavigationTabs',
@@ -153,9 +159,21 @@ export default {
             isOrderOpen: false,
 
             isActiveSearch: false,
+            wishlistIds: [],
+
             searchQuery: '',
             searchResults: [],
-            wishlistIds: [],
+            searchLoading: false,
+            searchPage: 1,
+            lastPage: 1,
+            searchTotal: 0,
+            abortController: null,
+            debouncedSearch: null,
+
+            listMeta: {
+                current_page: 1,
+                last_page: 1,
+            },
         }
     },
 
@@ -163,40 +181,54 @@ export default {
         currentSortOption() {
             return this.sortOptions.find(opt => opt.value === this.currentSortValue) || this.sortOptions[0];
         },
-        countSearch() {
-            return this.searchResults.length;
-        },
         displaySortText() {
-            const text = this.currentSortOption.text;
-            const parts = text.split(':');
-
+            const [prefix, value] = this.currentSortOption.text.split(':');
             return {
-                prefix: parts[0].trim(),
-                value: parts[1] ? parts[1].trim() : parts[0].trim()
+                prefix: prefix.trim(),
+                value: value ? value.trim() : prefix.trim()
             };
+        },
+        paginationPages() {
+            const {current_page: current, last_page: total} = this.listMeta;
+            if (total <= 1) return [];
+
+            const pages = [];
+            const maxVisible = 5;
+            let start = Math.max(1, current - Math.floor(maxVisible / 2));
+            let end = Math.min(total, start + maxVisible - 1);
+
+            if (end - start + 1 < maxVisible) {
+                start = Math.max(1, end - maxVisible + 1);
+            }
+
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+            return pages;
         }
     },
 
     watch: {
-        activeTab(newTab, oldTab) {
-            if (newTab !== oldTab) {
-                this.currentSortValue = 'default';
-                this.saveFiltersAndSort();
-            }
+        searchQuery() {
+            this.searchPage = 1;
+            this.debouncedSearch();
+        },
+
+        activeTab() {
+            this.currentSortValue = 'default';
+            this.saveFiltersAndSort();
+            this.searchPage = 1;
+            this.fetchProducts();
         },
 
         currentSortValue() {
             this.saveFiltersAndSort();
+            this.searchPage = 1;
+            this.fetchProducts();
         },
 
-        isFavoritesOpen() {
-            this.updateBodyScroll();
-        },
-        isOrderOpen() {
-            this.updateBodyScroll();
-        },
-        isActiveSearch(newValue) {
-            if (!newValue) {
+        isActiveSearch(val) {
+            if (!val) {
                 this.searchQuery = '';
                 this.searchResults = [];
                 document.body.classList.remove('no-scroll');
@@ -206,55 +238,88 @@ export default {
                 }
             }
         },
-        searchQuery() {
-            this.handleSearchInput();
-        },
+
+        isFavoritesOpen: 'updateBodyScroll',
+        isOrderOpen: 'updateBodyScroll',
     },
 
     methods: {
-        loadFiltersAndSort() {
-            const stored = this.loadFromStorage(FILTERS_SORT_STORAGE_KEY);
-            if (stored) {
-                if (stored.tag && this.tabs.some(t => t.id === stored.tag)) {
-                    this.activeTab = stored.tag;
-                }
-                if (stored.sort && this.sortOptions.some(opt => opt.value === stored.sort)) {
-                    this.currentSortValue = stored.sort;
-                }
-            }
-            eventBus.$emit('tab-sort-changed');
-        },
+        async fetchProducts() {
+            const query = this.searchQuery.trim();
 
-        saveFiltersAndSort() {
+            if (!query) {
+                this.resetSearch();
+                return;
+            }
+
+            if (this.abortController) {
+                this.abortController.abort();
+            }
+
+            this.abortController = new AbortController();
+            this.searchLoading = true;
+
             try {
-                const dataToSave = {
-                    tag: this.activeTab,
-                    sort: this.currentSortValue
-                };
-                localStorage.setItem(FILTERS_SORT_STORAGE_KEY, JSON.stringify(dataToSave));
-                eventBus.$emit('tab-sort-changed');
+                const params = new URLSearchParams({
+                    search: query,
+                    page: this.searchPage,
+                });
 
-            } catch (e) {
-                console.error("Не удалось сохранить фильтры/сортировку в localStorage:", e);
+                const response = await fetch(
+                    `/api/products?${params.toString()}`,
+                    {signal: this.abortController.signal}
+                );
+
+                const data = await response.json();
+
+                this.searchResults = data.data;
+                this.listMeta = data.meta;
+                this.searchTotal = data.total;
+                this.lastPage = data.last_page;
+                this.searchPage = data.current_page;
+
+                const body = document.body;
+
+                if (query.length > 0) {
+                    body.classList.add('no-scroll');
+                } else {
+                    body.classList.remove('no-scroll');
+                    this.searchResults = [];
+                }
+
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    console.error('Search error:', error);
+                }
+            } finally {
+                this.searchLoading = false;
             }
         },
 
-        loadFromStorage(key) {
-            try {
-                const stored = localStorage.getItem(key);
-                return stored ? JSON.parse(stored) : null;
-            } catch (e) {
-                console.error(`Не удалось загрузить данные из localStorage (${key}):`, e);
-                return null;
-            }
+        goToPage(page) {
+            if (page < 1 || page > this.lastPage) return;
+            if (page === this.searchPage) return;
+
+            this.searchPage = page;
+            this.fetchProducts();
+
+            this.$nextTick(() => {
+                const container = document.querySelector('.search-modal-result-items');
+                if (container) container.scrollTop = 0;
+            });
         },
 
-        setActiveTab(id) {
-            this.activeTab = id;
+        resetSearch() {
+            this.searchResults = [];
+            this.searchTotal = 0;
+            this.searchPage = 1;
         },
 
-        selectSortOption(option) {
-            this.currentSortValue = option.value;
+        loadMore() {
+            if (this.searchPage >= this.lastPage) return;
+
+            this.searchPage++;
+            this.fetchProducts();
         },
 
         toggleSearchOverlay() {
@@ -263,23 +328,6 @@ export default {
 
         closeSearchOverlay() {
             this.isActiveSearch = false;
-        },
-
-        handleSearchInput() {
-            // TODO: сделать поиск (запрос к бд или локально)
-
-            const query = this.searchQuery.toLowerCase().trim();
-            const body = document.body;
-
-            if (query.length > 0) {
-                body.classList.add('no-scroll');
-                this.searchResults = MOCK_PRODUCTS_DB.filter(p =>
-                    p.name.toLowerCase().includes(query)
-                );
-            } else {
-                body.classList.remove('no-scroll');
-                this.searchResults = [];
-            }
         },
 
         toggleFavorites() {
@@ -301,20 +349,58 @@ export default {
         },
 
         updateBodyScroll() {
-            const shouldBlock = this.isFavoritesOpen || this.isOrderOpen || this.isActiveSearch;
+            const shouldBlock =
+                this.isFavoritesOpen ||
+                this.isOrderOpen ||
+                (this.isActiveSearch && this.searchQuery.trim().length > 0);
+
             document.body.classList.toggle('no-scroll', shouldBlock);
         },
 
-        isInWishlist(productId) {
-            return this.wishlistIds.includes(productId);
+        setActiveTab(id) {
+            this.activeTab = id;
+            eventBus.$emit('tab-category:changed', id);
+        },
+
+        selectSortOption(option) {
+            this.currentSortValue = option.value;
+            eventBus.$emit('sort:changed', option.value);
+        },
+
+        loadFiltersAndSort() {
+            const stored = this.loadFromStorage(FILTERS_SORT_STORAGE_KEY);
+            if (!stored) return;
+
+            if (stored.tag) this.activeTab = stored.tag;
+            if (stored.sort) this.currentSortValue = stored.sort;
+
+            eventBus.$emit('tab-sort:changed');
+        },
+
+        saveFiltersAndSort() {
+            localStorage.setItem(
+                FILTERS_SORT_STORAGE_KEY,
+                JSON.stringify({
+                    tag: this.activeTab,
+                    sort: this.currentSortValue
+                })
+            );
+        },
+
+        loadFromStorage(key) {
+            try {
+                const stored = localStorage.getItem(key);
+                return stored ? JSON.parse(stored) : null;
+            } catch {
+                return null;
+            }
         },
 
         handleWishlist(product) {
-            const productId = product.id;
-            const index = this.wishlistIds.indexOf(productId);
+            const index = this.wishlistIds.indexOf(product.id);
 
             if (index === -1) {
-                this.wishlistIds.push(productId);
+                this.wishlistIds.push(product.id);
             } else {
                 this.wishlistIds.splice(index, 1);
             }
@@ -322,20 +408,37 @@ export default {
             eventBus.$emit('toggle-wishlist', product);
         },
 
+        isInWishlist(productId) {
+            return this.wishlistIds.includes(productId);
+        },
+
         openModalFromCard(product) {
-            eventBus.$emit('open-product-modal', product);
+            eventBus.$emit('product-modal:open', product);
         },
 
         openSidebarOrder() {
             this.isOrderOpen = true;
+        },
+
+        debounce(fn, delay) {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    fn.apply(this, args);
+                }, delay);
+            };
         }
     },
 
     created() {
+        this.debouncedSearch = this.debounce(this.fetchProducts, 400);
+
         eventBus.$on('update-favorites-products', (fullData) => {
             this.wishlistIds = fullData.map(p => p.id);
         });
-        eventBus.$on('cart-updated', this.openSidebarOrder);
+
+        eventBus.$on('cart:updated', this.openSidebarOrder);
     },
 
     mounted() {
@@ -345,12 +448,23 @@ export default {
 
     beforeUnmount() {
         eventBus.$off('update-favorites-products');
-        eventBus.$off('cart-updated', this.openSidebarOrder);
+        eventBus.$off('cart:updated', this.openSidebarOrder);
         document.body.classList.remove('no-scroll');
     }
 }
 </script>
 <style lang="scss">
+.search-modal-pagination {
+    .page-link {
+        border: none;
+        color: black;
+    }
+    .page-item.active .page-link {
+        background: #dd0024;
+        font-weight: bold;
+        color: white;
+    }
+}
 body.no-scroll {
     overflow: hidden !important;
 }
@@ -415,6 +529,10 @@ body.no-scroll {
         .sidebar-body {
             padding-bottom: 0;
             height: 100%;
+        }
+
+        .search-modal-result {
+            padding-bottom: 150px;
         }
 
         .search-modal-result-items {

@@ -76,10 +76,13 @@ export default {
     data() {
         return {
             allProducts: [],
+            page: 1,
+            perPage: ITEMS_PER_PAGE,
+            totalPages: 1,
+            loading: false,
 
             wishlistIds: [],
             wishlistFullData: [],
-            displayedCount: ITEMS_PER_PAGE,
             promoBlocks: [],
             shuffledPromoBlocks: [],
 
@@ -124,33 +127,26 @@ export default {
 
         displayedGroups() {
             const groups = [];
-            const productsToShow = this.sortedAndFilteredProducts.slice(0, this.displayedCount);
             const productsPerGroup = 6;
 
-            for (let i = 0; i < productsToShow.length; i += productsPerGroup) {
-                const groupProducts = productsToShow.slice(i, i + productsPerGroup);
-                const shouldInsertPromo = (i + productsPerGroup) < productsToShow.length || groupProducts.length > 0;
+            for (let i = 0; i < this.sortedAndFilteredProducts.length; i += productsPerGroup) {
+                const groupProducts = this.sortedAndFilteredProducts.slice(i, i + productsPerGroup);
 
-                if (shouldInsertPromo) {
-                    const promoIndex = Math.floor(i / productsPerGroup) % this.shuffledPromoBlocks.length;
-                    groups.push({
-                        products: groupProducts,
-                        promo: this.shuffledPromoBlocks[promoIndex]
-                    });
-                } else {
-                    groups.push({
-                        products: groupProducts,
-                        promo: null
-                    });
-                }
+                const shouldInsertPromo = groupProducts.length === productsPerGroup;
+                groups.push({
+                    products: groupProducts,
+                    promo: shouldInsertPromo
+                        ? this.shuffledPromoBlocks[Math.floor(i / productsPerGroup) % this.shuffledPromoBlocks.length]
+                        : null
+                });
             }
 
             return groups;
         },
 
         canLoadMore() {
-            return this.displayedCount < this.sortedAndFilteredProducts.length;
-        },
+            return this.page < this.totalPages && !this.loading;
+        }
     },
     watch: {
         currentSort() {
@@ -163,24 +159,41 @@ export default {
             localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(newIds));
             eventBus.$emit('update-favorites', this.wishlistFullData);
         },
-
         wishlistFullData(newData) {
             localStorage.setItem(WISHLIST_FULL_DATA_KEY, JSON.stringify(newData));
             eventBus.$emit('update-favorites', newData.length);
-            eventBus.$emit('update-favorites-products', newData)
+            eventBus.$emit('update-favorites-products', newData);
         },
     },
     methods: {
-        async fetchProducts() {
+        async fetchProducts(reset = false) {
+            if (this.loading) return;
+            if (reset) {
+                this.page = 1;
+                this.allProducts = [];
+            }
+
+            this.loading = true;
             try {
-                const response = await axios.get(`/api/products`);
-                if (response.data.success) {
-                    this.allProducts = response.data.data;
+                const res = await axios.get("/api/products", {
+                    params: {
+                        category: this.currentFilterTag,
+                        sort: this.currentSort,
+                        per_page: this.perPage,
+                        page: this.page,
+                    },
+                });
+
+                if (res.data.success) {
+                    const products = res.data.data;
+
+                    this.totalPages = res.data.meta.last_page || 1;
+                    this.allProducts = products;
                 }
-
-            } catch (err) {
-                console.error("Ошибка при получении продуктов:", err);
-
+            } catch (e) {
+                console.error("Ошибка при загрузке продуктов:", e);
+            } finally {
+                this.loading = false;
             }
         },
 
@@ -197,8 +210,8 @@ export default {
             this.modalProductData = product;
             this.isDetailVisible = true;
             this.isInWishList = this.getProductInWishlist(product.id);
-            this.updateBrowserUrl(product.id);
             document.body.classList.add('no-scroll');
+            this.updateBrowserUrl(product.id);
         },
 
         closeModal() {
@@ -210,23 +223,21 @@ export default {
 
         updateBrowserUrl(productId) {
             const baseUrl = window.location.pathname.split('?')[0];
-            const newUrl = productId
-                ? `${baseUrl}?product=${productId}`
-                : baseUrl;
-
+            const newUrl = productId ? `${baseUrl}?product=${productId}` : baseUrl;
             window.history.replaceState({}, '', newUrl);
         },
 
         loadMore() {
-            this.displayedCount += ITEMS_PER_PAGE;
+            if (this.page < this.totalPages && !this.loading) {
+                this.perPage += ITEMS_PER_PAGE;
+                this.fetchProducts(false);
+            }
         },
 
         loadFromStorage(key) {
             try {
-                const stored = localStorage.getItem(key);
-                return stored ? JSON.parse(stored) : null;
-            } catch (e) {
-                console.error(`Не удалось загрузить данные из localStorage (${key}):`, e);
+                return JSON.parse(localStorage.getItem(key));
+            } catch {
                 return null;
             }
         },
@@ -263,21 +274,34 @@ export default {
             if (stored) {
                 if (stored.tag) this.currentFilterTag = stored.tag;
                 if (stored.sort) this.currentSort = stored.sort;
+                if (stored.perPage) this.perPage = stored.perPage;
             }
+        },
+
+        changeSortValue(value) {
+            this.currentSort = value;
+            this.fetchProducts();
+        },
+
+        changeTabValue(id) {
+            this.currentFilterTag = id;
+
+            this.fetchProducts();
         },
 
         saveFiltersAndSort() {
             try {
-                const dataToSave = {
+                localStorage.setItem(FILTERS_SORT_STORAGE_KEY, JSON.stringify({
                     tag: this.currentFilterTag,
-                    sort: this.currentSort
-                };
-                localStorage.setItem(FILTERS_SORT_STORAGE_KEY, JSON.stringify(dataToSave));
-                eventBus.$emit('tab-sort-changed');
+                    sort: this.currentSort,
+                    perPage: ITEMS_PER_PAGE
+                }));
+                eventBus.$emit('tab-sort:changed');
             } catch (e) {
-                console.error("Не удалось сохранить фильтры/сортировку в localStorage:", e);
+                console.error(e);
             }
         },
+
         getPlatformData() {
             const TEMPLATES = rawData.TEMPLATES;
             const PLATFORM_DATA_RAW = rawData.PLATFORM_DATA;
@@ -300,38 +324,39 @@ export default {
                 url: platform.url
             }));
         },
-        closeDetailModal(){
+        closeDetailModal() {
             this.isDetailVisible = false
         }
     },
     mounted() {
+        this.loadFiltersAndSortFromStorage();
+
         this.fetchProducts();
         this.getPlatformData();
         this.loadWishlist();
-        this.loadFiltersAndSortFromStorage();
         this.initializePromo();
 
-        eventBus.$on('tab-sort-changed', this.loadFiltersAndSortFromStorage);
-        eventBus.$on('open-product-modal', this.openModalFromCard);
-        eventBus.$on('toggle-product-wishlist', this.handleWishlist);
-        eventBus.$on('cart-updated', this.closeDetailModal);
+        eventBus.$on('sort:changed', this.changeSortValue)
+        eventBus.$on('tab-category:changed', this.changeTabValue)
+        eventBus.$on('tab-sort:changed', this.loadFiltersAndSortFromStorage);
+        eventBus.$on('product-modal:open', this.openModalFromCard);
+        eventBus.$on('product-wishlist:toggle', this.handleWishlist);
+        eventBus.$on('cart:updated', this.closeDetailModal);
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const productIdFromUrl = urlParams.get('product');
-
-        if (productIdFromUrl) {
-            const productToOpen = this.allProducts.find(p => String(p.id) === productIdFromUrl);
-            if (productToOpen) {
-                this.openModalFromCard(productToOpen);
-            } else {
-                window.history.replaceState({}, '', window.location.pathname);
-            }
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get('product');
+        if (productId) {
+            axios.get(`/api/products/${productId}`).then((response) => {
+                const product = response.data.data;
+                if (product) this.openModalFromCard(product);
+                else window.history.replaceState({}, '', window.location.pathname);
+            })
         }
     },
     beforeUnmount() {
-        eventBus.$off('tab-sort-changed', this.loadFiltersAndSortFromStorage);
-        eventBus.$off('open-product-modal', this.openModalFromCard);
-        eventBus.$off('toggle-product-wishlist', this.handleWishlist);
+        eventBus.$off('tab-sort:changed', this.loadFiltersAndSortFromStorage);
+        eventBus.$off('product-modal:open', this.openModalFromCard);
+        eventBus.$off('product-wishlist:toggle', this.handleWishlist);
     }
 }
 </script>

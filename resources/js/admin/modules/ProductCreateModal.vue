@@ -46,20 +46,30 @@ export default {
 
     methods: {
         initializeFormDefaults() {
-            // Сброс
-            this.form.name = ''; this.form.description = ''; this.form.old_price = 0;
-            this.form.current_price = 0; this.form.is_hit = false; this.form.category_id = 1;
-            this.form.images = []; this.form.attributes = []; this.form.available_skus = [];
+            this.form = {
+                name: '',
+                description: '',
+                old_price: 0,
+                current_price: 0,
+                is_hit: false,
+                category_id: 1,
+                images: [],
+                attributes: [],
+                available_skus: []
+            };
 
-            // Инициализация с жестким назначением ключей для соответствия бэкенду
             this.addAttribute('size', 'Размер', ['Маленький', 'Средний', 'Большой']);
             this.addAttribute('color', 'Цвет', ['Синий', 'Зеленый', 'Красный']);
 
             this.generateSkus();
         },
 
-        addAttribute() {
-            this.form.attributes.push({ name: '', sku_key: '', options: [''] });
+        addAttribute(sku_key = '', name = '', options = ['']) {
+            this.form.attributes.push({
+                name,
+                sku_key,
+                options: options.length ? options : ['']
+            });
         },
 
         removeAttribute(index) {
@@ -79,32 +89,46 @@ export default {
         generateSkus() {
             this.form.available_skus = [];
 
-            const sizeOptions = this.form.attributes
-                .find(a => a.sku_key === 'size')
-                ?.options.filter(o => o) || [];
+            const validAttributes = this.form.attributes
+                .filter(attr => attr.sku_key && attr.options.filter(o => o).length > 0)
+                .map(attr => ({
+                    key: attr.sku_key,
+                    options: attr.options.filter(o => o)
+                }));
 
-            const colorOptions = this.form.attributes
-                .find(a => a.sku_key === 'color')
-                ?.options.filter(o => o) || [];
+            if (validAttributes.length === 0) return;
 
-            if (sizeOptions.length > 0 && colorOptions.length > 0) {
-                let counter = 100;
-
-                sizeOptions.forEach(size => {
-                    colorOptions.forEach(color => {
-                        const sizeKey = size.charAt(0).toUpperCase();
-                        const colorKey = color.substring(0, 3).toUpperCase();
-
-                        this.form.available_skus.push({
-                            sku: `ID${counter++}-${sizeKey}-${colorKey}`,
-                            size: size,
-                            color: color,
-                            price: 0,
-                            stock_qty: 0
+            const cartesian = (arrays) => {
+                return arrays.reduce((acc, curr) => {
+                    const res = [];
+                    acc.forEach(a => {
+                        curr.forEach(b => {
+                            res.push([...a, b]);
                         });
                     });
+                    return res;
+                }, [[]]);
+            };
+
+            const combinations = cartesian(validAttributes.map(a => a.options));
+
+            let counter = 100;
+
+            combinations.forEach(combination => {
+                const skuObject = {
+                    sku: `ID${counter++}`,
+                    price: 0,
+                    stock_qty: 0
+                };
+
+                combination.forEach((value, index) => {
+                    const key = validAttributes[index].key;
+                    skuObject[key] = value;
+                    skuObject.sku += '-' + value.substring(0, 3).toUpperCase();
                 });
-            }
+
+                this.form.available_skus.push(skuObject);
+            });
         },
 
         async submitProduct() {
@@ -114,9 +138,19 @@ export default {
 
             const payload = {
                 ...this.form,
-                old_price: parseInt(this.form.old_price) || 0,
-                current_price: parseInt(this.form.current_price) || 0,
-            };
+                old_price: Number(this.form.old_price) || 0,
+                current_price: Number(this.form.current_price) || 0,
+                attributes: this.form.attributes.map(attr => ({
+                    name: attr.name,
+                    sku_key: attr.sku_key,
+                    options: attr.options.filter(o => o)
+                })),
+                available_skus: this.form.available_skus.map(sku => ({
+                    ...sku,
+                    price: Number(sku.price) || 0,
+                    stock_qty: Number(sku.stock_qty) || 0
+                }))
+            }
 
             try {
                 const response = await axios.post(`/api/products`, payload);
@@ -146,7 +180,6 @@ export default {
 </script>
 
 <template>
-    <!-- Модальное окно -->
     <div v-if="isVisible" class="modal-backdrop" @click.self="closeModal">
         <div class="modal-content">
 

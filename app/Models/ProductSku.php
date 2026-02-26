@@ -9,22 +9,16 @@ class ProductSku extends Model
 {
     use HasFactory;
 
-    protected $table = 'product_skus';
-
-    protected $primaryKey = 'sku';
-    public $incrementing = false;
-    protected $keyType = 'string';
-
     protected $fillable = [
         'sku',
         'product_id',
         'price',
-        'stock_qty',
+        'stock_qty'
     ];
 
     protected $casts = [
-        'stock_qty' => 'integer',
         'price' => 'integer',
+        'stock_qty' => 'integer',
     ];
 
     public function product()
@@ -36,8 +30,8 @@ class ProductSku extends Model
     {
         return $this->belongsToMany(
             ProductAttributeOption::class,
-            'sku_option_pivot',
-            'sku',
+            'product_sku_option',
+            'product_sku_id',
             'option_id'
         );
     }
