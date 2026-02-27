@@ -34,20 +34,30 @@ class GetCourseController extends Controller
         $data = $request->all();
         Log::info(json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
-        $email = $data['email'];
-        $userData = [
+        $user = User::query()->firstOrCreate(
+            ['email' => $data['email']],
+            [
+                'full_name' => $data['full_name'],
+                'phone_number' => $data['phone_number'] ?? null,
+                'agrees_to_marketing' => true,
+                'password' => Hash::make(Str::random(32)),
+            ]
+        );
+
+        $user->fill([
             'full_name' => $data['full_name'],
-            'phone_number' => $data['phone_number'],
-            'agrees_to_marketing' => true,
-            'password' => Hash::make(Str::random(12)),
-        ];
-        $user = User::updateOrCreate(['email' => $email], $userData);
+            'phone_number' => $data['phone_number'] ?? $user->phone_number,
+        ])->save();
 
-        $packageId = $data['package'];
-        $package = Package::query()->where('id_getCourse', $packageId)->firstOrFail();
+        Log::info('Saved phone_number=' . $user->phone_number);
+        Log::info('WasChanged phone_number=' . (int)$user->wasChanged('phone_number'));
+        Log::info('Changes: ' . json_encode($user->getChanges(), JSON_UNESCAPED_UNICODE));
+        Log::info('Fresh from DB phone_number=' . $user->fresh()->phone_number);
 
-        Log::info('$data->payment_id');
-        Log::info($data['payment_id']);
+        $package = Package::query()
+            ->where('id_getCourse', $data['package'])
+            ->firstOrFail();
+
         $paymentTransaction = PaymentTransaction::create([
             'user_id' => $user->id,
             'package_id' => $package->id ?? null,

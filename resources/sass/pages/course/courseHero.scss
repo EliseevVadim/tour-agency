@@ -10,7 +10,6 @@
         text-align: center;
         background-size: cover;
         background-position: bottom;
-        /* padding: 205px 80px 10px; */ /* Отрегулируйте паддинг, чтобы он не обрезал контент */
         padding: 205px 80px 10px;
         margin-bottom: 50px;
         overflow: hidden;
@@ -128,6 +127,17 @@
     .lower-description {
         font-size: 2rem;
         line-height: 1.17;
+    }
+
+    @media (max-width: 991.98px) {
+        margin-top: 0;
+        padding-left: 0;
+        padding-right: 0;
+
+        .hero-lower-content {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
     }
 
     @media (max-width: 768px) {
