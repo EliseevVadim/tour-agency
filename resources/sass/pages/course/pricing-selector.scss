@@ -580,6 +580,18 @@
             }
         }
     }
+
+    @media (max-width: 420px) {
+        .timer {
+            margin-bottom: 0 !important;
+        }
+        .timer-course .timer p {
+            font-size: 1.3rem;
+        }
+        .title-course {
+            font-size: 0.9rem;
+        }
+    }
 }
 
 .course-page section.travel-directions-section .travel-directions-title {
