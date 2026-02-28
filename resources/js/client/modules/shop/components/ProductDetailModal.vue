@@ -24,15 +24,9 @@
                                     </swiper-slide>
                                 </swiper>
                             </div>
-                            <div v-if="false" class="image-list">
-                                <div v-for="(image, idx) in sortedImages"
-                                     class="image-wrapper position-relative">
-                                    <img :src="image.image" :alt="'Вид-' + idx" :key="'thumbnail-' + idx"/>
-                                </div>
-                            </div>
                             <div class="main-image position-relative">
                                 <div class="img-wrapper h-100">
-                                    <img :src="product.images[vSwiperIndex]?.image" alt="Основное изображение">
+                                    <img :src="sortedImages[vSwiperIndex]?.image" alt="Основное изображение">
                                 </div>
                             </div>
                         </div>
@@ -56,7 +50,8 @@
                                             @change="handleAttributeChange(attr.name, selectedAttributes[attr.name])"
                                             :disabled="!isVariantSelectionPossible">
 
-                                        <option v-for="option in attr.options" :key="option" :value="option">
+                                        <option v-for="option in (activeAttributeOptions[attr.name] || attr.options)"
+                                                :key="option" :value="option">
                                             {{ option }}
                                         </option>
                                     </select>
@@ -102,7 +97,7 @@
 
             <div class="another-products container">
                 <h2 class="fw-bold">Другие предложения</h2>
-                <div class="another-products-slider">
+                <div v-if="otherProducts.length" class="another-products-slider">
                     <ssr-carousel :slides-per-page='1' paginate-by-slide show-arrows :responsive='carouselResponsive'>
                         <template #back-arrow='{ disabled }'>
                             <span class="carousel-left-icon reviews-carousel-left-icon"
@@ -133,138 +128,28 @@ import ProductCard from "./ProductCard.vue";
 import eventBus from "../../../../event-bus";
 import NotificationModal from "../../../modules/shop/components/NotificationModal.vue";
 
-const MOCK_PRODUCTS_DB = [{
-    id: 2,
-    name: "Чемодан",
-    description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
-    oldPrice: 5500,
-    currentPrice: 3650,
-    isHit: true,
-    category_slug: "clothing",
-    images: [
-        {primary: true, image: "/img/merch/test.png"},
-        {primary: false, image: "/img/merch/test.png"},
-        {primary: false, image: "/img/merch/test.png"},
-        {primary: false, image: "/img/merch/test.png"},
-        {primary: false, image: "/img/merch/test.png"},
-    ],
-    attributes: [
-        {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
-        {name: "Цвет", sku_key: "color", options: ["Синий", "Зеленый", "Красный"]}
-    ],
-    available_skus: [
-        {"sku": "102-S-BLU", "size": "Маленький", "color": "Синий", "price": 100, stock_qty: 2},
-        {"sku": "102-S-GRN", "size": "Маленький", "color": "Зеленый", "price": 100, stock_qty: 3},
-        {"sku": "102-M-GRN", "size": "Средний", "color": "Зеленый", "price": 120, stock_qty: 0},
-        {"sku": "102-L-BLU", "size": "Большой", "color": "Синий", "price": 150, stock_qty: 0},
-    ]
-},
-    {
-        id: 3,
-        name: "Чемодан 3",
-        description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
-        oldPrice: 10500,
-        currentPrice: 7650,
-        isHit: true,
-        category_slug: "clothing",
-        images: [
-            {primary: true, image: "/img/merch/test.png"},
-            {primary: false, image: "/img/merch/test.png"},
-            {primary: false, image: "/img/merch/test.png"},
-            {primary: false, image: "/img/merch/test.png"},
-            {primary: false, image: "/img/merch/test.png"},
-        ],
-        attributes: [
-            {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
-            {name: "Цвет", sku_key: "color", options: ["Синий", "Зеленый", "Красный"]}
-        ],
-        available_skus: []
-    },
-    {
-        id: 4,
-        name: "Чемодан 4",
-        description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
-        oldPrice: 8500,
-        currentPrice: 4450,
-        isHit: true,
-        category_slug: "clothing",
-        images: [
-            {primary: true, image: "/img/merch/test.png"},
-            {primary: false, image: "/img/merch/test.png"},
-            {primary: false, image: "/img/merch/test.png"},
-            {primary: false, image: "/img/merch/test.png"},
-            {primary: false, image: "/img/merch/test.png"},
-        ],
-        attributes: [
-            {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
-        ],
-        available_skus: [
-            {"sku": "104-S", "size": "Маленький", "price": 100, stock_qty: 2},
-            {"sku": "104-M", "size": "Средний", "price": 120, stock_qty: 0},
-        ]
-    },
-    {
-        id: 5,
-        name: "Чемодан 5",
-        description: "Наш самый популярный чемодан. Цена зависит от размера и цвета.",
-        oldPrice: 4500,
-        currentPrice: 3350,
-        isHit: true,
-        category_slug: "clothing",
-        images: [
-            {primary: true, image: "/img/merch/test.png"},
-            {primary: false, image: "/img/merch/test.png"},
-            {primary: false, image: "/img/merch/test.png"},
-            {primary: false, image: "/img/merch/test.png"},
-            {primary: false, image: "/img/merch/test.png"},
-        ],
-        attributes: [
-            {name: "Размер", sku_key: "size", options: ["Маленький", "Средний", "Большой"]},
-            {name: "Цвет", sku_key: "color", options: ["Синий", "Зеленый", "Красный"]},
-            {name: "Материал", sku_key: "material", options: ["Металл", "Пластик"]}
-        ],
-        available_skus: [
-            {
-                sku: "104-S-BLUE-PLASTIC",
-                size: "Маленький",
-                color: "Синий",
-                material: "Пластик",
-                price: 1000,
-                stock_qty: 2
-            },
-            {
-                sku: "104-S-BLUE-METAL",
-                size: "Маленький",
-                color: "Синий",
-                material: "Металл",
-                price: 2000,
-                stock_qty: 0
-            },
-            {
-                sku: "104-S-RED-PLASTIC",
-                size: "Маленький",
-                color: "Красный",
-                material: "Пластик",
-                price: 2000,
-                stock_qty: 0
-            },
-        ]
-    }];
-const WISHLIST_STORAGE_KEY = 'merchWishlistIds';
-const SHOPPING_CART_KEY = 'shoppingCart';
+const WISHLIST_STORAGE_KEY = "merchWishlistIds";
+const SHOPPING_CART_KEY = "shoppingCart";
 
 export default {
     name: "ProductDetailModal",
     components: {NotificationModal, ProductCard},
     props: {
         isVisible: {type: Boolean, required: true},
-        product: {type: Object, default: null}
+        product: {type: Object, default: null},
     },
-    emits: ['close', 'toggle-wishlist', 'change-detail-product'],
+    emits: ["close", "toggle-wishlist", "change-detail-product"],
     data() {
         return {
             vSwiperRef: null,
             vSwiperIndex: 0,
+
+            isInWishlist: false,
+            isNotificationVisible: false,
+
+            selectedAttributes: {},
+            activeAttributeOptions: {},
+
             carouselResponsive: [{
                 minWidth: 270,
                 slidesPerPage: 1,
@@ -272,239 +157,192 @@ export default {
                 peek: 0,
                 gutter: 20,
                 showDots: false
-            },
-                {
-                    minWidth: 768,
-                    slidesPerPage: 2,
-                },
-                {
-                    minWidth: 1024,
-                    slidesPerPage: 3,
-                }],
-            otherProducts: MOCK_PRODUCTS_DB,
-            isInWishlist: false,
-            isNotificationVisible: false,
-
-            selectedAttributes: {},
-            currentSKU: null,
-            activeAttributeOptions: {},
+            }, {minWidth: 768, slidesPerPage: 2,}, {minWidth: 1024, slidesPerPage: 3,}],
+            otherProducts: [],
         };
     },
+
     computed: {
         swiperOptions() {
             return {
-                direction: 'vertical',
+                direction: "vertical",
                 slidesPerView: 4,
                 mousewheel: true,
                 spaceBetween: 12,
-                loop: false
+                loop: false,
             };
         },
-        isInStock() {
-            if (!this.product?.available_skus?.length) {
-                return false;
-            }
-            return !!this.currentSKU && this.currentSKU.stock_qty > 0;
-        },
-        finalPrice() {
-            return this.currentSKU ? this.currentSKU.price.toLocaleString() : (this.product?.currentPrice ? this.product.currentPrice.toLocaleString() : 'Цену уточняйте');
-        },
-        isVariantSelectionPossible() {
-            return this.product && this.product.attributes && this.product.attributes.length > 0;
-        },
+
         sortedImages() {
-            if (!this.product?.images?.length) return '';
-            const images = this.product.images;
-            const primaryImageObj = images.find(img => img.primary === true);
-            const secondaryImages = images.filter(img => img.primary !== true);
-            const sortedImages = [];
-            if (primaryImageObj) {
-                sortedImages.push(primaryImageObj);
+            const images = this.product?.images || [];
+            if (!images.length) return [];
+
+            const primary = images.find((i) => i.primary === true);
+            const rest = images.filter((i) => i.primary !== true);
+            return primary ? [primary, ...rest] : rest;
+        },
+
+        isVariantSelectionPossible() {
+            return !!this.product?.attributes?.length;
+        },
+
+        availableSkus() {
+            return this.product?.available_skus || [];
+        },
+
+        currentSKU() {
+            if (!this.product) return null;
+            if (!this.isVariantSelectionPossible) {
+                return this.availableSkus.find((s) => s.stock_qty > 0) || this.availableSkus[0] || null;
             }
-            sortedImages.push(...secondaryImages);
-            return sortedImages;
+
+            const attrs = this.product.attributes;
+            const allSelected = attrs.every((a) => this.selectedAttributes[a.name] != null);
+            if (!allSelected) return null;
+
+            return (
+                this.availableSkus.find((sku) =>
+                    attrs.every((a) => sku[a.sku_key] === this.selectedAttributes[a.name])
+                ) || null
+            );
+        },
+
+        isInStock() {
+            return !!this.currentSKU && (this.currentSKU.stock_qty || 0) > 0;
+        },
+
+        finalPrice() {
+            const price =
+                this.currentSKU?.price ??
+                this.product?.currentPrice ??
+                null;
+
+            return price != null ? Number(price).toLocaleString() : "Цену уточняйте";
         },
     },
+
     methods: {
+        async loadRelatedProducts() {
+            if (!this.product?.id) {
+                this.otherProducts = [];
+                return;
+            }
+
+            const { data } = await axios.get(`/api/products/${this.product.id}/related`, {
+                params: { limit: 12 }
+            });
+
+            this.otherProducts = data?.data || [];
+        },
+
         onSwiperReady(swiper) {
             this.vSwiperRef = swiper;
             this.vSwiperIndex = swiper.activeIndex;
         },
         goToSpecificSlide(targetIndex) {
-            if (this.vSwiperRef) {
-                this.vSwiperRef.slideTo(targetIndex);
-                this.vSwiperIndex = targetIndex;
-            }
+            if (!this.vSwiperRef) return;
+            this.vSwiperRef.slideTo(targetIndex);
+            this.vSwiperIndex = targetIndex;
         },
 
         closeModal() {
-            this.$emit('close')
+            this.$emit("close");
         },
 
         checkInWishlist() {
-            if (!this.product?.id) {
-                this.isInWishlist = false;
-                return;
-            }
+            const id = this.product?.id;
+            if (!id) return (this.isInWishlist = false);
+
             const stored = localStorage.getItem(WISHLIST_STORAGE_KEY);
-            const wishlistIds = stored ? JSON.parse(stored) : [];
-            this.isInWishlist = wishlistIds.includes(this.product.id)
+            const ids = stored ? JSON.parse(stored) : [];
+            this.isInWishlist = ids.includes(id);
         },
 
+        skuMatchesSelections(sku, selections) {
+            const attrs = this.product?.attributes || [];
+            return attrs.every((a) => {
+                const selected = selections[a.name];
+                return selected == null || sku[a.sku_key] === selected;
+            });
+        },
 
+        getMatchingSkus(selections) {
+            return this.availableSkus.filter((sku) => this.skuMatchesSelections(sku, selections));
+        },
 
-        initializeVariantSelection(product) {
-            if (!this.isVariantSelectionPossible) {
-                const foundSKU = product.available_skus.find(sku => sku.stock_qty > 0) || product.available_skus[0];
-                this.currentSKU = foundSKU ? {
-                    price: foundSKU.price || product.currentPrice,
-                    stock_qty: foundSKU.stock_qty,
-                    sku: foundSKU.sku
-                } : {price: product.currentPrice, stock_qty: 0, sku: null};
-                this.selectedAttributes = {};
+        recalcActiveOptions() {
+            if (!this.product?.attributes?.length) {
                 this.activeAttributeOptions = {};
                 return;
             }
 
-            const availableSkus = product.available_skus;
-            const initialSelection = {};
+            const attrs = this.product.attributes;
+            const selections = this.selectedAttributes;
+            const active = {};
 
-            product.attributes.forEach(attr => {
-                const attrName = attr.name;
-                const skuKey = attr.sku_key;
-                let initialValue = null;
+            attrs.forEach((attr) => {
+                const tmpSelections = {...selections};
+                tmpSelections[attr.name] = null;
 
-                if (product.current_sku) {
-                    initialValue = product.current_sku[skuKey] || product.current_sku[attrName];
-                }
+                const matching = this.getMatchingSkus(tmpSelections);
+                const set = new Set();
 
-                if (initialValue && attr.options.includes(initialValue)) {
-                    this.$set(initialSelection, attrName, initialValue);
-                } else {
-                    this.$set(initialSelection, attrName, null);
-                }
-            });
-
-            this.selectedAttributes = initialSelection;
-
-            this.recalculateActiveOptions(product, availableSkus);
-            this.autoSelectFirstAvailable(product, availableSkus);
-            this.findAndUpdateSKU(product, availableSkus);
-        },
-
-        handleAttributeChange(changedAttrName, newValue) {
-            const product = this.product;
-            const availableSkus = product.available_skus;
-
-            this.$set(this.selectedAttributes, changedAttrName, newValue);
-
-            this.recalculateActiveOptions(product, availableSkus);
-            this.findAndUpdateSKU(product, availableSkus);
-        },
-
-        recalculateActiveOptions(product, availableSkus) {
-            const newActiveOptions = {};
-            const currentSelections = this.selectedAttributes;
-            const attributes = product.attributes;
-
-            attributes.forEach(attr => {
-                const currentAttrOptions = new Set();
-                const currentAttrKey = attr.sku_key;
-
-                const matchingSkus = availableSkus.filter(sku => {
-                    let matches = true;
-
-                    attributes.forEach(checkAttr => {
-                        const checkAttrName = checkAttr.name;
-                        const selectedValue = currentSelections[checkAttrName];
-                        const checkSkuKey = checkAttr.sku_key;
-
-                        if (selectedValue !== null && sku[checkSkuKey] !== selectedValue) {
-                            matches = false;
-                        }
-                    });
-                    return matches;
+                matching.forEach((sku) => {
+                    if (sku[attr.sku_key] != null) set.add(sku[attr.sku_key]);
                 });
 
-                matchingSkus.forEach(sku => {
-                    if (sku[currentAttrKey]) {
-                        currentAttrOptions.add(sku[currentAttrKey]);
-                    }
-                });
-
-                newActiveOptions[attr.name] = Array.from(currentAttrOptions).sort();
+                active[attr.name] = Array.from(set).sort();
             });
 
-            this.activeAttributeOptions = newActiveOptions;
+            this.activeAttributeOptions = active;
         },
 
-        autoSelectFirstAvailable(product, availableSkus) {
-            let selectionChanged = false;
-            const attributes = product.attributes;
+        autoFixSelections() {
+            if (!this.product?.attributes?.length) return;
 
-            attributes.forEach(attr => {
-                const attrName = attr.name;
+            let changed = false;
 
-                const currentSelection = this.selectedAttributes[attrName];
-                const availableOptions = this.activeAttributeOptions[attrName] || [];
+            this.product.attributes.forEach((attr, index) => {
+                const name = attr.name;
+                const allowed = this.activeAttributeOptions[name] || [];
+                const current = this.selectedAttributes[name];
 
-                const isAvailableInNextStep = availableOptions.length > 0;
-                const isSelectionInvalid = currentSelection && !availableOptions.includes(currentSelection);
+                if (current != null && !allowed.includes(current)) {
+                    this.$set(this.selectedAttributes, name, allowed[0] ?? null);
+                    changed = true;
+                    return;
+                }
 
-
-                if (isSelectionInvalid) {
-                    if (isAvailableInNextStep) {
-                        const firstValidOption = availableOptions[0];
-                        if (this.selectedAttributes[attrName] !== firstValidOption) {
-                            this.$set(this.selectedAttributes, attrName, firstValidOption);
-                            selectionChanged = true;
-                        }
-                    } else {
-                        const leadingAttributeName = attributes[0]?.name;
-                        if (attrName !== leadingAttributeName) {
-                            if (this.selectedAttributes[attrName] !== null) {
-                                this.$set(this.selectedAttributes, attrName, null);
-                                selectionChanged = true;
-                            }
-                        }
-                    }
-                } else if (currentSelection === null && isAvailableInNextStep) {
-                    const firstValidOption = availableOptions[0];
-                    if (this.selectedAttributes[attrName] !== firstValidOption) {
-                        this.$set(this.selectedAttributes, attrName, firstValidOption);
-                        selectionChanged = true;
-                    }
+                if (current == null && allowed.length) {
+                    this.$set(this.selectedAttributes, name, allowed[0]);
+                    changed = true;
                 }
             });
 
-            if (selectionChanged) {
-                this.recalculateActiveOptions(product, availableSkus);
-            }
+            if (changed) this.recalcActiveOptions();
         },
 
-        findAndUpdateSKU(product, availableSkus) {
-            if (!this.isVariantSelectionPossible) {
-                const foundSKU = availableSkus.find(sku => sku.stock_qty > 0) || availableSkus[0];
-                this.currentSKU = foundSKU || {price: product.currentPrice, stock_qty: 0, sku: null};
-                return;
-            }
+        initializeVariantSelection(product) {
+            const initial = {};
 
-            const requiredAttrsCount = product.attributes.length;
-            const selectedAttrsCount = Object.values(this.selectedAttributes).filter(v => v !== null).length;
+            (product.attributes || []).forEach((attr) => {
+                const preset =
+                    product.current_sku?.[attr.sku_key] ??
+                    product.current_sku?.[attr.name] ??
+                    null;
 
-            if (selectedAttrsCount < requiredAttrsCount) {
-                this.currentSKU = null;
-                return;
-            }
-
-            const foundSKU = availableSkus.find(sku => {
-                return product.attributes.every(attr => {
-                    const skuKey = attr.sku_key;
-                    return sku[skuKey] === this.selectedAttributes[attr.name];
-                });
+                initial[attr.name] = attr.options?.includes(preset) ? preset : null;
             });
 
-            this.currentSKU = foundSKU || null;
+            this.selectedAttributes = initial;
+            this.recalcActiveOptions();
+            this.autoFixSelections();
+        },
+
+        handleAttributeChange(attrName, value) {
+            this.$set(this.selectedAttributes, attrName, value);
+            this.recalcActiveOptions();
+            this.autoFixSelections();
         },
 
         getCartFromStorage() {
@@ -513,90 +351,71 @@ export default {
         },
 
         saveCartToStorage(cart) {
-            localStorage.setItem('shoppingCart', JSON.stringify(cart));
+            localStorage.setItem(SHOPPING_CART_KEY, JSON.stringify(cart));
         },
 
         addToCart() {
-            if (!this.currentSKU || this.currentSKU.stock_qty <= 0) {
+            if (!this.currentSKU || (this.currentSKU.stock_qty || 0) <= 0) {
                 this.isNotificationVisible = true;
                 return;
             }
 
             const cart = this.getCartFromStorage();
             const productId = this.product.id;
-            const currentSKUData = this.currentSKU;
-            const sku = currentSKUData.sku;
+            const sku = this.currentSKU.sku;
             const requestedQuantity = this.quantity || 1;
-            const availableStock = currentSKUData.stock_qty;
+            const availableStock = this.currentSKU.stock_qty;
 
-            const existingItemIndex = cart.findIndex(item =>
-                item.productId === productId && item.sku === sku
-            );
+            const idx = cart.findIndex((i) => i.productId === productId && i.sku === sku);
 
-            let finalQuantity = requestedQuantity;
+            if (idx !== -1) {
+                const currentQty = cart[idx].quantity;
+                const nextQty = Math.min(currentQty + requestedQuantity, availableStock);
 
-            if (existingItemIndex !== -1) {
-                const currentCartQuantity = cart[existingItemIndex].quantity;
-                const potentialTotal = currentCartQuantity + requestedQuantity;
-
-                if (potentialTotal > availableStock) {
-                    finalQuantity = availableStock - currentCartQuantity;
-
-                    if (finalQuantity <= 0) {
-                        //TODO: Если в корзине уже ровно столько, сколько есть на складе
-                        alert('Извините, достигнут лимит. Это максимально возможное количество товаров в наличии')
-                        return;
-                    }
-                    cart[existingItemIndex].quantity = availableStock;
-
-                } else {
-                    cart[existingItemIndex].quantity = potentialTotal;
+                if (nextQty === currentQty) {
+                    alert("Извините, достигнут лимит. Это максимально возможное количество товаров в наличии");
+                    return;
                 }
 
+                cart[idx].quantity = nextQty;
             } else {
-                if (requestedQuantity > availableStock) {
-                    finalQuantity = availableStock;
-                }
-
-                const cartItem = {
-                    productId: productId,
-                    sku: sku,
+                cart.push({
+                    productId,
+                    sku,
                     name: this.product.name,
                     images: this.sortedImages,
                     current_sku: this.currentSKU,
-                    quantity: finalQuantity,
+                    quantity: Math.min(requestedQuantity, availableStock),
                     attributes: this.product.attributes,
-                    available_skus: this.product.available_skus
-                };
-                cart.push(cartItem);
+                    available_skus: this.availableSkus,
+                });
             }
 
             this.saveCartToStorage(cart);
-            eventBus.$emit('cart:updated');
-
+            eventBus.$emit("cart:updated");
             this.isNotificationVisible = false;
-        }
+        },
     },
+
     watch: {
         product: {
             immediate: true,
-            handler(newProduct) {
-                if (newProduct) {
-                    this.initializeVariantSelection(newProduct);
-                    this.checkInWishlist();
-                } else {
-                    this.currentSKU = null;
-                    this.selectedAttributes = {};
-                    this.activeAttributeOptions = {};
-                }
-            }
-        }
+            handler(p) {
+                if (!p) return;
+                this.initializeVariantSelection(p);
+                this.checkInWishlist();
+                this.loadRelatedProducts();
+            },
+        },
     },
+
     mounted() {
-        eventBus.$on('update-favorites', this.checkInWishlist);
-    }
-}
-</script>
+        eventBus.$on("update-favorites", this.checkInWishlist);
+    },
+};
+</script>/
+
+
 <style scoped lang="scss">
 
 .modal-backdrop {

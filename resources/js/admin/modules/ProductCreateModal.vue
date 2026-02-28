@@ -1,52 +1,127 @@
 <script>
 import axios from 'axios';
 
+const SKU_KEY_TEMPLATES = {
+    'размер': 'size',
+    'размеры': 'size',
+    'цвет': 'color',
+    'материал': 'material',
+    'бренд': 'brand',
+    'артикул': 'article',
+    'модель': 'model',
+    'объем': 'volume',
+    'объём': 'volume',
+    'вес': 'weight',
+    'длина': 'length',
+    'ширина': 'width',
+    'высота': 'height',
+};
+
+const slugifyLatin = (str) =>
+    String(str || '')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, '_')
+        .replace(/[^a-z0-9_]/g, '');
+
+const translitRuToEn = (str) => {
+    const map = {
+        а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'e', ж: 'zh', з: 'z', и: 'i', й: 'y',
+        к: 'k', л: 'l', м: 'm', н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't', у: 'u', ф: 'f',
+        х: 'h', ц: 'ts', ч: 'ch', ш: 'sh', щ: 'sch', ъ: '', ы: 'y', ь: '', э: 'e', ю: 'yu', я: 'ya'
+    };
+
+    return String(str || '')
+        .trim()
+        .toLowerCase()
+        .split('')
+        .map((ch) => map[ch] ?? ch)
+        .join('');
+};
+
+const suggestSkuKeyFromName = (name) => {
+    const cleaned = String(name || '').trim().toLowerCase();
+    if (!cleaned) return '';
+    if (SKU_KEY_TEMPLATES[cleaned]) return SKU_KEY_TEMPLATES[cleaned];
+
+    for (const ru in SKU_KEY_TEMPLATES) {
+        if (cleaned.includes(ru)) return SKU_KEY_TEMPLATES[ru];
+    }
+
+    return slugifyLatin(translitRuToEn(cleaned));
+};
+
+const normalizeAttributesForPayload = (attrs = []) =>
+    attrs.map((a) => ({
+        name: a.name,
+        sku_key: a.sku_key,
+        options: (a.options || []).filter(Boolean),
+    }));
+
 export default {
     name: "ProductCreateModal",
 
     props: {
-        isVisible: {
-            type: Boolean,
-            required: true
-        }
+        isVisible: { type: Boolean, required: true },
+        mode: { type: String, default: 'create' },
+        productId: { type: Number, default: null },
     },
 
     data() {
         return {
-            form: {
-                name: '',
-                description: '',
-                old_price: 0,
-                current_price: 0,
-                is_hit: false,
-                category_id: 1,
-                images: [],
-                attributes: [],
-                available_skus: []
-            },
             isLoading: false,
             error: null,
             successMessage: null,
+
+            categories: [],
+            categoriesLoading: false,
+
+            activeAttrIndex: 0,
+
+            form: this.getEmptyForm(),
         };
     },
 
-    watch: {
-        'form.attributes': {
-            handler: 'generateSkus',
-            deep: true
-        },
-        isVisible(newValue) {
-            if (newValue) {
-                this.error = null;
-                this.successMessage = null;
-                this.initializeFormDefaults();
-            }
+    computed: {
+        submitButtonText() {
+            if (this.isLoading) return 'Сохранение...';
+            return this.mode === 'create'
+                ? 'Создать товар'
+                : 'Сохранить товар';
         }
     },
 
+    watch: {
+        isVisible(newVal) {
+            if (!newVal) return;
+
+            this.error = null;
+            this.successMessage = null;
+
+            if (this.mode === 'create') {
+                this.initializeFormDefaults();
+            } else {
+                this.loadProductForEdit();
+            }
+        },
+
+        'form.attributes': {
+            deep: true,
+            handler() {
+                if (this.mode !== 'create') return;
+                this.generateSkus();
+            }
+        },
+
+        'form.attributes.length'(len) {
+            if (len === 0) this.activeAttrIndex = 0;
+            else if (this.activeAttrIndex > len - 1) this.activeAttrIndex = len - 1;
+        },
+    },
+
     methods: {
-        initializeFormDefaults() {
-            this.form = {
+        getEmptyForm() {
+            return {
                 name: '',
                 description: '',
                 old_price: 0,
@@ -55,26 +130,115 @@ export default {
                 category_id: 1,
                 images: [],
                 attributes: [],
-                available_skus: []
+                available_skus: [],
             };
+        },
 
+        initializeFormDefaults() {
+            this.form = this.getEmptyForm();
             this.addAttribute('size', 'Размер', ['Маленький', 'Средний', 'Большой']);
-            this.addAttribute('color', 'Цвет', ['Синий', 'Зеленый', 'Красный']);
-
             this.generateSkus();
+        },
+
+        async fetchCategories() {
+            this.categoriesLoading = true;
+
+            try {
+                const { data } = await axios.get('/api/categories');
+                this.categories = data.data || data;
+            } catch (err) {
+                console.error('Ошибка загрузки категорий', err);
+                this.error = 'Не удалось загрузить категории';
+            } finally {
+                this.categoriesLoading = false;
+            }
+        },
+
+        async loadProductForEdit() {
+            if (!this.productId) {
+                this.error = 'Не передан productId для редактирования';
+                return;
+            }
+
+            this.isLoading = true;
+
+            try {
+                const { data } = await axios.get(`/api/products/${this.productId}`);
+                const product = data.data || data;
+
+                const category = this.categories.find(
+                    (c) => c.slug === product.category_slug
+                );
+
+                const category_id = category ? category.id : null;
+                this.form = {
+                    name: product.name || '',
+                    description: product.description || '',
+                    old_price: product.oldPrice || 0,
+                    current_price: product.currentPrice || 0,
+                    is_hit: !!product.isHit,
+                    category_id: category_id,
+
+                    images: (product.images || []).map((img) => ({
+                        primary: !!img.primary,
+                        preview: img.image,
+                        image: img.image,
+                        file: null,
+                        isExisting: true,
+                    })),
+
+                    attributes: (product.attributes || []).map(a => ({
+                        name: a.name,
+                        sku_key: a.sku_key,
+                        sku_key_locked: true,
+                        options: (a.options || []).map(o => (typeof o === 'string' ? o : o.value)),
+                    })),
+
+                    available_skus: (product.available_skus || []).map(s => ({
+                        ...s,
+                        price: Number(s.price) || 0,
+                        stock_qty: Number(s.stock_qty) || 0,
+                    })),
+                };
+
+                if (this.form.images.length && !this.form.images.some((i) => i.primary)) {
+                    this.form.images[0].primary = true;
+                }
+
+                this.activeAttrIndex = 0;
+            } catch (err) {
+                console.error('Ошибка загрузки товара', err);
+                this.error = 'Не удалось загрузить товар';
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         addAttribute(sku_key = '', name = '', options = ['']) {
             this.form.attributes.push({
                 name,
                 sku_key,
-                options: options.length ? options : ['']
+                options: options.length ? options : [''],
+                sku_key_locked: !!sku_key,
             });
+
+            this.activeAttrIndex = this.form.attributes.length - 1;
+
+            if (this.mode === 'create') this.generateSkus();
         },
 
         removeAttribute(index) {
             this.form.attributes.splice(index, 1);
-            this.generateSkus();
+
+            if (this.activeAttrIndex >= this.form.attributes.length) {
+                this.activeAttrIndex = Math.max(0, this.form.attributes.length - 1);
+            }
+
+            if (this.mode === 'create') this.generateSkus();
+        },
+
+        setActiveAttr(index) {
+            this.activeAttrIndex = index;
         },
 
         addOption(attributeIndex) {
@@ -83,52 +247,177 @@ export default {
 
         removeOption(attributeIndex, optionIndex) {
             this.form.attributes[attributeIndex].options.splice(optionIndex, 1);
-            this.generateSkus();
+            if (this.mode === 'create') this.generateSkus();
+        },
+
+        onAttrNameInput(attr) {
+            if (!attr.sku_key_locked) {
+                attr.sku_key = suggestSkuKeyFromName(attr.name);
+            }
+            if (this.mode === 'create') this.generateSkus();
         },
 
         generateSkus() {
-            this.form.available_skus = [];
+            const prev = Array.isArray(this.form.available_skus) ? this.form.available_skus : [];
 
-            const validAttributes = this.form.attributes
-                .filter(attr => attr.sku_key && attr.options.filter(o => o).length > 0)
-                .map(attr => ({
-                    key: attr.sku_key,
-                    options: attr.options.filter(o => o)
+            const validAttributes = (this.form.attributes || [])
+                .filter(a => a.sku_key && (a.options || []).filter(o => (o || '').trim()).length > 0)
+                .map(a => ({
+                    key: a.sku_key,
+                    options: (a.options || []).filter(o => (o || '').trim()),
                 }));
 
-            if (validAttributes.length === 0) return;
+            if (!validAttributes.length) {
+                this.form.available_skus = [];
+                return;
+            }
 
-            const cartesian = (arrays) => {
-                return arrays.reduce((acc, curr) => {
+            const makeComboKey = (obj) =>
+                validAttributes
+                    .map(a => `${a.key}=${(obj[a.key] || '').trim()}`)
+                    .join('|');
+
+            const prevMap = new Map(prev.map(s => [makeComboKey(s), s]));
+
+            const cartesian = (arrays) =>
+                arrays.reduce((acc, curr) => {
                     const res = [];
-                    acc.forEach(a => {
-                        curr.forEach(b => {
-                            res.push([...a, b]);
-                        });
-                    });
+                    acc.forEach(a => curr.forEach(b => res.push([...a, b])));
                     return res;
                 }, [[]]);
-            };
 
-            const combinations = cartesian(validAttributes.map(a => a.options));
+            const combos = cartesian(validAttributes.map(a => a.options));
 
-            let counter = 100;
+            let counter = 1;
 
-            combinations.forEach(combination => {
-                const skuObject = {
-                    sku: `ID${counter++}`,
-                    price: 0,
-                    stock_qty: 0
-                };
+            const next = combos.map(values => {
+                const skuObj = { price: 0, stock_qty: 0 };
 
-                combination.forEach((value, index) => {
-                    const key = validAttributes[index].key;
-                    skuObject[key] = value;
-                    skuObject.sku += '-' + value.substring(0, 3).toUpperCase();
+                values.forEach((val, idx) => {
+                    skuObj[validAttributes[idx].key] = val;
                 });
 
-                this.form.available_skus.push(skuObject);
+                const key = makeComboKey(skuObj);
+                const old = prevMap.get(key);
+
+                const skuSuffix = values.map(v => String(v).substring(0, 3).toUpperCase()).join('-');
+                const baseSku = `${counter++}-${skuSuffix}`;
+
+                return {
+                    sku: old?.sku || baseSku,
+                    price: Number(old?.price ?? 0) || 0,
+                    stock_qty: Number(old?.stock_qty ?? 0) || 0,
+                    ...skuObj,
+                };
             });
+
+            this.form.available_skus = next;
+        },
+
+        onPickImages(e) {
+            const files = Array.from(e.target.files || []);
+            if (!files.length) return;
+
+            files.forEach((file) => {
+                const preview = URL.createObjectURL(file);
+                this.form.images.push({
+                    primary: false,
+                    file,
+                    preview,
+                    isExisting: false,
+                });
+            });
+
+            if (!this.form.images.some((i) => i.primary) && this.form.images.length) {
+                this.form.images[0].primary = true;
+            }
+
+            e.target.value = '';
+        },
+
+        setPrimaryImage(index) {
+            this.form.images.forEach((img, i) => {
+                img.primary = i === index;
+            });
+        },
+
+        removeImage(index) {
+            const img = this.form.images[index];
+
+            if (img?.preview && !img.isExisting) {
+                URL.revokeObjectURL(img.preview);
+            }
+
+            this.form.images.splice(index, 1);
+
+            if (!this.form.images.some((i) => i.primary) && this.form.images.length) {
+                this.form.images[0].primary = true;
+            }
+        },
+
+        validateImages() {
+            if (this.form.images.length < 5) return 'Нужно загрузить минимум 5 изображений.';
+            const primaryCount = this.form.images.filter((i) => i.primary).length;
+            if (primaryCount !== 1) return 'Должно быть выбрано ровно одно основное изображение.';
+            return null;
+        },
+
+        buildCreateFormData(payload) {
+            const fd = new FormData();
+
+            fd.append('name', payload.name);
+            fd.append('description', payload.description || '');
+            fd.append('old_price', String(payload.old_price || 0));
+            fd.append('current_price', String(payload.current_price || 0));
+            fd.append('is_hit', payload.is_hit ? '1' : '0');
+            fd.append('category_id', String(payload.category_id));
+
+            payload.images.forEach((img, i) => {
+                fd.append(`images[${i}][image]`, img.file);
+                fd.append(`images[${i}][primary]`, img.primary ? '1' : '0');
+            });
+
+            if (payload.attributes?.length) {
+                fd.append('attributes', JSON.stringify(normalizeAttributesForPayload(payload.attributes)));
+            }
+
+            if (payload.available_skus?.length) {
+                fd.append('available_skus', JSON.stringify(payload.available_skus));
+            }
+
+            return fd;
+        },
+
+        buildUpdateFormData(payload) {
+            const fd = new FormData();
+
+            fd.append('name', payload.name);
+            fd.append('description', payload.description || '');
+            fd.append('old_price', String(payload.old_price || 0));
+            fd.append('current_price', String(payload.current_price || 0));
+            fd.append('is_hit', payload.is_hit ? '1' : '0');
+            fd.append('category_id', String(payload.category_id));
+
+            const existing = payload.images
+                .filter((i) => i.isExisting)
+                .map((i) => ({ image: i.image, primary: !!i.primary }));
+            fd.append('existing_images', JSON.stringify(existing));
+
+            const newImages = payload.images.filter((i) => !i.isExisting && i.file);
+            newImages.forEach((img, i) => {
+                fd.append(`new_images[${i}][image]`, img.file);
+                fd.append(`new_images[${i}][primary]`, img.primary ? '1' : '0');
+            });
+
+            if (payload.attributes?.length) {
+                fd.append('attributes', JSON.stringify(normalizeAttributesForPayload(payload.attributes)));
+            }
+
+            if (payload.available_skus?.length) {
+                fd.append('available_skus', JSON.stringify(payload.available_skus));
+            }
+
+            return fd;
         },
 
         async submitProduct() {
@@ -136,37 +425,63 @@ export default {
             this.error = null;
             this.successMessage = null;
 
-            const payload = {
-                ...this.form,
-                old_price: Number(this.form.old_price) || 0,
-                current_price: Number(this.form.current_price) || 0,
-                attributes: this.form.attributes.map(attr => ({
-                    name: attr.name,
-                    sku_key: attr.sku_key,
-                    options: attr.options.filter(o => o)
-                })),
-                available_skus: this.form.available_skus.map(sku => ({
-                    ...sku,
-                    price: Number(sku.price) || 0,
-                    stock_qty: Number(sku.stock_qty) || 0
-                }))
+            const isEdit = this.mode === 'edit';
+
+            const imagesError = this.validateImages();
+            if (imagesError) {
+                this.error = imagesError;
+                this.isLoading = false;
+                return;
             }
 
-            try {
-                const response = await axios.post(`/api/products`, payload);
+            const payload = {
+                ...this.form,
+                is_hit: !!this.form.is_hit,
+                old_price: Number(this.form.old_price) || 0,
+                current_price: Number(this.form.current_price) || 0,
+            };
 
-                if (response.data.success) {
-                    this.successMessage = 'Товар успешно создан! ' + response.data.message;
-                    this.$emit('product-created');
+            try {
+                let fd;
+                let url;
+
+                if (!isEdit) {
+                    fd = this.buildCreateFormData(payload);
+                    url = '/api/products';
+                } else {
+                    if (!this.productId) {
+                        this.error = 'Не выбран товар для редактирования';
+                        return;
+                    }
+                    fd = this.buildUpdateFormData(payload);
+                    fd.append('_method', 'PUT');
+                    url = `/admin/api/products/${this.productId}`;
                 }
+
+                const res = await axios.post(url, fd, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                });
+
+                if (res.data?.success) {
+                    this.successMessage = isEdit ? 'Изменения сохранены!' : 'Товар создан!';
+                    this.$emit('saved', res.data.data || null);
+                    return;
+                }
+
+                this.error = res.data?.message || 'Ошибка';
 
             } catch (err) {
-                console.error("Ошибка создания товара:", err);
-                if (err.response && err.response.data && err.response.data.message) {
-                    this.error = err.response.data.message;
-                } else {
-                    this.error = 'Произошла неизвестная ошибка на сервере.';
-                }
+                const resp = err?.response?.data;
+
+                const firstValidationError =
+                    resp?.errors ? Object.values(resp.errors).flat()?.[0] : null;
+
+                this.error =
+                    resp?.message ||
+                    firstValidationError ||
+                    resp?.error_details ||
+                    'Ошибка сервера.';
+
             } finally {
                 this.isLoading = false;
             }
@@ -174,7 +489,10 @@ export default {
 
         closeModal() {
             this.$emit('close');
-        }
+        },
+    },
+    mounted() {
+        this.fetchCategories();
     }
 }
 </script>
@@ -190,104 +508,335 @@ export default {
 
             <form @submit.prevent="submitProduct" v-if="!successMessage">
 
-                <fieldset class="mb-3">
-                    <legend>Основная Информация</legend>
-                    <div class="mb-2"><label class="form-label">Название:</label><input type="text" v-model="form.name"
-                                                                                        required class="form-control">
+                <fieldset class="mb-4">
+                    <legend class="mb-3 d-flex align-items-center gap-2">
+                        <span class="fw-bold">Основная информация</span>
+                        <span class="badge bg-light text-dark border">Шаг 1</span>
+                    </legend>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="productName">
+                            Название товара <span class="text-danger">*</span>
+                        </label>
+                        <input id="productName" type="text" v-model.trim="form.name"
+                               required class="form-control" placeholder="Например: Чемодан AirLight" maxlength="255">
+                        <div class="form-text">
+                            Коротко и понятно. Это название увидит покупатель.
+                        </div>
                     </div>
-                    <div class="mb-2"><label class="form-label">Описание:</label><textarea v-model="form.description"
-                                                                                           class="form-control"></textarea>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="productDescription">
+                            Описание
+                        </label>
+                        <textarea id="productDescription" v-model.trim="form.description" class="form-control"
+                                  rows="4"
+                                  placeholder="Пара предложений о товаре: материал, особенности, гарантия…"></textarea>
+                        <div class="form-text">
+                            Можно оставить пустым — но с описанием товар продаётся лучше.
+                        </div>
                     </div>
-                    <div class="mb-2"><label class="form-label">Старая Цена:</label><input type="number"
-                                                                                           v-model.number="form.old_price"
-                                                                                           class="form-control"></div>
-                    <div class="mb-2"><label class="form-label">Текущая Цена:</label><input type="number"
-                                                                                            v-model.number="form.current_price"
-                                                                                            required
-                                                                                            class="form-control"></div>
-                    <div class="form-check mb-2"><input type="checkbox" v-model="form.is_hit"
-                                                        class="form-check-input"><label class="form-check-label">Хит
-                        продаж</label></div>
-                    <div class="mb-2"><label class="form-label">Category ID:</label><input type="number"
-                                                                                           v-model.number="form.category_id"
-                                                                                           required
-                                                                                           class="form-control"></div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold" for="productCurrentPrice">
+                                Текущая цена <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input id="productCurrentPrice" type="number"
+                                       v-model.number="form.current_price" required min="0" step="1"
+                                       class="form-control" placeholder="0">
+                                <span class="input-group-text">₽</span>
+                            </div>
+                            <div class="form-text">Цена для покупателя сейчас.</div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold" for="productOldPrice">
+                                Старая цена
+                            </label>
+                            <div class="input-group">
+                                <input id="productOldPrice" type="number" v-model.number="form.old_price"
+                                       min="0" step="1" class="form-control" placeholder="Необязательно">
+                                <span class="input-group-text">₽</span>
+                            </div>
+                            <div class="form-text">
+                                Если указать, можно показать скидку.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 align-items-end">
+                        <div class="col-12 col-md-6">
+                            <div class="border rounded-3 p-3">
+                                <div class="d-flex gap-3">
+                                    <input id="productIsHit" type="checkbox"
+                                           v-model="form.is_hit" class="form-check-input">
+                                    <label class="form-check-label fw-semibold" for="productIsHit">
+                                        Хит продаж
+                                    </label>
+                                </div>
+                                <div class="form-text mb-0">
+                                    Отметьте, если хотите выделить товар на витрине.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold" for="productCategory">
+                                Категория <span class="text-danger">*</span>
+                            </label>
+
+                            <select id="productCategory" v-model.number="form.category_id" required
+                                    class="form-select" :disabled="categoriesLoading">
+                                <option :value="null" disabled>
+                                    {{ categoriesLoading ? 'Загрузка...' : 'Выберите категорию' }}
+                                </option>
+
+                                <option v-for="category in categories" :key="category.id" :value="category.id">
+                                    {{ category.name }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
                 </fieldset>
 
                 <fieldset class="mb-3">
-                    <legend class="d-flex justify-content-between">
-                        Атрибуты
-                        <button type="button" @click="addAttribute" class="btn btn-sm btn-outline-primary">Добавить
-                            Атрибут
+                    <legend>Изображения <small class="text-muted">(минимум 5)</small></legend>
+
+                    <div class="mb-2">
+                        <input type="file" accept="image/*"
+                               multiple @change="onPickImages" class="form-control"/>
+                        <div class="form-text">
+                            Загрузите минимум 5 фото. Одно фото отметьте как основное.
+                        </div>
+                    </div>
+
+                    <div v-if="form.images.length" class="row g-2">
+                        <div class="col-6 col-md-4 col-lg-3" v-for="(img, idx) in form.images" :key="idx">
+                            <div class="card h-100">
+                                <img :src="img.preview" class="card-img-top" style="object-fit: cover; height: 140px;"
+                                     alt="preview img"/>
+
+                                <div class="card-body p-2">
+                                    <label class="d-flex align-items-center gap-2 mb-2">
+                                        <input type="radio" name="primaryImage" :checked="img.primary"
+                                               @change="setPrimaryImage(idx)"/>
+                                        <span class="small">Основное</span>
+                                    </label>
+
+                                    <button type="button" class="btn btn-sm btn-outline-danger w-100"
+                                            @click="removeImage(idx)">
+                                        Удалить
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="form.images.length && form.images.length < 5" class="alert alert-warning mt-2">
+                        Сейчас загружено: {{ form.images.length }}. Нужно минимум 5.
+                    </div>
+                </fieldset>
+
+                <fieldset class="mb-4">
+                    <legend class="mb-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div>
+                            <span class="fw-bold">Атрибуты и варианты</span>
+                            <span class="badge bg-light text-dark border">Шаг 2</span>
+                            <div class="text-muted small" style="font-size: 15px">
+                                Например: Размер, Цвет. На их основе автоматически создаются SKU.
+                            </div>
+                        </div>
+
+                        <button type="button" @click="addAttribute('', '', [''])"
+                                class="btn btn-sm btn-primary">
+                            + Добавить атрибут
                         </button>
                     </legend>
 
-                    <div v-for="(attr, attrIndex) in form.attributes" :key="attrIndex"
-                         class="attribute-block border p-3 mb-3">
-                        <button type="button" @click="removeAttribute(attrIndex)" class="btn btn-sm btn-danger mb-2">
-                            Удалить Атрибут
+                    <div v-if="!form.attributes.length" class="alert alert-light border">
+                        <div class="fw-semibold">Атрибутов пока нет</div>
+                        <div class="text-muted small mb-2">
+                            Добавьте хотя бы один атрибут, чтобы создать варианты товара.
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary"
+                                @click="addAttribute('', '', [''])">
+                            Добавить первый атрибут
                         </button>
+                    </div>
+                    <div v-else>
+                        <ul class="nav nav-pills flex-wrap gap-2 mb-3">
+                            <li class="nav-item" v-for="(attr, idx) in form.attributes" :key="'attr-tab-'+idx">
+                                <button type="button" class="nav-link" :class="{ active: idx === activeAttrIndex }"
+                                        @click="setActiveAttr(idx)">
+                                    {{ attr.name ? attr.name : `Атрибут #${idx + 1}` }}
+                                    <span class="ms-2 badge bg-light text-dark border">{{
+                                            (attr.options || []).filter(o => (o || '').trim()).length
+                                        }}</span>
+                                </button>
+                            </li>
+                        </ul>
 
-                        <div class="mb-2"><label class="form-label">Имя:</label><input type="text" v-model="attr.name"
-                                                                                       required class="form-control">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-start gap-2">
+                                <div>
+                                    <div class="fw-semibold">
+                                        {{
+                                            form.attributes[activeAttrIndex]?.name || `Атрибут #${activeAttrIndex + 1}`
+                                        }}
+                                    </div>
+                                    <div class="small text-muted">
+                                        Заполните название, ключ и добавьте опции. SKU пересчитаются автоматически.
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                        @click="removeAttribute(activeAttrIndex)" title="Удалить атрибут">
+                                    Удалить
+                                </button>
+                            </div>
+
+                            <div class="card-body" v-if="form.attributes[activeAttrIndex]">
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label fw-semibold">Название</label>
+                                        <input type="text"
+                                               v-model.trim="form.attributes[activeAttrIndex].name" class="form-control"
+                                               placeholder="Например: Размер"
+                                               @input="onAttrNameInput(form.attributes[activeAttrIndex])">
+                                        <div class="form-text">Показывается пользователю на странице товара.</div>
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label fw-semibold">Ключ</label>
+                                        <input type="text" v-model.trim="form.attributes[activeAttrIndex].sku_key"
+                                               class="form-control"
+                                               placeholder="Например: size" @input="generateSkus">
+                                        <div class="form-text">Только латиница и без пробелов (size, color...).</div>
+                                    </div>
+                                </div>
+
+                                <hr class="my-3">
+
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="fw-semibold">Опции</div>
+
+                                    <button type="button" class="btn btn-sm btn-outline-success"
+                                            @click="addOption(activeAttrIndex)">
+                                        + Добавить опцию
+                                    </button>
+                                </div>
+
+                                <div class="row g-2">
+                                    <div v-for="(option, optIndex) in form.attributes[activeAttrIndex].options"
+                                         :key="'opt-'+activeAttrIndex+'-'+optIndex" class="col-12 col-md-6">
+                                        <div class="input-group">
+                                            <input type="text"
+                                                   v-model.trim="form.attributes[activeAttrIndex].options[optIndex]"
+                                                   class="form-control"
+                                                   :placeholder="`Опция #${optIndex + 1} (например: Красный)`"
+                                                   @input="generateSkus">
+                                            <button type="button" class="btn btn-outline-secondary"
+                                                    @click="removeOption(activeAttrIndex, optIndex)"
+                                                    :disabled="form.attributes[activeAttrIndex].options.length <= 1"
+                                                    title="Удалить опцию">
+                                                ✕
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="small text-muted mt-2">
+                                    Пустые опции игнорируются при генерации SKU.
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-2"><label class="form-label">Ключ (size/color):</label><input type="text"
-                                                                                                     v-model="attr.sku_key"
-                                                                                                     required
-                                                                                                     class="form-control">
+                    </div>
+                </fieldset>
+
+                <fieldset class="mb-4">
+                    <legend class="mb-2 fw-bold">
+                        Варианты (SKU)
+                        <span class="badge bg-light text-dark border">Шаг 3</span>
+                    </legend>
+
+                    <div v-if="form.available_skus.length" class="alert alert-success py-2">
+                        Сгенерировано вариантов: <b>{{ form.available_skus.length }}</b>. Укажите цену и остаток для
+                        каждого.
+                    </div>
+
+                    <div v-if="form.available_skus.length" class="table-responsive border rounded-3"
+                         style="max-height: 400px">
+                        <table class="table table-sm table-striped align-middle mb-0">
+                            <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                            <tr>
+                                <th style="min-width: 160px;">SKU</th>
+                                <th style="width: 140px;">Цена</th>
+                                <th style="width: 140px;">Сток</th>
+
+                                <th v-for="(value, key) in form.available_skus[0]" :key="key"
+                                    v-if="key !== 'sku' && key !== 'price' && key !== 'stock_qty'">
+                                    {{ key.charAt(0).toUpperCase() + key.slice(1) }}
+                                </th>
+
+                                <th style="width: 80px;"></th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            <tr v-for="(sku, skuIndex) in form.available_skus" :key="sku.sku">
+                                <td class="fw-semibold">{{ sku.sku }}</td>
+
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" v-model.number="sku.price"
+                                               min="0" class="form-control" placeholder="0">
+                                        <span class="input-group-text">₽</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <input type="number" v-model.number="sku.stock_qty"
+                                           min="0" class="form-control form-control-sm" placeholder="0">
+                                </td>
+
+                                <td v-for="(value, key) in sku" :key="key"
+                                    v-if="key !== 'sku' && key !== 'price' && key !== 'stock_qty'">
+                                    <span class="badge bg-light text-dark border">{{ value }}</span>
+                                </td>
+
+                                <td>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-danger"
+                                            @click="deleteSkuRow(sku)">
+                                        ✕
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div v-else class="alert alert-warning d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-semibold">Варианты ещё не созданы</div>
+                            <div class="small text-muted">
+                                Добавьте атрибут(ы) и опции (например: Размер → S/M/L), чтобы автоматически
+                                сгенерировать SKU.
+                            </div>
                         </div>
 
-                        <h5>Опции:</h5>
-                        <div v-for="(option, optIndex) in attr.options" :key="optIndex" class="option-item d-flex mb-2">
-                            <input type="text" v-model="attr.options[optIndex]" required class="form-control me-2"
-                                   placeholder="Значение опции">
-                            <button type="button" @click="removeOption(attrIndex, optIndex)"
-                                    class="btn btn-sm btn-outline-secondary">-
-                            </button>
-                        </div>
-                        <button type="button" @click="addOption(attrIndex)" class="btn btn-sm btn-outline-success">
-                            Добавить Опцию
+                        <button type="button" class="btn btn-sm btn-outline-primary"
+                                @click="addAttribute('', '', [''])">
+                            + Добавить атрибут
                         </button>
                     </div>
                 </fieldset>
 
-                <fieldset v-if="form.available_skus.length > 0">
-                    <legend>Варианты (SKU)</legend>
-
-                    <table>
-                        <thead>
-                        <tr>
-                            <th>SKU</th>
-                            <th>Цена</th>
-                            <th>Сток</th>
-                            <th v-for="(value, key) in form.available_skus[0]"
-                                v-if="key !== 'sku' && key !== 'price' && key !== 'stock_qty'">
-                                {{ key.charAt(0).toUpperCase() + key.slice(1) }}
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr v-for="(sku, skuIndex) in form.available_skus" :key="sku.sku">
-                            <td>{{ sku.sku }}</td>
-                            <td><input type="number" v-model.number="sku.price" required
-                                       class="form-control form-control-sm"></td>
-                            <td><input type="number" v-model.number="sku.stock_qty" required
-                                       class="form-control form-control-sm"></td>
-                            <td v-for="(value, key) in sku"
-                                v-if="key !== 'sku' && key !== 'price' && key !== 'stock_qty'">
-                                {{ value }}
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </fieldset>
-                <div v-else class="alert alert-warning">
-                    Настройте атрибуты и опции, чтобы сгенерировать SKU.
-                </div>
-
                 <button type="submit" class="btn btn-primary mt-3"
                         :disabled="isLoading || !form.name || !form.current_price || form.available_skus.length === 0">
-                    {{ isLoading ? 'Сохранение...' : 'Создать Товар' }}
+                    {{ submitButtonText}}
                 </button>
 
             </form>

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ReferralController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PromoCodeController;
 use App\Http\Controllers\ReviewsController;
 use App\Http\Controllers\TeamController;
@@ -38,6 +39,9 @@ Route::middleware(['admin.auth.hash'])->prefix('admin')->name('admin.')->group(f
         Route::get('/packages', [PromoCodeController::class, 'getPackages'])->name('api.packages.index');
         Route::post('/promo-rules', [PromoCodeController::class, 'store'])->name('api.promo.store');
         Route::get('/promo-codes', [PromoCodeController::class, 'index'])->name('api.promo.index');
+
+        Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+        Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
 
         Route::prefix('referrals')->name('referrals.')->group(function () {
             Route::post('/', [ReferralController::class, 'storeApi'])->name('store-api');

@@ -52,8 +52,11 @@ Route::prefix('api')->name('api.')->group(function () {
     Route::post('/apply-referral', [ReferralController::class, 'applyReferral'])->name('api.apply-referral');
     Route::post('/get-referral/{id}', [ReferralController::class, 'getReferral'])->name('api.get-referral');
 
+    Route::get('/categories', [\App\Http\Controllers\CategoryController::class, 'index'])->name('categories.index');
+
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     Route::get('/products/{product}', [ProductController::class, 'show']);
+    Route::get('/products/{product}/related', [ProductController::class, 'getRelatedProducts'])->name('products.related');
 });
 
 Route::post('/telegram/webhook', [TelegramController::class, 'handleWebhook'])->name('telegram.webhook');
