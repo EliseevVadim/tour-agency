@@ -103,7 +103,9 @@ class GetCourseController extends Controller
         $ref = $transaction->referral;
 
         $packageLink = $transaction->package->content_link ?? null;
-        $link = $this->getTelegramLink($packageLink) ? $this->getTelegramLink($packageLink) : "#";
+
+        //COMMENT: Получение одноразовой ссылки для вступления в телеграмм
+        //$link = $this->getTelegramLink($packageLink) ? $this->getTelegramLink($packageLink) : "#";
 
         $this->notificationService->sendPurchaseNotification(
             $package->name ?? 'Unknown Package',
@@ -118,11 +120,12 @@ class GetCourseController extends Controller
         );
         Log::info('sent success notification to tg');
 
-        Mail::to($data['email'])->queue(new PurchaseConfirmationMail(
+        //COMMENT: Скрытие отправки сообщения с одноразовой ссылкой для вступления в телеграмм
+       /* Mail::to($data['email'])->queue(new PurchaseConfirmationMail(
             $package->id,
             $link,
         ));
-        Log::info('sent success notification to mail');
+        Log::info('sent success notification to mail');*/
 
     }
 

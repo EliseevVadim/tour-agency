@@ -37,10 +37,10 @@
                 </div>
                 <div class="timer-course">
                     <h2 class="title-course text-center">До старта осталось:</h2>
-                    <div class="timer text-center mb-4">
+                    <div class="timer text-center">
                         <p>{{formattedTime}}</p>
                     </div>
-                    <h2 class="title-course text-center">ВЫБЕРИ СВОЙ ПАКЕТ:</h2>
+                    <h2 class="mt-0 mt-lg-3 text-center title-course">ВЫБЕРИ СВОЙ <br class="d-block d-xl-none">ПАКЕТ:</h2>
                 </div>
             </div>
 
