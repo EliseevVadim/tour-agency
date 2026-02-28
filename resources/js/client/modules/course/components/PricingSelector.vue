@@ -38,9 +38,10 @@
                 <div class="timer-course">
                     <h2 class="title-course text-center">До старта осталось:</h2>
                     <div class="timer text-center">
-                        <p>{{formattedTime}}</p>
+                        <p>{{ formattedTime }}</p>
                     </div>
-                    <h2 class="mt-0 mt-lg-3 text-center title-course">ВЫБЕРИ СВОЙ <br class="d-block d-xl-none">ПАКЕТ:</h2>
+                    <h2 class="mt-0 mt-lg-3 text-center title-course">ВЫБЕРИ СВОЙ <br class="d-block d-xl-none">ПАКЕТ:
+                    </h2>
                 </div>
             </div>
 
@@ -92,9 +93,8 @@
                                     <img :src="benefit.icon" class="benefit-icon" :alt="'icon-benefit-'+index"/>
                                     <div class="benefit-text">
                                         <h3 class="fw-bold" v-if="benefit.description">{{ benefit.title }}</h3>
-                                        <p class="benefit-description">
-                                            {{ !benefit.description ? benefit.title : benefit.description }}
-                                        </p>
+                                        <p class="benefit-description"
+                                           v-html="!benefit.description ? benefit.title : benefit.description"></p>
                                     </div>
                                 </li>
                                 <template v-if="pkg.details.bonuses">
@@ -137,7 +137,8 @@
                                 promoStatus === 'allowed' ? finalPrice : pkg.details.priceNew
                             }} р</span>
                     </div>
-                    <button v-if="pkg.id === 'maxi'" data-bs-toggle="modal" data-bs-target="#orderModal" class="btn btn-cta btn-price"
+                    <button v-if="pkg.id === 'maxi'" data-bs-toggle="modal" data-bs-target="#orderModal"
+                            class="btn btn-cta btn-price"
                             :data-bs-id="pkg.id"
                             :data-bs-name="pkg.name"
                             :data-bs-price="finalPrice"
@@ -270,8 +271,9 @@ export default {
                             },
                             {
                                 icon: '/img/packets/icons/11.png',
-                                title: 'Возможность открытия бренд-офиса по франшизе',
-                                description: "И, наконец, ты получаешь уникальную возможность открыть собственный бренд-офис по франшизе туристической компании «В ПУТЬ» в своем городе. Мы предоставим тебе все необходимые инструменты и поддержку для старта успешного бизнеса."
+                                title: 'Возможность работы с нами по франшизе',
+                                description: "Ты получаешь уникальную возможность открыть свой собственный бизнес по медиа франшизе туристической компании <b>«В ПУТЬ»</b>\n" +
+                                    "Мы предоставим тебе все необходимые инструменты и поддержку для успешного старта твоего бизнеса!"
                             }
                         ],
                         summary: '<b>Пакет "Макси"</b> – это полное погружение в мир туризма с возможностью стать частью нашей крупнейшей сети и начать собственный бизнес с поддержкой.',
@@ -494,7 +496,7 @@ export default {
                 this.isLoading = false;
             }
         },
-        goToPayment(pkgId){
+        goToPayment(pkgId) {
             let baseUrl = '';
             if (pkgId === 'opti') {
                 baseUrl = 'https://courses.putclub.ru/pay_opti';

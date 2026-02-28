@@ -447,7 +447,7 @@ export default {
 
                 if (!isEdit) {
                     fd = this.buildCreateFormData(payload);
-                    url = '/api/products';
+                    url = '`/admin/api/products';
                 } else {
                     if (!this.productId) {
                         this.error = 'Не выбран товар для редактирования';
