@@ -28,16 +28,18 @@ class PaymentTransactionsExportController extends Controller
         }
 
         $fileName = 'transactions_' . now()->format('Y-m-d_H-i') . '.xlsx';
-
-        $status = data_get($request->input('filters', []), 'status');
-        $packageId = data_get($request->input('filters', []), 'package_id');
-        $dateFrom = data_get($request->input('filters', []), 'date_from');
-        $dateTo = data_get($request->input('filters', []), 'date_to');
-
-        $special = (bool) $request->input('cancelled_or_pending_with_paid_referral', false);
+        $filters = $request->input('filters', []);
+        $special = (bool) ($filters['cancelled_or_pending_with_paid_referral'] ?? false);
 
         return Excel::download(
-            new TransactionsExport($columns, $status, $packageId, $dateFrom, $dateTo, $special),
+            new TransactionsExport(
+                $columns,
+                $filters['status'] ?? null,
+                $filters['package_id'] ?? null,
+                $filters['date_from'] ?? null,
+                $filters['date_to'] ?? null,
+                $special
+            ),
             $fileName
         );
     }

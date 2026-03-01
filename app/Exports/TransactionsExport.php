@@ -2,14 +2,14 @@
 
 namespace App\Exports;
 
-use App\Models\PaymentTransaction;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromQuery;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
 class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithChunkReading, ShouldAutoSize, WithStrictNullComparison
@@ -20,7 +20,7 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithCh
     /** @var string|null */
     private $status;
 
-    /** @var int|null */
+    /** @var string|null */
     private $packageId;
 
     /** @var string|null YYYY-MM-DD */
@@ -32,17 +32,14 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithCh
     /** @var bool */
     private $cancelledOrPendingWithPaidReferral;
 
-    /**
-     * @param array $columns  список ключей колонок (whitelist)
-     * @param string|null $status
-     * @param int|null $packageId
-     * @param string|null $dateFrom YYYY-MM-DD
-     * @param string|null $dateTo   YYYY-MM-DD (включительно)
-     * @param bool $cancelledOrPendingWithPaidReferral
-     */
-
-    public function __construct(array $columns, $status = null, $packageId = null, $dateFrom = null, $dateTo = null, $cancelledOrPendingWithPaidReferral = false)
-    {
+    public function __construct(
+        array $columns,
+              $status = null,
+              $packageId = null,
+              $dateFrom = null,
+              $dateTo = null,
+              $cancelledOrPendingWithPaidReferral = false
+    ) {
         $this->columns = $columns;
         $this->status = $status;
         $this->packageId = $packageId;
@@ -54,27 +51,22 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithCh
     public static function columnsMap(): array
     {
         return [
-            // Пользователь
             'user_full_name' => [
                 'heading' => 'Пользователь: ФИО',
-                'value' => function ($t) { return optional($t->user)->full_name ?: '-'; },
+                'value' => function ($t) { return $t->user_full_name ?: '-'; },
             ],
             'user_email' => [
                 'heading' => 'Пользователь: Почта',
-                'value' => function ($t) { return optional($t->user)->email ?: ''; },
+                'value' => function ($t) { return $t->user_email ?: ''; },
             ],
             'user_phone' => [
                 'heading' => 'Пользователь: Номер',
-                'value' => function ($t) { return optional($t->user)->phone_number ?: ''; },
+                'value' => function ($t) { return $t->user_phone ?: ''; },
             ],
-
-            // Пакет
             'package_name' => [
                 'heading' => 'Пакет',
-                'value' => function ($t) { return optional($t->package)->name ?: '-'; },
+                'value' => function ($t) { return $t->package_name ?: '-'; },
             ],
-
-            // Транзакция
             'status' => [
                 'heading' => 'Статус транзакции',
                 'value' => function ($t) { return $t->status ?: ''; },
@@ -87,22 +79,18 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithCh
                 'heading' => 'Дата оплаты',
                 'value' => function ($t) { return $t->payment_at; },
             ],
-
-            // Реферал
             'referrer_full_name' => [
                 'heading' => 'Реферал: ФИО',
-                'value' => function ($t) { return optional($t->referral)->full_name ?: '-'; },
+                'value' => function ($t) { return $t->referrer_full_name ?: '-'; },
             ],
             'referrer_email' => [
                 'heading' => 'Реферал: Почта',
-                'value' => function ($t) { return optional($t->referral)->email ?: ''; },
+                'value' => function ($t) { return $t->referrer_email ?: ''; },
             ],
             'referrer_tg_username' => [
                 'heading' => 'Реферал: TG Username',
-                'value' => function ($t) { return optional($t->referral)->tg_username ?: ''; },
+                'value' => function ($t) { return $t->referrer_tg_username ?: ''; },
             ],
-
-            // Ссылка на оплату
             'payment_link' => [
                 'heading' => 'Ссылка на оплату',
                 'value' => function ($t) { return $t->payment_link ?: ''; },
@@ -112,39 +100,93 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithCh
 
     public function query(): Builder
     {
-        $q = PaymentTransaction::query()
-            ->with([
-                'user:id,full_name,email,phone_number',
-                'package:id,name',
-                'referral:id,full_name,email,tg_username',
-            ])
-            ->orderByDesc('id');
+        $q = DB::table('payment_transactions as t')
+            ->join('users as u', 'u.id', '=', 't.user_id')
+            ->leftJoin('packages as p', 'p.id', '=', 't.package_id')
+            ->leftJoin('referrals as r', 'r.id', '=', 't.ref_id')
+            ->select([
+                't.id',
+                't.user_id',
+                't.package_id',
+                't.status',
+                't.amount',
+                't.payment_at',
+                't.payment_link',
+                't.paid_referral_fee',
+                't.created_at',
+                't.updated_at',
+
+                DB::raw('u.full_name AS user_full_name'),
+                DB::raw('u.email AS user_email'),
+                DB::raw('u.phone_number AS user_phone'),
+
+                DB::raw('COALESCE(p.name, t.package_id) AS package_name'),
+
+                DB::raw('r.full_name AS referrer_full_name'),
+                DB::raw('r.email AS referrer_email'),
+                DB::raw('r.tg_username AS referrer_tg_username'),
+            ]);
 
         if ($this->cancelledOrPendingWithPaidReferral) {
             $q->where(function ($sub) {
-                $sub->where('status', 'cancelled')
+                $sub->where('t.status', 'canceled')
                     ->orWhere(function ($q2) {
-                        $q2->where('status', 'pending')->where('paid_referral_fee', true);
+                        $q2->where('t.status', 'pending')
+                            ->where('t.send_notification', true);
                     });
             });
+
+            $q->whereNotExists(function ($s) {
+                $s->selectRaw('1')
+                    ->from('payment_transactions as s')
+                    ->whereColumn('s.user_id', 't.user_id')
+                    ->where('s.status', 'succeeded');
+            });
+
+            $q->whereNotExists(function ($t2) {
+                $t2->selectRaw('1')
+                    ->from('payment_transactions as t2')
+                    ->whereColumn('t2.user_id', 't.user_id')
+                    ->whereColumn('t2.package_id', 't.package_id')
+                    ->where(function ($cand) {
+                        $cand->where('t2.status', 'canceled')
+                            ->orWhere(function ($q2) {
+                                $q2->where('t2.status', 'pending')
+                                    ->where('t2.send_notification', true);
+                            });
+                    })
+                    ->where(function ($cmp) {
+                        $cmp->whereColumn('t2.created_at', '>', 't.created_at')
+                            ->orWhere(function ($eq) {
+                                $eq->whereColumn('t2.created_at', '=', 't.created_at')
+                                    ->whereColumn('t2.id', '>', 't.id');
+                            });
+                    });
+            });
+
         } else {
             if (!empty($this->status)) {
-                $q->where('status', $this->status);
+                $q->where('t.status', $this->status);
             }
         }
 
         if (!empty($this->packageId)) {
-            $q->where('package_id', $this->packageId);
+            $q->where('t.package_id', $this->packageId);
         }
 
         if (!empty($this->dateFrom)) {
-            $q->whereDate('created_at', '>=', $this->dateFrom);
+            $q->whereDate('t.created_at', '>=', $this->dateFrom);
         }
 
         if (!empty($this->dateTo)) {
             $toExclusive = Carbon::createFromFormat('Y-m-d', $this->dateTo)->addDay()->format('Y-m-d');
-            $q->where('created_at', '<', $toExclusive);
+            $q->where('t.created_at', '<', $toExclusive);
         }
+
+        $q->orderBy('t.user_id', 'asc')
+            ->orderBy('t.package_id', 'asc')
+            ->orderBy('t.created_at', 'desc')
+            ->orderBy('t.id', 'desc');
 
         return $q;
     }

@@ -234,7 +234,7 @@
                                         :disabled="exporting">
                                     <option :value="null">Все</option>
 
-                                    <option v-for="p in exportPackagesList" :key="p.id" :value="p.id">
+                                    <option v-for="(p, key) in packages" :key="key" :value="key">
                                         {{ p.name }}
                                     </option>
                                 </select>
@@ -270,7 +270,7 @@
                                     <input class="form-check-input"
                                            type="checkbox"
                                            id="specialFilter"
-                                           v-model="exportFilters.only_cancelled_or_pending_with_paid_referral"
+                                           v-model="exportFilters.cancelled_or_pending_with_paid_referral"
                                            :disabled="exporting">
                                     <label class="form-check-label small" for="specialFilter">
                                         Показать: без успешной оплаты
@@ -295,7 +295,8 @@
                         </div>
 
                         <div class="alert alert-warning py-2" v-if="transactions.length === 0">
-                            На текущей странице нет данных. Экспорт всё равно может быть сформирован на сервере по фильтрам.
+                            На текущей странице нет данных. Экспорт всё равно может быть сформирован на сервере по
+                            фильтрам.
                         </div>
 
                         <div class="row">
@@ -384,7 +385,7 @@ export default {
                 package_id: null,
                 date_from: null,
                 date_to: null,
-                only_cancelled_or_pending_with_paid_referral: false
+                cancelled_or_pending_with_paid_referral: false
             },
         }
     },
@@ -405,21 +406,21 @@ export default {
         },
         exportColumns() {
             return [
-                { key: "user_full_name", label: "Пользователь: ФИО" },
-                { key: "user_email", label: "Пользователь: Почта" },
-                { key: "user_phone", label: "Пользователь: Номер" },
+                {key: "user_full_name", label: "Пользователь: ФИО"},
+                {key: "user_email", label: "Пользователь: Почта"},
+                {key: "user_phone", label: "Пользователь: Номер"},
 
-                { key: "package_name", label: "Название пакета" },
+                {key: "package_name", label: "Название пакета"},
 
-                { key: "status", label: "Статус транзакции" },
-                { key: "amount", label: "Сумма" },
-                { key: "payment_at", label: "Дата оплаты" },
+                {key: "status", label: "Статус транзакции"},
+                {key: "amount", label: "Сумма"},
+                {key: "payment_at", label: "Дата оплаты"},
 
-                { key: "referrer_full_name", label: "Реферал: ФИО" },
-                { key: "referrer_email", label: "Реферал: Почта" },
-                { key: "referrer_tg_username", label: "Реферал: TG Username" },
+                {key: "referrer_full_name", label: "Реферал: ФИО"},
+                {key: "referrer_email", label: "Реферал: Почта"},
+                {key: "referrer_tg_username", label: "Реферал: TG Username"},
 
-                { key: "payment_link", label: "Ссылка на оплату" },
+                {key: "payment_link", label: "Ссылка на оплату"},
             ];
         },
         exportPackagesList() {
@@ -626,13 +627,13 @@ export default {
                         package_id: this.exportFilters.package_id,
                         date_from: this.exportFilters.date_from,
                         date_to: this.exportFilters.date_to,
-                        only_cancelled_or_pending_with_paid_referral: this.exportFilters.only_cancelled_or_pending_with_paid_referral,
+                        cancelled_or_pending_with_paid_referral: this.exportFilters.cancelled_or_pending_with_paid_referral,
                     },
                     columns: this.selectedColumnKeys,
                     file_name: this.exportFileName,
                 };
 
-                const res = await axios.post("/admin/api/transactions/export", payload, { responseType: "blob" });
+                const res = await axios.post("/admin/api/transactions/export", payload, {responseType: "blob"});
 
                 const cd = res.headers["content-disposition"] || "";
                 const match = cd.match(/filename\*=UTF-8''(.+)$|filename="?([^"]+)"?/i);
@@ -664,7 +665,8 @@ export default {
                         try {
                             const json = JSON.parse(text);
                             msg = json.message || msg;
-                        } catch (_) {}
+                        } catch (_) {
+                        }
                         alert(msg);
                     } else {
                         alert("Не удалось выгрузить Excel. Попробуйте позже.");
@@ -682,6 +684,7 @@ export default {
                 package_id: null,
                 date_from: null,
                 date_to: null,
+                cancelled_or_pending_with_paid_referral: false
             };
         },
     }
