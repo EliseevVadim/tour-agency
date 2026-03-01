@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ReferralController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PaymentTransactionsExportController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PromoCodeController;
 use App\Http\Controllers\ReviewsController;
@@ -49,5 +50,7 @@ Route::middleware(['admin.auth.hash'])->prefix('admin')->name('admin.')->group(f
             Route::delete('/{referral}', [ReferralController::class, 'destroyApi'])->name('api.referrals.destroy');
             Route::get('/{referral}/transactions', [ReferralController::class, 'getTransactionsForReferral'])->name('api.referrals.transactions');
         });
+
+        Route::post('/transactions/export', [PaymentTransactionsExportController::class, 'export']);
     });
 });

@@ -13,6 +13,7 @@
         "laravel/framework": "^8.75",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
+        "maatwebsite/excel": "^3.1",
         "nikileads/vk-client": "dev-master",
         "rutube/php-api-client": " 1.0.*",
         "yoomoney/yookassa-sdk-php": "^3.11"
