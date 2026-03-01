@@ -95,6 +95,14 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithCh
                 'heading' => 'Ссылка на оплату',
                 'value' => function ($t) { return $t->payment_link ?: ''; },
             ],
+            'created_at' => [
+                'heading' => 'Дата создания',
+                'value' => function ($t) {
+                    return $t->created_at
+                        ? \Carbon\Carbon::parse($t->created_at)->format('d.m.Y H:i')
+                        : '';
+                },
+            ],
         ];
     }
 
