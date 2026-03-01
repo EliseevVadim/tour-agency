@@ -467,7 +467,7 @@ export default {
             transactions: [],
             meta: {},
             links: {next: null, prev: null},
-            statuses: ['succeeded', 'pending', 'canceled'],
+            statuses: ['succeeded', 'pending', 'canceled', 'cooldown'],
             baseDomain: window.location.origin,
             selectedColumnKeys: [],
             exportModalInstance: null,
@@ -584,6 +584,7 @@ export default {
                 succeeded: 'badge bg-success',
                 waiting_for_capture: 'badge bg-warning',
                 canceled: 'badge bg-danger',
+                cooldown: 'badge bg-warning',
             };
             return map[status] ?? 'badge bg-secondary';
         },

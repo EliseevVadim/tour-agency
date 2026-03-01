@@ -13,3 +13,7 @@ Route::post('/payment/success', [\App\Http\Controllers\GetCourseController::clas
     ->name('payment.success');
 Route::post('/payment/failure', [\App\Http\Controllers\GetCourseController::class, 'handleFailurePayment'])
     ->name('payment.failure');
+Route::post('/payment/cooldown', [\App\Http\Controllers\GetCourseController::class, 'handleCooldownPayment'])
+    ->name('payment.cooldown');
+Route::post('payment/user-failure', [\App\Http\Controllers\GetCourseController::class, 'handleUserFailurePayment'])
+    ->name('payment.user-failure');

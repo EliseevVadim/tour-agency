@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 use Telegram;
@@ -168,6 +169,72 @@ class GetCourseController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Transaction marked as canceled and notification sent'], 200);
     }
 
+    public function handleCooldownPayment(Request $request)
+    {
+        return $this->handlePaymentStatus($request, 'cooldown', 'Payment Cooldown');
+    }
+
+    public function handleUserFailurePayment(Request $request)
+    {
+        return $this->handlePaymentStatus($request, 'pending', 'Payment User Failure');
+    }
+
+    private function handlePaymentStatus(Request $request, string $status, string $logPrefix)
+    {
+        Log::info("{$logPrefix}: start");
+
+        $validator = Validator::make($request->all(), [
+            'payment_id' => ['required'],
+            'package'    => ['required']
+        ]);
+
+        if ($validator->fails()) {
+            Log::warning("{$logPrefix}: validation failed", [
+                'errors' => $validator->errors()->toArray(),
+                'payload' => $request->all(),
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $data = $validator->validated();
+
+        $transaction = PaymentTransaction::query()
+            ->where('payment_id', $data['payment_id'])
+            ->first();
+
+        $package = Package::query()
+            ->where('id_getCourse', $data['package'])
+            ->first();
+
+        if (!$transaction || !$package) {
+            Log::warning("{$logPrefix}: Transaction or Package not found for GC data.", [
+                'payment_id' => $data['payment_id'],
+                'package' => $data['package'],
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data not found',
+            ], 404);
+        }
+
+        if ($transaction->status !== $status) {
+            $transaction->forceFill(['status' => $status])->save();
+        }
+
+        Log::info("{$logPrefix}: end", [
+            'payment_id' => $transaction->payment_id,
+            'transaction_id' => $transaction->id ?? null,
+            'status' => $transaction->status,
+        ]);
+
+        return response()->json(['status' => 'ok']);
+    }
     public function getTelegramLink($chatId)
     {
         if (!$chatId) return null;
