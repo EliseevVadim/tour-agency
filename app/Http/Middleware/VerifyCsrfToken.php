@@ -16,6 +16,8 @@ class VerifyCsrfToken extends Middleware
         '/payments/callback',
         '/gc-webhook-handler',
         '/payment/success',
-        '/payment/failure'
+        '/payment/failure',
+        '/payment/cooldown',
+        'payment/user-failure'
     ];
 }
