@@ -17,6 +17,8 @@
                         <li v-if="isPageCourses">
                             <a href="/svedeniya-ob-obrazovatelnoj-organizacii"
                                class="text-white">Сведения об образовательной организации</a>
+                            <a href="/documents/education-program.pdf"
+                               class="text-white">Образовательная программа</a>
                         </li>
                     </ul>
                 </div>
