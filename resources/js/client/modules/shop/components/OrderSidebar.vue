@@ -1,5 +1,6 @@
 <template>
     <div class="sidebar-overlay" :class="{ active: isActive }">
+        <notifications position="top left"/>
         <div v-if="isActive" class="overlay-backdrop" @click="$emit('close')"></div>
         <div class="sidebar-content" :class="{ active: isActive }">
 
@@ -20,7 +21,7 @@
                     <div class="sidebar-item-content">
                         <div class="image-wrapper">
                             <button class="close-button position-absolute color-white mt-2"
-                                    @click="removeItem(item)">
+                                    @click.stop.prevent="removeItem(item)">
                                 &times;
                             </button>
                             <img :src="getPrimaryImageUrl(item)" alt="Product Image" class="item-image">
@@ -41,9 +42,11 @@
                             <div class="quantity-control item-details">
                                 <span class="item-name">Количество:</span>
                                 <div class="align-items-center d-flex quantity-counter">
-                                    <button class="quantity-button plus" @click="updateQuantity(item, 1)">+</button>
+                                    <button class="quantity-button plus"
+                                            @click.stop.prevent="updateQuantity(item, 1)">+</button>
                                     <span class="quantity-value">{{ item.quantity }}</span>
-                                    <button class="quantity-button minus" @click="updateQuantity(item, -1)">-</button>
+                                    <button class="quantity-button minus"
+                                            @click.stop.prevent="updateQuantity(item, -1)">-</button>
                                 </div>
                             </div>
                         </div>
@@ -137,8 +140,13 @@ export default {
             }
 
             if (newQuantity > availableStock) {
-                //TODO: ГЛЯНУТЬ ЧТО ПО ЛИМИТАМ
-                alert('Извините, достигнут лимит. Это максимально возможное количество товаров в наличии')
+                this.$notify({
+                    group: 'notification',
+                    type: 'warn',
+                    duration: 4000,
+                    title: 'Лимит достигнут',
+                    text: 'Это максимально возможное количество товара на складе'
+                });
                 return;
             }
 
@@ -163,13 +171,10 @@ export default {
         },
 
         proceedToCheckout() {
-            if (this.items.length === 0) {
-                console.log("Корзина пуста, оформление невозможно.");
-                return;
-            }
-            console.log("Открыть оформление");
+            if (this.items.length === 0) return;
+            this.$emit('close');
 
-            //TODO: ОТКРЫТЬ МОДАЛЬНОЕ ОКНО С ОФОРМЛЕНИЕМ ЗАКАЗА, А ЭТО ЗАКРЫТЬ
+            eventBus.$emit('checkout:open');
         },
 
         openProductModal(product) {

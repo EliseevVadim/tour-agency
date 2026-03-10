@@ -22,7 +22,7 @@ class ProductController extends Controller
             'category',
             'attributes.options',
             'skus.options.attribute'
-        ])->whereHas('skus.options.attribute');
+        ]);//->whereHas('skus.options.attribute');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -148,16 +148,13 @@ class ProductController extends Controller
     {
         $limit = (int) $request->get('limit', 12);
 
-        $ids = Product::query()
+        $products = Product::query()
             ->where('id', '!=', $product->id)
             ->where('category_id', $product->category_id)
             ->whereHas('skus.options.attribute')
-            ->pluck('id')
-            ->shuffle()
-            ->take($limit);
-
-        $products = Product::with(['category', 'attributes.options', 'skus.options.attribute'])
-            ->whereIn('id', $ids)
+            ->with(['category', 'attributes.options', 'skus.options.attribute'])
+            ->inRandomOrder()
+            ->limit($limit)
             ->get();
 
         return response()->json([

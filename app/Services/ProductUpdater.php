@@ -247,6 +247,11 @@ class ProductUpdater
                 'product_id' => $productId,
                 'price' => (int)($skuData['price'] ?? 0),
                 'stock_qty' => (int)($skuData['stock_qty'] ?? 0),
+
+                'weight' => (int)($skuData['weight'] ?? 0),
+                'length' => (int)($skuData['length'] ?? 0),
+                'width'  => (int)($skuData['width'] ?? 0),
+                'height' => (int)($skuData['height'] ?? 0),
             ]);
 
             $optionIds = [];

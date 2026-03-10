@@ -61,7 +61,9 @@
                         </div>
 
                         <div class="price-actions">
-                            <h2 v-if="currentSKU" class="mb-2">{{ finalPrice }} руб.</h2>
+                            <h2 class="mb-2">
+                                {{ finalPrice }} руб.
+                            </h2>
                             <div class="btn-actions d-flex gap-4 align-items-center">
                                 <button @click="addToCart" class="btn btn-cta"
                                         :class="{'out-of-stock': !isInStock}">
@@ -228,8 +230,8 @@ export default {
                 return;
             }
 
-            const { data } = await axios.get(`/api/products/${this.product.id}/related`, {
-                params: { limit: 12 }
+            const {data} = await axios.get(`/api/products/${this.product.id}/related`, {
+                params: {limit: 12}
             });
 
             this.otherProducts = data?.data || [];
@@ -373,7 +375,13 @@ export default {
                 const nextQty = Math.min(currentQty + requestedQuantity, availableStock);
 
                 if (nextQty === currentQty) {
-                    alert("Извините, достигнут лимит. Это максимально возможное количество товаров в наличии");
+                    this.$notify({
+                        group: 'notification',
+                        type: 'warn',
+                        duration: 4000,
+                        title: 'Лимит достигнут',
+                        text: 'Это максимально возможное количество товара на складе'
+                    });
                     return;
                 }
 

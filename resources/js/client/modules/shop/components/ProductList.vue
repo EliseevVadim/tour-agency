@@ -1,7 +1,9 @@
 <template>
     <div class="product-list-container">
-        <OrderModal v-if="false"></OrderModal>
-
+        <OrderModal
+            v-if="isOrderModalVisible"
+            @close="closeOrderModal"
+        />
 
         <ProductDetailModal v-if="modalProductData"
                             :is-visible="isDetailVisible"
@@ -92,7 +94,9 @@ export default {
             modalProductData: null,
             isInWishList: false,
 
-            platformData: []
+            platformData: [],
+
+            isOrderModalVisible: false,
         }
     },
     computed: {
@@ -249,19 +253,25 @@ export default {
 
         handleWishlist(product) {
             const productId = product.id;
-            const index = this.wishlistIds.indexOf(productId);
+            const isAdding = !this.wishlistIds.includes(productId);
 
-            if (index === -1) {
-                this.wishlistIds.push(productId);
+            if (isAdding) {
+                this.wishlistIds = Array.from(new Set([...this.wishlistIds, productId]));
+
                 if (!this.wishlistFullData.some(p => p.id === productId)) {
                     this.wishlistFullData.push(product);
                 }
             } else {
-                this.wishlistIds.splice(index, 1);
+                this.wishlistIds = this.wishlistIds.filter(id => id !== productId);
                 this.wishlistFullData = this.wishlistFullData.filter(p => p.id !== productId);
             }
 
-            eventBus.$emit('update-favorites');
+            this.$notify({
+                group: 'notification',
+                type: isAdding ? 'success' : 'warn',
+                duration: 4000,
+                text: isAdding ? 'Товар добавлен в избранное' : 'Товар удалён из избранного'
+            });
         },
 
         changeDetailProduct(product) {
@@ -325,8 +335,24 @@ export default {
             }));
         },
         closeDetailModal() {
-            this.isDetailVisible = false
-        }
+            this.isDetailVisible = false;
+
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get('product');
+
+            if (productId) {
+                window.history.replaceState({}, '', window.location.pathname);
+            }
+        },
+
+        openOrderModal() {
+            this.isOrderModalVisible = true;
+            document.body.classList.add('no-scroll');
+        },
+        closeOrderModal() {
+            this.isOrderModalVisible = false;
+            document.body.classList.remove('no-scroll');
+        },
     },
     mounted() {
         this.loadFiltersAndSortFromStorage();
@@ -342,6 +368,7 @@ export default {
         eventBus.$on('product-modal:open', this.openModalFromCard);
         eventBus.$on('product-wishlist:toggle', this.handleWishlist);
         eventBus.$on('cart:updated', this.closeDetailModal);
+        eventBus.$on('checkout:open', this.openOrderModal);
 
         const params = new URLSearchParams(window.location.search);
         const productId = params.get('product');
@@ -357,11 +384,15 @@ export default {
         eventBus.$off('tab-sort:changed', this.loadFiltersAndSortFromStorage);
         eventBus.$off('product-modal:open', this.openModalFromCard);
         eventBus.$off('product-wishlist:toggle', this.handleWishlist);
+        eventBus.$off('checkout:open', this.openOrderModal);
     }
 }
 </script>
 
 <style scoped>
+.product-list-container {
+    min-height: 450px;
+}
 .product-grid {
     display: grid;
     justify-content: center;

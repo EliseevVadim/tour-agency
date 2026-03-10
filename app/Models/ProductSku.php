@@ -13,12 +13,21 @@ class ProductSku extends Model
         'sku',
         'product_id',
         'price',
-        'stock_qty'
+        'stock_qty',
+
+        'weight',
+        'length',
+        'width',
+        'height'
     ];
 
     protected $casts = [
         'price' => 'integer',
         'stock_qty' => 'integer',
+        'weight' => 'integer',
+        'length' => 'integer',
+        'width' => 'integer',
+        'height' => 'integer'
     ];
 
     public function product()

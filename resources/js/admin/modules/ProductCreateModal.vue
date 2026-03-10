@@ -9,12 +9,6 @@ const SKU_KEY_TEMPLATES = {
     'бренд': 'brand',
     'артикул': 'article',
     'модель': 'model',
-    'объем': 'volume',
-    'объём': 'volume',
-    'вес': 'weight',
-    'длина': 'length',
-    'ширина': 'width',
-    'высота': 'height',
 };
 
 const slugifyLatin = (str) =>
@@ -62,9 +56,9 @@ export default {
     name: "ProductCreateModal",
 
     props: {
-        isVisible: { type: Boolean, required: true },
-        mode: { type: String, default: 'create' },
-        productId: { type: Number, default: null },
+        isVisible: {type: Boolean, required: true},
+        mode: {type: String, default: 'create'},
+        productId: {type: Number, default: null},
     },
 
     data() {
@@ -79,6 +73,9 @@ export default {
             activeAttrIndex: 0,
 
             form: this.getEmptyForm(),
+
+            available_skus: [],
+            deleted_sku_keys: [],
         };
     },
 
@@ -144,7 +141,7 @@ export default {
             this.categoriesLoading = true;
 
             try {
-                const { data } = await axios.get('/api/categories');
+                const {data} = await axios.get('/api/categories');
                 this.categories = data.data || data;
             } catch (err) {
                 console.error('Ошибка загрузки категорий', err);
@@ -163,7 +160,7 @@ export default {
             this.isLoading = true;
 
             try {
-                const { data } = await axios.get(`/api/products/${this.productId}`);
+                const {data} = await axios.get(`/api/products/${this.productId}`);
                 const product = data.data || data;
 
                 const category = this.categories.find(
@@ -247,7 +244,7 @@ export default {
 
         removeOption(attributeIndex, optionIndex) {
             this.form.attributes[attributeIndex].options.splice(optionIndex, 1);
-            if (this.mode === 'create') this.generateSkus();
+            this.generateSkus();
         },
 
         onAttrNameInput(attr) {
@@ -274,7 +271,7 @@ export default {
 
             const makeComboKey = (obj) =>
                 validAttributes
-                    .map(a => `${a.key}=${(obj[a.key] || '').trim()}`)
+                    .map(a => `${a.key}=${String(obj[a.key] ?? '').trim()}`)
                     .join('|');
 
             const prevMap = new Map(prev.map(s => [makeComboKey(s), s]));
@@ -289,29 +286,37 @@ export default {
             const combos = cartesian(validAttributes.map(a => a.options));
 
             let counter = 1;
+            const deleted = new Set(this.form.deleted_sku_keys || []);
 
-            const next = combos.map(values => {
-                const skuObj = { price: 0, stock_qty: 0 };
+            this.form.available_skus = combos
+                .map(values => {
+                    const skuObj = {}; // <-- ВАЖНО: без price/stock_qty
 
-                values.forEach((val, idx) => {
-                    skuObj[validAttributes[idx].key] = val;
-                });
+                    values.forEach((val, idx) => {
+                        skuObj[validAttributes[idx].key] = val;
+                    });
 
-                const key = makeComboKey(skuObj);
-                const old = prevMap.get(key);
+                    const key = makeComboKey(skuObj);
+                    if (deleted.has(key)) return null;
 
-                const skuSuffix = values.map(v => String(v).substring(0, 3).toUpperCase()).join('-');
-                const baseSku = `${counter++}-${skuSuffix}`;
+                    const old = prevMap.get(key);
 
-                return {
-                    sku: old?.sku || baseSku,
-                    price: Number(old?.price ?? 0) || 0,
-                    stock_qty: Number(old?.stock_qty ?? 0) || 0,
-                    ...skuObj,
-                };
-            });
+                    const skuSuffix = values.map(v => String(v).substring(0, 3).toUpperCase()).join('-');
+                    const baseSku = `${counter++}-${skuSuffix}`;
 
-            this.form.available_skus = next;
+                    return {
+                        ...skuObj,
+                        sku: old?.sku || baseSku,
+                        price: Number(old?.price ?? 0) || 0,
+                        stock_qty: Number(old?.stock_qty ?? 0) || 0,
+
+                        weight: Number(old?.weight ?? 0) || 0,
+                        length: Number(old?.length ?? 0) || 0,
+                        width: Number(old?.width ?? 0) || 0,
+                        height: Number(old?.height ?? 0) || 0,
+                    };
+                })
+                .filter(Boolean);
         },
 
         onPickImages(e) {
@@ -382,7 +387,17 @@ export default {
             }
 
             if (payload.available_skus?.length) {
-                fd.append('available_skus', JSON.stringify(payload.available_skus));
+                const skus = payload.available_skus.map(s => ({
+                    ...s,
+                    price: Number(s.price) || 0,
+                    stock_qty: Number(s.stock_qty) || 0,
+                    weight: Number(s.weight) || 0,
+                    length: Number(s.length) || 0,
+                    width: Number(s.width) || 0,
+                    height: Number(s.height) || 0,
+                }));
+
+                fd.append('available_skus', JSON.stringify(skus));
             }
 
             return fd;
@@ -400,7 +415,7 @@ export default {
 
             const existing = payload.images
                 .filter((i) => i.isExisting)
-                .map((i) => ({ image: i.image, primary: !!i.primary }));
+                .map((i) => ({image: i.image, primary: !!i.primary}));
             fd.append('existing_images', JSON.stringify(existing));
 
             const newImages = payload.images.filter((i) => !i.isExisting && i.file);
@@ -414,10 +429,42 @@ export default {
             }
 
             if (payload.available_skus?.length) {
-                fd.append('available_skus', JSON.stringify(payload.available_skus));
+                const skus = payload.available_skus.map(s => ({
+                    ...s,
+                    price: Number(s.price) || 0,
+                    stock_qty: Number(s.stock_qty) || 0,
+                    weight: Number(s.weight) || 0,
+                    length: Number(s.length) || 0,
+                    width: Number(s.width) || 0,
+                    height: Number(s.height) || 0,
+                }));
+
+                fd.append('available_skus', JSON.stringify(skus));
             }
 
             return fd;
+        },
+
+        deleteSkuRow(skuRow) {
+            if (!skuRow) return;
+            const validAttrs = (this.form.attributes || [])
+                .filter(a => a.sku_key)
+                .map(a => a.sku_key);
+
+            const comboKey = validAttrs
+                .map(k => `${k}=${String(skuRow[k] ?? '').trim()}`)
+                .join('|');
+
+            if (!this.form.deleted_sku_keys) this.form.deleted_sku_keys = [];
+
+            if (comboKey) {
+                this.form.deleted_sku_keys.push(comboKey);
+                this.form.deleted_sku_keys = Array.from(new Set(this.form.deleted_sku_keys));
+            }
+
+            this.form.available_skus = (this.form.available_skus || [])
+                .filter(r => r !== skuRow && r.sku !== skuRow.sku);
+            // this.generateSkus();
         },
 
         async submitProduct() {
@@ -447,7 +494,7 @@ export default {
 
                 if (!isEdit) {
                     fd = this.buildCreateFormData(payload);
-                    url = '`/admin/api/products';
+                    url = url = `/admin/api/products`;
                 } else {
                     if (!this.productId) {
                         this.error = 'Не выбран товар для редактирования';
@@ -459,7 +506,7 @@ export default {
                 }
 
                 const res = await axios.post(url, fd, {
-                    headers: { 'Content-Type': 'multipart/form-data' },
+                    headers: {'Content-Type': 'multipart/form-data'},
                 });
 
                 if (res.data?.success) {
@@ -766,52 +813,72 @@ export default {
                         каждого.
                     </div>
 
-                    <div v-if="form.available_skus.length" class="table-responsive border rounded-3"
-                         style="max-height: 400px">
-                        <table class="table table-sm table-striped align-middle mb-0">
+                    <div v-if="form.available_skus.length"
+                         class="table-responsive border rounded-3 sku-table-wrap">
+                        <table class="table table-striped align-middle mb-0 sku-table">
                             <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
                             <tr>
-                                <th style="min-width: 160px;">SKU</th>
-                                <th style="width: 140px;">Цена</th>
-                                <th style="width: 140px;">Сток</th>
+                                <th v-if="false" class="sticky-col sticky-left sku-col">SKU</th>
+                                <th class="price-col">Цена</th>
+                                <th class="stock-col">Сток</th>
+
+                                <th class="dim-col">Вес (г)</th>
+                                <th class="dim-col">Длина (см)</th>
+                                <th class="dim-col">Ширина (см)</th>
+                                <th class="dim-col">Высота (см)</th>
 
                                 <th v-for="(value, key) in form.available_skus[0]" :key="key"
-                                    v-if="key !== 'sku' && key !== 'price' && key !== 'stock_qty'">
+                                    v-if="!['sku','price','stock_qty','weight','length','width','height'].includes(key)">
                                     {{ key.charAt(0).toUpperCase() + key.slice(1) }}
                                 </th>
 
-                                <th style="width: 80px;"></th>
+                                <th class="sticky-col sticky-right actions-col"></th>
                             </tr>
                             </thead>
 
                             <tbody>
                             <tr v-for="(sku, skuIndex) in form.available_skus" :key="sku.sku">
-                                <td class="fw-semibold">{{ sku.sku }}</td>
+                                <td v-if="false" class="sticky-col sticky-left sku-col fw-semibold">
+                                    <span class="sku-text">{{ sku.sku }}</span>
+                                </td>
 
-                                <td>
-                                    <div class="input-group input-group-sm">
-                                        <input type="number" v-model.number="sku.price"
-                                               min="0" class="form-control" placeholder="0">
+                                <td class="price-col">
+                                    <div class="input-group">
+                                        <input type="number" v-model.number="sku.price" min="0" class="form-control" placeholder="0">
                                         <span class="input-group-text">₽</span>
                                     </div>
                                 </td>
 
-                                <td>
-                                    <input type="number" v-model.number="sku.stock_qty"
-                                           min="0" class="form-control form-control-sm" placeholder="0">
+                                <td class="stock-col">
+                                    <input type="number" v-model.number="sku.stock_qty" min="0" class="form-control" placeholder="0">
+                                </td>
+
+                                <td class="dim-col">
+                                    <input type="number" v-model.number="sku.weight" min="0" class="form-control" placeholder="г">
+                                </td>
+                                <td class="dim-col">
+                                    <input type="number" v-model.number="sku.length" min="0" class="form-control" placeholder="см">
+                                </td>
+                                <td class="dim-col">
+                                    <input type="number" v-model.number="sku.width" min="0" class="form-control" placeholder="см">
+                                </td>
+                                <td class="dim-col">
+                                    <input type="number" v-model.number="sku.height" min="0" class="form-control" placeholder="см">
                                 </td>
 
                                 <td v-for="(value, key) in sku" :key="key"
-                                    v-if="key !== 'sku' && key !== 'price' && key !== 'stock_qty'">
+                                    v-if="!['sku','price','stock_qty','weight','length','width','height'].includes(key)">
                                     <span class="badge bg-light text-dark border">{{ value }}</span>
                                 </td>
 
-                                <td>
-                                    <button type="button"
-                                            class="btn btn-sm btn-outline-danger"
-                                            @click="deleteSkuRow(sku)">
-                                        ✕
-                                    </button>
+                                <td class="sticky-col sticky-right actions-col">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <button type="button"
+                                                class="btn btn-outline-danger btn-sm"
+                                                @click="deleteSkuRow(sku)">
+                                            ✕
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                             </tbody>
@@ -836,7 +903,7 @@ export default {
 
                 <button type="submit" class="btn btn-primary mt-3"
                         :disabled="isLoading || !form.name || !form.current_price || form.available_skus.length === 0">
-                    {{ submitButtonText}}
+                    {{ submitButtonText }}
                 </button>
 
             </form>
@@ -894,5 +961,48 @@ export default {
 
 .form-check-input {
     margin-top: 0.25rem;
+}
+
+.sku-table-wrap{
+    max-height: 420px;
+    overflow: auto;
+}
+
+.sku-table{
+    margin: 0;
+}
+
+.sku-table th,
+.sku-table td{
+    padding: 10px 12px;
+    vertical-align: middle;
+}
+
+.sku-col{ min-width: 240px; }
+.price-col{ min-width: 160px; }
+.stock-col{ min-width: 130px; }
+.dim-col{ min-width: 130px; }
+
+.sticky-col{
+    position: sticky;
+    background: #fff;
+    z-index: 2;
+}
+
+.sticky-left{
+    left: 0;
+    box-shadow: 1px 0 0 rgba(0,0,0,.08);
+}
+
+.sticky-right{
+    right: 0;
+    box-shadow: -1px 0 0 rgba(0,0,0,.08);
+}
+
+.sku-table thead th{
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: #f8f9fa;
 }
 </style>

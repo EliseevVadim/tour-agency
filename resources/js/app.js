@@ -12,6 +12,8 @@ import 'swiper/css/swiper.css';
 import 'animate.css';
 import VueMask from 'v-mask';
 
+import Notifications from 'vue-notification'
+
 Vue.component('app-footer', require('./client/components/Fragments/Footer.vue').default);
 Vue.component('app-header', require('./client/components/Fragments/Header.vue').default);
 
@@ -43,6 +45,8 @@ Vue.component('admin-courses-component', require('./admin/AdminCoursesComponent.
 Vue.component('admin-products-component', AdminProductsContent);
 
 Vue.component('ssr-carousel', SsrCarousel);
+
+Vue.use(Notifications)
 Vue.use(VueMask);
 Vue.use(VueAwesomeSwiper);
 

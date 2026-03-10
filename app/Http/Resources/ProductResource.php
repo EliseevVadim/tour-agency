@@ -41,6 +41,10 @@ class ProductResource extends JsonResource
                         'sku' => $sku->sku,
                         'price' => (int)$sku->price,
                         'stock_qty' => (int)$sku->stock_qty,
+                        'weight' => (int)$sku->weight,
+                        'length' => (int)$sku->length,
+                        'width' => (int)$sku->width,
+                        'height' => (int)$sku->height,
                     ], $attrMap);
                 });
             }),
