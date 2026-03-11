@@ -13,15 +13,25 @@
                 </p>
                 <div class="notification-inputs d-flex flex-column align-items-center">
                     <div class="notification-inside-input">
-                        <input type="text" class="notification-input" placeholder="Ваш номер телефона">
+                        <input v-model="form.phone" type="text" v-mask="'+7 (###) ###-##-##'" autocomplete="tel"
+                               class="notification-input" placeholder="Ваш номер телефона">
                     </div>
+
                     <div class="notification-inside-input">
-                        <input type="text" class="notification-input" placeholder="Ваш email">
+                        <input v-model="form.email" type="email" class="notification-input" placeholder="Ваш email"
+                               :class="{ 'input-error': form.email && !isValidEmail(form.email) }"/>
                     </div>
+
                 </div>
                 <div class="notification-button-wrapper text-center">
-                    <!-- TODO: создать метод для получения уведомления о наличии товара !-->
-                    <button class="btn btn-cta notification-btn-close">Получить уведомление</button>
+                    <button class="btn btn-cta notification-btn-close" :disabled="loading"
+                            @click="sendNotificationRequest">
+                        {{ loading ? 'Отправка...' : 'Получить уведомление' }}
+                    </button>
+                </div>
+
+                <div v-if="success" class="notification-success text-center">
+                    Заявка отправлена. Мы сообщим когда товар появится.
                 </div>
             </div>
         </div>
@@ -32,12 +42,103 @@
 export default {
     name: 'DataProcessingModal',
     props: {
-      isVisible: {
-          type: Boolean,
-          required: true,
-          default: false
-      }
+        isVisible: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
+        product: {
+            type: Object,
+            required: true
+        },
+        currentSku: {
+            type: Object,
+            default: null
+        }
     },
+    data() {
+        return {
+            loading: false,
+            success: false,
+
+            form: {
+                phone: '',
+                email: ''
+            }
+        }
+    },
+    methods: {
+        async sendNotificationRequest() {
+
+            if (!this.form.phone && !this.form.email) {
+                this.$notify({
+                    group: 'notification',
+                    type: 'warn',
+                    duration: 4000,
+                    text: 'Укажите телефон или email'
+                });
+                return
+            }
+
+            if (this.form.email && !this.isValidEmail(this.form.email)) {
+                this.$notify({
+                    group: 'notification',
+                    type: 'warn',
+                    duration: 4000,
+                    text: 'Введите корректный email'
+                });
+                return
+            }
+
+            this.loading = true
+            try {
+                const attributes = {}
+                const attributeNames = {}
+                if (this.currentSku && this.product.attributes) {
+                    this.product.attributes.forEach(attr => {
+                        const key = attr.sku_key
+                        if (this.currentSku[key]) {
+                            attributes[key] = this.currentSku[key]
+                            attributeNames[key] = attr.name
+                        }
+                    })
+                }
+
+                await axios.post('/api/stock-notification-requests', {
+                    product_id: this.product.id,
+                    sku: this.currentSku?.sku || null,
+                    product_name: this.product.name,
+
+                    phone: this.form.phone || null,
+                    email: this.form.email || null,
+
+                    attributes: attributes,
+                    attribute_names: attributeNames
+
+                })
+
+                this.success = true
+                setTimeout(() => {
+                    this.$emit('close')
+                    this.form.phone = ''
+                    this.form.email = ''
+                    this.success = false
+
+                }, 2000)
+
+            } catch (e) {
+                const message =
+                    e?.response?.data?.errors?.[0] ||
+                    'Ошибка отправки заявки'
+            } finally {
+                this.loading = false
+            }
+        },
+        isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(email).toLowerCase());
+        }
+    }
 }
 </script>
 
@@ -93,6 +194,7 @@ export default {
         color: #222;
         border: none;
         outline: none;
+        text-align: center;
 
         &::placeholder {
             text-align: center;
@@ -121,5 +223,8 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.input-error {
+    border-color: #ff3b3b;
 }
 </style>

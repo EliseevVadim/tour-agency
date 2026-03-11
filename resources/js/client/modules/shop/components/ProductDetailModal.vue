@@ -2,8 +2,10 @@
     <div v-if="isVisible" class="modal-backdrop">
         <notification-modal
             :is-visible="isNotificationVisible"
+            :product="product"
+            :current-sku="currentSKU"
             @close="isNotificationVisible = false"
-        ></notification-modal>
+        />
 
         <div class="modal-content">
             <div class="product-header container">

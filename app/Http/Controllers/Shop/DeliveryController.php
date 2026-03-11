@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Shop;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\CdekCalculateOptionsRequest;
 use App\Http\Requests\CdekCreateOrderRequest;
 use App\Models\Order;
@@ -139,132 +140,6 @@ class DeliveryController extends Controller
             'success' => true,
             'data' => $points,
         ]);
-    }
-
-    public function createOrder(CdekCreateOrderRequest $request, CdekService $cdek, NotificationOrderService $notificationOrderService): JsonResponse
-    {
-        try {
-            $deliveryMode = $request->input('delivery_mode');
-            $phone = $cdek->normalizePhone($request->input('recipient_phone'));
-            $items = $request->input('items', []);
-
-            $itemsPrice = collect($items)->sum(function ($item) {
-                $qty = (int) ($item['quantity'] ?? $item['amount'] ?? 1);
-
-                return ((float) ($item['cost'] ?? 0)) * $qty;
-            });
-
-            $deliveryPrice = (float) $request->input('delivery_price');
-            $totalPrice = $itemsPrice + $deliveryPrice;
-
-            $tariffCode = $request->filled('tariff_code')
-                ? (int) $request->input('tariff_code')
-                : (int) ($deliveryMode === 'pickup'
-                    ? config('cdek.tariffs.pickup')
-                    : config('cdek.tariffs.door'));
-
-            $order = Order::create([
-                'number' => 'ORD-' . now()->format('YmdHis') . '-' . Str::upper(Str::random(4)),
-                'customer_name' => $request->input('recipient_name'),
-                'customer_phone' => $phone,
-                'customer_email' => $request->input('recipient_email'),
-                'delivery_mode' => $deliveryMode,
-                'city' => $request->input('city'),
-                'city_code' => $request->input('city_code'),
-                'street' => $deliveryMode === 'door' ? $request->input('street') : null,
-                'house' => $deliveryMode === 'door' ? $request->input('house') : null,
-                'flat' => $deliveryMode === 'door' ? $request->input('flat') : null,
-                'entrance' => $deliveryMode === 'door' ? $request->input('entrance') : null,
-                'floor' => $deliveryMode === 'door' ? $request->input('floor') : null,
-                'pickup_point_code' => $deliveryMode === 'pickup' ? $request->input('pickup_point_code') : null,
-                'pickup_point_address' => $deliveryMode === 'pickup' ? $request->input('pickup_point_address') : null,
-                'tariff_code' => $tariffCode,
-                'delivery_price' => $deliveryPrice,
-                'items_price' => $itemsPrice,
-                'total_price' => $totalPrice,
-                'package_weight' => (int) $request->input('package.weight'),
-                'package_length' => (int) $request->input('package.length'),
-                'package_width' => (int) $request->input('package.width'),
-                'package_height' => (int) $request->input('package.height'),
-                'status' => 'new',
-                'items' => $items,
-                'delivery_meta' => [],
-            ]);
-
-            $payload = $this->buildCreateOrderPayload($order, $items);
-            $result = $cdek->createOrder($payload);
-
-            if (!$result['success']) {
-                $order->update([
-                    'status' => 'failed',
-                    'delivery_meta' => ['cdek_errors' => $result['errors']],
-                ]);
-
-                Log::warning('CDEK createOrder failed', [
-                    'order_id' => $order->id,
-                    'order_number' => $order->number,
-                    'errors' => $result['errors'] ?? [],
-                ]);
-
-                return response()->json($result, 422);
-            }
-
-            $cdekData = $result['data'];
-
-            $order->update([
-                'status' => 'delivery_created',
-                'cdek_uuid' => $cdek->extractOrderUuid($cdekData),
-                'cdek_number' => $cdek->extractCdekNumber($cdekData),
-                'delivery_meta' => [
-                    'cdek_response' => $cdekData,
-                ],
-            ]);
-
-            try {
-                $barcodeResult = $this->generateBarcodePdfBinary($order, $cdek);
-                $pdfPath = null;
-                if ($barcodeResult['success']) {
-                    $dir = storage_path('app/tmp/barcodes');
-                    if (!is_dir($dir)) {
-                        mkdir($dir, 0775, true);
-                    }
-
-                    $pdfPath = $dir . '/barcode-order-' . $order->id . '-' . time() . '.pdf';
-                    file_put_contents($pdfPath, $barcodeResult['data']);
-                }
-
-                $notificationOrderService->send($order, $pdfPath);
-                if ($pdfPath && is_file($pdfPath)) {
-                    unlink($pdfPath);
-                }
-
-            } catch (Throwable $e) {
-
-                Log::error('Telegram notification failed', [
-                    'order_id' => $order->id,
-                    'error' => $e->getMessage(),
-                ]);
-
-            }
-
-            return response()->json([
-                'success' => true,
-                'order_id' => $order->id,
-                'order_number' => $order->number,
-                'cdek_uuid' => $order->cdek_uuid,
-                'cdek_number' => $order->cdek_number,
-                'message' => 'Заказ отправлен в СДЭК',
-            ], 201);
-        } catch (Throwable $e) {
-            Log::error('CDEK createOrder exception', [
-                'message' => $e->getMessage(),
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'errors' => [$e->getMessage()],
-            ], 500);
-        }
     }
 
     public function barcodeStatus(Order $order, CdekService $cdek): JsonResponse

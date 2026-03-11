@@ -1,13 +1,14 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\ReferralController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentTransactionsExportController;
-use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PromoCodeController;
 use App\Http\Controllers\ReviewsController;
+use App\Http\Controllers\Shop\ProductController;
 use App\Http\Controllers\TeamController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,8 @@ Route::middleware(['admin.auth.hash'])->prefix('admin')->name('admin.')->group(f
     Route::view('/contacts', 'admin.contacts')->name('contacts');
     Route::view('/courses', 'admin.courses')->name('courses');
     Route::view('/products', 'admin.products')->name('products');
+    Route::view('/orders', 'admin.orders')->name('orders');
+    Route::get('/orders/{order}', [AdminOrderController::class, 'show']);
 
     Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
 
@@ -52,5 +55,10 @@ Route::middleware(['admin.auth.hash'])->prefix('admin')->name('admin.')->group(f
         });
 
         Route::post('/transactions/export', [PaymentTransactionsExportController::class, 'export']);
+
+        Route::prefix('orders')->name('orders.')->group(function () {
+            Route::get('/', [AdminOrderController::class, 'index']);
+            Route::post('/{order}/close', [AdminOrderController::class, 'close']);
+        });
     });
 });

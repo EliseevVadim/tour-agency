@@ -86,7 +86,7 @@
                         <div v-if="deliveryOptions.length === 0 && form.city_code && !loadingDeliveryOptions"
                              class="delivery-loading mt-3">
                             К сожалению доставка в выбранный город на данный момент не осуществляется.
-                            Обратитесь в наш <a href="#">чат поддержки</a>
+                            Обратитесь в наш <a href="https://t.me/putclub_info">чат поддержки</a>
                             мы решим эту проблему.
                         </div>
                     </div>
@@ -97,7 +97,8 @@
                         </div>
 
                         <div class="form-group">
-                            <input v-model="form.phone" type="tel" placeholder="Ваш номер" class="form-input"/>
+                            <input v-model="form.phone" type="tel" placeholder="Ваш номер" class="form-input"
+                                   v-mask="'+7 (###) ###-##-##'" autocomplete="tel"/>
                         </div>
 
                         <div class="form-group">
@@ -180,7 +181,7 @@
                         </label>
 
                         <button class="btn btn-cta" @click="submitOrder" :disabled="loading || !canSubmit">
-                            {{ loading ? 'Отправка...' : 'Оформить' }}
+                            {{ loading ? 'Переход к оплате...' : 'Оформить' }}
                         </button>
                     </div>
                 </div>
@@ -490,6 +491,15 @@ export default {
 
             this.items = updatedCart;
             this.saveCartToStorage(updatedCart);
+
+            if (!this.items.length) {
+                this.closeModal();
+                return;
+            }
+
+            if (this.form.city_code) {
+                this.loadDeliveryOptions();
+            }
         },
 
         updateQuantity(item, change) {
@@ -702,78 +712,7 @@ export default {
         selectPickupPoint(point) {
             this.form.pickup_point_code = point.code;
             this.form.pickup_point_address = point.address;
-
             this.pickupSearch = point.address;
-        },
-
-        async requestBarcodeGeneration(orderId) {
-            const response = await axios.post(`/api/delivery/orders/${orderId}/generate-barcode`);
-            return response.data;
-        },
-
-        async tryDownloadBarcode(orderId) {
-            const response = await axios.get(`/api/delivery/orders/${orderId}/download-barcode`, {
-                responseType: 'blob',
-                validateStatus: () => true,
-            });
-
-            const contentType = response.headers['content-type'] || '';
-
-            if (contentType.includes('application/pdf')) {
-                const blob = new Blob([response.data], {type: 'application/pdf'});
-                const url = window.URL.createObjectURL(blob);
-                window.open(url, '_blank');
-                return {success: true};
-            }
-
-            try {
-                const text = await response.data.text();
-                const json = JSON.parse(text);
-                return json;
-            } catch (e) {
-                return {
-                    success: false,
-                    errors: ['Не удалось обработать ответ сервера'],
-                };
-            }
-        },
-
-        async processBarcode(orderId) {
-            const maxAttempts = 20;
-
-            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-                try {
-                    const generateResult = await this.requestBarcodeGeneration(orderId);
-
-                    if (generateResult?.success === false && generateResult?.should_retry) {
-                        await this.sleep(3000);
-                        continue;
-                    }
-
-                    const downloadResult = await this.tryDownloadBarcode(orderId);
-
-                    if (downloadResult?.success === true) {
-                        return true;
-                    }
-
-                    if (downloadResult?.should_retry) {
-                        await this.sleep(3000);
-                        continue;
-                    }
-
-                    if (downloadResult?.should_regenerate) {
-                        await this.sleep(2000);
-                        continue;
-                    }
-
-                    const errors = downloadResult?.errors || ['Не удалось получить PDF штрихкода'];
-                    throw new Error(errors.join('\n'));
-                } catch (e) {
-                    throw e;
-                }
-            }
-
-            throw new Error('Штрихкод ещё не готов, попробуйте чуть позже');
         },
 
         buildOrderItems() {
@@ -827,41 +766,13 @@ export default {
             });
         },
 
-        sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        },
-
-        async generateBarcode(orderId) {
-            const response = await axios.post(`/api/delivery/orders/${orderId}/generate-barcode`);
-            return response.data;
-        },
-
-        async downloadBarcodePdf(orderId) {
-            const response = await axios.get(`/api/delivery/orders/${orderId}/download-barcode`, {
-                responseType: 'blob',
-                validateStatus: () => true,
-            });
-
-            const contentType = response.headers['content-type'] || '';
-
-            if (contentType.includes('application/pdf')) {
-                const blob = new Blob([response.data], {type: 'application/pdf'});
-                const url = window.URL.createObjectURL(blob);
-                window.open(url, '_blank');
-                return true;
-            }
-
-            const text = await response.data.text();
-            const json = JSON.parse(text);
-
-            throw new Error(
-                (json.errors && json.errors.join('\n')) ||
-                'Не удалось скачать PDF'
-            );
-        },
-
         async submitOrder() {
             if (!this.canSubmit) {
+                return;
+            }
+
+            if (!this.items.length) {
+                alert('Корзина пуста');
                 return;
             }
 
@@ -900,23 +811,30 @@ export default {
                 }
 
                 const response = await axios.post('/api/delivery/orders', payload);
-                const orderId = response?.data?.order_id;
 
-                if (!orderId) {
-                    throw new Error('Сервер не вернул ID заказа');
+                const confirmationUrl = response && response.data
+                    ? response.data.confirmation_url
+                    : null;
+
+                const orderId = response && response.data
+                    ? response.data.order_id
+                    : null;
+
+                if (!confirmationUrl || !orderId) {
+                    throw new Error('Сервер не вернул данные для оплаты');
                 }
 
-              //  await this.sleep(200);
-               // await this.downloadBarcodePdf(orderId);
-
-                this.closeModal();
+                localStorage.setItem('pendingPaymentOrderId', String(orderId));
+                window.location.href = confirmationUrl;
             } catch (e) {
-                const apiErrors = e?.response?.data?.errors;
+                const apiErrors = e && e.response && e.response.data
+                    ? e.response.data.errors
+                    : null;
 
                 if (apiErrors && apiErrors.length) {
                     alert(apiErrors.join('\n'));
                 } else {
-                    alert(e.message || 'Ошибка оформления');
+                    alert((e && e.message) ? e.message : 'Ошибка оформления');
                 }
             } finally {
                 this.loading = false;
@@ -925,8 +843,11 @@ export default {
     }
 };
 </script>
-
 <style scoped>
+.delivery-option input[type="radio"] {
+    accent-color: #ff5a2f;
+}
+
 .modal-overlay {
     position: fixed;
     inset: 0;

@@ -44,6 +44,9 @@ Vue.component('admin-contacts-component', require('./admin/ContactsComponent.vue
 Vue.component('admin-courses-component', require('./admin/AdminCoursesComponent.vue').default);
 Vue.component('admin-products-component', AdminProductsContent);
 
+const AdminOrdersComponent = () => import('./admin/AdminOrdersComponent.vue');
+Vue.component('admin-orders-component', AdminOrdersComponent);
+
 Vue.component('ssr-carousel', SsrCarousel);
 
 Vue.use(Notifications)

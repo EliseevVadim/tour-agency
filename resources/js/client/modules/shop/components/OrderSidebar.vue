@@ -114,6 +114,10 @@ export default {
             this.calculateSummary();
         },
 
+        clearedCart(){
+            this.items = this.getCartFromStorage();
+        },
+
         calculateSummary() {
             this.totalPrice = this.items.reduce((sum, item) => {
                 return sum + (item.current_sku.price * item.quantity);
@@ -186,6 +190,7 @@ export default {
     mounted() {
         this.loadCart();
         eventBus.$on('cart:updated', this.loadCart);
+        eventBus.$on('cart:cleared', this.clearedCart);
     }
 }
 </script>

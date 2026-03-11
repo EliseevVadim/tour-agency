@@ -18,6 +18,8 @@ class VerifyCsrfToken extends Middleware
         '/payment/success',
         '/payment/failure',
         '/payment/cooldown',
-        'payment/user-failure'
+        'payment/user-failure',
+
+        '/shop/payments/yookassa/webhook'
     ];
 }

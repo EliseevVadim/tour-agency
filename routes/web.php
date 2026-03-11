@@ -3,20 +3,18 @@
 use App\Http\Controllers\Admin\ReferralController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Api\Course\CoursesController;
-use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\ClipController;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PromoCodeController;
 use App\Http\Controllers\ReviewsController;
+use App\Http\Controllers\Shop\DeliveryController;
+use App\Http\Controllers\Shop\OrderPaymentController;
+use App\Http\Controllers\Shop\ProductController;
+use App\Http\Controllers\Shop\StockNotificationRequestController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TelegramController;
 use App\Http\Controllers\VideoController;
-use App\Services\Cdek\CdekService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -67,17 +65,24 @@ Route::prefix('api')->name('api.')->group(function () {
         Route::post('/calculate-options', [DeliveryController::class, 'calculateOptions']);
         Route::post('/delivery-points', [DeliveryController::class, 'deliveryPoints']);
 
-        Route::post('/orders', [DeliveryController::class, 'createOrder']);
+        Route::post('/orders', [OrderPaymentController::class, 'create']);
         Route::post('/orders/{order}/generate-barcode', [DeliveryController::class, 'generateBarcode']);
         Route::get('/orders/{order}/download-barcode', [DeliveryController::class, 'downloadBarcode']);
         Route::get('/orders/{order}/barcode-status', [DeliveryController::class, 'barcodeStatus']);
         Route::post('/orders/{order}/send-telegram', [DeliveryController::class, 'sendOrderToTelegram']);
+
+        Route::get('/orders/{order}/status', [OrderPaymentController::class, 'status']);
     });
+
+    Route::post('/stock-notification-requests', [StockNotificationRequestController::class, 'store']);
 });
 
 Route::post('/telegram/webhook', [TelegramController::class, 'handleWebhook'])->name('telegram.webhook');
 Route::get('/payment/return', [PaymentController::class, 'handleReturn'])->name('payment.return');
 Route::get('/gc-payment/return', [\App\Http\Controllers\GetCourseController::class, 'handleSuccessReturn'])->name('gc-payment.return');
+
+Route::get('/shop/payment/return', [OrderPaymentController::class, 'handleReturn'])
+    ->name('shop.payment.return');
 
 Route::view('/svedeniya-ob-obrazovatelnoj-organizacii', 'svedeniya');
 

@@ -33,6 +33,9 @@ class Order extends Model
         'package_width',
         'package_height',
         'status',
+        'payment_status',
+        'paid_at',
+        'payment_method',
         'delivery_status',
         'cdek_uuid',
         'cdek_number',
@@ -46,5 +49,16 @@ class Order extends Model
         'delivery_price' => 'decimal:2',
         'items_price' => 'decimal:2',
         'total_price' => 'decimal:2',
+        'paid_at' => 'datetime',
     ];
+
+    public function payments()
+    {
+        return $this->hasMany(OrderPayment::class);
+    }
+
+    public function latestPayment()
+    {
+        return $this->hasOne(OrderPayment::class)->latest('id');
+    }
 }

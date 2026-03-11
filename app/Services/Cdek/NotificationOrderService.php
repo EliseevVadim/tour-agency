@@ -7,6 +7,7 @@ use App\Models\ProductAttribute;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Telegram;
+use Throwable;
 
 class NotificationOrderService
 {
@@ -48,20 +49,20 @@ class NotificationOrderService
 
     protected function buildOrderTelegramMessage(Order $order): string
     {
-        $adminUrl = url('/admin/order/' . $order->id);
-        $documentsUrl = url('/admin/order/' . $order->id . '/delivery-documents');
+        $adminUrl = url('/admin/orders?order=' . $order->id);
+        $documentsUrl = url('/api/delivery/orders/' . $order->id . '/download-barcode');
         $attributeLabels = $this->getAttributeLabelsByProduct((array) $order->items);
 
         $lines = [];
         $lines[] = '📦 *Заказ:* `' . $this->escapeCode((string) $order->number) . '`';
         $lines[] = '🔗 *Админка:* ' . $adminUrl;
-        $lines[] = '📌 *Статус:* ' . $this->resolveOrderStatus($order);
+        $lines[] = '📌 *Статус:* ' . 'Оплачен';
         $lines[] = '👤 *Заказчик:* ' . $order->customer_name;
         $lines[] = '📞 *Телефон:* `' . $this->escapeCode((string) $order->customer_phone) . '`';
         $lines[] = '✉️ *Email:* `' . $this->escapeCode((string) $order->customer_email) . '`';
         $lines[] = '🚚 *Служба доставки:* ' . $this->resolveDeliveryType($order);
         $lines[] = '📍 *Адрес доставки:* ' . $this->resolveDeliveryAddress($order);
-        $lines[] = '💳 *Платеж:* `' . $this->escapeCode($this->resolvePaymentValue($order)) . '`';
+        $lines[] = '💳 *Платеж:* `' . $order->payment_method . '`';
         $lines[] = '';
         $lines[] = '🧾 *Позиции по заказу:*';
 
@@ -145,7 +146,7 @@ class NotificationOrderService
         ];
 
         $productId = isset($item['product_id']) ? (int) $item['product_id'] : 0;
-        $labels = isset($attributeLabels[$productId]) ? $attributeLabels[$productId] : [];
+        $labels = $attributeLabels[$productId] ?? [];
 
         if (!empty($item['attribute_names']) && is_array($item['attribute_names'])) {
             $labels = array_merge($labels, $item['attribute_names']);
@@ -170,7 +171,7 @@ class NotificationOrderService
                 continue;
             }
 
-            $label = isset($labels[$key]) ? $labels[$key] : $this->humanizeKey((string) $key);
+            $label = $labels[$key] ?? $this->humanizeKey((string)$key);
 
             $parts[] = '  ' . $label . ': `' . $this->escapeCode((string) $value) . '`';
         }
@@ -180,21 +181,6 @@ class NotificationOrderService
         $parts[] = '  Вес: `' . $this->escapeCode($weight) . '`';
 
         return implode("\n", $parts);
-    }
-
-    protected function resolveOrderStatus(Order $order): string
-    {
-        $map = [
-            'new' => 'новый',
-            'paid' => 'оплачен',
-            'processing' => 'в обработке',
-            'shipped' => 'отправлен',
-            'delivered' => 'доставлен',
-            'cancelled' => 'отменён',
-            'delivery_created' => 'создан в СДЭК',
-        ];
-
-        return isset($map[$order->status]) ? $map[$order->status] : (string) $order->status;
     }
 
     protected function resolveDeliveryType(Order $order): string
@@ -236,19 +222,6 @@ class NotificationOrderService
         }
 
         return !empty($parts) ? implode(', ', $parts) : '—';
-    }
-
-    protected function resolvePaymentValue(Order $order): string
-    {
-        if (!empty($order->delivery_meta['payment_uuid'])) {
-            return (string) $order->delivery_meta['payment_uuid'];
-        }
-
-        if (!empty($order->delivery_meta['payment_id'])) {
-            return (string) $order->delivery_meta['payment_id'];
-        }
-
-        return '—';
     }
 
     protected function humanizeKey(string $key): string
@@ -323,7 +296,7 @@ class NotificationOrderService
             ]);
 
             return true;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Telegram sendMessage error: ' . $e->getMessage(), [
                 'context' => 'NotificationOrderService',
                 'message' => $message,
@@ -366,7 +339,7 @@ class NotificationOrderService
             Telegram::sendDocument($payload);
 
             return true;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Telegram sendDocument error: ' . $e->getMessage(), [
                 'context' => 'NotificationOrderService',
                 'file_path' => $filePath,
@@ -376,13 +349,89 @@ class NotificationOrderService
         }
     }
 
-    protected function escapeMarkdown(string $text): string
-    {
-        return preg_replace('/([_*\[\]\(\)~`>#+\-=|{}.!\\\\])/u', '\\\\$1', $text);
-    }
-
     protected function escapeCode(string $text): string
     {
         return str_replace('`', '\`', $text);
+    }
+
+    public function sendBackInStockRequest(array $data): bool
+    {
+        $chatId = $this->getChatId('cdek_order_channel');
+
+        if (!$chatId) {
+            Log::warning("Telegram Chat ID 'cdek_order_channel' not configured.");
+            return false;
+        }
+
+        $requestId = isset($data['id']) ? (string) $data['id'] : '—';
+        $productId = isset($data['product_id']) ? (int) $data['product_id'] : 0;
+        $sku = isset($data['sku']) && $data['sku'] !== '' ? (string) $data['sku'] : '—';
+        $name = isset($data['name']) && $data['name'] !== '' ? (string) $data['name'] : 'Товар';
+        $phone = isset($data['phone']) && $data['phone'] !== '' ? (string) $data['phone'] : 'Не указан';
+        $email = isset($data['email']) && $data['email'] !== '' ? (string) $data['email'] : 'Не указан';
+
+        $productUrl = $productId ? url('/shop?product=' . $productId) : null;
+        $attributesText = $this->formatBackInStockAttributes($data);
+
+        $lines = [];
+        $lines[] = '🔔 *Заявка на поступление товара*';
+        $lines[] = '🆔 *Запрос:* #' . $requestId;
+        $lines[] = '📦 *Товар:* ' . $name;
+
+        if ($productUrl) {
+            $lines[] = '🔗 *Ссылка на товар:* ' . $productUrl;
+        }
+
+        $lines[] = '🏷 *Артикул:* `' . $this->escapeCode($sku) . '`';
+
+        if ($attributesText !== '') {
+            $lines[] = '🧾 *Параметры:* ' . $attributesText;
+        }
+
+        $lines[] = '📞 *Телефон:* `' . $this->escapeCode($phone) . '`';
+        $lines[] = '✉️ *Email:* `' . $this->escapeCode($email) . '`';
+
+        $message = implode("\n", $lines);
+
+        return $this->sendLongTelegramMessage($chatId, $message, self::PARSE_MODE_MARKDOWN);
+    }
+
+    protected function formatBackInStockAttributes(array $data): string
+    {
+        $reservedKeys = [
+            'id',
+            'product_id',
+            'sku',
+            'name',
+            'customer_name',
+            'phone',
+            'email',
+            'created_at',
+            'updated_at',
+            'attribute_names',
+        ];
+
+        $labels = [];
+
+        if (!empty($data['attribute_names']) && is_array($data['attribute_names'])) {
+            $labels = $data['attribute_names'];
+        }
+
+        $parts = [];
+
+        foreach ($data as $key => $value) {
+            if (in_array($key, $reservedKeys, true)) {
+                continue;
+            }
+
+            if ($value === null || $value === '' || is_array($value) || is_object($value)) {
+                continue;
+            }
+
+            $label = $labels[$key] ?? $this->humanizeKey((string)$key);
+            $parts[] = $label . ': `' . $this->escapeCode((string) $value) . '`';
+        }
+
+        return implode(', ', $parts);
     }
 }

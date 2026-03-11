@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Shop\OrderPaymentController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/payments/create', [PaymentController::class, 'create'])->name('payment.create');
@@ -17,3 +18,8 @@ Route::post('/payment/cooldown', [\App\Http\Controllers\GetCourseController::cla
     ->name('payment.cooldown');
 Route::post('payment/user-failure', [\App\Http\Controllers\GetCourseController::class, 'handleUserFailurePayment'])
     ->name('payment.user-failure');
+
+Route::prefix('shop')->name('shop.')->group(function () {
+    Route::post('/payments/yookassa/webhook', [OrderPaymentController::class, 'webhook'])
+        ->name('payments.yookassa.webhook');
+});

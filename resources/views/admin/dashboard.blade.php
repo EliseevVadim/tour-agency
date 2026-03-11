@@ -89,6 +89,8 @@
                    class="nav-link {{ request()->routeIs('admin.contacts') ? 'active' : '' }}">Контакты</a>
                 <a href="{{ route('admin.courses') }}"
                    class="nav-link {{ request()->routeIs('admin.courses') ? 'active' : '' }}">Курсы</a>
+                <a href="{{ route('admin.orders') }}"
+                   class="nav-link {{ request()->routeIs('admin.orders') ? 'active' : '' }}">Магазин: Заказы</a>
                 <a href="{{ route('admin.products') }}"
                    class="nav-link {{ request()->routeIs('admin.products') ? 'active' : '' }}">Товары</a>
             </nav>
