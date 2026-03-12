@@ -5,7 +5,7 @@
             <div class="reviews-slider">
                 <ssr-carousel v-if="reviews.length > 0" :slides-per-page='1' paginate-by-slide show-arrows
                               :responsive='carouselResponsive' v-model="activeSlide" @change="handleSlideChange"
-                              :style="{ height: this.carouselHeight }" :no-drag="true">
+                              :style="{ height: this.carouselHeight }" :no-drag="false">
                     <template #back-arrow='{ disabled }'>
                         <span class="carousel-left-icon reviews-carousel-left-icon"
                               :class="{'disabled': disabled}"></span>
