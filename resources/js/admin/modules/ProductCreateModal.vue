@@ -819,6 +819,12 @@ export default {
                             <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
                             <tr>
                                 <th v-if="false" class="sticky-col sticky-left sku-col">SKU</th>
+
+                                <th v-for="(value, key) in form.available_skus[0]" :key="key"
+                                    v-if="!['sku','price','stock_qty','weight','length','width','height'].includes(key)">
+                                    {{ key.charAt(0).toUpperCase() + key.slice(1) }}
+                                </th>
+
                                 <th class="price-col">Цена</th>
                                 <th class="stock-col">Сток</th>
 
@@ -826,11 +832,6 @@ export default {
                                 <th class="dim-col">Длина (см)</th>
                                 <th class="dim-col">Ширина (см)</th>
                                 <th class="dim-col">Высота (см)</th>
-
-                                <th v-for="(value, key) in form.available_skus[0]" :key="key"
-                                    v-if="!['sku','price','stock_qty','weight','length','width','height'].includes(key)">
-                                    {{ key.charAt(0).toUpperCase() + key.slice(1) }}
-                                </th>
 
                                 <th class="sticky-col sticky-right actions-col"></th>
                             </tr>
@@ -840,6 +841,11 @@ export default {
                             <tr v-for="(sku, skuIndex) in form.available_skus" :key="sku.sku">
                                 <td v-if="false" class="sticky-col sticky-left sku-col fw-semibold">
                                     <span class="sku-text">{{ sku.sku }}</span>
+                                </td>
+
+                                <td v-for="(value, key) in sku" :key="key"
+                                    v-if="!['sku','price','stock_qty','weight','length','width','height'].includes(key)">
+                                    <span class="badge bg-light text-dark border">{{ value }}</span>
                                 </td>
 
                                 <td class="price-col">
@@ -864,11 +870,6 @@ export default {
                                 </td>
                                 <td class="dim-col">
                                     <input type="number" v-model.number="sku.height" min="0" class="form-control" placeholder="см">
-                                </td>
-
-                                <td v-for="(value, key) in sku" :key="key"
-                                    v-if="!['sku','price','stock_qty','weight','length','width','height'].includes(key)">
-                                    <span class="badge bg-light text-dark border">{{ value }}</span>
                                 </td>
 
                                 <td class="sticky-col sticky-right actions-col">

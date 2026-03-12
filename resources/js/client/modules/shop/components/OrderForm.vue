@@ -491,6 +491,7 @@ export default {
 
             this.items = updatedCart;
             this.saveCartToStorage(updatedCart);
+            localStorage.removeItem('pendingPaymentOrderId');
 
             if (!this.items.length) {
                 this.closeModal();
@@ -529,6 +530,7 @@ export default {
             if (index !== -1) {
                 this.items[index].quantity = newQuantity;
                 this.saveCartToStorage(this.items);
+                localStorage.removeItem('pendingPaymentOrderId');
 
                 if (this.form.city_code) {
                     this.loadDeliveryOptions();
@@ -780,6 +782,7 @@ export default {
 
             try {
                 const payload = {
+                    existing_order_id: localStorage.getItem('pendingPaymentOrderId') || null,
                     delivery_mode: this.form.delivery_mode,
                     tariff_code: this.selectedDeliveryTariffCode,
                     city: this.form.city,
@@ -811,14 +814,10 @@ export default {
                 }
 
                 const response = await axios.post('/api/delivery/orders', payload);
+                const responseData = response && response.data ? response.data : null;
 
-                const confirmationUrl = response && response.data
-                    ? response.data.confirmation_url
-                    : null;
-
-                const orderId = response && response.data
-                    ? response.data.order_id
-                    : null;
+                const confirmationUrl = responseData ? responseData.confirmation_url : null;
+                const orderId = responseData ? responseData.order_id : null;
 
                 if (!confirmationUrl || !orderId) {
                     throw new Error('Сервер не вернул данные для оплаты');
@@ -839,7 +838,7 @@ export default {
             } finally {
                 this.loading = false;
             }
-        }
+        },
     }
 };
 </script>
@@ -967,15 +966,6 @@ export default {
 .btn:disabled {
     opacity: 0.7;
     cursor: not-allowed;
-}
-
-.btn-gray {
-    background: #9a9a9a;
-    color: #fff;
-}
-
-.btn-gray:hover {
-    background: #7f7f7f;
 }
 
 .order-summary-title {
@@ -1133,11 +1123,6 @@ export default {
     color: #888;
     cursor: default;
     text-align: center;
-}
-
-.delivery-options {
-    margin-top: 24px;
-    margin-bottom: 30px;
 }
 
 .delivery-option {

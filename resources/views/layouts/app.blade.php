@@ -13,7 +13,7 @@
           rel="stylesheet">
     <link href="https://myfonts.ru/myfonts?fonts=bewlay-br1" rel="stylesheet" type="text/css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/app.css" rel="stylesheet">
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
 <body>
 <div id="app">
@@ -21,6 +21,6 @@
 </div>
 @stack('tourvisor')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/app.js"></script>
+<script src="{{ asset('js/app.js') }}"></script>
 </body>
 </html>

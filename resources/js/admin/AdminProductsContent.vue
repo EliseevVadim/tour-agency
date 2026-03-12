@@ -25,7 +25,8 @@
                 <div class="row g-3">
                     <div class="col-lg-4" v-for="product in products"
                          :key="product.id">
-                        <product-card :is-admin="true" :product="product" :key="product.id" @product:edit="showEditModal"/>
+                        <product-card :is-admin="true" :product="product" :key="product.id"
+                            @product:edit="showEditModal" @product:delete="deleteProduct"/>
                     </div>
                 </div>
                 <div v-if="lastPage > 1" class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-2">
@@ -40,14 +41,9 @@
                             ← Назад
                         </button>
 
-                        <button
-                            v-for="p in paginationPages"
-                            :key="p"
-                            class="btn"
+                        <button v-for="p in paginationPages" :key="p" class="btn"
                             :class="p === page ? 'btn-secondary' : 'btn-outline-secondary'"
-                            :disabled="isLoading"
-                            @click="goToPage(p)"
-                        >
+                            :disabled="isLoading" @click="goToPage(p)">
                             {{ p }}
                         </button>
 
@@ -114,7 +110,6 @@ export default {
     methods: {
         async fetchProducts() {
             if (this.tabs.length === 0) await this.fetchCategories();
-
             this.isLoading = true;
 
             try {
@@ -189,6 +184,19 @@ export default {
             this.modalMode = 'edit';
             this.editingProductId = productId;
             this.isModalVisible = true;
+        },
+
+        async deleteProduct(productId) {
+            if (!confirm('Удалить этот товар?')) return;
+
+            try {
+                await axios.delete(`/api/products/${productId}`);
+                this.products = this.products.filter(p => p.id !== productId);
+            } catch (e) {
+                alert('Ошибка при удалении товара');
+                console.error(e);
+            }
+
         }
     }
 }

@@ -57,6 +57,7 @@ Route::prefix('api')->name('api.')->group(function () {
 
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     Route::get('/products/{product}', [ProductController::class, 'show']);
+    Route::delete('/products/{product}', [ProductController::class, 'destroy']);
     Route::get('/products/{product}/related', [ProductController::class, 'getRelatedProducts'])->name('products.related');
 
     Route::post('/cities', [DeliveryController::class, 'getCities'])->name('cities.index');

@@ -23,21 +23,36 @@ class OrderPaymentController extends Controller
         DB::beginTransaction();
 
         try {
+            $existingOrderId = $request->input('existing_order_id');
+
+            if ($existingOrderId) {
+                $oldOrder = Order::query()
+                    ->where('id', $existingOrderId)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($oldOrder && $oldOrder->payment_status !== 'paid') {
+                    $oldOrder->payments()->delete();
+                    $oldOrder->delete();
+                }
+            }
+
             $deliveryMode = $request->input('delivery_mode');
             $phone = $cdek->normalizePhone($request->input('recipient_phone'));
             $items = $request->input('items', []);
 
             $itemsPrice = collect($items)->sum(function ($item) {
-                $qty = (int)($item['quantity'] ?? ($item['amount'] ?? 1));
-                return ((float)($item['cost'] ?? 0)) * $qty;
+                $qty = (int) ($item['quantity'] ?? ($item['amount'] ?? 1));
+
+                return ((float) ($item['cost'] ?? 0)) * $qty;
             });
 
-            $deliveryPrice = (float)$request->input('delivery_price');
+            $deliveryPrice = (float) $request->input('delivery_price');
             $totalPrice = round($itemsPrice + $deliveryPrice, 2);
 
             $tariffCode = $request->filled('tariff_code')
-                ? (int)$request->input('tariff_code')
-                : (int)($deliveryMode === 'pickup'
+                ? (int) $request->input('tariff_code')
+                : (int) ($deliveryMode === 'pickup'
                     ? config('cdek.tariffs.pickup')
                     : config('cdek.tariffs.door'));
 
@@ -60,10 +75,10 @@ class OrderPaymentController extends Controller
                 'delivery_price' => $deliveryPrice,
                 'items_price' => $itemsPrice,
                 'total_price' => $totalPrice,
-                'package_weight' => (int)$request->input('package.weight'),
-                'package_length' => (int)$request->input('package.length'),
-                'package_width' => (int)$request->input('package.width'),
-                'package_height' => (int)$request->input('package.height'),
+                'package_weight' => (int) $request->input('package.weight'),
+                'package_length' => (int) $request->input('package.length'),
+                'package_width' => (int) $request->input('package.width'),
+                'package_height' => (int) $request->input('package.height'),
                 'status' => 'pending',
                 'payment_status' => 'pending',
                 'items' => $items,
@@ -74,12 +89,12 @@ class OrderPaymentController extends Controller
                 'amount' => $itemsPrice,
                 'description' => 'Оплата заказа ' . $order->number,
                 'metadata' => [
-                    'order_id' => (string)$order->id,
-                    'order_number' => $order->number,
+                    'order_id' => (string) $order->id,
+                    'order_number' => (string) $order->number,
                 ],
             ]);
 
-            $paymentResult = $yooKassa->createPayment($paymentPayload, (string)Str::uuid());
+            $paymentResult = $yooKassa->createPayment($paymentPayload, (string) Str::uuid());
 
             if (empty($paymentResult['success'])) {
                 DB::rollBack();
@@ -98,10 +113,26 @@ class OrderPaymentController extends Controller
             }
 
             $paymentData = $paymentResult['data'];
+            $confirmationUrl = data_get($paymentData, 'confirmation.confirmation_url');
+
+            if (!$confirmationUrl) {
+                DB::rollBack();
+
+                Log::warning('YooKassa confirmation url is missing', [
+                    'order_id' => $order->id,
+                    'order_number' => $order->number,
+                    'payment_data' => $paymentData,
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['Платеж создан, но ссылка на оплату не получена'],
+                ], 422);
+            }
 
             OrderPayment::create([
                 'order_id' => $order->id,
-                'payment_id' => $paymentData['id'],
+                'payment_id' => $paymentData['id'] ?? null,
                 'amount' => $itemsPrice,
                 'status' => $paymentData['status'] ?? 'pending',
                 'response_payload' => $paymentData,
@@ -116,7 +147,8 @@ class OrderPaymentController extends Controller
                 'order_id' => $order->id,
                 'order_number' => $order->number,
                 'payment_id' => $paymentData['id'] ?? null,
-                'confirmation_url' => data_get($paymentData, 'confirmation.confirmation_url'),
+                'payment_status' => $paymentData['status'] ?? null,
+                'confirmation_url' => $confirmationUrl,
             ], 201);
         } catch (Throwable $e) {
             DB::rollBack();
@@ -125,12 +157,11 @@ class OrderPaymentController extends Controller
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'errors' => [$e->getMessage()],
+                'errors' => ['Ошибка создания заказа'],
             ], 500);
         }
     }
@@ -234,7 +265,7 @@ class OrderPaymentController extends Controller
                 } elseif ($status === 'canceled') {
                     $order->update([
                         'payment_status' => 'canceled',
-                        'status' => 'payment_canceled',
+                        'status' => 'canceled',
                     ]);
                 } elseif ($status === 'waiting_for_capture') {
                     $order->update([

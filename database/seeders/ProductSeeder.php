@@ -257,10 +257,6 @@ class ProductSeeder extends Seeder
                                 'name' => 'Цвет',
                                 'options' => ['Черный', 'Бежевый', 'Оливковый'],
                             ],
-                            'material' => [
-                                'name' => 'Материал',
-                                'options' => ['Кожа', 'Ткань'],
-                            ],
                         ],
                     ],
                 ],
@@ -289,10 +285,6 @@ class ProductSeeder extends Seeder
                                 'name' => 'Цвет',
                                 'options' => ['Черный', 'Синий', 'Серебристый'],
                             ],
-                            'material' => [
-                                'name' => 'Материал',
-                                'options' => ['Поликарбонат', 'Ткань'],
-                            ],
                         ],
                     ],
                     [
@@ -314,10 +306,6 @@ class ProductSeeder extends Seeder
                                 'name' => 'Цвет',
                                 'options' => ['Черный', 'Серый', 'Синий'],
                             ],
-                            'material' => [
-                                'name' => 'Материал',
-                                'options' => ['Ткань', 'Нейлон'],
-                            ],
                         ],
                     ],
                     [
@@ -338,10 +326,6 @@ class ProductSeeder extends Seeder
                             'color' => [
                                 'name' => 'Цвет',
                                 'options' => ['Черный', 'Оливковый', 'Синий'],
-                            ],
-                            'material' => [
-                                'name' => 'Материал',
-                                'options' => ['Нейлон', 'Полиэстер'],
                             ],
                         ],
                     ],

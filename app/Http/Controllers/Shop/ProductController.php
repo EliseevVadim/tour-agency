@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Services\ProductCreator;
 use App\Services\ProductUpdater;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -134,11 +135,40 @@ class ProductController extends Controller
      * Remove the specified resource from storage.
      *
      * @param \App\Models\Product $product
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Product $product)
     {
-        //
+        try {
+            foreach ($product->images ?? [] as $img) {
+                if (!isset($img['image'])) {
+                    continue;
+                }
+
+                if (!str_starts_with($img['image'], '/storage/')) {
+                    continue;
+                }
+
+                $path = str_replace('/storage/', '', $img['image']);
+                if (Storage::disk('public')->exists($path)) {
+                    Storage::disk('public')->delete($path);
+                }
+            }
+
+            $product->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Товар успешно удалён'
+            ]);
+
+        } catch (\Throwable $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка при удалении товара'
+            ], 500);
+        }
     }
 
     public function getRelatedProducts(Product $product, Request $request)

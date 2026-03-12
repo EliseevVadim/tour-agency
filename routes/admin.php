@@ -22,6 +22,7 @@ Route::middleware(['admin.auth.hash'])->prefix('admin')->name('admin.')->group(f
     Route::view('/products', 'admin.products')->name('products');
     Route::view('/orders', 'admin.orders')->name('orders');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show']);
+    Route::view('/shop', 'admin.admin-shop');
 
     Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
 
