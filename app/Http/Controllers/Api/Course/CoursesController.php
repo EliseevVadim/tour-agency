@@ -147,7 +147,22 @@ class CoursesController extends Controller
             $request->input('email') ?? 'Unknown',
         );
 
+        $telegramUsername = 'putclub_info';
+        $text = 'Здравствуйте! Хочу получить презентацию по пакету "Макси".';
+
+        $redirect = 'https://t.me/' . ltrim($telegramUsername, '@') . '?text=' . rawurlencode($text);
+
         return Response::json([
+            'success' => true,
+            'redirect' => $redirect,
+            'notification' => [
+                'isPresentation' => true,
+                'title' => 'Ваша заявка принята, в ближайшее время с Вами свяжется персональный менеджер туристической компании «В ПУТЬ»',
+                'class' => 'mb-4',
+            ],
+        ]);
+
+       /* return Response::json([
             'success' => true,
             'redirect' => route('courses'),
             'notification' => [
@@ -156,6 +171,6 @@ class CoursesController extends Controller
             туристической компании «В ПУТЬ»',
                 'class'=> 'mb-4'
             ]
-        ]);
+        ]);*/
     }
 }
