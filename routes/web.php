@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ReferralController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Api\Course\CoursesController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClipController;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\PaymentController;
@@ -53,7 +54,7 @@ Route::prefix('api')->name('api.')->group(function () {
     Route::post('/apply-referral', [ReferralController::class, 'applyReferral'])->name('api.apply-referral');
     Route::post('/get-referral/{id}', [ReferralController::class, 'getReferral'])->name('api.get-referral');
 
-    Route::get('/categories', [\App\Http\Controllers\CategoryController::class, 'index'])->name('categories.index');
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     Route::get('/products/{product}', [ProductController::class, 'show']);
@@ -61,6 +62,8 @@ Route::prefix('api')->name('api.')->group(function () {
     Route::get('/products/{product}/related', [ProductController::class, 'getRelatedProducts'])->name('products.related');
 
     Route::post('/cities', [DeliveryController::class, 'getCities'])->name('cities.index');
+    Route::get('/service/streets', [DeliveryController::class, 'getStreets']);
+    Route::get('/service/buildings', [DeliveryController::class, 'getBuildings']);
 
     Route::prefix('delivery')->group(function () {
         Route::post('/calculate-options', [DeliveryController::class, 'calculateOptions']);

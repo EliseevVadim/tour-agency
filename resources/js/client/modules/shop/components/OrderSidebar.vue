@@ -11,13 +11,17 @@
                 </button>
             </header>
 
+            <div class="line-block">
+                <div class="line-block-extra"></div>
+            </div>
+
             <div class="sidebar-body">
                 <div v-if="items.length === 0" class="empty-message">
                     Корзина пуста. Добавьте в корзину хотя бы один товар
                 </div>
 
                 <div v-for="item in items" :key="item.id" class="sidebar-item align-items-start cursor-pointer"
-                     @click="openProductModal(item)">
+                     :class="{removing: removingSku === item.sku, restoring: restoringSku === item.sku}">
                     <div class="sidebar-item-content">
                         <div class="image-wrapper">
                             <button class="close-button position-absolute color-white mt-2"
@@ -43,10 +47,12 @@
                                 <span class="item-name">Количество:</span>
                                 <div class="align-items-center d-flex quantity-counter">
                                     <button class="quantity-button plus"
-                                            @click.stop.prevent="updateQuantity(item, 1)">+</button>
+                                            @click.stop.prevent="updateQuantity(item, 1)">+
+                                    </button>
                                     <span class="quantity-value">{{ item.quantity }}</span>
                                     <button class="quantity-button minus"
-                                            @click.stop.prevent="updateQuantity(item, -1)">-</button>
+                                            @click.stop.prevent="updateQuantity(item, -1)">-
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -62,6 +68,20 @@
                         <span class="flare"></span>
                         Оформить заказ
                     </button>
+                </div>
+            </div>
+
+            <div v-if="removedItem" class="undo-snackbar">
+                <span>Товар удалён</span>
+
+                <div class="d-flex">
+                    <button @click="undoRemove">
+                        Отменить
+                    </button>
+
+                    <span class="undo-timer">
+                        ({{ undoCountdown }})
+                    </span>
                 </div>
             </div>
         </div>
@@ -91,6 +111,15 @@ export default {
             items: [],
             quantity: 1,
             totalPrice: 0,
+
+            removingSku: null,
+            removedItem: null,
+            undoTimer: null,
+            undoTimeout: 5,
+
+            undoCountdown: 5,
+
+            restoringSku: null
         }
     },
     methods: {
@@ -114,7 +143,7 @@ export default {
             this.calculateSummary();
         },
 
-        clearedCart(){
+        clearedCart() {
             this.items = this.getCartFromStorage();
         },
 
@@ -125,13 +154,60 @@ export default {
         },
 
         removeItem(itemToRemove) {
-            const updatedCart = this.items.filter(item =>
-                item.productId !== itemToRemove.productId || item.sku !== itemToRemove.sku
-            );
-            this.items = updatedCart;
-            this.saveCartToStorage(updatedCart);
+            this.removingSku = itemToRemove.sku;
+            setTimeout(() => {
+                const index = this.items.findIndex(item =>
+                    item.productId === itemToRemove.productId && item.sku === itemToRemove.sku
+                );
+
+                if (index === -1) return;
+
+                this.removedItem = {
+                    item: this.items[index],
+                    index
+                };
+
+                this.items.splice(index, 1);
+                this.calculateSummary();
+
+                this.removingSku = null;
+                this.undoCountdown = this.undoTimeout;
+
+                if (this.undoTimer) clearInterval(this.undoTimer);
+
+                this.undoTimer = setInterval(() => {
+                    this.undoCountdown--;
+                    if (this.undoCountdown <= 0) {
+                        clearInterval(this.undoTimer);
+                        this.saveCartToStorage(this.items);
+                        eventBus.$emit('cart:updated');
+                        this.removedItem = null;
+                    }
+                }, 1000);
+            }, 300);
+        },
+
+        undoRemove() {
+            if (!this.removedItem) return;
+            const {item, index} = this.removedItem;
+
+            this.items.splice(index, 0, item);
+            this.restoringSku = item.sku;
+
+            this.$nextTick(() => {
+                requestAnimationFrame(() => {
+                    this.restoringSku = null;
+                });
+            });
+
+            clearInterval(this.undoTimer);
+
+            this.saveCartToStorage(this.items);
             this.calculateSummary();
+
             eventBus.$emit('cart:updated');
+
+            this.removedItem = null;
         },
 
         updateQuantity(item, change) {
@@ -197,4 +273,61 @@ export default {
 
 <style scoped lang="scss">
 
+.undo-snackbar {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+
+    background: #222;
+    color: white;
+
+    padding: 12px 16px;
+    border-radius: 10px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    animation: slideUp 0.25s ease;
+}
+
+.undo-snackbar button {
+    background: none;
+    border: none;
+    color: #4da3ff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.undo-timer {
+    font-weight: 700;
+    margin-left: 8px;
+    color: #bbb;
+}
+
+.sidebar-item {
+    transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+.sidebar-item.removing {
+    transform: translateX(120%);
+    opacity: 0;
+}
+
+.sidebar-item.restoring {
+    transform: translateX(120%);
+    opacity: 0;
+}
 </style>

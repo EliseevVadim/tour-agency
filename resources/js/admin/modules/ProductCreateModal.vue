@@ -76,6 +76,8 @@ export default {
 
             available_skus: [],
             deleted_sku_keys: [],
+
+            imageError: null
         };
     },
 
@@ -323,7 +325,16 @@ export default {
             const files = Array.from(e.target.files || []);
             if (!files.length) return;
 
+            const MAX_SIZE = 5 * 1024 * 1024;
+
+            this.imageError = null;
+
             files.forEach((file) => {
+                if (file.size > MAX_SIZE) {
+                    this.imageError = `Файл "${file.name}" больше 5MB и не был загружен`;
+                    return;
+                }
+
                 const preview = URL.createObjectURL(file);
                 this.form.images.push({
                     primary: false,
@@ -361,7 +372,6 @@ export default {
         },
 
         validateImages() {
-            if (this.form.images.length < 5) return 'Нужно загрузить минимум 5 изображений.';
             const primaryCount = this.form.images.filter((i) => i.primary).length;
             if (primaryCount !== 1) return 'Должно быть выбрано ровно одно основное изображение.';
             return null;
@@ -566,6 +576,7 @@ export default {
                             Название товара <span class="text-danger">*</span>
                         </label>
                         <input id="productName" type="text" v-model.trim="form.name"
+                               :class="{ 'is-invalid': !form.name && error }"
                                required class="form-control" placeholder="Например: Чемодан AirLight" maxlength="255">
                         <div class="form-text">
                             Коротко и понятно. Это название увидит покупатель.
@@ -649,13 +660,14 @@ export default {
                 </fieldset>
 
                 <fieldset class="mb-3">
-                    <legend>Изображения <small class="text-muted">(минимум 5)</small></legend>
+                    <legend>Изображения</legend>
 
                     <div class="mb-2">
-                        <input type="file" accept="image/*"
-                               multiple @change="onPickImages" class="form-control"/>
-                        <div class="form-text">
-                            Загрузите минимум 5 фото. Одно фото отметьте как основное.
+                        <input type="file" accept="image/*" multiple
+                        @change="onPickImages" class="form-control"/>
+
+                        <div v-if="imageError" class="text-danger small mt-1">
+                            {{ imageError }}
                         </div>
                     </div>
 
@@ -679,10 +691,6 @@ export default {
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div v-if="form.images.length && form.images.length < 5" class="alert alert-warning mt-2">
-                        Сейчас загружено: {{ form.images.length }}. Нужно минимум 5.
                     </div>
                 </fieldset>
 
@@ -850,26 +858,32 @@ export default {
 
                                 <td class="price-col">
                                     <div class="input-group">
-                                        <input type="number" v-model.number="sku.price" min="0" class="form-control" placeholder="0">
+                                        <input type="number" v-model.number="sku.price" min="0" class="form-control"
+                                               placeholder="0">
                                         <span class="input-group-text">₽</span>
                                     </div>
                                 </td>
 
                                 <td class="stock-col">
-                                    <input type="number" v-model.number="sku.stock_qty" min="0" class="form-control" placeholder="0">
+                                    <input type="number" v-model.number="sku.stock_qty" min="0" class="form-control"
+                                           placeholder="0">
                                 </td>
 
                                 <td class="dim-col">
-                                    <input type="number" v-model.number="sku.weight" min="0" class="form-control" placeholder="г">
+                                    <input type="number" v-model.number="sku.weight" min="0" class="form-control"
+                                           placeholder="г">
                                 </td>
                                 <td class="dim-col">
-                                    <input type="number" v-model.number="sku.length" min="0" class="form-control" placeholder="см">
+                                    <input type="number" v-model.number="sku.length" min="0" class="form-control"
+                                           placeholder="см">
                                 </td>
                                 <td class="dim-col">
-                                    <input type="number" v-model.number="sku.width" min="0" class="form-control" placeholder="см">
+                                    <input type="number" v-model.number="sku.width" min="0" class="form-control"
+                                           placeholder="см">
                                 </td>
                                 <td class="dim-col">
-                                    <input type="number" v-model.number="sku.height" min="0" class="form-control" placeholder="см">
+                                    <input type="number" v-model.number="sku.height" min="0" class="form-control"
+                                           placeholder="см">
                                 </td>
 
                                 <td class="sticky-col sticky-right actions-col">
@@ -964,43 +978,54 @@ export default {
     margin-top: 0.25rem;
 }
 
-.sku-table-wrap{
+.sku-table-wrap {
     max-height: 420px;
     overflow: auto;
 }
 
-.sku-table{
+.sku-table {
     margin: 0;
 }
 
 .sku-table th,
-.sku-table td{
+.sku-table td {
     padding: 10px 12px;
     vertical-align: middle;
 }
 
-.sku-col{ min-width: 240px; }
-.price-col{ min-width: 160px; }
-.stock-col{ min-width: 130px; }
-.dim-col{ min-width: 130px; }
+.sku-col {
+    min-width: 240px;
+}
 
-.sticky-col{
+.price-col {
+    min-width: 160px;
+}
+
+.stock-col {
+    min-width: 130px;
+}
+
+.dim-col {
+    min-width: 130px;
+}
+
+.sticky-col {
     position: sticky;
     background: #fff;
     z-index: 2;
 }
 
-.sticky-left{
+.sticky-left {
     left: 0;
-    box-shadow: 1px 0 0 rgba(0,0,0,.08);
+    box-shadow: 1px 0 0 rgba(0, 0, 0, .08);
 }
 
-.sticky-right{
+.sticky-right {
     right: 0;
-    box-shadow: -1px 0 0 rgba(0,0,0,.08);
+    box-shadow: -1px 0 0 rgba(0, 0, 0, .08);
 }
 
-.sku-table thead th{
+.sku-table thead th {
     position: sticky;
     top: 0;
     z-index: 3;

@@ -98,10 +98,6 @@ class ProductUpdater
 
     private function assertImagesValid(array $images): void
     {
-        if (count($images) < 5) {
-            throw new \RuntimeException('Минимум 5 изображений обязательно');
-        }
-
         $primaryCount = 0;
         foreach ($images as $img) {
             if (!empty($img['primary'])) $primaryCount++;

@@ -8,6 +8,7 @@ use App\Http\Requests\CdekCreateOrderRequest;
 use App\Models\Order;
 use App\Services\Cdek\CdekService;
 use App\Services\Cdek\NotificationOrderService;
+use App\Services\DadataService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -63,15 +64,90 @@ class DeliveryController extends Controller
 
             $rows[] = [
                 'city_name' => $row['city_name'] ?? null,
-                'uuid' => $row['uuid'] ?? null,
-                'region' => $row['region'] ?? null,
                 'code' => isset($row['code']) ? (int) $row['code'] : null,
+                'uuid' => $row['uuid'] ?? null,
+                'fias_guid' => $row['fias_guid'] ?? null,
+                'region' => $row['region'] ?? null,
+                'region_code' => $row['region_code'] ?? null,
+                'sub_region' => $row['sub_region'] ?? null,
+                'kladr_region_code' => $row['kladr_region_code'] ?? null,
+                'time_zone' => $row['time_zone'] ?? null,
+                'longitude' => $row['longitude'] ?? null,
+                'latitude' => $row['latitude'] ?? null,
+                'payment_limit' => $row['payment_limit'] ?? null,
             ];
         }
 
         fclose($handle);
 
         return response()->json(['data' => $rows]);
+    }
+
+    public function getStreets(Request $request, DadataService $dadataService): JsonResponse
+    {
+        $query = trim((string) $request->input('query', ''));
+        $region = trim((string) $request->input('region', ''));
+        $city = trim((string) $request->input('city', ''));
+
+        if (mb_strlen($query, 'UTF-8') < 2) {
+            return response()->json([
+                'success' => true,
+                'streets' => [],
+            ]);
+        }
+
+        try {
+            $streets = $dadataService->suggestStreets(
+                $query,
+                $region !== '' ? $region : null,
+                $city !== '' ? $city : null
+            );
+
+            return response()->json([
+                'success' => true,
+                'streets' => $streets,
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'streets' => [],
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getBuildings(Request $request, DadataService $dadataService): JsonResponse
+    {
+        $query = trim((string) $request->input('query', ''));
+        $street = trim((string) $request->input('street', ''));
+        $region = trim((string) $request->input('region', ''));
+        $city = trim((string) $request->input('city', ''));
+
+        if ($street === '') {
+            return response()->json([
+                'success' => true,
+                'buildings' => [],
+            ]);
+        }
+
+        try {
+            $buildings = $dadataService->suggestBuildings(
+                $query,
+                $street,
+                $city
+            );
+
+            return response()->json([
+                'success' => true,
+                'buildings' => $buildings,
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'buildings' => [],
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function calculateOptions(CdekCalculateOptionsRequest $request, CdekService $cdek): JsonResponse

@@ -7,6 +7,35 @@ use Illuminate\Validation\Rule;
 
 class CdekCreateOrderRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $data = $this->all();
+
+        if (isset($data['package']) && is_array($data['package'])) {
+            foreach (['length', 'width', 'height'] as $field) {
+                if (array_key_exists($field, $data['package']) && (int) $data['package'][$field] === 0) {
+                    unset($data['package'][$field]);
+                }
+            }
+        }
+
+        if (isset($data['items']) && is_array($data['items'])) {
+            foreach ($data['items'] as $index => $item) {
+                if (!is_array($item)) {
+                    continue;
+                }
+
+                foreach (['payment_value', 'cost'] as $field) {
+                    if (array_key_exists($field, $item) && $item[$field] === '') {
+                        $data['items'][$index][$field] = null;
+                    }
+                }
+            }
+        }
+
+        $this->replace($data);
+    }
+
     public function rules(): array
     {
         return [
@@ -40,10 +69,11 @@ class CdekCreateOrderRequest extends FormRequest
             'items.*.cost' => ['required', 'numeric', 'min:0'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
 
+            'package' => ['required', 'array'],
             'package.weight' => ['required', 'integer', 'min:1'],
-            'package.length' => ['integer', 'min:1'],
-            'package.width' => ['integer', 'min:1'],
-            'package.height' => ['integer', 'min:1'],
+            'package.length' => ['nullable', 'integer', 'min:1'],
+            'package.width' => ['nullable', 'integer', 'min:1'],
+            'package.height' => ['nullable', 'integer', 'min:1'],
         ];
     }
 

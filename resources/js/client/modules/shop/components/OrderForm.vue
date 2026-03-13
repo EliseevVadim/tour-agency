@@ -65,7 +65,14 @@
 
                                 <div v-if="selectedDeliveryTitle && form.city_code">
                                     {{ selectedDeliveryTitle }}:
-                                    {{ formatRub(deliveryCost) }} руб
+                                    <template v-if="isLoadingPriceCdek">
+                                        <span class="placeholder-glow ms-1">
+                                            <span class="placeholder" style="width: 60px;"></span>
+                                        </span>
+                                    </template>
+                                    <template v-else>
+                                        {{ formatRub(deliveryCost) }} руб
+                                    </template>
                                 </div>
 
                                 <div v-if="form.city_code" class="city-small">
@@ -106,13 +113,57 @@
                         </div>
 
                         <div v-if="form.delivery_mode === 'door'">
-                            <div class="form-group">
-                                <input v-model="form.street" type="text" placeholder="Улица" class="form-input"/>
+                            <div class="form-group autocomplete" ref="streetAutocomplete">
+                                <div class="input-wrapper">
+                                    <input
+                                        v-model="form.street"
+                                        type="text"
+                                        placeholder="Улица"
+                                        class="form-input"
+                                        @input="searchStreets"
+                                        @focus="onStreetFocus"
+                                        autocomplete="off"
+                                    />
+                                    <button v-if="form.street" class="clear-btn" @click="clearStreet" type="button">
+                                        ×
+                                    </button>
+                                </div>
+
+                                <ul v-if="streets.length || showStreetNotFound" class="autocomplete-list">
+                                    <li v-for="street in streets" :key="street" @click="selectStreet(street)">
+                                        {{ street }}
+                                    </li>
+                                    <li v-if="showStreetNotFound" class="city-not-found">
+                                        Улица не найдена
+                                    </li>
+                                </ul>
                             </div>
 
                             <div class="address-row">
-                                <div class="form-group">
-                                    <input v-model="form.house" type="text" placeholder="Дом" class="form-input"/>
+                                <div class="form-group autocomplete" ref="buildingAutocomplete">
+                                    <div class="input-wrapper">
+                                        <input
+                                            v-model="form.house"
+                                            type="text"
+                                            placeholder="Дом"
+                                            class="form-input"
+                                            @input="searchBuildings"
+                                            @focus="fetchBuildings"
+                                            autocomplete="off"/>
+                                        <button v-if="form.house" class="clear-btn" @click="clearHouse" type="button">
+                                            ×
+                                        </button>
+                                    </div>
+
+                                    <ul v-if="buildings.length || showBuildingNotFound" class="autocomplete-list">
+                                        <li v-for="building in buildings" :key="building"
+                                            @click="selectBuilding(building)">
+                                            {{ building }}
+                                        </li>
+                                        <li v-if="showBuildingNotFound" class="city-not-found">
+                                            Дом не найден
+                                        </li>
+                                    </ul>
                                 </div>
 
                                 <div class="form-group">
@@ -241,7 +292,14 @@
 
                             <div v-if="selectedDeliveryTitle && form.city_code">
                                 {{ selectedDeliveryTitle }}:
-                                {{ formatRub(deliveryCost) }} руб
+                                <template v-if="isLoadingPriceCdek">
+                                        <span class="placeholder-glow ms-1">
+                                            <span class="placeholder" style="width: 60px;"></span>
+                                        </span>
+                                </template>
+                                <template v-else>
+                                    {{ formatRub(deliveryCost) }} руб
+                                </template>
                             </div>
 
                             <div v-if="form.city_code" class="city-small">
@@ -260,6 +318,8 @@
 </template>
 
 <script>
+import eventBus from "../../../../event-bus";
+
 const CART_STORAGE_KEY = 'shoppingCart';
 
 export default {
@@ -279,8 +339,14 @@ export default {
 
             items: [],
             cities: [],
+            streets: [],
+            buildings: [],
+
             citySearchText: '',
+            streetSearchText: '',
             showCityNotFound: false,
+            showStreetNotFound: false,
+            showBuildingNotFound: false,
 
             deliveryOptions: [],
             deliveryPoints: [],
@@ -292,6 +358,9 @@ export default {
                 city: '',
                 city_code: null,
                 city_uuid: null,
+                city_name: '',
+                city_region: '',
+                city_fias_guid: '',
 
                 delivery_mode: null,
                 pickup_point_code: '',
@@ -311,9 +380,16 @@ export default {
             pickupDropdown: false,
 
             citySearchTimer: null,
+            streetSearchTimer: null,
+            houseSearchTimer: null,
 
             createdOrderId: null,
             barcodePollingTimer: null,
+
+            deliveryRecalculateTimer: null,
+            lastDeliveryCalcSignature: null,
+
+            isLoadingPriceCdek: false,
 
             fallbackImage:
                 'data:image/svg+xml;charset=UTF-8,' +
@@ -409,6 +485,22 @@ export default {
         document.removeEventListener('keydown', this.handleKeydown);
         document.removeEventListener('click', this.handleClickOutside);
         document.body.style.overflow = 'auto';
+
+        if (this.citySearchTimer) {
+            clearTimeout(this.citySearchTimer);
+        }
+
+        if (this.streetSearchTimer) {
+            clearTimeout(this.streetSearchTimer);
+        }
+
+        if (this.houseSearchTimer) {
+            clearTimeout(this.houseSearchTimer);
+        }
+
+        if (this.deliveryRecalculateTimer) {
+            clearTimeout(this.deliveryRecalculateTimer);
+        }
     },
     methods: {
         closeModal() {
@@ -431,12 +523,22 @@ export default {
         },
 
         handleClickOutside(event) {
-            const el = this.$refs.autocomplete;
-            if (!el) return;
-
-            if (!el.contains(event.target)) {
+            const cityEl = this.$refs.autocomplete;
+            if (cityEl && !cityEl.contains(event.target)) {
                 this.cities = [];
                 this.showCityNotFound = false;
+            }
+
+            const streetEl = this.$refs.streetAutocomplete;
+            if (streetEl && !streetEl.contains(event.target)) {
+                this.streets = [];
+                this.showStreetNotFound = false;
+            }
+
+            const buildingEl = this.$refs.buildingAutocomplete;
+            if (buildingEl && !buildingEl.contains(event.target)) {
+                this.buildings = [];
+                this.showBuildingNotFound = false;
             }
         },
 
@@ -492,6 +594,7 @@ export default {
             this.items = updatedCart;
             this.saveCartToStorage(updatedCart);
             localStorage.removeItem('pendingPaymentOrderId');
+            eventBus.$emit('cart:updated');
 
             if (!this.items.length) {
                 this.closeModal();
@@ -499,13 +602,15 @@ export default {
             }
 
             if (this.form.city_code) {
-                this.loadDeliveryOptions();
+                this.scheduleDeliveryRecalculation();
             }
         },
 
         updateQuantity(item, change) {
             const newQuantity = item.quantity + change;
             const availableStock = this.getAvailableStockForSKU(item.productId, item.sku);
+
+            eventBus.$emit('cart:updated');
 
             if (newQuantity <= 0) {
                 this.removeItem(item);
@@ -525,7 +630,9 @@ export default {
                 return;
             }
 
-            const index = this.items.findIndex(i => i.sku === item.sku && i.productId === item.productId);
+            const index = this.items.findIndex(
+                i => i.sku === item.sku && i.productId === item.productId
+            );
 
             if (index !== -1) {
                 this.items[index].quantity = newQuantity;
@@ -533,7 +640,7 @@ export default {
                 localStorage.removeItem('pendingPaymentOrderId');
 
                 if (this.form.city_code) {
-                    this.loadDeliveryOptions();
+                    this.scheduleDeliveryRecalculation();
                 }
             }
         },
@@ -542,12 +649,31 @@ export default {
             this.form.city = '';
             this.form.city_code = null;
             this.form.city_uuid = null;
+            this.form.city_name = '';
+            this.form.city_region = '';
+            this.form.city_fias_guid = '';
+
+            this.form.street = '';
+            this.form.house = '';
+            this.form.flat = '';
+            this.form.entrance = '';
+            this.form.floor = '';
+
             this.form.delivery_mode = null;
             this.form.pickup_point_code = '';
             this.form.pickup_point_address = '';
+
             this.citySearchText = '';
+            this.streetSearchText = '';
+
             this.cities = [];
+            this.streets = [];
+            this.buildings = [];
+
             this.showCityNotFound = false;
+            this.showStreetNotFound = false;
+            this.showBuildingNotFound = false;
+
             this.deliveryOptions = [];
             this.deliveryPoints = [];
             this.selectedDeliveryType = null;
@@ -580,6 +706,21 @@ export default {
 
             this.form.city_uuid = null;
             this.form.city_code = null;
+            this.form.city_name = '';
+            this.form.city_region = '';
+            this.form.city_fias_guid = '';
+
+            this.form.street = '';
+            this.form.house = '';
+            this.form.flat = '';
+            this.form.entrance = '';
+            this.form.floor = '';
+
+            this.streets = [];
+            this.buildings = [];
+            this.showStreetNotFound = false;
+            this.showBuildingNotFound = false;
+
             this.deliveryOptions = [];
             this.deliveryPoints = [];
             this.selectedDeliveryType = null;
@@ -620,25 +761,53 @@ export default {
             this.form.city = `${city.city_name}, ${city.region}`;
             this.form.city_uuid = city.uuid;
             this.form.city_code = city.code;
+            this.form.city_name = city.city_name;
+            this.form.city_region = city.region;
+            this.form.city_fias_guid = city.fias_guid || '';
+
+            this.form.street = '';
+            this.form.house = '';
+            this.form.flat = '';
+            this.form.entrance = '';
+            this.form.floor = '';
+
+            this.streetSearchText = '';
+            this.streets = [];
+            this.buildings = [];
+            this.showStreetNotFound = false;
+            this.showBuildingNotFound = false;
+
             this.citySearchText = city.city_name;
             this.cities = [];
             this.showCityNotFound = false;
 
-            await this.loadDeliveryOptions();
+            this.lastDeliveryCalcSignature = null;
+            await this.calculateDeliveryOptions({ preserveSelection: false });
+            this.lastDeliveryCalcSignature = this.getDeliveryCalcSignature();
         },
 
-        async loadDeliveryOptions() {
+        async calculateDeliveryOptions({ preserveSelection = false } = {}) {
             if (!this.form.city_code || !this.items.length) return;
 
+            const previousType = preserveSelection ? this.selectedDeliveryType : null;
+            const previousTariffCode = preserveSelection ? this.selectedDeliveryTariffCode : null;
+            const previousPickupPointCode = preserveSelection ? this.form.pickup_point_code : '';
+            const previousPickupPointAddress = preserveSelection ? this.form.pickup_point_address : '';
+
             this.loadingDeliveryOptions = true;
-            this.deliveryOptions = [];
-            this.deliveryPoints = [];
-            this.selectedDeliveryType = null;
-            this.selectedDeliveryTariffCode = null;
-            this.form.delivery_mode = null;
-            this.form.pickup_point_code = '';
-            this.form.pickup_point_address = '';
-            this.deliveryCost = 0;
+            this.isLoadingPriceCdek = true;
+
+            if (!preserveSelection) {
+                this.deliveryOptions = [];
+                this.deliveryPoints = [];
+                this.selectedDeliveryType = null;
+                this.selectedDeliveryTariffCode = null;
+                this.form.delivery_mode = null;
+                this.form.pickup_point_code = '';
+                this.form.pickup_point_address = '';
+                this.pickupSearch = '';
+                this.deliveryCost = 0;
+            }
 
             try {
                 const response = await axios.post('/api/delivery/calculate-options', {
@@ -650,24 +819,109 @@ export default {
                 });
 
                 const data = response.data?.data || {};
-                this.deliveryOptions = [data.door, data.pickup].filter(Boolean);
+                const options = [data.door, data.pickup].filter(Boolean);
 
-                if (this.deliveryOptions.length) {
-                    const first = this.deliveryOptions[0];
-                    this.selectedDeliveryType = first.type;
-                    this.selectedDeliveryTariffCode = first.tariff_code;
-                    this.form.delivery_mode = first.type;
-                    this.deliveryCost = Number(first.price || 0);
+                this.deliveryOptions = options;
 
-                    if (first.type === 'pickup') {
-                        await this.loadDeliveryPoints();
-                    }
+                if (!options.length) {
+                    this.selectedDeliveryType = null;
+                    this.selectedDeliveryTariffCode = null;
+                    this.form.delivery_mode = null;
+                    this.form.pickup_point_code = '';
+                    this.form.pickup_point_address = '';
+                    this.pickupSearch = '';
+                    this.deliveryPoints = [];
+                    this.deliveryCost = 0;
+                    return;
+                }
+
+                let selectedOption = null;
+
+                if (preserveSelection && previousType) {
+                    selectedOption = options.find(option => option.type === previousType) || null;
+                }
+
+                if (!selectedOption && preserveSelection && previousTariffCode) {
+                    selectedOption = options.find(option => option.tariff_code === previousTariffCode) || null;
+                }
+
+                if (!selectedOption) {
+                    selectedOption = options[0];
+                }
+
+                this.selectedDeliveryType = selectedOption.type;
+                this.selectedDeliveryTariffCode = selectedOption.tariff_code;
+                this.form.delivery_mode = selectedOption.type;
+                this.deliveryCost = Number(selectedOption.price || 0);
+
+                if (selectedOption.type === 'pickup') {
+                    await this.loadDeliveryPoints({
+                        preserveSelection,
+                        previousPickupPointCode,
+                        previousPickupPointAddress,
+                    });
+                } else {
+                    this.deliveryPoints = [];
+                    this.form.pickup_point_code = '';
+                    this.form.pickup_point_address = '';
+                    this.pickupSearch = '';
                 }
             } catch (e) {
                 this.deliveryOptions = [];
+                this.deliveryPoints = [];
+                this.selectedDeliveryType = null;
+                this.selectedDeliveryTariffCode = null;
+                this.form.delivery_mode = null;
+                this.form.pickup_point_code = '';
+                this.form.pickup_point_address = '';
+                this.pickupSearch = '';
                 this.deliveryCost = 0;
             } finally {
                 this.loadingDeliveryOptions = false;
+                this.isLoadingPriceCdek = false;
+            }
+        },
+
+        async loadDeliveryPoints({
+                                     preserveSelection = false,
+                                     previousPickupPointCode = '',
+                                     previousPickupPointAddress = '',
+                                 } = {}) {
+            if (!this.form.city_code) return;
+
+            if (!preserveSelection) this.loadingDeliveryPoints = true;
+
+            try {
+                if (!preserveSelection || this.deliveryPoints.length !== 0) return;
+                const response = await axios.post('/api/delivery/delivery-points', {
+                    city_code: this.form.city_code,
+                });
+
+                this.deliveryPoints = response.data?.data || [];
+
+                if (preserveSelection && previousPickupPointCode) {
+                    const existingPoint = this.deliveryPoints.find(
+                        point => point.code === previousPickupPointCode
+                    );
+
+                    if (existingPoint) {
+                        this.form.pickup_point_code = existingPoint.code;
+                        this.form.pickup_point_address = existingPoint.address;
+                        this.pickupSearch = existingPoint.address;
+                        return;
+                    }
+                }
+
+                this.form.pickup_point_code = '';
+                this.form.pickup_point_address = '';
+                this.pickupSearch = preserveSelection ? previousPickupPointAddress || '' : '';
+            } catch (e) {
+                this.deliveryPoints = [];
+                this.form.pickup_point_code = '';
+                this.form.pickup_point_address = '';
+                this.pickupSearch = '';
+            } finally {
+                this.loadingDeliveryPoints = false;
             }
         },
 
@@ -676,35 +930,59 @@ export default {
             this.selectedDeliveryTariffCode = option.tariff_code;
             this.form.delivery_mode = option.type;
             this.deliveryCost = Number(option.price || 0);
-            this.form.pickup_point_code = '';
-            this.form.pickup_point_address = '';
-            this.pickupSearch = '';
 
             if (option.type === 'pickup') {
-                await this.loadDeliveryPoints();
+                await this.loadDeliveryPoints({
+                    preserveSelection: true,
+                    previousPickupPointCode: this.form.pickup_point_code,
+                    previousPickupPointAddress: this.form.pickup_point_address,
+                });
             } else {
                 this.deliveryPoints = [];
+                this.form.pickup_point_code = '';
+                this.form.pickup_point_address = '';
+                this.pickupSearch = '';
             }
         },
 
-        async loadDeliveryPoints() {
-            if (!this.form.city_code) return;
+        getDeliveryCalcSignature() {
+            return JSON.stringify({
+                city_code: this.form.city_code,
+                weight: this.totalWeight,
+                length: this.packageLength,
+                width: this.packageWidth,
+                height: this.packageHeight,
+                items: this.items.map(item => ({
+                    productId: item.productId,
+                    sku: item.sku,
+                    quantity: item.quantity,
+                })),
+            });
+        },
 
-            this.loadingDeliveryPoints = true;
-            this.deliveryPoints = [];
-            this.pickupSearch = '';
+        scheduleDeliveryRecalculation() {
+            if (!this.form.city_code || !this.items.length) return;
 
-            try {
-                const response = await axios.post('/api/delivery/delivery-points', {
-                    city_code: this.form.city_code,
-                });
+            const signature = this.getDeliveryCalcSignature();
 
-                this.deliveryPoints = response.data?.data || [];
-            } catch (e) {
-                this.deliveryPoints = [];
-            } finally {
-                this.loadingDeliveryPoints = false;
+            if (signature === this.lastDeliveryCalcSignature) {
+                return;
             }
+
+            if (this.deliveryRecalculateTimer) {
+                clearTimeout(this.deliveryRecalculateTimer);
+            }
+
+            this.deliveryRecalculateTimer = setTimeout(async () => {
+                const currentSignature = this.getDeliveryCalcSignature();
+
+                if (currentSignature === this.lastDeliveryCalcSignature) {
+                    return;
+                }
+
+                await this.calculateDeliveryOptions({ preserveSelection: true });
+                this.lastDeliveryCalcSignature = currentSignature;
+            }, 700);
         },
 
         goNextStep() {
@@ -766,6 +1044,140 @@ export default {
 
                 return result;
             });
+        },
+
+        clearStreet() {
+            this.form.street = '';
+            this.streetSearchText = '';
+            this.streets = [];
+            this.showStreetNotFound = false;
+
+            this.form.house = '';
+            this.buildings = [];
+            this.showBuildingNotFound = false;
+        },
+
+        selectStreet(street) {
+            this.form.street = street;
+            this.streetSearchText = street;
+            this.streets = [];
+            this.showStreetNotFound = false;
+
+            this.form.house = '';
+            this.buildings = [];
+            this.showBuildingNotFound = false;
+        },
+
+        fetchStreets(query) {
+            const q = (query || '').trim();
+
+            if (q.length < 2) {
+                this.streets = [];
+                this.showStreetNotFound = false;
+                return;
+            }
+
+            if (!this.form.city_name || !this.form.city_region) {
+                this.streets = [];
+                this.showStreetNotFound = false;
+                return;
+            }
+
+            axios.get('/api/service/streets', {
+                params: {
+                    query: q,
+                    city: this.form.city_name,
+                    region: this.form.city_region,
+                }
+            })
+                .then((response) => {
+                    this.streets = response.data?.streets || [];
+                    this.showStreetNotFound = this.streets.length === 0;
+                })
+                .catch(() => {
+                    this.streets = [];
+                    this.showStreetNotFound = true;
+                });
+        },
+
+        searchStreets() {
+            const q = (this.form.street || '').trim();
+            this.streetSearchText = q;
+
+            if (this.streetSearchTimer) {
+                clearTimeout(this.streetSearchTimer);
+            }
+
+            this.streetSearchTimer = setTimeout(() => {
+                if (q.length < 2) {
+                    this.streets = [];
+                    this.showStreetNotFound = false;
+                    return;
+                }
+
+                this.fetchStreets(q);
+            }, 300);
+        },
+
+        onStreetFocus() {
+            const q = (this.streetSearchText || this.form.street || '').trim();
+
+            if (this.streets.length) return;
+
+            if (q.length < 2) {
+                this.streets = [];
+                this.showStreetNotFound = false;
+                return;
+            }
+
+            this.fetchStreets(q);
+        },
+
+        clearHouse() {
+            this.form.house = '';
+            this.buildings = [];
+            this.showBuildingNotFound = false;
+        },
+
+        selectBuilding(building) {
+            this.form.house = building;
+            this.buildings = [];
+            this.showBuildingNotFound = false;
+        },
+
+        fetchBuildings() {
+            if (!this.form.street || !this.form.city_name || !this.form.city_region) {
+                this.buildings = [];
+                this.showBuildingNotFound = false;
+                return;
+            }
+
+            axios.get('/api/service/buildings', {
+                params: {
+                    query: this.form.house,
+                    street: this.form.street,
+                    city: this.form.city_name,
+                    region: this.form.city_region,
+                }
+            })
+                .then((response) => {
+                    this.buildings = response.data?.buildings || [];
+                    this.showBuildingNotFound = this.buildings.length === 0;
+                })
+                .catch(() => {
+                    this.buildings = [];
+                    this.showBuildingNotFound = true;
+                });
+        },
+
+        searchBuildings() {
+            if (this.houseSearchTimer) {
+                clearTimeout(this.houseSearchTimer);
+            }
+
+            this.houseSearchTimer = setTimeout(() => {
+                this.fetchBuildings();
+            }, 300);
         },
 
         async submitOrder() {
@@ -980,10 +1392,10 @@ export default {
 }
 
 .product-image {
-    width: 120px;
-    height: 120px;
+    width: clamp(160px, 17vw, 250px);
+    height: clamp(170px, 18vw, 300px);
     object-fit: cover;
-    border-radius: 2px;
+    border-radius: 4px;
 }
 
 .product-details {
@@ -991,14 +1403,14 @@ export default {
 }
 
 .product-name {
-    font-size: 22px;
+    font-size: 28px;
     font-weight: 800;
     line-height: 1.1;
     margin-bottom: 10px;
 }
 
 .meta {
-    font-size: 14px;
+    font-size: 18px;
     color: #111;
     display: grid;
     gap: 10px;
@@ -1008,7 +1420,7 @@ export default {
 .qty-row {
     display: flex;
     flex-direction: column;
-    font-size: 14px;
+    font-size: 18px;
 }
 
 .qty-label {
@@ -1061,14 +1473,14 @@ export default {
 
 .price-lines {
     text-align: right;
-    font-size: 12px;
+    font-size: 16px;
     color: #111;
     line-height: 1.6;
 }
 
 .final-row {
     text-align: right;
-    font-size: 12px;
+    font-size: 16px;
 }
 
 .autocomplete {
@@ -1202,17 +1614,19 @@ export default {
 @media (max-width: 1023px) {
     .order-page-container {
         flex-direction: column;
-        padding-left: 0;
+        padding-left: 20px;
         padding-right: 0;
     }
 
     .left-column {
         order: 1;
+        padding-right: 20px;
     }
 
     .right-column {
         width: 100%;
         overflow: unset !important;
+        padding-right: 20px;
     }
 
     .back-link {

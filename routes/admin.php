@@ -8,6 +8,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentTransactionsExportController;
 use App\Http\Controllers\PromoCodeController;
 use App\Http\Controllers\ReviewsController;
+use App\Http\Controllers\Shop\OrderPaymentController;
 use App\Http\Controllers\Shop\ProductController;
 use App\Http\Controllers\TeamController;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,8 @@ Route::middleware(['admin.auth.hash'])->prefix('admin')->name('admin.')->group(f
     Route::view('/orders', 'admin.orders')->name('orders');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show']);
     Route::view('/shop', 'admin.admin-shop');
+    Route::get('/shop/payment/return', [OrderPaymentController::class, 'handleReturn'])
+        ->name('admin.shop.payment.return');
 
     Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
 

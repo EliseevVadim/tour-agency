@@ -10,6 +10,10 @@
                 </button>
             </header>
 
+            <div class="line-block">
+                <div class="line-block-extra"></div>
+            </div>
+
             <div class="sidebar-body">
                 <div v-if="items.length === 0" class="empty-message">
                     Список избранного пуст.
