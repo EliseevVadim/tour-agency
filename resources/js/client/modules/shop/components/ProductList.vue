@@ -58,7 +58,7 @@ import rawData from '../data/platform_data.json';
 const WISHLIST_STORAGE_KEY = 'merchWishlistIds';
 const WISHLIST_FULL_DATA_KEY = 'merchWishlistFullData';
 const FILTERS_SORT_STORAGE_KEY = 'merchFiltersAndSort';
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 16;
 
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -131,7 +131,7 @@ export default {
 
         displayedGroups() {
             const groups = [];
-            const productsPerGroup = 6;
+            const productsPerGroup = 8;
 
             for (let i = 0; i < this.sortedAndFilteredProducts.length; i += productsPerGroup) {
                 const groupProducts = this.sortedAndFilteredProducts.slice(i, i + productsPerGroup);
@@ -431,7 +431,7 @@ export default {
 
 @media (min-width: 768px) {
     .product-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         gap: 30px;
     }
 }

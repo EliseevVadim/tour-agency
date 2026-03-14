@@ -444,20 +444,14 @@ export default {
 
 .modal-backdrop {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
     overflow-y: auto;
+    background: white;
+    height: 100%;
 }
 
 .modal-content {
     background: white;
-    height: auto;
     min-height: 100vh;
-    overflow: auto;
 }
 
 .product-header {
@@ -486,15 +480,13 @@ export default {
 }
 
 .image-list {
-    /* display: flex;
-     flex-direction: column;
-     gap: 10px;*/
     width: 165px;
 }
 
 .image-wrapper {
     object-fit: cover;
     position: relative;
+    cursor: pointer;
 
     img {
         width: 100%;
@@ -577,6 +569,11 @@ export default {
         appearance: none;
         cursor: pointer;
         outline: none;
+
+        -webkit-tap-highlight-color: transparent;
+        -webkit-appearance: none;
+        appearance: none;
+        color: #000;
     }
 
     .select-icon {

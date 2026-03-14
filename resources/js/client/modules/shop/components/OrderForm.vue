@@ -1186,6 +1186,16 @@ export default {
                 return;
             }
 
+            if (!this.isValidEmail(this.form.email)) {
+                this.$notify({
+                    group: 'notification',
+                    type: 'warn',
+                    duration: 4000,
+                    text: 'Введите корректный email'
+                });
+                return;
+            }
+
             if (!this.items.length) {
                 alert('Корзина пуста');
                 return;
@@ -1252,6 +1262,11 @@ export default {
                 this.loading = false;
             }
         },
+
+        isValidEmail(email) {
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(email);
+        }
     }
 };
 </script>
@@ -1292,13 +1307,12 @@ body.modal-open {
 .modal-overlay {
     position: fixed;
     inset: 0;
-    height: 100dvh;
+    height: 100vh;
     overscroll-behavior: contain;
 }
 
 .modal-content {
     min-height: 100vh;
-    min-height: 100dvh;
 }
 
 .modal-content-order {
