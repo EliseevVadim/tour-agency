@@ -8,7 +8,12 @@
         />
 
         <div class="modal-content">
-            <div class="product-header container">
+            <div class="product-header container d-flex gap-2">
+                <svg class="icon-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                     xmlns="http://www.w3.org/2000/svg" style="width: 22px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
                 <h2 @click="closeModal" class="fw-bold cursor-pointer">Назад</h2>
             </div>
             <div v-if="product" class="product-card container">
@@ -67,7 +72,7 @@
                                 {{ finalPrice }} руб.
                             </h2>
                             <div class="btn-actions d-flex gap-4 align-items-center">
-                                <button @click="addToCart" class="btn btn-cta"
+                                <button @click="addToCart" class="btn btn-cta h-100"
                                         :class="{'out-of-stock': !isInStock}">
                                     {{ isInStock ? 'в корзину' : 'сообщить о наличии' }}
                                 </button>
@@ -163,18 +168,22 @@ export default {
                 showDots: false
             }, {minWidth: 768, slidesPerPage: 2,}, {minWidth: 1024, slidesPerPage: 3,}],
             otherProducts: [],
+
+            screenWidth: window.innerWidth
         };
     },
 
     computed: {
         swiperOptions() {
+            const isMobile = this.screenWidth < 768
+
             return {
-                direction: "vertical",
-                slidesPerView: 4,
-                mousewheel: true,
+                direction: isMobile ? "horizontal" : "vertical",
+                slidesPerView: isMobile ? 4 : 4,
+                mousewheel: !isMobile,
                 spaceBetween: 12,
-                loop: false,
-            };
+                loop: false
+            }
         },
 
         sortedImages() {
@@ -405,6 +414,10 @@ export default {
             eventBus.$emit("cart:updated");
             this.isNotificationVisible = false;
         },
+
+        updateScreenWidth() {
+            this.screenWidth = window.innerWidth
+        }
     },
 
     watch: {
@@ -421,6 +434,7 @@ export default {
 
     mounted() {
         eventBus.$on("update-favorites", this.checkInWishlist);
+        window.addEventListener('resize', this.updateScreenWidth);
     },
 };
 </script>/
@@ -668,6 +682,71 @@ export default {
     background-position-x: 96%;
     background-position-y: 56%;
 }
+
+@media (max-width: 767.98px) {
+    .gallery-wrapper {
+        width: 100%;
+    }
+
+    .product-content {
+        padding: 10px;
+    }
+
+    .gallery {
+        flex-direction: column;
+        max-height: none;
+        gap: 12px;
+    }
+
+    .image-list {
+        width: 100%;
+        order: 1;
+    }
+
+    .main-image {
+        order: 1;
+        width: 100%;
+        height: auto;
+    }
+
+    .gallery .swiper-container {
+        height: auto;
+    }
+
+    .gallery .swiper-wrapper {
+        flex-direction: row !important;
+    }
+
+    .gallery .swiper-slide {
+        width: 80px !important;
+        height: 80px;
+        flex-shrink: 0;
+    }
+
+    .image-wrapper {
+        height: 80px;
+    }
+
+    .main-image {
+        height: 380px;
+    }
+
+    .main-image img {
+        object-fit: cover;
+    }
+
+    .image-list .swiper-wrapper {
+        scroll-snap-type: x mandatory;
+    }
+
+    .options {
+        .custom-select {
+            font-size: 16px;
+        }
+    }
+}
+
+
 </style>
 
 <style lang="scss">

@@ -2,7 +2,7 @@
     <div class="header-controls-container">
         <div v-if="isActiveSearch" class="sidebar-search-top sidebar-overlay" :class="{ active: isActiveSearch }"
              @click.self="closeSearchOverlay">
-            <header class="sidebar-header">
+            <header class="sidebar-header mb-0">
                 <div class="container search-modal-wrap-search">
                     <div class="search-modal-inside">
                         <div class="search-modal-inside-input">
@@ -26,7 +26,7 @@
                 </div>
             </header>
 
-            <div class="sidebar-body" v-if="searchQuery.trim().length > 0">
+            <div class="sidebar-body mt-0" v-if="searchQuery.trim().length > 0">
                 <div class="container search-modal-wrap-result" :class="{'active': searchQuery.trim().length > 0}">
                     <div class="search-modal-result">
                         <h3>{{ listMeta.total }} результатов по запросу: {{ searchQuery }}</h3>
