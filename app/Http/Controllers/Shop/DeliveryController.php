@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Shop;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CdekCalculateOptionsRequest;
 use App\Http\Requests\CdekCreateOrderRequest;
+use App\Models\City;
 use App\Models\Order;
 use App\Services\Cdek\CdekService;
 use App\Services\Cdek\NotificationOrderService;
 use App\Services\DadataService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
@@ -25,62 +27,37 @@ class DeliveryController extends Controller
             return response()->json(['data' => []]);
         }
 
-        $path = resource_path('js/client/modules/shop/data/cities.csv');
+        $query = mb_strtolower($query);
 
-        if (!file_exists($path)) {
-            return response()->json(['error' => 'CSV not found'], 404);
-        }
+        $cities = Cache::remember(
+            'cities_search_' . $query,
+            now()->addHours(12),
+            function () use ($query) {
 
-        $handle = fopen($path, 'r');
-        $header = fgetcsv($handle, 0, ',');
+                return City::query()
+                    ->where('city_name', 'like', $query . '%')
+                    ->limit(20)
+                    ->get([
+                        'city_name',
+                        'code',
+                        'uuid',
+                        'fias_guid',
+                        'region',
+                        'region_code',
+                        'sub_region',
+                        'kladr_region_code',
+                        'time_zone',
+                        'longitude',
+                        'latitude',
+                        'payment_limit'
+                    ]);
 
-        if (!$header) {
-            fclose($handle);
-
-            return response()->json(['error' => 'Empty CSV'], 422);
-        }
-
-        $header = array_map(function ($item) {
-            return trim($item, "\xEF\xBB\xBF");
-        }, $header);
-
-        $rows = [];
-
-        while (($data = fgetcsv($handle, 0, ',')) !== false) {
-            if (count($data) !== count($header)) {
-                continue;
             }
+        );
 
-            $row = array_combine($header, $data);
-            $city = trim($row['city_name'] ?? '');
-
-            if ($city === '') {
-                continue;
-            }
-
-            if (mb_stripos($city, $query, 0, 'UTF-8') !== 0) {
-                continue;
-            }
-
-            $rows[] = [
-                'city_name' => $row['city_name'] ?? null,
-                'code' => isset($row['code']) ? (int) $row['code'] : null,
-                'uuid' => $row['uuid'] ?? null,
-                'fias_guid' => $row['fias_guid'] ?? null,
-                'region' => $row['region'] ?? null,
-                'region_code' => $row['region_code'] ?? null,
-                'sub_region' => $row['sub_region'] ?? null,
-                'kladr_region_code' => $row['kladr_region_code'] ?? null,
-                'time_zone' => $row['time_zone'] ?? null,
-                'longitude' => $row['longitude'] ?? null,
-                'latitude' => $row['latitude'] ?? null,
-                'payment_limit' => $row['payment_limit'] ?? null,
-            ];
-        }
-
-        fclose($handle);
-
-        return response()->json(['data' => $rows]);
+        return response()->json([
+            'data' => $cities
+        ]);
     }
 
     public function getStreets(Request $request, DadataService $dadataService): JsonResponse

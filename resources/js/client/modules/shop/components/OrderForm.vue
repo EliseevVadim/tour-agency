@@ -479,6 +479,7 @@ export default {
         document.addEventListener('keydown', this.handleKeydown);
         document.addEventListener('click', this.handleClickOutside);
         document.body.style.overflow = 'hidden';
+        document.body.classList.add('modal-open')
         this.loadCart();
     },
     beforeDestroy() {
@@ -782,11 +783,11 @@ export default {
             this.showCityNotFound = false;
 
             this.lastDeliveryCalcSignature = null;
-            await this.calculateDeliveryOptions({ preserveSelection: false });
+            await this.calculateDeliveryOptions({preserveSelection: false});
             this.lastDeliveryCalcSignature = this.getDeliveryCalcSignature();
         },
 
-        async calculateDeliveryOptions({ preserveSelection = false } = {}) {
+        async calculateDeliveryOptions({preserveSelection = false} = {}) {
             if (!this.form.city_code || !this.items.length) return;
 
             const previousType = preserveSelection ? this.selectedDeliveryType : null;
@@ -980,7 +981,7 @@ export default {
                     return;
                 }
 
-                await this.calculateDeliveryOptions({ preserveSelection: true });
+                await this.calculateDeliveryOptions({preserveSelection: true});
                 this.lastDeliveryCalcSignature = currentSignature;
             }, 700);
         },
@@ -1267,12 +1268,41 @@ export default {
     justify-content: center;
     align-items: center;
     z-index: 1000;
+
+    overscroll-behavior: contain;
+}
+
+.modal-content {
+    min-height: 100vh;
 }
 
 .modal-content-order {
     border: none;
     height: 100%;
     width: 100%;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}
+
+body.modal-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    height: 100dvh;
+    overscroll-behavior: contain;
+}
+
+.modal-content {
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+.modal-content-order {
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
 }
 
 .order-page-container {

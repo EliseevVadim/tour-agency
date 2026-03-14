@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CdekCreateOrderRequest;
 use App\Models\Order;
 use App\Models\OrderPayment;
+use App\Models\ProductSku;
 use App\Services\Cdek\CdekService;
 use App\Services\Checkout\OrderDeliveryService;
 use App\Services\YooKassa\YooKassaService;
@@ -42,17 +43,17 @@ class OrderPaymentController extends Controller
             $items = $request->input('items', []);
 
             $itemsPrice = collect($items)->sum(function ($item) {
-                $qty = (int) ($item['quantity'] ?? ($item['amount'] ?? 1));
+                $qty = (int)($item['quantity'] ?? ($item['amount'] ?? 1));
 
-                return ((float) ($item['cost'] ?? 0)) * $qty;
+                return ((float)($item['cost'] ?? 0)) * $qty;
             });
 
-            $deliveryPrice = (float) $request->input('delivery_price');
+            $deliveryPrice = (float)$request->input('delivery_price');
             $totalPrice = round($itemsPrice + $deliveryPrice, 2);
 
             $tariffCode = $request->filled('tariff_code')
-                ? (int) $request->input('tariff_code')
-                : (int) ($deliveryMode === 'pickup'
+                ? (int)$request->input('tariff_code')
+                : (int)($deliveryMode === 'pickup'
                     ? config('cdek.tariffs.pickup')
                     : config('cdek.tariffs.door'));
 
@@ -75,10 +76,10 @@ class OrderPaymentController extends Controller
                 'delivery_price' => $deliveryPrice,
                 'items_price' => $itemsPrice,
                 'total_price' => $totalPrice,
-                'package_weight' => (int) $request->input('package.weight'),
-                'package_length' => (int) $request->input('package.length'),
-                'package_width' => (int) $request->input('package.width'),
-                'package_height' => (int) $request->input('package.height'),
+                'package_weight' => (int)$request->input('package.weight'),
+                'package_length' => (int)$request->input('package.length'),
+                'package_width' => (int)$request->input('package.width'),
+                'package_height' => (int)$request->input('package.height'),
                 'status' => 'pending',
                 'payment_status' => 'pending',
                 'items' => $items,
@@ -89,12 +90,12 @@ class OrderPaymentController extends Controller
                 'amount' => $itemsPrice,
                 'description' => 'Оплата заказа ' . $order->number,
                 'metadata' => [
-                    'order_id' => (string) $order->id,
-                    'order_number' => (string) $order->number,
+                    'order_id' => (string)$order->id,
+                    'order_number' => (string)$order->number,
                 ],
             ]);
 
-            $paymentResult = $yooKassa->createPayment($paymentPayload, (string) Str::uuid());
+            $paymentResult = $yooKassa->createPayment($paymentPayload, (string)Str::uuid());
 
             if (empty($paymentResult['success'])) {
                 DB::rollBack();
@@ -173,13 +174,6 @@ class OrderPaymentController extends Controller
         $paymentId = data_get($payload, 'object.id');
         $metadataOrderId = data_get($payload, 'object.metadata.order_id');
 
-        Log::info('YooKassa webhook received', [
-            'event' => $event,
-            'payment_id' => $paymentId,
-            'metadata_order_id' => $metadataOrderId,
-            'payload' => $payload,
-        ]);
-
         if (!$paymentId) {
             return response()->json([
                 'success' => false,
@@ -192,8 +186,6 @@ class OrderPaymentController extends Controller
             if (empty($paymentInfo['success'])) {
                 Log::warning('YooKassa payment verification failed', [
                     'payment_id' => $paymentId,
-                    'event' => $event,
-                    'response' => $paymentInfo['data'] ?? [],
                     'errors' => $paymentInfo['errors'] ?? [],
                 ]);
 
@@ -259,6 +251,10 @@ class OrderPaymentController extends Controller
                         'status' => 'paid',
                     ]);
 
+                    if (!$alreadyPaid) {
+                        $this->decreaseStock($order);
+                    }
+
                     if (!$alreadyPaid && !$order->cdek_uuid && $order->status !== 'delivery_created') {
                         $shouldCreateDelivery = true;
                     }
@@ -304,6 +300,34 @@ class OrderPaymentController extends Controller
             ]);
 
             return response()->json(['success' => false], 500);
+        }
+    }
+
+    private function decreaseStock(Order $order): void
+    {
+        $items = is_array($order->items) ? $order->items : [];
+
+        foreach ($items as $item) {
+            $skuCode = $item['sku'] ?? null;
+            if (!$skuCode) {
+                continue;
+            }
+
+            $qty = (int)($item['quantity'] ?? $item['amount'] ?? 1);
+            $sku = ProductSku::query()
+                ->where('sku', $skuCode)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$sku) {
+                Log::warning('SKU not found while decreasing stock', [
+                    'sku' => $skuCode,
+                    'order_id' => $order->id
+                ]);
+                continue;
+            }
+
+            $sku->decrement('stock_qty', min($qty, $sku->stock_qty));
         }
     }
 
