@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ReferralController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Api\Course\CoursesController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClipController;
 use App\Http\Controllers\DataController;
@@ -77,6 +78,8 @@ Route::prefix('api')->name('api.')->group(function () {
 
         Route::get('/orders/{order}/status', [OrderPaymentController::class, 'status']);
     });
+
+    Route::post('/cart/validate', [CartController::class, 'validateCart']);
 
     Route::post('/stock-notification-requests', [StockNotificationRequestController::class, 'store']);
 });

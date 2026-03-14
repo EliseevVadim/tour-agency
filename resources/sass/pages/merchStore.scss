@@ -1,9 +1,8 @@
 .tour-store {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: 100svh;
     height: 100%;
-    //background: linear-gradient(90deg, $btn-cta-gradient-start 0%, $btn-cta-gradient-end 100%);
 
     &__container {
         flex-grow: 1;
@@ -110,7 +109,7 @@
         position: fixed;
         top: 0;
         right: 0;
-        height: 100vh;
+        height: 100svh;
         width: 100%;
         max-width: 570px;
         background: white;
@@ -289,6 +288,10 @@
     }
 
     @media (max-width: 767.98px) {
+        .overlay-backdrop {
+            background: white;
+        }
+
         .sidebar-body {
             padding-bottom: 20px;
         }

@@ -7,7 +7,7 @@
 
         <ProductDetailModal v-if="modalProductData"
                             :is-visible="isDetailVisible"
-                            :product="modalProductData"
+                            :temp-product="modalProductData"
                             @close="closeModal"
                             @toggle-wishlist="handleWishlist"
                             @change-detail-product="changeDetailProduct"/>

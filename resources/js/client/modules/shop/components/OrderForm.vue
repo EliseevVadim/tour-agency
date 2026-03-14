@@ -1181,6 +1181,42 @@ export default {
             }, 300);
         },
 
+        getOrderPayload() {
+            const payload = {
+                existing_order_id: localStorage.getItem("pendingPaymentOrderId") || null,
+                delivery_mode: this.form.delivery_mode,
+                tariff_code: this.selectedDeliveryTariffCode,
+                city: this.form.city,
+                city_code: this.form.city_code,
+                recipient_name: this.form.fio,
+                recipient_phone: this.form.phone,
+                recipient_email: this.form.email,
+                delivery_price: this.deliveryCost,
+                package: {
+                    weight: this.totalWeight,
+                    length: this.packageLength,
+                    width: this.packageWidth,
+                    height: this.packageHeight
+                },
+                items: this.buildOrderItems()
+            };
+
+            if (this.form.delivery_mode === "pickup") {
+                payload.pickup_point_code = this.form.pickup_point_code;
+                payload.pickup_point_address = this.form.pickup_point_address;
+            }
+
+            if (this.form.delivery_mode === "door") {
+                payload.street = this.form.street;
+                payload.house = this.form.house;
+                payload.flat = this.form.flat;
+                payload.entrance = this.form.entrance;
+                payload.floor = this.form.floor;
+            }
+
+            return payload;
+        },
+
         async submitOrder() {
             if (!this.canSubmit) {
                 return;
@@ -1196,47 +1232,10 @@ export default {
                 return;
             }
 
-            if (!this.items.length) {
-                alert('Корзина пуста');
-                return;
-            }
-
             this.loading = true;
 
             try {
-                const payload = {
-                    existing_order_id: localStorage.getItem('pendingPaymentOrderId') || null,
-                    delivery_mode: this.form.delivery_mode,
-                    tariff_code: this.selectedDeliveryTariffCode,
-                    city: this.form.city,
-                    city_code: this.form.city_code,
-                    recipient_name: this.form.fio,
-                    recipient_phone: this.form.phone,
-                    recipient_email: this.form.email,
-                    delivery_price: this.deliveryCost,
-                    package: {
-                        weight: this.totalWeight,
-                        length: this.packageLength,
-                        width: this.packageWidth,
-                        height: this.packageHeight,
-                    },
-                    items: this.buildOrderItems(),
-                };
-
-                if (this.form.delivery_mode === 'pickup') {
-                    payload.pickup_point_code = this.form.pickup_point_code;
-                    payload.pickup_point_address = this.form.pickup_point_address;
-                }
-
-                if (this.form.delivery_mode === 'door') {
-                    payload.street = this.form.street;
-                    payload.house = this.form.house;
-                    payload.flat = this.form.flat;
-                    payload.entrance = this.form.entrance;
-                    payload.floor = this.form.floor;
-                }
-
-                const response = await axios.post('/api/delivery/orders', payload);
+                const response = await axios.post('/api/delivery/orders', this.getOrderPayload());
                 const responseData = response && response.data ? response.data : null;
 
                 const confirmationUrl = responseData ? responseData.confirmation_url : null;
@@ -1270,6 +1269,7 @@ export default {
     }
 };
 </script>
+
 <style scoped>
 .delivery-option input[type="radio"] {
     accent-color: #ff5a2f;

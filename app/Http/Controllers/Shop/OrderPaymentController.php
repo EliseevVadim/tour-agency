@@ -7,8 +7,8 @@ use App\Http\Requests\CdekCreateOrderRequest;
 use App\Models\Order;
 use App\Models\OrderPayment;
 use App\Models\ProductSku;
-use App\Services\Cdek\CdekService;
 use App\Services\Checkout\OrderDeliveryService;
+use App\Services\Cdek\CdekService;
 use App\Services\YooKassa\YooKassaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,8 +19,7 @@ use Throwable;
 
 class OrderPaymentController extends Controller
 {
-    public function create(CdekCreateOrderRequest $request, CdekService $cdek, YooKassaService $yooKassa)
-    {
+    public function create(CdekCreateOrderRequest $request, CdekService $cdek, YooKassaService $yooKassa): JsonResponse {
         DB::beginTransaction();
 
         try {
@@ -33,6 +32,7 @@ class OrderPaymentController extends Controller
                     ->first();
 
                 if ($oldOrder && $oldOrder->payment_status !== 'paid') {
+                    $this->releaseStock($oldOrder);
                     $oldOrder->payments()->delete();
                     $oldOrder->delete();
                 }
@@ -42,9 +42,10 @@ class OrderPaymentController extends Controller
             $phone = $cdek->normalizePhone($request->input('recipient_phone'));
             $items = $request->input('items', []);
 
-            $itemsPrice = collect($items)->sum(function ($item) {
-                $qty = (int)($item['quantity'] ?? ($item['amount'] ?? 1));
+            $this->reserveStock($items);
 
+            $itemsPrice = collect($items)->sum(function ($item) {
+                $qty = (int)($item['quantity'] ?? $item['amount'] ?? 1);
                 return ((float)($item['cost'] ?? 0)) * $qty;
             });
 
@@ -95,7 +96,7 @@ class OrderPaymentController extends Controller
                 ],
             ]);
 
-            $paymentResult = $yooKassa->createPayment($paymentPayload, (string)Str::uuid());
+            $paymentResult = $yooKassa->createPayment($paymentPayload, (string) Str::uuid());
 
             if (empty($paymentResult['success'])) {
                 DB::rollBack();
@@ -154,21 +155,25 @@ class OrderPaymentController extends Controller
         } catch (Throwable $e) {
             DB::rollBack();
 
+            $message = $e->getMessage();
+            $isStockError = str_contains($message, 'Недостаточно остатка')
+                || str_contains($message, 'SKU not found')
+                || str_contains($message, 'SKU is missing');
+
             Log::error('Create order payment exception', [
-                'message' => $e->getMessage(),
+                'message' => $message,
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'errors' => ['Ошибка создания заказа'],
-            ], 500);
+                'errors' => [$isStockError ? $message : 'Ошибка создания заказа'],
+            ], $isStockError ? 422 : 500);
         }
     }
 
-    public function webhook(Request $request, YooKassaService $yooKassa, OrderDeliveryService $orderDeliveryService)
-    {
+    public function webhook(Request $request, YooKassaService $yooKassa, OrderDeliveryService $orderDeliveryService): JsonResponse {
         $payload = $request->all();
         $event = data_get($payload, 'event');
         $paymentId = data_get($payload, 'object.id');
@@ -183,6 +188,7 @@ class OrderPaymentController extends Controller
 
         try {
             $paymentInfo = $yooKassa->getPayment($paymentId);
+
             if (empty($paymentInfo['success'])) {
                 Log::warning('YooKassa payment verification failed', [
                     'payment_id' => $paymentId,
@@ -199,20 +205,28 @@ class OrderPaymentController extends Controller
             $shouldCreateDelivery = false;
 
             DB::transaction(function () use (
-                $paymentId, $metadataOrderId, $payload, $paymentObject,
-                $status, &$order, &$shouldCreateDelivery
+                $paymentId,
+                $metadataOrderId,
+                $payload,
+                $paymentObject,
+                $status,
+                &$order,
+                &$shouldCreateDelivery
             ) {
-                $payment = OrderPayment::where('payment_id', $paymentId)
+                $payment = OrderPayment::query()
+                    ->where('payment_id', $paymentId)
                     ->lockForUpdate()
                     ->first();
 
                 if (!$payment && $metadataOrderId) {
-                    $order = Order::where('id', $metadataOrderId)
+                    $order = Order::query()
+                        ->where('id', $metadataOrderId)
                         ->lockForUpdate()
                         ->first();
 
                     if ($order) {
-                        $payment = OrderPayment::where('order_id', $order->id)
+                        $payment = OrderPayment::query()
+                            ->where('order_id', $order->id)
                             ->latest('id')
                             ->lockForUpdate()
                             ->first();
@@ -224,7 +238,8 @@ class OrderPaymentController extends Controller
                 }
 
                 if (!$order) {
-                    $order = Order::where('id', $payment->order_id)
+                    $order = Order::query()
+                        ->where('id', $payment->order_id)
                         ->lockForUpdate()
                         ->first();
                 }
@@ -251,19 +266,29 @@ class OrderPaymentController extends Controller
                         'status' => 'paid',
                     ]);
 
-                    if (!$alreadyPaid) {
-                        $this->decreaseStock($order);
-                    }
-
                     if (!$alreadyPaid && !$order->cdek_uuid && $order->status !== 'delivery_created') {
                         $shouldCreateDelivery = true;
                     }
-                } elseif ($status === 'canceled') {
+
+                    return;
+                }
+
+                if ($status === 'canceled') {
+                    $alreadyCanceled = $order->payment_status === 'canceled';
+
+                    if (!$alreadyCanceled && $order->payment_status !== 'paid') {
+                        $this->releaseStock($order);
+                    }
+
                     $order->update([
                         'payment_status' => 'canceled',
                         'status' => 'canceled',
                     ]);
-                } elseif ($status === 'waiting_for_capture') {
+
+                    return;
+                }
+
+                if ($status === 'waiting_for_capture') {
                     $order->update([
                         'payment_status' => 'waiting_for_capture',
                     ]);
@@ -285,7 +310,7 @@ class OrderPaymentController extends Controller
             Log::info('YooKassa webhook handled', [
                 'event' => $event,
                 'payment_id' => $paymentId,
-                'order_id' => $order ? $order->id : null,
+                'order_id' => $order->id,
                 'status' => $status,
                 'delivery_started' => $shouldCreateDelivery,
             ]);
@@ -303,31 +328,69 @@ class OrderPaymentController extends Controller
         }
     }
 
-    private function decreaseStock(Order $order): void
+    private function reserveStock(array $items): void
     {
-        $items = is_array($order->items) ? $order->items : [];
-
         foreach ($items as $item) {
             $skuCode = $item['sku'] ?? null;
+
             if (!$skuCode) {
-                continue;
+                throw new \RuntimeException('SKU is missing');
             }
 
             $qty = (int)($item['quantity'] ?? $item['amount'] ?? 1);
+
             $sku = ProductSku::query()
                 ->where('sku', $skuCode)
                 ->lockForUpdate()
                 ->first();
 
             if (!$sku) {
-                Log::warning('SKU not found while decreasing stock', [
+                throw new \RuntimeException('SKU not found: ' . $skuCode);
+            }
+
+            if ($qty <= 0) {
+                throw new \RuntimeException('Некорректное количество для SKU ' . $skuCode);
+            }
+
+            if ($sku->stock_qty < $qty) {
+                throw new \RuntimeException('Недостаточно остатка для SKU ' . $skuCode);
+            }
+
+            $sku->decrement('stock_qty', $qty);
+        }
+    }
+
+    private function releaseStock(Order $order): void
+    {
+        $items = is_array($order->items) ? $order->items : [];
+
+        foreach ($items as $item) {
+            $skuCode = $item['sku'] ?? null;
+
+            if (!$skuCode) {
+                continue;
+            }
+
+            $qty = (int)($item['quantity'] ?? $item['amount'] ?? 1);
+
+            if ($qty <= 0) {
+                continue;
+            }
+
+            $sku = ProductSku::query()
+                ->where('sku', $skuCode)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$sku) {
+                Log::warning('SKU not found while releasing stock', [
                     'sku' => $skuCode,
-                    'order_id' => $order->id
+                    'order_id' => $order->id,
                 ]);
                 continue;
             }
 
-            $sku->decrement('stock_qty', min($qty, $sku->stock_qty));
+            $sku->increment('stock_qty', $qty);
         }
     }
 

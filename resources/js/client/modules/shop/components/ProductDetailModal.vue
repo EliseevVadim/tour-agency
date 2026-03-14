@@ -1,10 +1,10 @@
 <template>
     <div v-if="isVisible" class="modal-backdrop">
-        <notification-modal
-            :is-visible="isNotificationVisible"
-            :product="product"
-            :current-sku="currentSKU"
-            @close="isNotificationVisible = false"
+        <notification-modal v-if="product"
+                            :is-visible="isNotificationVisible"
+                            :product="product"
+                            :current-sku="currentSKU"
+                            @close="isNotificationVisible = false"
         />
 
         <div class="modal-content">
@@ -16,7 +16,14 @@
                 </svg>
                 <h2 @click="closeModal" class="fw-bold cursor-pointer">Назад</h2>
             </div>
-            <div v-if="product" class="product-card container">
+
+            <div class="loader" v-if="isProductLoading">
+                <div class="loader__dot"></div>
+                <div class="loader__dot"></div>
+                <div class="loader__dot"></div>
+            </div>
+
+            <div v-if="!isProductLoading && product" class="product-card container">
                 <div class="product-content">
                     <div class="d-flex flex-column gallery-wrapper justify-content-between">
                         <div class="gallery">
@@ -48,7 +55,7 @@
                             {{ product.description }}
                         </p>
 
-                        <div v-if="product.available_skus.length > 0" class="options">
+                        <div v-if="product?.available_skus?.length > 0" class="options">
                             <div v-for="(attr, index) in product.attributes" :key="attr.name" class="form-group">
                                 <label :for="'select-' + attr.name">{{ attr.name }}:</label>
                                 <div class="select-wrapper position-relative">
@@ -145,7 +152,7 @@ export default {
     components: {NotificationModal, ProductCard},
     props: {
         isVisible: {type: Boolean, required: true},
-        product: {type: Object, default: null},
+        tempProduct: {type: Object, default: null},
     },
     emits: ["close", "toggle-wishlist", "change-detail-product"],
     data() {
@@ -168,6 +175,9 @@ export default {
                 showDots: false
             }, {minWidth: 768, slidesPerPage: 2,}, {minWidth: 1024, slidesPerPage: 3,}],
             otherProducts: [],
+
+            product: {},
+            isProductLoading: false,
 
             screenWidth: window.innerWidth
         };
@@ -344,12 +354,20 @@ export default {
                     product.current_sku?.[attr.name] ??
                     null;
 
-                initial[attr.name] = attr.options?.includes(preset) ? preset : null;
+                initial[attr.name] = preset ?? null;
             });
 
             this.selectedAttributes = initial;
             this.recalcActiveOptions();
-            this.autoFixSelections();
+
+            (product.attributes || []).forEach((attr) => {
+                const allowed = this.activeAttributeOptions[attr.name] || attr.options || [];
+                if (!allowed.includes(this.selectedAttributes[attr.name])) {
+                    this.$set(this.selectedAttributes, attr.name, allowed[0] ?? null);
+                }
+            });
+
+            this.recalcActiveOptions();
         },
 
         handleAttributeChange(attrName, value) {
@@ -421,13 +439,25 @@ export default {
     },
 
     watch: {
-        product: {
+        tempProduct: {
             immediate: true,
-            handler(p) {
+            async handler(p) {
                 if (!p) return;
-                this.initializeVariantSelection(p);
-                this.checkInWishlist();
-                this.loadRelatedProducts();
+
+                this.isProductLoading = true;
+                this.product = null;
+                this.vSwiperIndex = 0;
+
+                try {
+                    const {data} = await axios.get(`/api/products/${p.id}`);
+                    this.product = data.data;
+
+                    this.initializeVariantSelection(this.product);
+                    this.checkInWishlist();
+                    await this.loadRelatedProducts();
+                } finally {
+                    this.isProductLoading = false;
+                }
             },
         },
     },

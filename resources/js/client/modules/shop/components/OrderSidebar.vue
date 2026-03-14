@@ -1,14 +1,13 @@
 <template>
     <div class="sidebar-overlay" :class="{ active: isActive }">
         <notifications position="top left"/>
-        <div v-if="isActive" class="overlay-backdrop" @click="$emit('close')"></div>
-        <div class="sidebar-content" :class="{ active: isActive }">
 
+        <div v-if="isActive" class="overlay-backdrop" @click="$emit('close')"></div>
+
+        <div class="sidebar-content" :class="{ active: isActive }">
             <header class="sidebar-header">
                 <h2 class="fw-bolder">Ваш заказ:</h2>
-                <button class="close-button" @click="$emit('close')">
-                    &times;
-                </button>
+                <button class="close-button" @click="$emit('close')">&times;</button>
             </header>
 
             <div class="line-block">
@@ -16,42 +15,48 @@
             </div>
 
             <div class="sidebar-body">
-                <div v-if="items.length === 0" class="empty-message">
+                <div v-if="!items.length" class="empty-message">
                     Корзина пуста. Добавьте в корзину хотя бы один товар
                 </div>
 
-                <div v-for="item in items" :key="item.id" class="sidebar-item align-items-start cursor-pointer"
-                     :class="{removing: removingSku === item.sku, restoring: restoringSku === item.sku}">
+                <div v-for="item in items" :key="`${item.productId}-${item.sku}`"
+                     class="sidebar-item align-items-start cursor-pointer"
+                     :class="{ removing: removingSku === item.sku }"
+                     @click="openProductModal(item, item.productId)">
                     <div class="sidebar-item-content">
                         <div class="image-wrapper">
                             <button class="close-button position-absolute color-white mt-2"
                                     @click.stop.prevent="removeItem(item)">
                                 &times;
                             </button>
-                            <img :src="getPrimaryImageUrl(item)" alt="Product Image" class="item-image">
+
+                            <img :src="getPrimaryImageUrl(item)" alt="Product Image" class="item-image"/>
                         </div>
 
                         <div class="detail-info-section">
                             <h3 class="product-title">{{ item.name }}</h3>
 
                             <div class="item-details">
-                                <div v-for="attribute in item.attributes" class="info-parameter pb-1">
+                                <div v-for="attribute in item.attributes" :key="attribute.sku_key"
+                                     class="info-parameter pb-1">
                                     <p class="item-name">{{ attribute.name }}:</p>
-                                    <p class="item-value">
-                                        {{ item.current_sku[attribute.sku_key] }}
-                                    </p>
+                                    <p class="item-value">{{ item.current_sku[attribute.sku_key] }}</p>
                                 </div>
                             </div>
 
                             <div class="quantity-control item-details">
                                 <span class="item-name">Количество:</span>
+
                                 <div class="align-items-center d-flex quantity-counter">
-                                    <button class="quantity-button plus"
-                                            @click.stop.prevent="updateQuantity(item, 1)">+
+                                    <button class="quantity-button plus" @click.stop.prevent="changeQuantity(item, 1)">
+                                        +
                                     </button>
+
                                     <span class="quantity-value">{{ item.quantity }}</span>
+
                                     <button class="quantity-button minus"
-                                            @click.stop.prevent="updateQuantity(item, -1)">-
+                                            @click.stop.prevent="changeQuantity(item, -1)">
+                                        -
                                     </button>
                                 </div>
                             </div>
@@ -59,29 +64,25 @@
                     </div>
                 </div>
 
-                <div v-if="items.length !== 0" class="order-summary d-flex gap-3">
+                <div v-if="items.length" class="order-summary d-flex gap-3">
                     <div class="order-sum">
                         <p class="item-name">К оплате:</p>
                         <p class="item-value">{{ totalPrice }} р.</p>
                     </div>
-                    <button @click="proceedToCheckout" class="btn btn-cta py-2">
+
+                    <button class="btn btn-cta py-2" @click="proceedToCheckout">
                         <span class="flare"></span>
                         Оформить заказ
                     </button>
                 </div>
-            </div>
 
-            <div v-if="removedItem" class="undo-snackbar">
-                <span>Товар удалён</span>
+                <div v-if="removedItem" class="undo-snackbar">
+                    <span>Товар удалён</span>
 
-                <div class="d-flex">
-                    <button @click="undoRemove">
-                        Отменить
-                    </button>
-
-                    <span class="undo-timer">
-                        ({{ undoCountdown }})
-                    </span>
+                    <div class="d-flex">
+                        <button @click="undoRemove">Отменить</button>
+                        <span class="undo-timer">({{ undoCountdown }})</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -91,204 +92,294 @@
 <script>
 import eventBus from "../../../../event-bus";
 
-const CART_STORAGE_KEY = 'shoppingCart';
+const CART_STORAGE_KEY = "shoppingCart";
+const UNDO_TIMEOUT = 5;
 
 export default {
-    name: 'OrderSidebar',
-    computed: {
-        eventBus() {
-            return eventBus
-        }
-    },
+    name: "OrderSidebar",
+
     props: {
         isActive: {
             type: Boolean,
             required: true
-        },
+        }
     },
+
     data() {
         return {
             items: [],
-            quantity: 1,
-            totalPrice: 0,
-
-            removingSku: null,
             removedItem: null,
+            removingSku: null,
             undoTimer: null,
-            undoTimeout: 5,
+            undoCountdown: UNDO_TIMEOUT
+        };
+    },
 
-            undoCountdown: 5,
-
-            restoringSku: null
+    computed: {
+        totalPrice() {
+            return this.items.reduce(
+                (sum, item) => sum + Number(item.current_sku.price || 0) * Number(item.quantity || 0),
+                0
+            );
         }
     },
+
+    watch: {
+        isActive: {
+            immediate: true,
+            handler(value) {
+                if (value) {
+                    this.loadAndValidateCart();
+                }
+            }
+        }
+    },
+
     methods: {
         getPrimaryImageUrl(product) {
-            if (!product?.images?.length) return '';
-            const primaryImageObj = product.images.find(img => img.primary === true);
-            return primaryImageObj ? primaryImageObj.image : product.images[0]?.image;
+            const images = product && product.images ? product.images : [];
+            const primary = images.find(img => img.primary);
+            return (primary || images[0] || {}).image || "";
         },
 
-        getCartFromStorage() {
-            const cartData = localStorage.getItem(CART_STORAGE_KEY);
-            return cartData ? JSON.parse(cartData) : [];
-        },
-
-        saveCartToStorage(cart) {
-            localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+        getCart() {
+            try {
+                return JSON.parse(localStorage.getItem(CART_STORAGE_KEY)) || [];
+            } catch (e) {
+                return [];
+            }
         },
 
         loadCart() {
-            this.items = this.getCartFromStorage();
-            this.calculateSummary();
+            this.items = this.getCart();
         },
 
-        clearedCart() {
-            this.items = this.getCartFromStorage();
+        notify(title, text, type = "warn") {
+            this.$notify({
+                group: "notification",
+                type,
+                duration: 4000,
+                title,
+                text
+            });
         },
 
-        calculateSummary() {
-            this.totalPrice = this.items.reduce((sum, item) => {
-                return sum + (item.current_sku.price * item.quantity);
-            }, 0);
+        async validateItems(items) {
+            const {data} = await axios.post("/api/cart/validate", {
+                items: items.map(item => ({
+                    sku: item.sku,
+                    quantity: item.quantity
+                }))
+            });
+
+            return Array.isArray(data && data.items) ? data.items : [];
         },
 
-        removeItem(itemToRemove) {
-            this.removingSku = itemToRemove.sku;
-            setTimeout(() => {
-                const index = this.items.findIndex(item =>
-                    item.productId === itemToRemove.productId && item.sku === itemToRemove.sku
-                );
+        startUndoTimer() {
+            clearInterval(this.undoTimer);
+            this.undoCountdown = UNDO_TIMEOUT;
 
-                if (index === -1) return;
+            this.undoTimer = setInterval(() => {
+                this.undoCountdown--;
 
-                this.removedItem = {
-                    item: this.items[index],
-                    index
-                };
-
-                this.items.splice(index, 1);
-                this.calculateSummary();
-
-                this.removingSku = null;
-                this.undoCountdown = this.undoTimeout;
-
-                if (this.undoTimer) clearInterval(this.undoTimer);
-
-                this.undoTimer = setInterval(() => {
-                    this.undoCountdown--;
-                    if (this.undoCountdown <= 0) {
-                        clearInterval(this.undoTimer);
-                        this.saveCartToStorage(this.items);
-                        eventBus.$emit('cart:updated');
-                        this.removedItem = null;
-                    }
-                }, 1000);
-            }, 300);
+                if (this.undoCountdown <= 0) {
+                    clearInterval(this.undoTimer);
+                    this.saveCartToStorage();
+                    eventBus.$emit("cart:updated");
+                    this.removedItem = null;
+                }
+            }, 1000);
         },
 
         undoRemove() {
             if (!this.removedItem) return;
+
             const {item, index} = this.removedItem;
-
             this.items.splice(index, 0, item);
-            this.restoringSku = item.sku;
-
-            this.$nextTick(() => {
-                requestAnimationFrame(() => {
-                    this.restoringSku = null;
-                });
-            });
 
             clearInterval(this.undoTimer);
-
-            this.saveCartToStorage(this.items);
-            this.calculateSummary();
-
-            eventBus.$emit('cart:updated');
-
+            this.saveCartToStorage();
+            eventBus.$emit("cart:updated");
             this.removedItem = null;
         },
 
-        updateQuantity(item, change) {
-            const newQuantity = item.quantity + change;
-            const availableStock = this.getAvailableStockForSKU(item.productId, item.sku);
+        saveCartToStorage(cart = this.items) {
+            localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+        },
+
+        changeQuantity(item, delta) {
+            const newQuantity = item.quantity + delta;
 
             if (newQuantity <= 0) {
                 this.removeItem(item);
                 return;
             }
 
-            if (newQuantity > availableStock) {
+            if (newQuantity > item.current_sku.stock_qty) {
                 this.$notify({
                     group: 'notification',
                     type: 'warn',
                     duration: 4000,
-                    title: 'Лимит достигнут',
-                    text: 'Это максимально возможное количество товара на складе'
+                    title: 'Извините, достигнут лимит.',
+                    text: `Это максимально возможное количество товаров в наличии`
                 });
-                return;
+                item.quantity = item.current_sku.stock_qty;
+            } else {
+                item.quantity = newQuantity;
             }
 
-            const index = this.items.findIndex(i => i.sku === item.sku && i.productId === item.productId);
-            if (index !== -1) {
-                this.items[index].quantity = newQuantity;
-                this.saveCartToStorage(this.items);
-                this.calculateSummary();
-                eventBus.$emit('cart:updated');
+            this.saveCartToStorage(this.items);
+            eventBus.$emit('cart:updated');
+        },
+
+        removeItem(item) {
+            this.removingSku = item.sku;
+
+            const index = this.items.findIndex(i => i.productId === item.productId && i.sku === item.sku);
+            if (index === -1) return;
+
+            this.removedItem = {
+                item: this.items[index],
+                index
+            };
+
+            this.items.splice(index, 1);
+            this.saveCartToStorage(this.items);
+            this.removingSku = null;
+
+            this.startUndoTimer();
+            eventBus.$emit('cart:remove-item');
+        },
+
+        async validateCartItems(items) {
+            const updatedCart = [];
+            let hasError = false;
+
+            try {
+                const serverItems = await this.validateItems(items);
+
+                items.forEach(localItem => {
+                    const serverItem = serverItems.find(item => item.sku === localItem.sku);
+
+                    if (!serverItem || !serverItem.exists) {
+                        hasError = true;
+                        this.notify(
+                            "Товар недоступен",
+                            `${localItem.name || "Товар"} больше не доступен`
+                        );
+                        return;
+                    }
+
+                    const stockQty = Number(serverItem.stock_qty || 0);
+                    let quantity = Number(localItem.quantity || 1);
+
+                    if (stockQty <= 0) {
+                        hasError = true;
+                        this.notify(
+                            "Нет в наличии",
+                            `${serverItem.name || localItem.name || "Товар"} закончился`
+                        );
+                        return;
+                    }
+
+                    if (quantity > stockQty) {
+                        hasError = true;
+                        quantity = stockQty;
+                        this.notify(
+                            "Количество изменено",
+                            `Для товара "${serverItem.name || localItem.name}" доступно только ${stockQty} шт.`
+                        );
+                    }
+
+                    updatedCart.push({
+                        ...localItem,
+                        ...serverItem,
+                        exist: true,
+                        quantity,
+                        current_sku: {
+                            ...(localItem.current_sku || {}),
+                            ...(serverItem.current_sku || {}),
+                            price: serverItem.price,
+                            stock_qty: serverItem.stock_qty
+                        }
+                    });
+                });
+
+                return { updatedCart, hasError };
+            } catch (error) {
+                console.error("Ошибка при валидации корзины:", error);
+                return { updatedCart: [], hasError: true };
             }
         },
 
-        getAvailableStockForSKU(productId, sku) {
-            const product = this.items ? this.items.find(p => p.productId === productId) : null;
-            if (!product) {
-                return 0;
+        async proceedToCheckout() {
+            if (!this.items.length) return;
+
+            const { updatedCart, hasError } = await this.validateCartItems(this.items);
+
+            this.items = updatedCart;
+            this.saveCartToStorage();
+
+            if (!hasError && this.items.length) {
+                eventBus.$emit("checkout:open");
             }
-
-            if (product.current_sku.stock_qty)
-                return product.current_sku.stock_qty;
-            return 0;
         },
 
-        proceedToCheckout() {
-            if (this.items.length === 0) return;
-            this.$emit('close');
-
-            eventBus.$emit('checkout:open');
+        async loadAndValidateCart() {
+            const { updatedCart, hasError } = await this.validateCartItems(this.items);
+            this.items = updatedCart;
+            this.saveCartToStorage();
+            if (hasError) {
+                this.notify("Ошибка в корзине", "Некоторые товары недоступны или имеют ограничения.");
+            }
         },
 
-        openProductModal(product) {
-            eventBus.$emit('product-modal:open', product);
-            this.$emit('close');
+        openProductModal(product, id) {
+            product.id = id;
+            eventBus.$emit("product-modal:open", product);
+        },
+
+        clearCart() {
+            this.items = this.getCart();
         }
     },
-    emits: ['close', 'remove', 'update:quantity'],
+
     mounted() {
         this.loadCart();
-        eventBus.$on('cart:updated', this.loadCart);
-        eventBus.$on('cart:cleared', this.clearedCart);
+        eventBus.$on("cart:updated", this.loadCart);
+        eventBus.$on("cart:cleared", this.clearCart);
+    },
+
+    beforeDestroy() {
+        eventBus.$off("cart:updated", this.loadCart);
+        eventBus.$off("cart:cleared", this.clearCart);
+        clearInterval(this.undoTimer);
     }
-}
+};
 </script>
 
 <style scoped lang="scss">
+.sidebar-item {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.sidebar-item.removing {
+    transform: translateX(120%);
+    opacity: 0;
+}
 
 .undo-snackbar {
     position: absolute;
     bottom: 20px;
     left: 20px;
     right: 20px;
-
     background: #222;
     color: white;
-
     padding: 12px 16px;
     border-radius: 10px;
-
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     animation: slideUp 0.25s ease;
 }
 
@@ -309,25 +400,5 @@ export default {
         transform: translateY(0);
         opacity: 1;
     }
-}
-
-.undo-timer {
-    font-weight: 700;
-    margin-left: 8px;
-    color: #bbb;
-}
-
-.sidebar-item {
-    transition: transform 0.35s ease, opacity 0.35s ease;
-}
-
-.sidebar-item.removing {
-    transform: translateX(120%);
-    opacity: 0;
-}
-
-.sidebar-item.restoring {
-    transform: translateX(120%);
-    opacity: 0;
 }
 </style>
