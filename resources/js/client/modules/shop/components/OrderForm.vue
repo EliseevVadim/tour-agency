@@ -251,7 +251,8 @@
 
                     <div class="items-list">
                         <div v-for="item in items" :key="item.productId + ':' + item.sku" class="product-card">
-                            <img class="product-image" :src="getPrimaryImageUrl(item) || fallbackImage" alt="Product"/>
+                            <img @click="openProductModal(item, item.productId)" class="product-image cursor-pointer"
+                                 :src="getPrimaryImageUrl(item) || fallbackImage" alt="Product"/>
 
                             <div class="product-details">
                                 <div class="product-name">
@@ -1265,6 +1266,11 @@ export default {
         isValidEmail(email) {
             const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return regex.test(email);
+        },
+
+        openProductModal(product, id){
+            product.id = id;
+            eventBus.$emit("product-modal:open", product);
         }
     }
 };

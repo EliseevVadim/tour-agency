@@ -111,7 +111,8 @@ class DeliveryController extends Controller
             $buildings = $dadataService->suggestBuildings(
                 $query,
                 $street,
-                $city
+                $region !== '' ? $region : null,
+                $city !== '' ? $city : null
             );
 
             return response()->json([

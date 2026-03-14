@@ -9,31 +9,24 @@ class DadataService
 {
     private string $baseUrl = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address';
 
-    public function suggestStreets(string $query, ?string $region = null, ?string $city = null, int $count = 10): array
-    {
+    public function suggestStreets(string $query, ?string $region = null, ?string $city = null, int $count = 10): array {
+
         $query = trim($query);
+        $region = trim((string)$region);
+        $city = trim((string)$city);
 
         if ($query === '') {
             return [];
         }
 
+        $fullQuery = implode(', ', array_filter([$city, $region, $query]));
+
         $payload = [
-            'query' => $query,
-            'count' => min(max($count, 1), 20),
-            'from_bound' => ['value' => 'street'],
-            'to_bound' => ['value' => 'street'],
+            "query" => $fullQuery,
+            "count" => min(max($count, 1), 20),
+            "from_bound" => ["value" => "street"],
+            "to_bound" => ["value" => "street"]
         ];
-
-        $location = array_filter([
-            'region' => $region ? trim($region) : null,
-            'city' => $city ? trim($city) : null,
-        ], static function ($value) {
-            return $value !== null && $value !== '';
-        });
-
-        if (!empty($location)) {
-            $payload['locations'] = [$location];
-        }
 
         $response = Http::timeout(10)
             ->withHeaders([
@@ -52,11 +45,9 @@ class DadataService
 
         foreach ($suggestions as $item) {
             $street = $item['data']['street_with_type'] ?? null;
-
             if (!$street) {
                 continue;
             }
-
             $streets[] = $street;
         }
 
@@ -64,44 +55,28 @@ class DadataService
     }
 
     public function suggestBuildings(string $query, string $street, ?string $region = null, ?string $city = null, int $count = 10): array {
+
         $query = trim($query);
         $street = trim($street);
-        $city = trim((string) $city);
-        $region = trim((string) $region);
+        $region = trim((string)$region);
+        $city = trim((string)$city);
 
         if ($street === '') {
             return [];
         }
 
-        $parts = array_filter([
-            $city !== '' ? $city : null,
-            $street,
-            $query !== '' ? $query : null,
-        ], static function ($value) {
-            return $value !== null && $value !== '';
-        });
-
-        $fullQuery = implode(' ', $parts);
+        $fullQuery = implode(', ', array_filter([
+            $city,
+            $region,
+            $street . ' ' . $query
+        ]));
 
         $payload = [
-            'query' => $fullQuery,
-            'count' => min(max($count, 1), 20),
-            'from_bound' => ['value' => 'house'],
-            'to_bound' => ['value' => 'house'],
+            "query" => $fullQuery,
+            "count" => min(max($count, 1), 20),
+            "from_bound" => ["value" => "house"],
+            "to_bound" => ["value" => "house"]
         ];
-
-        if ($region !== '' || $city !== '') {
-            $location = array_filter([
-                'region' => $region !== '' ? $region : null,
-                'city' => $city !== '' ? $city : null,
-            ], static function ($value) {
-                return $value !== null && $value !== '';
-            });
-
-            if (!empty($location)) {
-                $payload['locations'] = [$location];
-            }
-        }
 
         $response = Http::timeout(10)
             ->withHeaders([
@@ -119,8 +94,7 @@ class DadataService
         $houses = [];
 
         foreach ($suggestions as $item) {
-            $house = trim((string) ($item['data']['house'] ?? ''));
-
+            $house = trim((string)($item['data']['house'] ?? ''));
             if ($house === '') {
                 continue;
             }
