@@ -168,12 +168,12 @@ export default {
 
             carouselResponsive: [{
                 minWidth: 270,
-                slidesPerPage: 1,
+                slidesPerPage: 2,
                 center: true,
                 peek: 0,
                 gutter: 20,
                 showDots: false
-            }, {minWidth: 768, slidesPerPage: 2,}, {minWidth: 1024, slidesPerPage: 3,}],
+            }, {minWidth: 768, slidesPerPage: 3,}, {minWidth: 1024, slidesPerPage: 4,}],
             otherProducts: [],
 
             product: {},

@@ -250,8 +250,9 @@
                     <h2 class="order-summary-title">Ваш заказ:</h2>
 
                     <div class="items-list">
-                        <div v-for="item in items" :key="item.productId + ':' + item.sku" class="product-card">
-                            <img @click="openProductModal(item, item.productId)" class="product-image cursor-pointer"
+                        <div @click="openProductModal(item, item.productId)" v-for="item in items"
+                             :key="item.productId + ':' + item.sku" class="product-card cursor-pointer">
+                            <img class="product-image"
                                  :src="getPrimaryImageUrl(item) || fallbackImage" alt="Product"/>
 
                             <div class="product-details">
@@ -589,12 +590,15 @@ export default {
         },
 
         removeItem(itemToRemove) {
-            const updatedCart = this.items.filter(item =>
-                item.productId !== itemToRemove.productId || item.sku !== itemToRemove.sku
+            const cart = this.getCartFromStorage();
+
+            const updatedCart = cart.filter(item =>
+                !(String(item.productId) === String(itemToRemove.productId) && item.sku === itemToRemove.sku)
             );
 
-            this.items = updatedCart;
             this.saveCartToStorage(updatedCart);
+            this.items = updatedCart;
+
             localStorage.removeItem('pendingPaymentOrderId');
             eventBus.$emit('cart:updated');
 
@@ -609,10 +613,16 @@ export default {
         },
 
         updateQuantity(item, change) {
-            const newQuantity = item.quantity + change;
-            const availableStock = this.getAvailableStockForSKU(item.productId, item.sku);
+            const cart = this.getCartFromStorage();
 
-            eventBus.$emit('cart:updated');
+            const index = cart.findIndex(i =>
+                String(i.productId) === String(item.productId) && i.sku === item.sku
+            );
+
+            if (index === -1) return;
+
+            const newQuantity = Number(cart[index].quantity || 0) + change;
+            const availableStock = this.getAvailableStockForSKU(item.productId, item.sku);
 
             if (newQuantity <= 0) {
                 this.removeItem(item);
@@ -632,19 +642,18 @@ export default {
                 return;
             }
 
-            const index = this.items.findIndex(
-                i => i.sku === item.sku && i.productId === item.productId
-            );
+            cart[index].quantity = newQuantity;
 
-            if (index !== -1) {
-                this.items[index].quantity = newQuantity;
-                this.saveCartToStorage(this.items);
-                localStorage.removeItem('pendingPaymentOrderId');
+            this.saveCartToStorage(cart);
+            this.items = cart;
 
-                if (this.form.city_code) {
-                    this.scheduleDeliveryRecalculation();
-                }
+            localStorage.removeItem('pendingPaymentOrderId');
+
+            if (this.form.city_code) {
+                this.scheduleDeliveryRecalculation();
             }
+
+            eventBus.$emit('cart:updated');
         },
 
         clearCity() {
@@ -1268,7 +1277,7 @@ export default {
             return regex.test(email);
         },
 
-        openProductModal(product, id){
+        openProductModal(product, id) {
             product.id = id;
             eventBus.$emit("product-modal:open", product);
         }

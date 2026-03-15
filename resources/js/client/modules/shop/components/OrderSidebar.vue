@@ -532,7 +532,7 @@ export default {
                 const prevItemsJson = JSON.stringify(this.items);
                 const prevSoldOutJson = JSON.stringify(this.soldOutItems);
 
-                const {updatedCart, soldOutItems, hasError} = await this.validateCartItems(allItems);
+                const { updatedCart, soldOutItems } = await this.validateCartItems(allItems);
 
                 this.items = updatedCart;
                 this.soldOutItems = soldOutItems;
@@ -554,16 +554,17 @@ export default {
                     return;
                 }
 
-                if (itemsChanged || hasError) {
+                if (itemsChanged) {
                     this.checkoutConfirmedAfterValidation = true;
 
                     this.notify(
                         "Корзина обновлена",
-                        "Мы обновили наличие и количество товаров. Проверьте корзину и нажмите 'Оформить заказ' еще раз"
+                        "Мы обновили наличие и количество товаров. Проверьте корзину и нажмите «Оформить заказ» ещё раз"
                     );
                     return;
                 }
 
+                this.checkoutConfirmedAfterValidation = false;
                 eventBus.$emit("checkout:open");
             } finally {
                 this.checkoutLoading = false;
@@ -591,11 +592,15 @@ export default {
             this.product.id = item.productId;
             this.product.currentSku = item.current_sku;
             this.currentSKU = item.currentSku;
-        }
+        },
+        async handleCartUpdated() {
+            await this.loadAndValidateCart();
+        },
     },
 
     mounted() {
         this.loadCartFromStorage();
+        eventBus.$on("cart:updated", this.handleCartUpdated);
         eventBus.$on("cart:cleared", this.clearCart);
     },
 
