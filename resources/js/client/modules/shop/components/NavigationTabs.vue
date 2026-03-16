@@ -1,7 +1,7 @@
 <template>
     <div class="header-controls-container">
         <div v-if="isActiveSearch" class="sidebar-search-top sidebar-overlay" :class="{ active: isActiveSearch }"
-             @click.self="closeSearchOverlay">
+            @click.self="closeSearchOverlay">
             <header class="sidebar-header mb-0">
                 <div class="container search-modal-wrap-search">
                     <div class="search-modal-inside">
@@ -10,16 +10,21 @@
                                  xmlns="http://www.w3.org/2000/svg">
                                 <path
                                     d="M20.2654 21L13.7684 14.503C13.2496 14.945 12.653 15.287 11.9786 15.5291C11.3042 15.7712 10.6264 15.8922 9.94507 15.8922C8.28363 15.8922 6.87743 15.3171 5.72646 14.1668C4.57549 13.0158 4 11.61 4 9.94922C4 8.28848 4.57479 6.88192 5.72438 5.72957C6.87466 4.57652 8.28018 4 9.94092 4C11.6024 4 13.0093 4.57549 14.1616 5.72646C15.314 6.87743 15.8901 8.28398 15.8901 9.94611C15.8901 10.6669 15.7625 11.3644 15.5073 12.0388C15.2514 12.7132 14.9159 13.2901 14.5009 13.7694L20.9979 20.2654L20.2654 21ZM9.94507 14.8536C11.3215 14.8536 12.4839 14.3798 13.4322 13.4322C14.3798 12.4846 14.8536 11.3222 14.8536 9.94507C14.8536 8.56861 14.3798 7.40657 13.4322 6.45896C12.4846 5.51134 11.3226 5.03753 9.94611 5.03753C8.56965 5.03753 7.40726 5.51134 6.45896 6.45896C5.51134 7.40657 5.03753 8.56861 5.03753 9.94507C5.03753 11.3215 5.51134 12.4836 6.45896 13.4312C7.40657 14.3788 8.56861 14.8536 9.94507 14.8536Z"
-                                    fill="#222222"></path>
+                                    fill="#222222"
+                                />
                             </svg>
-                            <input type="text" placeholder="Поиск..." value="" v-model="searchQuery"
-                                   @keyup.enter="isActiveSearch = false"></div>
-                        <div v-if="isActiveSearch" @click="closeSearchOverlay" class="search-modal-inside-find">
+
+                            <input ref="searchInput" type="text" placeholder="Поиск..."
+                                :value="searchQuery" @input="onSearchInput" @keyup.enter="isActiveSearch = false"/>
+                        </div>
+
+                        <div v-if="isActiveSearch" class="search-modal-inside-find" @click="closeSearchOverlay">
                             <svg width="32" height="32" viewBox="0 0 32 32" fill="none"
                                  xmlns="http://www.w3.org/2000/svg">
                                 <path
                                     d="M8.53336 24.4107L7.58936 23.4667L15.056 16L7.58936 8.53336L8.53336 7.58936L16 15.056L23.4667 7.58936L24.4107 8.53336L16.944 16L24.4107 23.4667L23.4667 24.4107L16 16.944L8.53336 24.4107Z"
-                                    fill="#222222"></path>
+                                    fill="#222222"
+                                />
                             </svg>
                         </div>
                     </div>
@@ -27,36 +32,36 @@
             </header>
 
             <div class="sidebar-body mt-0" v-if="searchQuery.trim().length > 0">
-                <div class="container search-modal-wrap-result" :class="{'active': searchQuery.trim().length > 0}">
+                <div class="container search-modal-wrap-result" :class="{ active: searchQuery.trim().length > 0 }">
                     <div class="search-modal-result">
-                        <h3>{{ listMeta.total }} результатов по запросу: {{ searchQuery }}</h3>
+                        <h3>{{ listMeta.total || 0 }} результатов по запросу: {{ searchQuery }}</h3>
+
                         <div class="search-modal-result-items">
-                            <ProductCard
-                                v-for="product in searchResults"
-                                :key="product.id"
-                                :product="product"
-                                @click="openModalFromCard(product)"
-                            />
+                            <ProductCard v-for="product in searchResults" :key="product.id"
+                                :product="product" @click="openModalFromCard(product)"/>
                         </div>
+
                         <div class="search-modal-pagination mt-5">
                             <nav v-if="listMeta.last_page > 1" aria-label="Pagination">
                                 <ul class="pagination justify-content-center">
                                     <li class="page-item" :class="{ disabled: listMeta.current_page === 1 }">
                                         <a class="page-link" href="#" aria-label="Previous"
-                                           @click.prevent="goToPage(listMeta.current_page - 1)">
+                                            @click.prevent="goToPage(listMeta.current_page - 1)">
                                             <span aria-hidden="true">&laquo;</span>
                                         </a>
                                     </li>
 
-                                    <li v-for="page in paginationPages" :key="page"
-                                        class="page-item" :class="{ active: page === listMeta.current_page }">
-                                        <a class="page-link" href="#" @click.prevent="goToPage(page)">{{ page }}</a>
+                                    <li v-for="page in paginationPages" :key="page" class="page-item"
+                                        :class="{ active: page === listMeta.current_page }">
+                                        <a class="page-link" href="#" @click.prevent="goToPage(page)">
+                                            {{ page }}
+                                        </a>
                                     </li>
 
                                     <li class="page-item"
                                         :class="{ disabled: listMeta.current_page === listMeta.last_page }">
                                         <a class="page-link" href="#" aria-label="Next"
-                                           @click.prevent="goToPage(listMeta.current_page + 1)">
+                                            @click.prevent="goToPage(listMeta.current_page + 1)">
                                             <span aria-hidden="true">&raquo;</span>
                                         </a>
                                     </li>
@@ -68,15 +73,12 @@
             </div>
         </div>
 
-        <div
-            class="align-items-center d-flex flex-wrap gap-2 justify-content-end justify-content-sm-between navigation-tabs">
+        <div class="align-items-center d-flex flex-wrap gap-2 justify-content-end justify-content-sm-between navigation-tabs">
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 <h2 class="fw-bolder pe-3">Наш мерч:</h2>
-                <button :disabled="activeTab === tab.id"
-                        v-for="tab in tabs"
-                        :key="tab.id"
-                        :class="['tab-button', { active: activeTab === tab.id }]"
-                        @click="setActiveTab(tab.id)">
+
+                <button v-for="tab in tabs" :key="tab.id" :disabled="activeTab === tab.id"
+                    :class="['tab-button', { active: activeTab === tab.id }]" @click="setActiveTab(tab.id)">
                     {{ tab.name }}
                 </button>
             </div>
@@ -86,7 +88,7 @@
                     <img src="/img/merch/loupe-icon.png" alt="Поиск">
                 </button>
 
-                <button class="icon-button favorites" @click="toggleFavorites" title="Избранное">
+                <button class="icon-button favorites" title="Избранное" @click="toggleFavorites">
                     <img src="/img/merch/like-icon.png" alt="Избранное">
                 </button>
 
@@ -98,9 +100,8 @@
 
         <div class="sort-control-wrapper text-end">
             <div class="dropdown sort-control">
-                <button class="btn btn-light dropdown-toggle" type="button" id="sortButton"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-
+                <button id="sortButton" class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
                     {{ displaySortText.prefix }}:
                     <b>{{ displaySortText.value }}</b>
 
@@ -110,6 +111,7 @@
                               d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/>
                     </svg>
                 </button>
+
                 <ul class="dropdown-menu" aria-labelledby="sortButton">
                     <li v-for="option in sortOptions" :key="option.value">
                         <a class="dropdown-item" href="#" @click.prevent="selectSortOption(option)">
@@ -128,68 +130,78 @@
 <script>
 import FavoritesSidebar from "./FavoritesSidebar.vue";
 import OrderSidebar from "./OrderSidebar.vue";
-import eventBus from "../../../../event-bus";
 import ProductCard from "./ProductCard.vue";
+import eventBus from "../../../../event-bus";
 
-const FILTERS_SORT_STORAGE_KEY = 'merchFiltersAndSort';
+const FILTERS_SORT_STORAGE_KEY = "merchFiltersAndSort";
 
 export default {
-    name: 'NavigationTabs',
-    components: {ProductCard, OrderSidebar, FavoritesSidebar},
+    name: "NavigationTabs",
+    components: {
+        ProductCard,
+        OrderSidebar,
+        FavoritesSidebar
+    },
 
     data() {
         return {
             tabs: [
-                {id: 'clothing', name: 'Одежда'},
-                {id: 'accessories', name: 'Аксессуары'},
-                {id: 'travelGoods', name: 'Для путешествий'}
+                { id: "clothing", name: "Одежда" },
+                { id: "accessories", name: "Аксессуары" },
+                { id: "travelGoods", name: "Для путешествий" }
             ],
-            activeTab: 'clothing',
+            activeTab: "clothing",
 
             sortOptions: [
-                {value: 'default', text: 'Сортировать: по умолчанию'},
-                {value: 'price_asc', text: 'Цена: по возрастанию'},
-                {value: 'price_desc', text: 'Цена: по убыванию'},
-                {value: 'name_a_z', text: 'Название: А - Я'},
-                {value: 'name_z_a', text: 'Название: Я - А'},
+                { value: "default", text: "Сортировать: по умолчанию" },
+                { value: "price_asc", text: "Цена: по возрастанию" },
+                { value: "price_desc", text: "Цена: по убыванию" },
+                { value: "name_a_z", text: "Название: А - Я" },
+                { value: "name_z_a", text: "Название: Я - А" }
             ],
-            currentSortValue: 'default',
+            currentSortValue: "default",
 
             isFavoritesOpen: false,
             isOrderOpen: false,
-
             isActiveSearch: false,
+
             wishlistIds: [],
 
-            searchQuery: '',
+            searchQuery: "",
             searchResults: [],
             searchLoading: false,
             searchPage: 1,
             lastPage: 1,
             searchTotal: 0,
-            abortController: null,
             debouncedSearch: null,
+            latestSearchRequestId: 0,
 
             listMeta: {
+                total: 0,
                 current_page: 1,
-                last_page: 1,
-            },
-        }
+                last_page: 1
+            }
+        };
     },
 
     computed: {
         currentSortOption() {
             return this.sortOptions.find(opt => opt.value === this.currentSortValue) || this.sortOptions[0];
         },
+
         displaySortText() {
-            const [prefix, value] = this.currentSortOption.text.split(':');
+            const [prefix, value] = this.currentSortOption.text.split(":");
+
             return {
-                prefix: prefix.trim(),
-                value: value ? value.trim() : prefix.trim()
+                prefix: (prefix || "").trim(),
+                value: value ? value.trim() : (prefix || "").trim()
             };
         },
+
         paginationPages() {
-            const {current_page: current, last_page: total} = this.listMeta;
+            const current = Number(this.listMeta.current_page || 1);
+            const total = Number(this.listMeta.last_page || 1);
+
             if (total <= 1) return [];
 
             const pages = [];
@@ -204,6 +216,7 @@ export default {
             for (let i = start; i <= end; i++) {
                 pages.push(i);
             }
+
             return pages;
         }
     },
@@ -215,7 +228,7 @@ export default {
         },
 
         activeTab() {
-            this.currentSortValue = 'default';
+            this.currentSortValue = "default";
             this.saveFiltersAndSort();
             this.searchPage = 1;
             this.fetchProducts();
@@ -229,18 +242,33 @@ export default {
 
         isActiveSearch(val) {
             if (!val) {
-                this.searchQuery = '';
+                this.searchQuery = "";
                 this.searchResults = [];
-                document.body.classList.remove('no-scroll');
-            } else {
-                if (this.searchQuery.trim().length === 0) {
-                    document.body.classList.remove('no-scroll');
+                this.searchTotal = 0;
+                this.searchPage = 1;
+                this.lastPage = 1;
+                this.listMeta = {
+                    total: 0,
+                    current_page: 1,
+                    last_page: 1
+                };
+                document.body.classList.remove("no-scroll");
+                return;
+            }
+
+            this.$nextTick(() => {
+                if (this.$refs.searchInput) {
+                    this.$refs.searchInput.focus();
                 }
+            });
+
+            if (!this.searchQuery.trim().length) {
+                document.body.classList.remove("no-scroll");
             }
         },
 
-        isFavoritesOpen: 'updateBodyScroll',
-        isOrderOpen: 'updateBodyScroll',
+        isFavoritesOpen: "updateBodyScroll",
+        isOrderOpen: "updateBodyScroll"
     },
 
     methods: {
@@ -249,50 +277,59 @@ export default {
 
             if (!query) {
                 this.resetSearch();
+                this.updateBodyScroll();
                 return;
             }
 
-            if (this.abortController) {
-                this.abortController.abort();
-            }
+            const requestId = ++this.latestSearchRequestId;
+            const requestedQuery = query;
+            const requestedPage = this.searchPage;
 
-            this.abortController = new AbortController();
             this.searchLoading = true;
 
             try {
                 const params = new URLSearchParams({
-                    search: query,
-                    page: this.searchPage,
+                    search: requestedQuery,
+                    page: String(requestedPage)
                 });
 
-                const response = await fetch(
-                    `/api/products?${params.toString()}`,
-                    {signal: this.abortController.signal}
-                );
-
+                const response = await fetch(`/api/products?${params.toString()}`);
                 const data = await response.json();
 
-                this.searchResults = data.data;
-                this.listMeta = data.meta;
-                this.searchTotal = data.total;
-                this.lastPage = data.last_page;
-                this.searchPage = data.current_page;
+                if (requestId !== this.latestSearchRequestId) {
+                    return;
+                }
 
-                const body = document.body;
+                if (requestedQuery !== this.searchQuery.trim() || requestedPage !== this.searchPage) {
+                    return;
+                }
 
-                if (query.length > 0) {
-                    body.classList.add('no-scroll');
+                this.searchResults = Array.isArray(data.data) ? data.data : [];
+                this.listMeta = data.meta || {
+                    total: 0,
+                    current_page: 1,
+                    last_page: 1
+                };
+                this.searchTotal = Number(data.total || this.listMeta.total || 0);
+                this.lastPage = Number(data.last_page || this.listMeta.last_page || 1);
+                this.searchPage = Number(data.current_page || this.listMeta.current_page || 1);
+
+                if (requestedQuery.length > 0) {
+                    document.body.classList.add("no-scroll");
                 } else {
-                    body.classList.remove('no-scroll');
+                    document.body.classList.remove("no-scroll");
                     this.searchResults = [];
                 }
-
             } catch (error) {
-                if (error.name !== 'AbortError') {
-                    console.error('Search error:', error);
+                if (requestId !== this.latestSearchRequestId) {
+                    return;
                 }
+
+                console.error("Search error:", error);
             } finally {
-                this.searchLoading = false;
+                if (requestId === this.latestSearchRequestId) {
+                    this.searchLoading = false;
+                }
             }
         },
 
@@ -304,8 +341,10 @@ export default {
             this.fetchProducts();
 
             this.$nextTick(() => {
-                const container = document.querySelector('.search-modal-result-items');
-                if (container) container.scrollTop = 0;
+                const container = document.querySelector(".search-modal-result-items");
+                if (container) {
+                    container.scrollTop = 0;
+                }
             });
         },
 
@@ -313,17 +352,26 @@ export default {
             this.searchResults = [];
             this.searchTotal = 0;
             this.searchPage = 1;
+            this.lastPage = 1;
+            this.listMeta = {
+                total: 0,
+                current_page: 1,
+                last_page: 1
+            };
         },
 
         loadMore() {
             if (this.searchPage >= this.lastPage) return;
-
             this.searchPage++;
             this.fetchProducts();
         },
 
         toggleSearchOverlay() {
             this.isActiveSearch = !this.isActiveSearch;
+            if (this.isActiveSearch) {
+                this.isFavoritesOpen = false;
+                this.isOrderOpen = false;
+            }
         },
 
         closeSearchOverlay() {
@@ -354,27 +402,33 @@ export default {
                 this.isOrderOpen ||
                 (this.isActiveSearch && this.searchQuery.trim().length > 0);
 
-            document.body.classList.toggle('no-scroll', shouldBlock);
+            document.body.classList.toggle("no-scroll", shouldBlock);
         },
 
         setActiveTab(id) {
             this.activeTab = id;
-            eventBus.$emit('tab-category:changed', id);
+            eventBus.$emit("tab-category:changed", id);
         },
 
         selectSortOption(option) {
             this.currentSortValue = option.value;
-            eventBus.$emit('sort:changed', option.value);
+            eventBus.$emit("sort:changed", option.value);
         },
 
         loadFiltersAndSort() {
             const stored = this.loadFromStorage(FILTERS_SORT_STORAGE_KEY);
+
             if (!stored) return;
 
-            if (stored.tag) this.activeTab = stored.tag;
-            if (stored.sort) this.currentSortValue = stored.sort;
+            if (stored.tag) {
+                this.activeTab = stored.tag;
+            }
 
-            eventBus.$emit('tab-sort:changed');
+            if (stored.sort) {
+                this.currentSortValue = stored.sort;
+            }
+
+            eventBus.$emit("tab-sort:changed");
         },
 
         saveFiltersAndSort() {
@@ -391,7 +445,7 @@ export default {
             try {
                 const stored = localStorage.getItem(key);
                 return stored ? JSON.parse(stored) : null;
-            } catch {
+            } catch (e) {
                 return null;
             }
         },
@@ -405,7 +459,7 @@ export default {
                 this.wishlistIds.splice(index, 1);
             }
 
-            eventBus.$emit('toggle-wishlist', product);
+            eventBus.$emit("toggle-wishlist", product);
         },
 
         isInWishlist(productId) {
@@ -413,7 +467,7 @@ export default {
         },
 
         openModalFromCard(product) {
-            eventBus.$emit('product-modal:open', product);
+            eventBus.$emit("product-modal:open", product);
         },
 
         openSidebarOrder() {
@@ -421,24 +475,29 @@ export default {
         },
 
         debounce(fn, delay) {
-            let timeout;
+            let timeout = null;
+
             return (...args) => {
                 clearTimeout(timeout);
                 timeout = setTimeout(() => {
                     fn.apply(this, args);
                 }, delay);
             };
-        }
+        },
+
+        onSearchInput(event) {
+            this.searchQuery = event.target.value;
+        },
     },
 
     created() {
         this.debouncedSearch = this.debounce(this.fetchProducts, 400);
 
-        eventBus.$on('update-favorites-products', (fullData) => {
+        eventBus.$on("update-favorites-products", (fullData) => {
             this.wishlistIds = fullData.map(p => p.id);
         });
 
-        eventBus.$on('cart:updated', this.openSidebarOrder);
+        eventBus.$on("cart:updated", this.openSidebarOrder);
     },
 
     mounted() {
@@ -447,24 +506,27 @@ export default {
     },
 
     beforeUnmount() {
-        eventBus.$off('update-favorites-products');
-        eventBus.$off('cart:updated', this.openSidebarOrder);
-        document.body.classList.remove('no-scroll');
+        eventBus.$off("update-favorites-products");
+        eventBus.$off("cart:updated", this.openSidebarOrder);
+        document.body.classList.remove("no-scroll");
     }
-}
+};
 </script>
+
 <style lang="scss">
 .search-modal-pagination {
     .page-link {
         border: none;
         color: black;
     }
+
     .page-item.active .page-link {
         background: #dd0024;
         font-weight: bold;
         color: white;
     }
 }
+
 body.no-scroll {
     overflow: hidden !important;
 }
@@ -614,6 +676,12 @@ body.no-scroll {
 
         .sort-control button {
             font-size: 16px !important;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .search-modal-inside-find svg {
+            width: 40px;
         }
     }
 }

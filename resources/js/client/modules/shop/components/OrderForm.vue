@@ -19,8 +19,9 @@
                     <div v-if="currentStep === 1" class="form-section">
                         <div class="form-group autocomplete" ref="autocomplete">
                             <div class="input-wrapper">
-                                <input v-model="form.city" type="text" placeholder="Выберите Ваш город"
-                                       class="form-input" @input="searchCities" @focus="onCityFocus"/>
+                                <input :value="form.city" type="text"
+                                       placeholder="Выберите Ваш город"
+                                       class="form-input" @input="onCityInput" @focus="onCityFocus"/>
                                 <button v-if="form.city" class="clear-btn" @click="clearCity" type="button">
                                     ×
                                 </button>
@@ -115,15 +116,9 @@
                         <div v-if="form.delivery_mode === 'door'">
                             <div class="form-group autocomplete" ref="streetAutocomplete">
                                 <div class="input-wrapper">
-                                    <input
-                                        v-model="form.street"
-                                        type="text"
-                                        placeholder="Улица"
-                                        class="form-input"
-                                        @input="searchStreets"
-                                        @focus="onStreetFocus"
-                                        autocomplete="off"
-                                    />
+                                    <input :value="form.street" type="text" placeholder="Улица" class="form-input"
+                                        @input="onStreetInput" @focus="onStreetFocus" autocomplete="off"/>
+
                                     <button v-if="form.street" class="clear-btn" @click="clearStreet" type="button">
                                         ×
                                     </button>
@@ -768,6 +763,11 @@ export default {
             this.fetchCities(q);
         },
 
+        onCityInput(event) {
+            this.form.city = event.target.value;
+            this.searchCities();
+        },
+
         async selectCity(city) {
             this.form.city = `${city.city_name}, ${city.region}`;
             this.form.city_uuid = city.uuid;
@@ -1128,6 +1128,11 @@ export default {
 
                 this.fetchStreets(q);
             }, 300);
+        },
+
+        onStreetInput(event) {
+            this.form.street = event.target.value;
+            this.searchStreets();
         },
 
         onStreetFocus() {
