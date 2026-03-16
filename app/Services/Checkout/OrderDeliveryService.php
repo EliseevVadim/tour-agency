@@ -32,6 +32,11 @@ class OrderDeliveryService
             return [
                 'success' => true,
                 'already_created' => true,
+                'message' => 'Заказ в СДЭК уже создан',
+                'order_id' => $order->id,
+                'order_number' => $order->number,
+                'cdek_uuid' => $order->cdek_uuid,
+                'cdek_number' => $order->cdek_number,
             ];
         }
 
@@ -42,7 +47,7 @@ class OrderDeliveryService
 
         if (empty($result['success'])) {
             $deliveryMeta = is_array($order->delivery_meta) ? $order->delivery_meta : array();
-            $deliveryMeta['cdek_errors'] = isset($result['errors']) ? $result['errors'] : array();
+            $deliveryMeta['cdek_errors'] = $result['errors'] ?? array();
 
             $order->update([
                 'status' => 'delivery_failed',
@@ -52,7 +57,7 @@ class OrderDeliveryService
             Log::warning('CDEK createOrder after payment failed', [
                 'order_id' => $order->id,
                 'order_number' => $order->number,
-                'errors' => isset($result['errors']) ? $result['errors'] : array(),
+                'errors' => $result['errors'] ?? array(),
             ]);
 
             return $result;
@@ -80,7 +85,7 @@ class OrderDeliveryService
                 Log::warning('Barcode PDF was not generated after payment', [
                     'order_id' => $order->id,
                     'order_number' => $order->number,
-                    'errors' => isset($barcodeResult['errors']) ? $barcodeResult['errors'] : array(),
+                    'errors' => $barcodeResult['errors'] ?? array(),
                 ]);
 
                 return [

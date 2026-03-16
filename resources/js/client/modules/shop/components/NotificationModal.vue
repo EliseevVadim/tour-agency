@@ -7,7 +7,7 @@
                 </button>
             </div>
             <div class="notification-body w-100">
-                <h3 class="fw-bold mb-2">Сообщить о поступлении товара</h3>
+                <h3 class="fw-bold mb-2 text-center">Сообщить о поступлении товара</h3>
                 <p class="body-text support-text text-black text-center">
                     Выберите удобный способ для оповещения о повторном наличии данного товара
                 </p>

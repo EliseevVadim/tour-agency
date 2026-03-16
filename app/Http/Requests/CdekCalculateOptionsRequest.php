@@ -6,19 +6,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class CdekCalculateOptionsRequest extends FormRequest
 {
-    protected function prepareForValidation(): void
-    {
-        $data = $this->all();
-
-        foreach (['length', 'width', 'height', 'weight'] as $field) {
-            if (isset($data[$field]) && (int)$data[$field] === 0) {
-                unset($data[$field]);
-            }
-        }
-
-        $this->replace($data);
-    }
-
     public function rules(): array
     {
         return [

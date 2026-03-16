@@ -17,6 +17,8 @@ use App\Http\Controllers\Shop\StockNotificationRequestController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TelegramController;
 use App\Http\Controllers\VideoController;
+use App\Models\Order;
+use App\Services\Checkout\OrderDeliveryService;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -74,7 +76,6 @@ Route::prefix('api')->name('api.')->group(function () {
         Route::post('/orders/{order}/generate-barcode', [DeliveryController::class, 'generateBarcode']);
         Route::get('/orders/{order}/download-barcode', [DeliveryController::class, 'downloadBarcode']);
         Route::get('/orders/{order}/barcode-status', [DeliveryController::class, 'barcodeStatus']);
-        Route::post('/orders/{order}/send-telegram', [DeliveryController::class, 'sendOrderToTelegram']);
 
         Route::get('/orders/{order}/status', [OrderPaymentController::class, 'status']);
     });

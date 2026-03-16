@@ -11,14 +11,6 @@ class CdekCreateOrderRequest extends FormRequest
     {
         $data = $this->all();
 
-        if (isset($data['package']) && is_array($data['package'])) {
-            foreach (['length', 'width', 'height'] as $field) {
-                if (array_key_exists($field, $data['package']) && (int) $data['package'][$field] === 0) {
-                    unset($data['package'][$field]);
-                }
-            }
-        }
-
         if (isset($data['items']) && is_array($data['items'])) {
             foreach ($data['items'] as $index => $item) {
                 if (!is_array($item)) {

@@ -395,61 +395,6 @@ class DeliveryController extends Controller
         }
     }
 
-    public function sendOrderToTelegram(
-        Order $order,
-        CdekService $cdek,
-        NotificationOrderService $notificationOrderService
-    ): JsonResponse {
-        $pdfPath = null;
-
-        try {
-            $result = $this->generateBarcodePdfBinary($order, $cdek);
-
-            if (!$result['success']) {
-                $status = !empty($result['should_retry']) ? 409 : 422;
-
-                return response()->json($result, $status);
-            }
-
-            $dir = storage_path('app/tmp/barcodes');
-
-            if (!is_dir($dir)) {
-                mkdir($dir, 0775, true);
-            }
-
-            $pdfPath = $dir . '/barcode-order-' . $order->id . '-' . time() . '.pdf';
-
-            file_put_contents($pdfPath, $result['data']);
-
-            $sent = $notificationOrderService->send($order, $pdfPath);
-
-            if (!$sent) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Не удалось отправить уведомление в Telegram',
-                ], 500);
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Уведомление отправлено',
-            ]);
-        } catch (Throwable $e) {
-            Log::error('Ошибка отправки заказа в Telegram: ' . $e->getMessage(), [
-                'order_id' => $order->id,
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'errors' => [$e->getMessage()],
-            ], 500);
-        } finally {
-            if ($pdfPath && is_file($pdfPath)) {
-                @unlink($pdfPath);
-            }
-        }
-    }
-
     private function generateBarcodePdfBinary(Order $order, CdekService $cdek): array
     {
         $deliveryMeta = is_array($order->delivery_meta) ? $order->delivery_meta : [];
@@ -550,66 +495,6 @@ class DeliveryController extends Controller
         }
 
         return $result;
-    }
-
-    private function buildCreateOrderPayload(Order $order, array $items): array
-    {
-        $packagesItems = collect($items)->map(function ($item) {
-            return [
-                'name' => $item['name'] ?? '',
-                'ware_key' => $item['sku'] ?? null,
-                'payment' => [
-                    'value' => (float) ($item['payment_value'] ?? 0),
-                ],
-                'cost' => (float) ($item['cost'] ?? 0),
-                'weight' => (int) ($item['weight'] ?? 0),
-                'amount' => (int) ($item['quantity'] ?? $item['amount'] ?? 1),
-            ];
-        })->values()->all();
-
-        $payload = [
-            'type' => 1,
-            'number' => $order->number,
-            'tariff_code' => (int) $order->tariff_code,
-            'comment' => 'Заказ с сайта',
-            'recipient' => [
-                'name' => $order->customer_name,
-                'phones' => [
-                    ['number' => $order->customer_phone],
-                ],
-                'email' => $order->customer_email,
-            ],
-            'from_location' => [
-                'code' => (int) config('cdek.from_location_code'),
-                'country_code' => 'RU',
-            ],
-            'packages' => [[
-                'number' => '1',
-                'weight' => (int) $order->package_weight,
-                'length' => (int) $order->package_length,
-                'width' => (int) $order->package_width,
-                'height' => (int) $order->package_height,
-                'items' => $packagesItems,
-            ]],
-        ];
-
-        if ($order->delivery_mode === 'pickup') {
-            $payload['delivery_point'] = $order->pickup_point_code;
-        } else {
-            $payload['to_location'] = [
-                'code' => (int) $order->city_code,
-                'country_code' => 'RU',
-                'address' => trim(implode(', ', array_filter([
-                    $order->street,
-                    $order->house ? 'д. ' . $order->house : null,
-                    $order->flat ? 'кв. ' . $order->flat : null,
-                    $order->entrance ? 'подъезд ' . $order->entrance : null,
-                    $order->floor ? 'этаж ' . $order->floor : null,
-                ]))),
-            ];
-        }
-
-        return $payload;
     }
 
     private function buildBarcodeOrdersPayload(Order $order): array
