@@ -83,6 +83,10 @@ Route::prefix('api')->name('api.')->group(function () {
     Route::post('/cart/validate', [CartController::class, 'validateCart']);
 
     Route::post('/stock-notification-requests', [StockNotificationRequestController::class, 'store']);
+
+    Route::prefix('shop')->group(function () {
+        Route::post('/check-promo-code', [PromoCodeController::class, 'check']);
+    });
 });
 
 Route::post('/telegram/webhook', [TelegramController::class, 'handleWebhook'])->name('telegram.webhook');

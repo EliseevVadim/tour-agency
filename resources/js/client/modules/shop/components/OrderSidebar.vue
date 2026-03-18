@@ -90,8 +90,6 @@
                                 &times;
                             </button>
 
-
-
                             <img :src="getPrimaryImageUrl(item)" class="item-image" :alt="`image-${item.productId}`"/>
                         </div>
 
@@ -117,16 +115,54 @@
                     </div>
                 </div>
 
-                <div v-if="items.length" class="order-summary d-flex gap-3">
-                    <div class="order-sum">
-                        <p class="item-name">К оплате:</p>
-                        <p class="item-value">{{ totalPrice }} р.</p>
+                <div v-if="items.length" class="order-summary d-flex flex-column gap-3">
+                    <div class="promo-block">
+                        <div class="promo-input-wrapper position-relative">
+
+                            <div class="promo-input-container position-relative">
+                                <input v-model.trim="promoCodeInput" type="text" class="form-input promo-input"
+                                       placeholder="Промокод (если есть)" :disabled="promoLoading || promoApplied">
+                                <button v-if="promoCodeInput" class="clear-btn" type="button"
+                                        @click="clearInputPromocode">
+                                    ×
+                                </button>
+                            </div>
+
+                            <button type="button" class="btn btn-cta h-100"
+                                    :class="{ 'promo-btn-success': promoApplied }"
+                                    :disabled="promoLoading || (!promoCodeInput && !promoApplied) || (promoApplied && promoSuccess)"
+                                    @click="promoApplied ? resetPromo() : applyPromoCode()">
+                                <span v-if="promoLoading">Проверка...</span>
+                                <span v-else-if="promoApplied">✓ Применён</span>
+                                <span v-else>Применить</span>
+                            </button>
+                        </div>
+
+                        <div v-if="promoMessage" :class="['promo-message', promoSuccess ? 'success' : 'error']">
+                            {{ promoMessage }}
+                        </div>
                     </div>
 
-                    <button class="btn btn-cta py-2" :disabled="checkoutLoading" @click="proceedToCheckout">
-                        <span class="flare"></span>
-                        {{ checkoutLoading ? 'Проверяем...' : 'Оформить заказ' }}
-                    </button>
+                    <div class="d-flex gap-3">
+                        <div class="align-items-baseline d-flex flex-column order-sum">
+                            <p class="item-name">К оплате:</p>
+
+                            <div class="d-flex flex-column align-items-end">
+                                <p v-if="promoApplied" class="item-value">
+                                    {{ finalPrice }} р.
+                                </p>
+
+                                <p v-if="!promoApplied" class="item-value">
+                                    {{ totalPrice }} р.
+                                </p>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-cta py-2" :disabled="checkoutLoading" @click="proceedToCheckout">
+                            <span class="flare"></span>
+                            {{ checkoutLoading ? 'Проверяем...' : 'Оформить заказ' }}
+                        </button>
+                    </div>
                 </div>
 
                 <div v-if="removedItem" class="undo-snackbar">
@@ -180,7 +216,14 @@ export default {
             isNotificationVisible: false,
 
             currentSKU: null,
-            product: null
+            product: null,
+
+            promoCodeInput: '',
+            promoLoading: false,
+            promoApplied: false,
+            promoData: null,
+            promoMessage: '',
+            promoSuccess: false,
         };
     },
 
@@ -189,6 +232,15 @@ export default {
             return this.items.reduce((sum, item) => {
                 return sum + Number(item?.current_sku?.price || 0) * Number(item?.quantity || 0);
             }, 0);
+        },
+
+        finalPrice() {
+            if (!this.promoApplied || !this.promoData) {
+                return this.totalPrice;
+            }
+
+            const discount = this.promoData.discount_percent || 0;
+            return Math.round(this.totalPrice * (1 - discount / 100));
         }
     },
 
@@ -517,7 +569,6 @@ export default {
 
             if (this.checkoutConfirmedAfterValidation) {
                 this.checkoutConfirmedAfterValidation = false;
-                eventBus.$emit("checkout:open");
                 return;
             }
 
@@ -532,7 +583,7 @@ export default {
                 const prevItemsJson = JSON.stringify(this.items);
                 const prevSoldOutJson = JSON.stringify(this.soldOutItems);
 
-                const { updatedCart, soldOutItems } = await this.validateCartItems(allItems);
+                const {updatedCart, soldOutItems} = await this.validateCartItems(allItems);
 
                 this.items = updatedCart;
                 this.soldOutItems = soldOutItems;
@@ -565,7 +616,12 @@ export default {
                 }
 
                 this.checkoutConfirmedAfterValidation = false;
-                eventBus.$emit("checkout:open");
+                eventBus.$emit("checkout:open", {
+                    promo_code_id: this.promoData ? this.promoData.id : null,
+                    promo_code: this.promoData ? this.promoData.code : null,
+                    discount_percent: this.promoData ? this.promoData.discount_percent : null,
+                    final_price: this.finalPrice,
+                });
             } finally {
                 this.checkoutLoading = false;
             }
@@ -596,6 +652,47 @@ export default {
         async handleCartUpdated() {
             await this.loadAndValidateCart();
         },
+
+        async applyPromoCode() {
+            if (!this.promoCodeInput) {
+                return;
+            }
+
+            this.promoLoading = true;
+            this.promoMessage = '';
+
+            try {
+                const response = await axios.post('/api/shop/check-promo-code', {
+                    code: this.promoCodeInput
+                });
+
+                const data = response.data.data;
+
+                this.promoData = data;
+                this.promoApplied = true;
+                this.promoSuccess = true;
+                this.promoMessage = `Промокод применён (${data.discount_percent}%)`;
+
+            } catch (error) {
+                this.promoSuccess = false;
+                this.promoMessage =
+                    error.response?.data?.message || 'Ошибка применения промокода';
+
+            } finally {
+                this.promoLoading = false;
+            }
+        },
+        clearInputPromocode() {
+            this.resetPromo();
+        },
+        resetPromo() {
+            this.promoCodeInput = '';
+            this.promoLoading = false;
+            this.promoApplied = false;
+            this.promoData = null;
+            this.promoMessage = '';
+            this.promoSuccess = false;
+        }
     },
 
     mounted() {
@@ -691,5 +788,65 @@ export default {
     padding: 10px;
     border: 1px solid;
     margin-top: 10px;
+}
+
+.promo-input-wrapper {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.promo-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 42px;
+    border-radius: 5px;
+    border: 1px solid #d7e1ec;
+    padding: 0 12px;
+    outline: none;
+}
+
+.promo-btn {
+    flex: 0 0 auto;
+    width: auto;
+    white-space: nowrap;
+    height: 42px;
+    border-radius: 10px;
+    padding: 0 14px;
+}
+
+.promo-message {
+    font-size: 13px;
+}
+
+.promo-message.success {
+    color: #1f8b4c;
+}
+
+.promo-message.error {
+    color: #c44949;
+}
+
+.old-price {
+    font-size: 13px;
+    color: #9aa7b6;
+    text-decoration: line-through;
+    margin: 0;
+}
+
+.clear-btn {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    cursor: pointer;
+    color: #888;
+}
+
+.clear-btn:hover {
+    color: #000;
 }
 </style>

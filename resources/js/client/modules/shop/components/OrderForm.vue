@@ -58,11 +58,11 @@
                         <div class="price-box price-box-mobile">
                             <div class="pay-row">
                                 <span class="pay-label">К оплате:</span>
-                                <span class="pay-value">{{ formatRub(itemsTotal) }} р.</span>
+                                <span class="pay-value">{{ formatRub(grandTotal) }} р.</span>
                             </div>
 
                             <div class="price-lines">
-                                <div>Сумма: {{ formatRub(itemsTotal) }} руб</div>
+                                <div>Сумма: {{ formatRub(grandTotal) }} руб</div>
 
                                 <div v-if="selectedDeliveryTitle && form.city_code">
                                     {{ selectedDeliveryTitle }}:
@@ -82,7 +82,7 @@
                             </div>
 
                             <div class="final-row">
-                                Итоговая сумма: {{ formatRub(itemsTotal) }} руб
+                                Итоговая сумма: {{ formatRub(grandTotal) }} руб
                             </div>
                         </div>
 
@@ -281,11 +281,11 @@
                     <div class="price-box">
                         <div class="pay-row">
                             <span class="pay-label">К оплате:</span>
-                            <span class="pay-value">{{ formatRub(itemsTotal) }} р.</span>
+                            <span class="pay-value">{{ formatRub(grandTotal) }} р.</span>
                         </div>
 
                         <div class="price-lines">
-                            <div>Сумма: {{ formatRub(itemsTotal) }} руб</div>
+                            <div>Сумма: {{ formatRub(grandTotal) }} руб</div>
 
                             <div v-if="selectedDeliveryTitle && form.city_code">
                                 {{ selectedDeliveryTitle }}:
@@ -305,7 +305,7 @@
                         </div>
 
                         <div class="final-row">
-                            Итоговая сумма: {{ formatRub(itemsTotal) }} руб
+                            Итоговая сумма: {{ formatRub(grandTotal) }} руб
                         </div>
                     </div>
                 </div>
@@ -325,6 +325,10 @@ export default {
         product: {
             type: Object,
             default: () => ({})
+        },
+        checkoutMeta: {
+            type: Object,
+            default: null
         }
     },
     data() {
@@ -471,6 +475,24 @@ export default {
                 );
             });
         },
+
+        discountAmount() {
+            const percent = Number(this.checkoutMeta?.discount_percent || 0);
+
+            if (!percent) {
+                return 0;
+            }
+
+            return Math.round(this.itemsTotal * percent / 100);
+        },
+
+        itemsTotalWithDiscount() {
+            return Math.max(this.itemsTotal - this.discountAmount, 0);
+        },
+
+        grandTotal() {
+            return this.itemsTotalWithDiscount;
+        },
     },
     mounted() {
         document.addEventListener('keydown', this.handleKeydown);
@@ -478,6 +500,7 @@ export default {
         document.body.style.overflow = 'hidden';
         document.body.classList.add('modal-open')
         this.loadCart();
+
     },
     beforeDestroy() {
         document.removeEventListener('keydown', this.handleKeydown);
@@ -1215,6 +1238,10 @@ export default {
                 },
                 items: this.buildOrderItems()
             };
+
+            if (this.checkoutMeta?.promo_code_id != null) {
+                payload.promo_code_id = this.checkoutMeta.promo_code_id
+            }
 
             if (this.form.delivery_mode === "pickup") {
                 payload.pickup_point_code = this.form.pickup_point_code;

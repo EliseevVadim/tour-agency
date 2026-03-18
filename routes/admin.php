@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminOrderController;
+use App\Http\Controllers\Admin\AdminShopPromoCodesController;
 use App\Http\Controllers\Admin\ReferralController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DataController;
@@ -22,6 +23,16 @@ Route::middleware(['admin.auth.hash'])->prefix('admin')->name('admin.')->group(f
     Route::view('/courses', 'admin.courses')->name('courses');
     Route::view('/products', 'admin.products')->name('products');
     Route::view('/orders', 'admin.orders')->name('orders');
+
+    Route::view('/shop-promo-codes', 'admin.shop-promo-codes')->name('admin.promo-codes.index');
+
+    Route::prefix('api')->group(function () {
+        Route::get('/shop/promo-codes', [AdminShopPromoCodesController::class, 'index']);
+        Route::post('/shop/promo-codes', [AdminShopPromoCodesController::class, 'store']);
+        Route::delete('/shop/promo-codes', [AdminShopPromoCodesController::class, 'destroy']);
+        Route::patch('/shop/promo-codes/{id}/toggle', [AdminShopPromoCodesController::class, 'toggle']);
+    });
+
     Route::get('/orders/{order}', [AdminOrderController::class, 'show']);
     Route::view('/shop', 'admin.admin-shop');
     Route::get('/shop/payment/return', [OrderPaymentController::class, 'handleReturn'])

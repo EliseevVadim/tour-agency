@@ -1,28 +1,21 @@
 <template>
-    <section class="admin-orders-page">
-        <div class="admin-orders-header">
-            <h1 class="admin-orders-title">Заказы</h1>
+    <admin-sales-layout active-tab="orders">
+        <div class="admin-orders-filters">
+            <input v-model.trim="filters.search" type="text" class="admin-input"
+                   placeholder="Поиск по номеру, имени, телефону, email" @input="debouncedFetchOrders">
 
-            <div class="admin-orders-filters">
-                <input v-model.trim="filters.search" type="text" class="admin-input"
-                       placeholder="Поиск по номеру, имени, телефону, email" @input="debouncedFetchOrders">
+            <select v-model="filters.status" class="admin-select" @change="onFilterChange">
+                <option value="">Все статусы</option>
+                <option value="paid">Оплачен</option>
+                <option value="pending">В ожидании</option>
+                <option value="closed">Закрыт</option>
+            </select>
 
-                <select v-model="filters.status" class="admin-select" @change="fetchOrders">
-                    <option value="">Все статусы</option>
-                    <option v-if="false" value="new">Новый</option>
-                    <option value="paid">Оплачен</option>
-                    <option value="pending">В ожидании</option>
-                    <option v-if="false" value="delivery_created">Создан в СДЭК</option>
-                    <option value="closed">Закрыт</option>
-                    <option v-if="false" value="cancelled">Отменён</option>
-                </select>
-
-                <select v-model="filters.delivery_mode" class="admin-select" @change="fetchOrders">
-                    <option value="">Все способы доставки</option>
-                    <option value="pickup">СДЭК (ПВЗ)</option>
-                    <option value="door">СДЭК (Курьер)</option>
-                </select>
-            </div>
+            <select v-model="filters.delivery_mode" class="admin-select" @change="onFilterChange">
+                <option value="">Все способы доставки</option>
+                <option value="pickup">СДЭК (ПВЗ)</option>
+                <option value="door">СДЭК (Курьер)</option>
+            </select>
         </div>
 
         <div class="admin-orders-card">
@@ -51,7 +44,12 @@
                     </thead>
 
                     <tbody>
-                    <admin-order-row v-for="order in orders" :key="order.id" :order="order" @open="openOrder"/>
+                    <admin-order-row
+                        v-for="order in orders"
+                        :key="order.id"
+                        :order="order"
+                        @open="openOrder"
+                    />
                     </tbody>
                 </table>
             </div>
@@ -74,20 +72,22 @@
             </button>
         </div>
 
-        <admin-order-detail-modal :show="showDetailModal" :order="selectedOrder" :loading="detailLoading"
-                                  @close="closeOrderModal" @refresh="refreshSelectedOrder"
+        <admin-order-detail-modal :show="showDetailModal" :order="selectedOrder"
+                                  :loading="detailLoading" @close="closeOrderModal" @refresh="refreshSelectedOrder"
                                   @refresh-orders="fetchOrders"/>
-    </section>
+    </admin-sales-layout>
 </template>
 
 <script>
 import axios from 'axios';
 import AdminOrderDetailModal from "./modules/AdminOrderDetailModal.vue";
 import AdminOrderRow from "./modules/AdminOrderRow.vue";
+import AdminSalesLayout from "./AdminSalesLayout.vue";
 
 export default {
     name: 'AdminOrdersComponent',
     components: {
+        AdminSalesLayout,
         AdminOrderRow,
         AdminOrderDetailModal
     },
@@ -117,6 +117,9 @@ export default {
         this.fetchOrders();
         this.openOrderFromUrl();
     },
+    beforeDestroy() {
+        clearTimeout(this.debounceTimer);
+    },
     methods: {
         async fetchOrders() {
             this.loading = true;
@@ -129,7 +132,7 @@ export default {
                 const payload = response.data || {};
                 const data = payload.data || {};
 
-                this.orders = data.data || [];
+                this.orders = Array.isArray(data.data) ? data.data : [];
                 this.pagination = {
                     current_page: data.current_page || 1,
                     last_page: data.last_page || 1,
@@ -146,12 +149,16 @@ export default {
 
         debouncedFetchOrders() {
             clearTimeout(this.debounceTimer);
-
             this.filters.page = 1;
 
             this.debounceTimer = setTimeout(() => {
                 this.fetchOrders();
             }, 350);
+        },
+
+        onFilterChange() {
+            this.filters.page = 1;
+            this.fetchOrders();
         },
 
         changePage(page) {
@@ -160,14 +167,17 @@ export default {
         },
 
         async openOrder(order) {
-            history.replaceState(null, '', `?order=${order.id}`);
+            history.replaceState(null, '', `/admin/orders?order=${order.id}`);
 
             this.showDetailModal = true;
             this.detailLoading = true;
 
             try {
                 const response = await axios.get(`/admin/orders/${order.id}`);
-                this.selectedOrder = response.data.data;
+                this.selectedOrder = response.data.data || null;
+            } catch (error) {
+                console.error('Ошибка загрузки заказа', error);
+                this.selectedOrder = null;
             } finally {
                 this.detailLoading = false;
             }
@@ -176,8 +186,7 @@ export default {
         closeOrderModal() {
             this.showDetailModal = false;
             this.selectedOrder = null;
-
-            history.replaceState(null, '', window.location.pathname);
+            history.replaceState(null, '', '/admin/orders');
         },
 
         async refreshSelectedOrder() {
@@ -189,13 +198,14 @@ export default {
 
             try {
                 const response = await axios.get(`/admin/orders/${this.selectedOrder.id}`);
-                this.selectedOrder = response.data.data;
+                this.selectedOrder = response.data.data || null;
             } catch (error) {
                 console.error('Ошибка обновления заказа', error);
             } finally {
                 this.detailLoading = false;
             }
         },
+
         openOrderFromUrl() {
             const params = new URLSearchParams(window.location.search);
             const orderId = params.get('order');
@@ -206,15 +216,17 @@ export default {
 
             this.openOrderById(orderId);
         },
+
         async openOrderById(id) {
             this.showDetailModal = true;
             this.detailLoading = true;
 
             try {
                 const response = await axios.get(`/admin/orders/${id}`);
-                this.selectedOrder = response.data.data;
-            } catch (e) {
-                console.error('Ошибка загрузки заказа', e);
+                this.selectedOrder = response.data.data || null;
+            } catch (error) {
+                console.error('Ошибка загрузки заказа', error);
+                this.selectedOrder = null;
             } finally {
                 this.detailLoading = false;
             }
@@ -224,30 +236,11 @@ export default {
 </script>
 
 <style scoped>
-.admin-orders-page {
-    padding: 24px;
-    background: #f5f7fb;
-    min-height: 100vh;
-}
-
-.admin-orders-header {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin-bottom: 20px;
-}
-
-.admin-orders-title {
-    margin: 0;
-    font-size: 28px;
-    font-weight: 700;
-    color: #243447;
-}
-
 .admin-orders-filters {
     display: grid;
     grid-template-columns: minmax(260px, 1fr) 220px 220px;
     gap: 12px;
+    margin-bottom: 20px;
 }
 
 .admin-input,

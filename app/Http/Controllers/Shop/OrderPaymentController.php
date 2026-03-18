@@ -7,6 +7,7 @@ use App\Http\Requests\CdekCreateOrderRequest;
 use App\Models\Order;
 use App\Models\OrderPayment;
 use App\Models\ProductSku;
+use App\Models\ShopPromoCode;
 use App\Services\Checkout\OrderDeliveryService;
 use App\Services\Cdek\CdekService;
 use App\Services\YooKassa\YooKassaService;
@@ -19,7 +20,8 @@ use Throwable;
 
 class OrderPaymentController extends Controller
 {
-    public function create(CdekCreateOrderRequest $request, CdekService $cdek, YooKassaService $yooKassa): JsonResponse {
+    public function create(CdekCreateOrderRequest $request, CdekService $cdek, YooKassaService $yooKassa): JsonResponse
+    {
         DB::beginTransaction();
 
         try {
@@ -42,24 +44,53 @@ class OrderPaymentController extends Controller
             $phone = $cdek->normalizePhone($request->input('recipient_phone'));
             $items = $request->input('items', []);
 
+            $promoCode = null;
+            $discountPercent = 0;
+            $discountAmount = 0.0;
+
+            if ($request->filled('promo_code_id')) {
+                $promoCode = ShopPromoCode::query()
+                    ->lockForUpdate()
+                    ->find($request->input('promo_code_id'));
+
+                if (!$promoCode || !$promoCode->canBeUsed()) {
+                    DB::rollBack();
+
+                    return response()->json([
+                        'success' => false,
+                        'errors' => ['Промокод недействителен'],
+                    ], 422);
+                }
+
+                $discountPercent = (int) $promoCode->discount_percent;
+            }
+
             $this->reserveStock($items);
 
-            $itemsPrice = collect($items)->sum(function ($item) {
-                $qty = (int)($item['quantity'] ?? $item['amount'] ?? 1);
-                return ((float)($item['cost'] ?? 0)) * $qty;
+            $itemsOriginalPrice = collect($items)->sum(function ($item) {
+                $qty = (int) ($item['quantity'] ?? $item['amount'] ?? 1);
+                return ((float) ($item['cost'] ?? 0)) * $qty;
             });
 
-            $deliveryPrice = (float)$request->input('delivery_price');
+            if ($discountPercent > 0) {
+                $discountAmount = round($itemsOriginalPrice * $discountPercent / 100, 2);
+                Log::info('$discountAmount');
+                Log::info($discountAmount);
+            }
+
+            $itemsPrice = max(round($itemsOriginalPrice - $discountAmount, 2), 0);
+            $deliveryPrice = (float) $request->input('delivery_price');
             $totalPrice = round($itemsPrice + $deliveryPrice, 2);
 
             $tariffCode = $request->filled('tariff_code')
-                ? (int)$request->input('tariff_code')
-                : (int)($deliveryMode === 'pickup'
+                ? (int) $request->input('tariff_code')
+                : (int) ($deliveryMode === 'pickup'
                     ? config('cdek.tariffs.pickup')
                     : config('cdek.tariffs.door'));
 
             $order = Order::create([
                 'number' => 'ORD-' . now()->format('YmdHis') . '-' . Str::upper(Str::random(4)),
+                'promo_code_id' => $promoCode ? $promoCode->id : null,
                 'customer_name' => $request->input('recipient_name'),
                 'customer_phone' => $phone,
                 'customer_email' => $request->input('recipient_email'),
@@ -77,10 +108,10 @@ class OrderPaymentController extends Controller
                 'delivery_price' => $deliveryPrice,
                 'items_price' => $itemsPrice,
                 'total_price' => $totalPrice,
-                'package_weight' => (int)$request->input('package.weight'),
-                'package_length' => (int)$request->input('package.length'),
-                'package_width' => (int)$request->input('package.width'),
-                'package_height' => (int)$request->input('package.height'),
+                'package_weight' => (int) $request->input('package.weight'),
+                'package_length' => (int) $request->input('package.length'),
+                'package_width' => (int) $request->input('package.width'),
+                'package_height' => (int) $request->input('package.height'),
                 'status' => 'pending',
                 'payment_status' => 'pending',
                 'items' => $items,
@@ -91,8 +122,8 @@ class OrderPaymentController extends Controller
                 'amount' => $itemsPrice,
                 'description' => 'Оплата заказа ' . $order->number,
                 'metadata' => [
-                    'order_id' => (string)$order->id,
-                    'order_number' => (string)$order->number,
+                    'order_id' => (string) $order->id,
+                    'order_number' => (string) $order->number,
                 ],
             ]);
 
@@ -135,7 +166,7 @@ class OrderPaymentController extends Controller
             OrderPayment::create([
                 'order_id' => $order->id,
                 'payment_id' => $paymentData['id'] ?? null,
-                'amount' => $itemsPrice,
+                'amount' => $totalPrice,
                 'status' => $paymentData['status'] ?? 'pending',
                 'response_payload' => $paymentData,
                 'callback_payload' => null,
@@ -266,8 +297,20 @@ class OrderPaymentController extends Controller
                         'status' => 'paid',
                     ]);
 
-                    if (!$alreadyPaid && !$order->cdek_uuid && $order->status !== 'delivery_created') {
-                        $shouldCreateDelivery = true;
+                    if (!$alreadyPaid) {
+                        if ($order->promo_code_id) {
+                            $promoCode = ShopPromoCode::query()
+                                ->lockForUpdate()
+                                ->find($order->promo_code_id);
+
+                            if ($promoCode) {
+                                $promoCode->increment('usages_count');
+                            }
+                        }
+
+                        if (!$order->cdek_uuid && $order->status !== 'delivery_created') {
+                            $shouldCreateDelivery = true;
+                        }
                     }
 
                     return;

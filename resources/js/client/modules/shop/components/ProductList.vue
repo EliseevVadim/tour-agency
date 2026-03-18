@@ -1,9 +1,6 @@
 <template>
     <div class="product-list-container">
-        <OrderModal
-            v-if="isOrderModalVisible"
-            @close="closeOrderModal"
-        />
+        <OrderModal v-if="isOrderModalVisible" @close="closeOrderModal" :checkout-meta="checkoutMeta"/>
 
         <ProductDetailModal v-if="modalProductData"
                             :is-visible="isDetailVisible"
@@ -97,6 +94,13 @@ export default {
             platformData: [],
 
             isOrderModalVisible: false,
+
+            checkoutMeta: {
+                promo_code_id: null,
+                promo_code: null,
+                discount_percent: null,
+                final_price: null,
+            },
         }
     },
     computed: {
@@ -345,13 +349,22 @@ export default {
             }
         },
 
-        openOrderModal() {
+        openOrderModal(payload = {}) {
             this.isOrderModalVisible = true;
             document.body.classList.add('no-scroll');
+            this.handleCheckoutOpen(payload);
         },
         closeOrderModal() {
             this.isOrderModalVisible = false;
             document.body.classList.remove('no-scroll');
+        },
+        handleCheckoutOpen(payload = {}) {
+            this.checkoutMeta = {
+                promo_code_id: payload.promo_code_id || null,
+                promo_code: payload.promo_code || null,
+                discount_percent: payload.discount_percent || null,
+                final_price: payload.final_price || null,
+            };
         },
     },
     mounted() {

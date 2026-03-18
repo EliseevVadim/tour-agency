@@ -47,6 +47,9 @@ Vue.component('admin-products-component', AdminProductsContent);
 const AdminOrdersComponent = () => import('./admin/AdminOrdersComponent.vue');
 Vue.component('admin-orders-component', AdminOrdersComponent);
 
+const AdminShopPromoCodesComponent = () => import('./admin/AdminPromoCodesComponent.vue');
+Vue.component('admin-promo-codes-component', AdminShopPromoCodesComponent);
+
 Vue.component('ssr-carousel', SsrCarousel);
 
 Vue.use(Notifications)

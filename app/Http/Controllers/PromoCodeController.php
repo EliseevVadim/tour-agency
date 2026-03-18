@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Package;
 use App\Models\PromoCode;
 use App\Models\PromoCodeRule;
+use App\Models\ShopPromoCode;
 use App\Services\PromoCodeGeneratorService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -76,48 +77,51 @@ class PromoCodeController extends Controller
 
     public function check(Request $request): JsonResponse
     {
-        $codeString = $request->input('code');
-        $packageIdCurrentlyBuying = $request->input('package_id');
+        $codeString = trim((string) $request->input('code', ''));
 
-        if (!$codeString) {
+        if ($codeString === '') {
             return response()->json([
                 'status' => 'invalid',
                 'message' => 'Необходимо ввести промокод.'
-            ], 400);
+            ], 422);
         }
 
-        $now = Carbon::now();
-        $promo = PromoCode::query()
-            ->where('code', $codeString)
-            ->where('is_used', false)
-            ->where('expires_at', '>=', $now)
-            ->whereHas('rule', function ($query) use ($packageIdCurrentlyBuying) {
-                $query->where(function ($q) use ($packageIdCurrentlyBuying) {
-                    $q->where('package_id', $packageIdCurrentlyBuying)
-                        ->orWhereNull('package_id');
-                });
-            })
-            ->with('rule.package')
+        $promo = ShopPromoCode::query()
+            ->where('code', mb_strtoupper($codeString))
             ->first();
 
         if (!$promo) {
-            $detailedError = $this->getDetailedError($codeString, $packageIdCurrentlyBuying);
-
             return response()->json([
                 'status' => 'invalid',
-                'message' => $detailedError
+                'message' => 'Промокод не найден.'
+            ], 422);
+        }
+
+        if (!$promo->is_active) {
+            return response()->json([
+                'status' => 'invalid',
+                'message' => 'Промокод отключён.'
+            ], 422);
+        }
+
+        if (!$promo->canBeUsed()) {
+            return response()->json([
+                'status' => 'invalid',
+                'message' => 'Лимит использований промокода исчерпан.'
             ], 422);
         }
 
         return response()->json([
             'status' => 'allowed',
-            'message' => 'Промокод успешно применен.',
-            'discount_info' => [
-                'promo_code_id' => $promo->id,
-                'type' => $promo->rule->discount_type,
-                'value' => $promo->rule->discount_value,
+            'message' => 'Промокод успешно применён.',
+            'data' => [
+                'id' => $promo->id,
+                'code' => $promo->code,
+                'discount_percent' => $promo->discount_percent,
+                'max_usages' => $promo->max_usages,
+                'usages_count' => $promo->usages_count,
             ],
-            'promo_id' => $promo->id
+            'promo_id' => $promo->id,
         ], 200);
     }
 
