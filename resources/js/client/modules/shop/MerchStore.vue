@@ -10,7 +10,7 @@
 
         <app-header class="hero-section-absolute hero-section_dark"></app-header>
 
-        <ssr-carousel v-if="showHeroBanner" class="products-gallery position-relative" :slides-per-page="1"
+        <ssr-carousel class="products-gallery position-relative" :slides-per-page="1"
                       show-dots :autoplay-delay="5" :loop="true">
             <div v-for="(slide, index) in slides" :key="index"
                  class="home-slider-item" tabindex="-1">
@@ -28,7 +28,7 @@
             </div>
         </ssr-carousel>
 
-        <main class="content-wrapper container-xl">
+        <main ref="catalogSection" class="content-wrapper container-xl">
             <section class="category-filters">
                 <NavigationTabs/>
             </section>
@@ -61,7 +61,6 @@ export default {
                 title: '',
                 text: '',
             },
-            showHeroBanner: true,
             slides: [
                 {
                     title: 'Наша атрибутика',
@@ -175,17 +174,15 @@ export default {
         },
 
         goToCatalog() {
-            this.showHeroBanner = false;
+            const target = this.$refs.catalogSection;
 
-            this.$nextTick(() => {
-                const target = this.$refs.catalogSection;
+            if (!target || typeof target.scrollIntoView !== 'function') {
+                return;
+            }
 
-                if (target && typeof target.scrollIntoView === 'function') {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start',
-                    });
-                }
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
             });
         }
     }
@@ -277,7 +274,7 @@ export default {
 
 .products-gallery .btn-cta {
     background: white !important;
-    color: black;
+    color: black !important;
     font-weight: 500;
 }
 </style>
