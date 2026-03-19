@@ -305,6 +305,10 @@ class OrderPaymentController extends Controller
 
                             if ($promoCode) {
                                 $promoCode->increment('usages_count');
+
+                                $order->update([
+                                    'promo_code_id' => null,
+                                ]);
                             }
                         }
 

@@ -14,9 +14,11 @@ class AddPromoCodeIdToOrders extends Migration
     public function up()
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->foreignId('promo_code_id')->after('number')->nullable()->constrained();
-
-            $table->index('promo_code_id');
+            $table->foreignId('promo_code_id')
+                ->after('number')
+                ->nullable()
+                ->constrained('shop_promo_codes')
+                ->nullOnDelete();
         });
     }
 
@@ -28,6 +30,7 @@ class AddPromoCodeIdToOrders extends Migration
     public function down()
     {
         Schema::table('orders', function (Blueprint $table) {
+            $table->dropForeign(['promo_code_id']);
             $table->dropColumn('promo_code_id');
         });
     }
