@@ -1,6 +1,7 @@
 <template>
     <div class="tour-store">
         <notifications group="notification" position="top left"/>
+
         <payment-result-modal
             :is-visible="paymentResultModal.visible"
             :success="paymentResultModal.success"
@@ -8,6 +9,24 @@
         />
 
         <app-header class="hero-section-absolute hero-section_dark"></app-header>
+
+        <ssr-carousel v-if="showHeroBanner" class="products-gallery position-relative" :slides-per-page="1"
+                      show-dots :autoplay-delay="5" :loop="true">
+            <div v-for="(slide, index) in slides" :key="index"
+                 class="home-slider-item" tabindex="-1">
+                <div v-if="slide.image" class="home-slider-item-img-desc">
+                    <img :src="slide.image" :alt="slide.title" class="home-slider-image">
+                </div>
+
+                <div class="home-slider-item-inner">
+                    <h2>{{ slide.title }}</h2>
+
+                    <button class="btn btn-cta home-slider-btn" type="button" @click="goToCatalog">
+                        {{ slide.buttonText }}
+                    </button>
+                </div>
+            </div>
+        </ssr-carousel>
 
         <main class="content-wrapper container-xl">
             <section class="category-filters">
@@ -32,7 +51,7 @@ const PENDING_PAYMENT_ORDER_ID_KEY = 'pendingPaymentOrderId';
 
 export default {
     name: 'MerchStore',
-    components: { PaymentResultModal, NavigationTabs, ProductList },
+    components: {PaymentResultModal, NavigationTabs, ProductList},
 
     data() {
         return {
@@ -42,6 +61,24 @@ export default {
                 title: '',
                 text: '',
             },
+            showHeroBanner: true,
+            slides: [
+                {
+                    title: 'Наша атрибутика',
+                    buttonText: 'Перейти в каталог',
+                    //  image: '/images/store/slide-1.jpg',
+                },
+                {
+                    title: 'Новинки',
+                    buttonText: 'Перейти в каталог',
+                    // image: '/images/store/slide-2.jpg',
+                },
+                {
+                    title: 'Хиты продаж',
+                    buttonText: 'Перейти в каталог',
+                    //  image: '/images/store/slide-3.jpg',
+                },
+            ],
         };
     },
 
@@ -136,6 +173,111 @@ export default {
             url.searchParams.delete('payment_return');
             window.history.replaceState({}, document.title, url.pathname + url.search);
         },
+
+        goToCatalog() {
+            this.showHeroBanner = false;
+
+            this.$nextTick(() => {
+                const target = this.$refs.catalogSection;
+
+                if (target && typeof target.scrollIntoView === 'function') {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start',
+                    });
+                }
+            });
+        }
     }
 }
 </script>
+
+<style scoped>
+.home-slider-item-inner h2 {
+    font-size: 120px;
+    font-weight: 500;
+    line-height: 120px;
+    text-align: center;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+.home-slider-item {
+    width: 100%;
+    height: 801px;
+    position: relative;
+    background: linear-gradient(90deg, #dd0024, #fb6228);
+}
+
+.home-slider-item-img-desc {
+    display: block;
+}
+
+.home-slider-item-inner {
+    width: 100%;
+    position: absolute;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+}
+
+@media (max-width: 1024px) {
+    .home-slider-item {
+        height: 620px;
+    }
+
+    .home-slider-item-inner h2 {
+        font-size: 72px;
+    }
+}
+
+@media (max-width: 767px) {
+    .home-slider-item {
+        height: 520px;
+    }
+
+    .home-slider-item-inner {
+        bottom: 50px;
+        gap: 24px;
+    }
+
+    .home-slider-item-inner h2 {
+        font-size: 42px;
+    }
+}
+</style>
+
+<style>
+.products-gallery .ssr-carousel-dots {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    width: max-content;
+}
+
+.products-gallery [aria-disabled] > .ssr-carousel-dot-icon {
+    background-color: white !important;
+}
+
+.products-gallery .ssr-carousel-dot-icon {
+    background-color: transparent !important;
+    border: 2px solid white !important;
+}
+
+.products-gallery .btn-cta {
+    background: white !important;
+    color: black;
+    font-weight: 500;
+}
+</style>
