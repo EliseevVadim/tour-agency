@@ -4,6 +4,7 @@ namespace App\Services\Cdek;
 
 use App\Models\Order;
 use App\Models\ProductAttribute;
+use App\Models\ShopPromoCode;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Telegram;
@@ -72,6 +73,16 @@ class NotificationOrderService
         }
 
         $lines[] = '';
+        if ($order->promo_code_id) {
+            $promoCode = ShopPromoCode::query()->find($order->promo_code_id);
+
+            if ($promoCode && $promoCode->discount_percent) {
+                $lines[] = '🏷 *Промокод применён (' . $promoCode->discount_percent . '%)*';
+            }
+
+            $lines[] = '';
+        }
+
         $lines[] = '🚛 *Стоимость доставки:* ' . $this->formatMoney($order->delivery_price);
         $lines[] = '💰 *Полная стоимость заказа:* ' . $this->formatMoney($order->items_price);
         $lines[] = '📂 *Детали заказа:* ' . $adminUrl;

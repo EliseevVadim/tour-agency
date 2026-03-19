@@ -305,10 +305,6 @@ class OrderPaymentController extends Controller
 
                             if ($promoCode) {
                                 $promoCode->increment('usages_count');
-
-                                $order->update([
-                                    'promo_code_id' => null,
-                                ]);
                             }
                         }
 
@@ -344,6 +340,10 @@ class OrderPaymentController extends Controller
 
             if ($status === 'succeeded' && $shouldCreateDelivery && $order) {
                 $deliveryResult = $orderDeliveryService->createCdekOrderIfNeeded($order->fresh());
+
+                $order->update([
+                    'promo_code_id' => null,
+                ]);
 
                 if (empty($deliveryResult['success'])) {
                     Log::warning('CDEK create after YooKassa succeeded payment failed', [
