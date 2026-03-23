@@ -38,7 +38,6 @@ class ProductCreator
                 'description' => $data['description'] ?? null,
                 'images' => $storedImages,
                 'old_price' => $data['old_price'] ?? null,
-                'current_price' => $data['current_price'],
                 'is_hit' => (bool)($data['is_hit'] ?? false),
                 'category_id' => $data['category_id'],
             ]);

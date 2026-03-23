@@ -14,7 +14,6 @@ class Product extends Model
         'description',
         'images',
         'old_price',
-        'current_price',
         'is_hit',
         'category_id',
     ];

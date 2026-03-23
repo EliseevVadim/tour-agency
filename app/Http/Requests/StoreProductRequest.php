@@ -17,7 +17,6 @@ class StoreProductRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
 
-            'current_price' => ['required', 'integer', 'min:0'],
             'old_price' => ['required', 'integer', 'min:0'],
 
             'is_hit' => ['sometimes', 'boolean'],

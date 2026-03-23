@@ -36,7 +36,6 @@ class ProductUpdater
                 'name' => $data['name'],
                 'description' => $data['description'] ?? null,
                 'old_price' => $data['old_price'] ?? null,
-                'current_price' => $data['current_price'],
                 'is_hit' => (bool)($data['is_hit'] ?? false),
                 'category_id' => $data['category_id'],
                 'images' => $finalImages,

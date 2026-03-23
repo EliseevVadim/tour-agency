@@ -349,25 +349,13 @@ export default {
             const initial = {};
 
             (product.attributes || []).forEach((attr) => {
-                const preset =
-                    product.current_sku?.[attr.sku_key] ??
-                    product.current_sku?.[attr.name] ??
-                    null;
-
-                initial[attr.name] = preset ?? null;
+                initial[attr.name] = product.current_sku?.[attr.sku_key] ?? null;
             });
 
             this.selectedAttributes = initial;
-            this.recalcActiveOptions();
-
-            (product.attributes || []).forEach((attr) => {
-                const allowed = this.activeAttributeOptions[attr.name] || attr.options || [];
-                if (!allowed.includes(this.selectedAttributes[attr.name])) {
-                    this.$set(this.selectedAttributes, attr.name, allowed[0] ?? null);
-                }
-            });
 
             this.recalcActiveOptions();
+            this.autoFixSelections();
         },
 
         handleAttributeChange(attrName, value) {

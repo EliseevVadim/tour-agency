@@ -124,7 +124,6 @@ export default {
                 name: '',
                 description: '',
                 old_price: 0,
-                current_price: 0,
                 is_hit: false,
                 category_id: 1,
                 images: [],
@@ -383,7 +382,6 @@ export default {
             fd.append('name', payload.name);
             fd.append('description', payload.description || '');
             fd.append('old_price', String(payload.old_price || 0));
-            fd.append('current_price', String(payload.current_price || 0));
             fd.append('is_hit', payload.is_hit ? '1' : '0');
             fd.append('category_id', String(payload.category_id));
 
@@ -419,7 +417,6 @@ export default {
             fd.append('name', payload.name);
             fd.append('description', payload.description || '');
             fd.append('old_price', String(payload.old_price || 0));
-            fd.append('current_price', String(payload.current_price || 0));
             fd.append('is_hit', payload.is_hit ? '1' : '0');
             fd.append('category_id', String(payload.category_id));
 
@@ -495,7 +492,6 @@ export default {
                 ...this.form,
                 is_hit: !!this.form.is_hit,
                 old_price: Number(this.form.old_price) || 0,
-                current_price: Number(this.form.current_price) || 0,
             };
 
             try {
@@ -596,19 +592,6 @@ export default {
                     </div>
 
                     <div class="row g-3 mb-3">
-                        <div class="col-12 col-md-6">
-                            <label class="form-label fw-semibold" for="productCurrentPrice">
-                                Текущая цена <span class="text-danger">*</span>
-                            </label>
-                            <div class="input-group">
-                                <input id="productCurrentPrice" type="number"
-                                       v-model.number="form.current_price" required min="0" step="1"
-                                       class="form-control" placeholder="0">
-                                <span class="input-group-text">₽</span>
-                            </div>
-                            <div class="form-text">Цена для покупателя сейчас.</div>
-                        </div>
-
                         <div class="col-12 col-md-6">
                             <label class="form-label fw-semibold" for="productOldPrice">
                                 Старая цена
@@ -917,7 +900,7 @@ export default {
                 </fieldset>
 
                 <button type="submit" class="btn btn-primary mt-3"
-                        :disabled="isLoading || !form.name || !form.current_price || form.available_skus.length === 0">
+                        :disabled="isLoading || !form.name || form.available_skus.length === 0">
                     {{ submitButtonText }}
                 </button>
 

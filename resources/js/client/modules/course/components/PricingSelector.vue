@@ -125,17 +125,12 @@
                 </div>
                 <div v-if="expandedPackage === pkg.id"
                      class="btn-container d-flex flex-column justify-content-center text-center">
-                    <button v-if="pkg.id !== 'maxi'" class="btn btn-cta btn-price" @click="goToPayment(pkg.id)">
+                    <button v-if="pkg.id !== 'maxi'" class="btn btn-cta btn-price" :class="pkg.id === 'opti' ? 'btn-glow' : ''" @click="goToPayment(pkg.id)">
                         <span class="flare"></span>
                         {{ pkg.id !== 'maxi' ? pkg.details.buttonText : 'ПОЛУЧИТЬ ПРЕЗЕНТАЦИЮ' }}
                     </button>
-                    <div v-if="pkg.id !== 'maxi'" class="mark-price">
-                        <span class="price-old text-decoration-line-through fw-medium">{{
-                                pkg.details.priceOld
-                            }} р</span>
-                        <span class="price-new">{{
-                                promoStatus === 'allowed' ? finalPrice : pkg.details.priceNew
-                            }} р</span>
+                    <div v-if="pkg.id !== 'maxi'" class="mark-price fw-800">
+                        и наличие мест
                     </div>
                     <button v-if="pkg.id === 'maxi'" data-bs-toggle="modal" data-bs-target="#orderModal"
                             class="btn btn-cta btn-price"
@@ -193,7 +188,7 @@ export default {
                         summary: '<b>С пакетом "Мини"</b> ты получишь все ключевые знания и инструменты для организации путешествий с максимальной выгодой для себя, открывая мир путешествий на совершенно новом уровне.',
                         priceOld: 9000,
                         priceNew: 7000,
-                        buttonText: 'ПОЛУЧИТЬ ДОСТУП'
+                        buttonText: 'УТОЧНИТЬ СТОИМОСТЬ'
                     }
                 }, {
                     id: 'opti',
@@ -246,7 +241,7 @@ export default {
                         summary: '<b>Пакет "Опти"</b> – это не просто курс, это комплексная информация, которая необходима для работы в мир туризма!',
                         priceOld: 18000,
                         priceNew: 14000,
-                        buttonText: 'ПОЛУЧИТЬ ДОСТУП'
+                        buttonText: 'УТОЧНИТЬ СТОИМОСТЬ'
                     }
                 }, {
                     id: 'maxi',
@@ -422,7 +417,7 @@ export default {
 
                         this.packageData[index].details.priceOld = pkgData.priceOld;
                         this.packageData[index].details.priceNew = pkgData.priceNew;
-                        this.packageData[index].details.buttonText = pkgData.buttonText || 'ПОЛУЧИТЬ ДОСТУП';
+                        this.packageData[index].details.buttonText = pkgData.buttonText || 'УТОЧНИТЬ СТОИМОСТЬ';
                     }
                 });
 
@@ -589,5 +584,9 @@ export default {
     display: block;
     background: linear-gradient(to right, #dd0024, #fb6228);
     margin-bottom: 25px;
+}
+
+.btn-price {
+    font-size: 22px;
 }
 </style>

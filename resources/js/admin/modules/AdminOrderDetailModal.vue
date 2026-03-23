@@ -128,7 +128,6 @@ export default {
                     'quantity',
                     'price',
                     'cost',
-                    'current_price',
                     'old_price',
                     'amount',
                     'payment_value',

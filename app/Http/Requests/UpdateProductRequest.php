@@ -30,7 +30,6 @@ class UpdateProductRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'current_price' => ['required', 'integer', 'min:0'],
             'old_price' => ['nullable', 'integer', 'min:0'],
             'is_hit' => ['nullable', 'boolean'],
             'category_id' => ['required', 'exists:categories,id'],
