@@ -128,13 +128,13 @@
                                 </button>
                             </div>
 
-                            <button type="button" class="btn btn-cta h-100"
+                            <button type="button" class="btn btn-cta btn-promocode"
                                     :class="{ 'promo-btn-success': promoApplied }"
                                     :disabled="promoLoading || (!promoCodeInput && !promoApplied) || (promoApplied && promoSuccess)"
                                     @click="promoApplied ? resetPromo() : applyPromoCode()">
                                 <span v-if="promoLoading">Проверка...</span>
                                 <span v-else-if="promoApplied">✓ Применён</span>
-                                <span v-else>Применить</span>
+                                <template v-else>Применить</template>
                             </button>
                         </div>
 

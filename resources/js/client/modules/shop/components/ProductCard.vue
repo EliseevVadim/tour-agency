@@ -101,23 +101,6 @@ export default {
 
             const primaryImageObj = this.product.images.find(img => img.primary === true);
             return primaryImageObj ? primaryImageObj.image : this.product.images[0].image;
-        },
-        minAvailablePrice() {
-            const skus = this.product?.available_skus || [];
-
-            if (!skus.length) {
-                return this.product?.currentPrice || 0;
-            }
-
-            const prices = skus
-                .map(item => Number(item.price))
-                .filter(price => !isNaN(price) && price > 0);
-
-            if (!prices.length) {
-                return this.product?.currentPrice || 0;
-            }
-
-            return Math.min(...prices);
         }
     },
     methods: {

@@ -505,7 +505,8 @@ export default {
     beforeDestroy() {
         document.removeEventListener('keydown', this.handleKeydown);
         document.removeEventListener('click', this.handleClickOutside);
-        document.body.style.overflow = 'auto';
+        document.body.style.overflow = '';
+        document.body.classList.remove('modal-open')
 
         if (this.citySearchTimer) {
             clearTimeout(this.citySearchTimer);
@@ -525,6 +526,7 @@ export default {
     },
     methods: {
         closeModal() {
+            document.body.classList.remove('modal-open')
             this.$emit('close');
         },
 
