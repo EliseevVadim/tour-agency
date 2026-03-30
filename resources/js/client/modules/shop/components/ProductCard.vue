@@ -193,7 +193,7 @@ export default {
     }
 
     .product-name {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         font-weight: 600;
     }
 
@@ -219,7 +219,7 @@ export default {
             font-size: 10px;
         }
         .product-name, .current-price {
-            font-size: 16px;
+            font-size: 12px;
         }
     }
 }

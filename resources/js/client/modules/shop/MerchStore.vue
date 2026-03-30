@@ -11,7 +11,49 @@
         <app-header class="hero-section-absolute hero-section_dark"></app-header>
 
         <ssr-carousel class="products-gallery position-relative" :slides-per-page="1"
-                      show-dots :autoplay-delay="5" :loop="true">
+                      show-dots :loop="true">
+            <div class="home-slider-item custom-slide">
+                <div class="grid">
+                    <div class="col down">
+                        <div class="track">
+                            <img src="/img/test.jpg">
+                            <img src="/img/packets/packet-1-bg.png">
+                            <img src="/img/packets/packet-2-bg.png">
+
+                            <img src="/img/test.jpg">
+                            <img src="/img/packets/packet-1-bg.png">
+                            <img src="/img/packets/packet-2-bg.png">
+                        </div>
+                    </div>
+
+                    <div class="col up">
+                        <div class="track">
+                            <img src="/img/test.jpg">
+                            <img src="/img/packets/packet-1-bg.png">
+                            <img src="/img/test.jpg">
+
+                            <!-- дубликат -->
+                            <img src="/img/test.jpg">
+                            <img src="/img/packets/packet-1-bg.png">
+                            <img src="/img/test.jpg">
+                        </div>
+                    </div>
+
+                    <div class="col down">
+                        <div class="track">
+                            <img src="/img/test.jpg">
+                            <img src="/img/test.jpg">
+                            <img src="/img/packets/packet-1-bg.png">
+
+
+                            <!-- дубликат -->
+                            <img src="/img/test.jpg">
+                            <img src="/img/test.jpg">
+                            <img src="/img/packets/packet-1-bg.png">
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div v-for="(slide, index) in slides" :key="index"
                  class="home-slider-item" tabindex="-1">
                 <div v-if="slide.image" class="home-slider-item-img-desc">
@@ -277,4 +319,69 @@ export default {
     color: black !important;
     font-weight: 500;
 }
+
+.grid {
+    position: relative;
+    z-index: 1;
+    gap: 17px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 1.2fr;
+    height: 100%;
+    overflow: hidden;
+}
+
+.col {
+    overflow: hidden;
+    position: relative;
+}
+
+.track {
+    display: flex;
+    flex-direction: column;
+    will-change: transform;
+}
+
+.track img {
+    width: 100%;
+    height: 33.333%;
+    object-fit: cover;
+    margin-bottom: 17px;
+}
+
+.track img:last-child {
+    margin-bottom: 0;
+}
+
+.down .track {
+    animation: scrollDown 10s linear infinite;
+}
+
+.up .track {
+    animation: scrollUp 10s linear infinite;
+}
+
+@keyframes scrollDown {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-50%);
+    }
+}
+
+@keyframes scrollUp {
+    0% {
+        transform: translateY(-50%);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+.col:nth-child(1) .track { animation-duration: 22s; }
+.col:nth-child(2) .track { animation-duration: 25s; }
+.col:nth-child(3) .track { animation-duration: 20s; }
 </style>
