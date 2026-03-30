@@ -1,5 +1,11 @@
 <template>
     <div class="tour-store">
+        <div class="loader" v-if="loading">
+            <div class="loader__dot"></div>
+            <div class="loader__dot"></div>
+            <div class="loader__dot"></div>
+        </div>
+
         <notifications group="notification" position="top left"/>
 
         <payment-result-modal
@@ -120,11 +126,15 @@ export default {
                     //  image: '/images/store/slide-3.jpg',
                 },
             ],
+            loading: true,
         };
     },
 
     async mounted() {
         await this.restorePaidOrderState();
+        setTimeout(() => {
+            this.loading = false;
+        }, 800);
     },
 
     methods: {
@@ -321,19 +331,20 @@ export default {
 }
 
 .grid {
-    position: relative;
-    z-index: 1;
-    gap: 17px;
-}
-
-.grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     display: grid;
     grid-template-columns: 1.3fr 1fr 1.2fr;
-    height: 100%;
+    gap: 17px;
     overflow: hidden;
+    z-index: 1;
 }
 
 .col {
+    height: 100%;
     overflow: hidden;
     position: relative;
 }
@@ -341,39 +352,28 @@ export default {
 .track {
     display: flex;
     flex-direction: column;
-    will-change: transform;
+    gap: 17px;
+    width: 100%;
 }
 
 .track img {
     width: 100%;
-    height: 33.333%;
+    height: auto;
+    display: block;
     object-fit: cover;
-    margin-bottom: 17px;
-}
-
-.track img:last-child {
-    margin-bottom: 0;
-}
-
-.down .track {
-    animation: scrollDown 10s linear infinite;
-}
-
-.up .track {
-    animation: scrollUp 10s linear infinite;
-}
-
-@keyframes scrollDown {
-    0% {
-        transform: translateY(0);
-    }
-    100% {
-        transform: translateY(-50%);
-    }
 }
 
 @keyframes scrollUp {
     0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-50%);
+    }
+}
+
+@keyframes scrollDown {
+    0% {
         transform: translateY(-50%);
     }
     100% {
@@ -381,7 +381,33 @@ export default {
     }
 }
 
-.col:nth-child(1) .track { animation-duration: 22s; }
-.col:nth-child(2) .track { animation-duration: 25s; }
-.col:nth-child(3) .track { animation-duration: 20s; }
+.col.down .track {
+    animation: scrollDown 20s linear infinite;
+}
+
+.col.up .track {
+    animation: scrollUp 25s linear infinite;
+}
+
+.col:nth-child(1) .track {
+    animation-duration: 22s;
+}
+
+.col:nth-child(2) .track {
+    animation-duration: 28s;
+}
+
+.col:nth-child(3) .track {
+    animation-duration: 18s;
+}
+
+@media (max-width: 767.98px) {
+    .grid {
+        gap: 8px;
+    }
+
+    .track {
+        gap: 8px;
+    }
+}
 </style>
