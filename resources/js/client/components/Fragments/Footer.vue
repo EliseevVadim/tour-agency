@@ -144,7 +144,9 @@
                     <p class="copyright-item">Все права защищены</p>
                     <a class="copyright-item link text-center" href="/documents/privacy-policy.pdf" target="_blank"
                        rel="noopener noreferrer">Политика в отношении <br>обработки персональных данных</a>
-                    <a class="copyright-item" href="/documents/public-offer.pdf" target="_blank"
+                    <a v-if="!isPageCourses" class="copyright-item" href="/documents/public-offer.pdf" target="_blank"
+                       rel="noopener noreferrer">Договор оферты</a>
+                    <a v-if="isPageCourses" class="copyright-item" href="/documents/public-courses.pdf" target="_blank"
                        rel="noopener noreferrer">Договор оферты</a>
                 </div>
                 <a @click.prevent="openInfoModal" href="#"
