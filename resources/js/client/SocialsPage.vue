@@ -96,7 +96,7 @@ export default {
                 },
                 {
                     title: 'Max',
-                    link: 'https://t.me/put_club',
+                    link: 'https://max.ru/put_club',
                     color: '#35ade1'
                 }
             ]
