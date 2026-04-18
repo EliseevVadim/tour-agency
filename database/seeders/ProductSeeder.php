@@ -39,7 +39,6 @@ class ProductSeeder extends Seeder
                 'description' => $this->makeDescription($productType['name'], $category->name, $productType['description']),
                 'images' => $this->buildImages($productType['images']),
                 'old_price' => $oldPrice,
-                'current_price' => $basePrice,
                 'is_hit' => $this->isHit($categorySlug, $i),
                 'category_id' => $category->id,
             ]);

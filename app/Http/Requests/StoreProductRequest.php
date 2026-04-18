@@ -22,7 +22,7 @@ class StoreProductRequest extends FormRequest
             'is_hit' => ['sometimes', 'boolean'],
             'category_id' => ['required', 'exists:categories,id'],
 
-            'images' => ['required','array','min:5'],
+            'images' => ['required','array'],
             'images.*.image' => ['required','file','image','max:5120'],
             'images.*.primary' => ['required','boolean'],
 
