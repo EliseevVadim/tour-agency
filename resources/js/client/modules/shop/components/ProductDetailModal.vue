@@ -189,7 +189,7 @@ export default {
 
             return {
                 direction: isMobile ? "horizontal" : "vertical",
-                slidesPerView: isMobile ? 4 : 4,
+                slidesPerView: isMobile ? 4 : 'auto',
                 mousewheel: !isMobile,
                 spaceBetween: 12,
                 loop: false
@@ -498,7 +498,7 @@ export default {
 }
 
 .image-list {
-    width: 165px;
+    width: 115px;
 }
 
 .image-wrapper {
@@ -523,7 +523,7 @@ export default {
     }
 
     @media (min-width: 768px) {
-        height: 125px;
+        //height: 125px;
     }
 }
 
@@ -554,7 +554,7 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    flex-basis: 40%;
+    flex-basis: 70%;
 
     .description {
         font-size: 1.4rem;
@@ -774,6 +774,6 @@ export default {
 }
 
 .gallery .swiper-slide {
-    max-height: 135px;
+    max-height: fit-content;
 }
 </style>
