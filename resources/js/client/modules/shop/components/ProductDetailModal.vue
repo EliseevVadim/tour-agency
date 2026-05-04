@@ -493,8 +493,6 @@ export default {
 .gallery {
     display: flex;
     gap: 20px;
-    flex-basis: 60%;
-    max-height: 530px;
 }
 
 .image-list {
@@ -530,7 +528,7 @@ export default {
 .main-image {
     flex: 1;
     overflow: hidden;
-    width: 100%;
+   width: 440px;
 
     img {
         width: 100%;
@@ -554,7 +552,6 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    flex-basis: 70%;
 
     .description {
         font-size: 1.4rem;
