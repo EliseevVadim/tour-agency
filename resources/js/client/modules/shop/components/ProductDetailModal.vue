@@ -75,7 +75,7 @@
                         </div>
 
                         <div class="price-actions">
-                            <h2 class="mb-2">
+                            <h2 class="final-price">
                                 {{ finalPrice }} руб.
                             </h2>
                             <div class="btn-actions d-flex gap-4 align-items-center">
@@ -551,7 +551,6 @@ export default {
 .product-details {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
 
     .description {
         font-size: 1.4rem;
@@ -559,6 +558,10 @@ export default {
         margin-bottom: 20px;
         margin-top: 20px;
         font-weight: 500;
+    }
+
+    .options, .final-price {
+        margin-bottom: 20px;
     }
 }
 
