@@ -794,6 +794,14 @@ export default {
     display: flex;
     gap: 8px;
     width: 100%;
+
+    @media (max-width: 400px) {
+        flex-direction: column;
+
+        .promo-input-container input {
+            width: 100%;
+        }
+    }
 }
 
 .promo-input {

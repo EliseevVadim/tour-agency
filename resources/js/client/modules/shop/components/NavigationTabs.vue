@@ -102,8 +102,16 @@
                 </button>
 
                 <button class="icon-button favorites" title="Избранное" @click="toggleFavorites">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M16.6875 3.1875C14.7188 3.1875 13.0069 4.07531 12 5.56313C10.9931 4.07531 9.28125
+                    <svg :class="{ 'active-favorite': isActiveFavorite }" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="gradientIcon" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#dd0024;stop-opacity:1"/>
+                                <stop offset="100%" style="stop-color:#fb6228;stop-opacity:1"/>
+                            </linearGradient>
+                        </defs>
+                        <path v-if="isActiveFavorite" d="M5.5 4H9L12 7L14 4.5L17.5 4L19.5 4.5L21.5 7V10.5L20.5 13L15.5 18L12 20.5L7.5 17.5L2.5 10.5V6L5.5 4Z" fill="#222222"></path>
+
+                        <path fill="#222222" style="stroke-width: 0;" d="M16.6875 3.1875C14.7188 3.1875 13.0069 4.07531 12 5.56313C10.9931 4.07531 9.28125
                         3.1875 7.3125 3.1875C5.82119 3.18924 4.39146 3.78243 3.33694 4.83694C2.28243 5.89146 1.68924
                         7.32119 1.6875 8.8125C1.6875 11.55 3.39375 14.3991 6.75937 17.2791C8.30161 18.5932 9.96751
                         19.7549 11.7338 20.7478C11.8156 20.7918 11.9071 20.8148 12 20.8148C12.0929 20.8148 12.1844
@@ -115,15 +123,14 @@
                         7.27842 11.8885 7.31158 12 7.31158C12.1115 7.31158 12.2205 7.27842 12.3132 7.21632C12.4058
                         7.15422 12.4779 7.06598 12.5203 6.96281C13.1897 5.32781 14.7863 4.3125 16.6875 4.3125C17.8806
                         4.31374 19.0245 4.78825 19.8681 5.63189C20.7118 6.47553 21.1863 7.61941 21.1875 8.8125C21.1875
-                        14.0363 13.5384 18.7163 12 19.6041Z" fill="#222222"></path>
+                        14.0363 13.5384 18.7163 12 19.6041Z" stroke="#222222"></path>
                     </svg>
                 </button>
 
                 <button class="icon-button cart" title="Корзина" @click="toggleOrder">
                     <svg class="active-cart" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
-                            <linearGradient id="favoriteGradient" x1="0%" y1="0%" x2="100%"
-                                            y2="0%">
+                            <linearGradient id="gradientIcon" x1="0%" y1="0%" x2="100%" y2="0%">
                                 <stop offset="0%" style="stop-color:#dd0024;stop-opacity:1"/>
                                 <stop offset="100%" style="stop-color:#fb6228;stop-opacity:1"/>
                             </linearGradient>
@@ -219,7 +226,8 @@ export default {
                 last_page: 1
             },
 
-            isActiveCart: false
+            isActiveCart: false,
+            isActiveFavorite: false
         };
     },
 
@@ -489,6 +497,15 @@ export default {
             }
         },
 
+        getWishListCount(){
+            const wishListStorage = JSON.parse(localStorage.getItem('merchWishlistIds'));
+            const wishListCount = Array.isArray(wishListStorage) ? wishListStorage.length : 0;
+
+            if (wishListCount > 0) {
+                this.isActiveFavorite = true;
+            } else this.isActiveFavorite = false;
+        },
+
         handleWishlist(product) {
             const index = this.wishlistIds.indexOf(product.id);
 
@@ -499,6 +516,8 @@ export default {
             }
 
             eventBus.$emit("toggle-wishlist", product);
+
+            this.getWishListCount();
         },
 
         isInWishlist(productId) {
@@ -551,6 +570,7 @@ export default {
         });
 
         eventBus.$on("cart:updated", this.openSidebarOrder);
+        eventBus.$on('update-favorites', this.getWishListCount);
     },
 
     mounted() {
@@ -558,6 +578,7 @@ export default {
         this.updateBodyScroll();
 
         this.checkIsActiveCart();
+        this.getWishListCount();
     },
 
     beforeUnmount() {
@@ -742,6 +763,10 @@ body.no-scroll {
 }
 
 .active-cart path {
-    fill: url(#favoriteGradient);
+    fill: url(#gradientIcon);
+}
+
+.active-favorite path {
+    fill: url(#gradientIcon);
 }
 </style>
