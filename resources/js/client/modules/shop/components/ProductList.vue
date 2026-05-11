@@ -300,6 +300,7 @@ export default {
         changeTabValue(id) {
             this.currentFilterTag = id;
 
+            this.initializePromo();
             this.fetchProducts();
         },
 

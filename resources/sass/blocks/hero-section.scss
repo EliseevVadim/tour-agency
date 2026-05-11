@@ -24,7 +24,8 @@
     }
 
     &.hero-section_dark {
-        background: #282a29;
+        //background: #282a29;
+        background: linear-gradient(90deg, #dd0024 0%, #fb6228 100%);
 
         .hero-top-bar {
             padding-bottom: 15px;
