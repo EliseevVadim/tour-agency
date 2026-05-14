@@ -105,7 +105,7 @@
                 </div>
             </div>
 
-            <div v-if="isInHeader" class="controls-bar action-icons d-flex align-items-center gap-3">
+            <div v-if="isInHeader" class="controls-bar action-icons d-flex align-items-center gap-lg-3">
                 <button class="icon-button search" title="Поиск" @click="toggleSearchOverlay">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M20.2654 21L13.7684 14.503C13.2496 14.945 12.653 15.287 11.9786 15.5291C11.3042 15.7712
@@ -738,10 +738,6 @@ body.no-scroll {
     }
 
     @media (max-width: 997.98px) {
-        .controls-bar {
-            padding-top: 15px;
-        }
-
         .sort-control button {
             font-size: 16px !important;
         }

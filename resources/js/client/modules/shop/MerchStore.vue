@@ -422,6 +422,10 @@ export default {
 
 .padding-header-shop {
     padding-top: 108px;
+
+    @media (max-width: 576.98px) {
+        padding-top: 80px;
+    }
 }
 
 .products-gallery .ssr-carousel-dots {

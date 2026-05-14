@@ -1,5 +1,5 @@
 <template>
-    <section class="hero-section" :class="{'w-100 position-fixed':isShop}" :style="isShop ? { zIndex: 99999 } : {}">
+    <section class="hero-section" :class="{'w-100 position-fixed':isShop}" :style="isShop ? { zIndex: 10 } : {}">
         <nav class="hero-top-bar container-xl d-flex justify-content-between align-items-center">
             <div class="hero-top-bar-left gap-4 d-flex">
                 <button class="navbar-toggler border-0" type="button"
