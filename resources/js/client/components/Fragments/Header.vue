@@ -1,5 +1,5 @@
 <template>
-    <section class="hero-section">
+    <section class="hero-section" :class="{'w-100 position-fixed z-2':isShop}">
         <nav class="hero-top-bar container-xl d-flex justify-content-between align-items-center">
             <div class="hero-top-bar-left gap-4 d-flex">
                 <button class="navbar-toggler border-0" type="button"
@@ -16,11 +16,16 @@
                 </div>
             </div>
 
-            <div class="hero-top-bar-right d-block">
-                <a class="phone-plate btn btn-cta py-2 align-content-center bg-transparent" href="tel:+74951299996">
+            <div v-if="!isShop" class="hero-top-bar-right d-block">
+                <a class="phone-plate btn btn-cta py-2 align-content-center" :class="{'bg-transparent': !isMain}" href="tel:+74951299996">
+                    <span v-if="isMain" class="flare"></span>
                     <img class="align-bottom" src="/img/phone-call.png" alt="phone">
                     +7(495) 129-99-96
                 </a>
+            </div>
+
+            <div v-if="isShop" class="hero-top-bar-right d-block">
+                <NavigationTabs :isInHeader="true"/>
             </div>
 
             <div class="collapse navbar-collapse mobile-menu" id="mobileMenuContent">
@@ -106,8 +111,21 @@
 </template>
 
 <script>
+import NavigationTabs from "../../modules/shop/components/NavigationTabs.vue";
+
 export default {
     name: "Header",
+    components: {NavigationTabs},
+    props: {
+      isMain: {
+          type: Boolean,
+          default: false
+      },
+        isShop: {
+          type: Boolean,
+            default: false
+        }
+    },
     data(){
         return {
             activeLink: "/contacts",
@@ -124,7 +142,7 @@ export default {
                 { link: '/#merch', text: 'Мерч' },
                 { link: 'contacts', text: 'Контакты' },
                 { link: 'socials', text: 'Социальные сети' }
-            ],
+            ]
         }
     },
     methods: {
