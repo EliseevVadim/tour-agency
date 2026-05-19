@@ -239,6 +239,7 @@ body {
 }
 
 .hero-section {
+    z-index: 99 !important;
     .logo-container {
         @media (max-width: 575px) {
             .logo {

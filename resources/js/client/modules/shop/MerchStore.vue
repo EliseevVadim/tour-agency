@@ -169,11 +169,11 @@ export default {
                 observeParents: true,
             },
             productImages: [
-                "img/merch/1.png",
-                "img/merch/2.png",
-                "img/merch/3.png",
-                "img/merch/4.png",
-                "img/merch/5.png",
+                "/img/merch/1.png",
+                "/img/merch/2.png",
+                "/img/merch/3.png",
+                "/img/merch/4.png",
+                "/img/merch/5.png",
             ],
             screenWidth: window.innerWidth
         };
