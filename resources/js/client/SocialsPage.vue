@@ -69,17 +69,17 @@ export default {
                     color: '#fc145c',
                     note: "*"
                 },
-               /* {
+                {
                     title: 'Dzen',
                     link: 'https://dzen.ru/put_club',
                     color: '#373737'
-                },*/
+                },
                 {
                     title: 'Rutube',
                     link: 'https://rutube.ru/channel/37334628/',
                     color: '#e31425'
                 },
-                /*{
+                {
                     title: 'Одноклассники',
                     link: 'https://ok.ru/group/70000033103318',
                     color: '#ff7800'
@@ -93,7 +93,7 @@ export default {
                     title: 'Yappi',
                     link: 'https://yappy.media/n/put_club',
                     color: '#32ffa1'
-                },*/
+                },
                 {
                     title: 'Max',
                     link: 'https://max.ru/put_club',

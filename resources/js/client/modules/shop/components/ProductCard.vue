@@ -128,7 +128,7 @@ export default {
     background: white;
     border-radius: 28px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     cursor: pointer;
     transition: transform 0.3s;
 
@@ -185,7 +185,7 @@ export default {
         bottom: 0;
         width: 100%;
         color: white;
-        background: linear-gradient(to bottom, transparent, rgba(17, 17, 17, 1) 49%);
+        background: linear-gradient(to bottom, transparent, rgba(17, 17, 17, 1) 100%);
 
         .price-info span {
             color: white;

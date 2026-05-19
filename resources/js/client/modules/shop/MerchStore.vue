@@ -18,45 +18,59 @@
 
         <ssr-carousel class="products-gallery position-relative padding-header-shop" :slides-per-page="1" show-dots>
             <div class="home-slider-item d-flex gap-3">
-                <div class="marquee-columns">
-                    <div
-                        v-for="(slider, index) in sliders"
-                        :key="index"
-                        class="marquee-column"
-                        :class="{ reverse: slider.reverse }"
-                    >
-                        <div class="marquee-track">
-                            <div v-for="(image, idx) in slider.images"
-                                :key="'a' + idx"
-                                class="marquee-item"
-                                :class="image.size">
-
-                                <img
-                                    :src="image.src"
-                                    loading="eager"
-                                    decoding="sync"
-                                    draggable="false"
-                                />
-                            </div>
-
-                            <!-- 🔥 duplicate for seamless loop -->
-                            <div
-                                v-for="(image, idx) in slider.images"
-                                :key="'b' + idx"
-                                class="marquee-item"
-                                :class="image.size"
-                            >
-                                <img
-                                    :src="image.src"
-                                    loading="eager"
-                                    decoding="sync"
-                                    draggable="false"
-                                />
-                            </div>
-
+                <swiper :options="swiperProductOptions" v-if="!isMobileVersion">
+                    <swiper-slide>
+                        <div class="d-grid merch-grid">
+                            <div><img src="/img/merch/pc/1.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/2.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/3.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/8.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/7.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/4.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/5.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/6.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/9.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/10.jpg" alt=""></div>
                         </div>
-                    </div>
-                </div>
+                    </swiper-slide>
+
+                     <swiper-slide>
+                        <div class="d-grid merch-grid">
+                            <div><img src="/img/merch/pc/12.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/11.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/13.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/9.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/15.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/3.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/16.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/2.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/17.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/18.jpg" alt=""></div>
+                        </div>
+                    </swiper-slide>
+
+                    <swiper-slide>
+                        <div class="d-grid merch-grid">
+                            <div><img src="/img/merch/pc/20.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/27.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/21.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/28.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/22.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/23.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/29.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/24.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/30.jpg" alt=""></div>
+                            <div><img src="/img/merch/pc/25.jpg" alt=""></div>
+                        </div>
+                    </swiper-slide>
+                </swiper>
+                <swiper :options="mobileSwiperProductOptions" v-else class="mobile-merch-swiper">
+                    <swiper-slide v-for="(image, idx) in productImages" :key="'thumbnail-' + idx">
+                        <div class="slide image-wrapper mobile-merch-image">
+                            <img :src="image" :alt="'Вид-' + idx"/>
+                        </div>
+                    </swiper-slide>
+                </swiper>
             </div>
 
             <div v-for="(slide, index) in slides" :key="index"
@@ -98,20 +112,6 @@ import eventBus from "../../../event-bus";
 const CART_STORAGE_KEY = "shoppingCart";
 const PENDING_PAYMENT_ORDER_ID_KEY = "pendingPaymentOrderId";
 
-const duplicateImages = (images) => [
-    ...images,
-    ...images,
-    ...images,
-];
-
-const createSlider = ({
-                          images,
-                          reverse = false,
-                      }) => ({
-    images,
-    reverse,
-});
-
 export default {
     name: "MerchStore",
 
@@ -146,96 +146,50 @@ export default {
                     buttonText: "Перейти в каталог",
                 },
             ],
+            swiperProductOptions: {
+                direction: "vertical",
+                slidesPerView: 1,
+                mousewheel: false,
+                allowTouchMove: false,
+                loop: true,
+                autoHeight: true,
+                observer: true,
+                observeParents: true,
+                autoplay:{ delay: 3500, disableOnInteraction: false },
+            },
+            mobileSwiperProductOptions: {
+                slidesPerView: 1,
+                speed: 600,
+                loop: true,
+                autoplay: {
+                    delay: 3500,
+                    disableOnInteraction: false,
+                },
+                observer: true,
+                observeParents: true,
+            },
+            productImages: [
+                "img/merch/1.png",
+                "img/merch/2.png",
+                "img/merch/3.png",
+                "img/merch/4.png",
+                "img/merch/5.png",
+            ],
+            screenWidth: window.innerWidth
         };
     },
 
     computed: {
-        sliders() {
-            return [
-                createSlider({
-                    images: [
-                        {
-                            src: "/img/test3.jpg",
-                            size: "large",
-                        },
-                        {
-                            src: "/img/packets/packet-1-bg.png",
-                            size: "medium",
-                        },
-                        {
-                            src: "/img/packets/packet-2-bg.png",
-                            size: "small",
-                        },
-                        {
-                            src: "/img/test.jpg",
-                            size: "large",
-                        },
-                    ],
-                    reverse: true,
-                    speed: 6000,
-                }),
-
-                createSlider({
-                    images: [
-                        {
-                            src: "/img/test3.jpg",
-                            size: "large",
-                        },
-                        {
-                            src: "/img/packets/packet-1-bg.png",
-                            size: "medium",
-                        },
-                        {
-                            src: "/img/packets/packet-2-bg.png",
-                            size: "small",
-                        },
-                        {
-                            src: "/img/test.jpg",
-                            size: "large",
-                        },
-                    ],
-                    speed: 5000,
-                }),
-
-                createSlider({
-                    images: [
-                        {
-                            src: "/img/test3.jpg",
-                            size: "large",
-                        },
-                        {
-                            src: "/img/packets/packet-1-bg.png",
-                            size: "medium",
-                        },
-                        {
-                            src: "/img/packets/packet-2-bg.png",
-                            size: "small",
-                        },
-                        {
-                            src: "/img/test.jpg",
-                            size: "medium",
-                        },
-                    ],
-                    reverse: true,
-                    speed: 6500,
-                }),
-            ];
-        },
-    },
-
-    async mounted() {
-        await this.restorePaidOrderState();
-
-        this.loaderTimeout = setTimeout(() => {
-            this.loading = false;
-        }, 800);
-    },
-
-    beforeDestroy() {
-        clearTimeout(this.loaderTimeout);
+        isMobileVersion() {
+            return this.screenWidth <= 559.98;
+        }
     },
 
     methods: {
+        handleResize() {
+            this.screenWidth = window.innerWidth;
+        },
+
         async restorePaidOrderState() {
             const orderId = localStorage.getItem(
                 PENDING_PAYMENT_ORDER_ID_KEY
@@ -353,166 +307,36 @@ export default {
             });
         },
     },
+
+    async mounted() {
+        window.addEventListener("resize", this.handleResize);
+
+        await this.restorePaidOrderState();
+
+        this.loaderTimeout = setTimeout(() => {
+            this.loading = false;
+        }, 800);
+    },
+
+    beforeDestroy() {
+        window.removeEventListener("resize", this.handleResize);
+        clearTimeout(this.loaderTimeout);
+    },
 };
 </script>
 
 <style scoped>
-.home-slider-item-inner h2 {
-    font-size: 120px;
-    font-weight: 500;
-    line-height: 120px;
-    text-align: center;
-    text-transform: uppercase;
-    color: #fff;
-}
-
 .home-slider-item {
     width: 100%;
-    height: 300px;
+    min-height: 0;
+    height: auto;
     position: relative;
     background: linear-gradient(90deg, #dd0024, #fb6228);
+    overflow: hidden;
 }
 
 .home-slider-item-img-desc {
     display: block;
-}
-
-.home-slider-item-inner {
-    width: 100%;
-    position: absolute;
-    bottom: 70px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 40px;
-}
-
-@media (max-width: 1024px) {
-    .home-slider-item {
-        height: 620px;
-    }
-
-    .home-slider-item-inner h2 {
-        font-size: 72px;
-    }
-}
-
-@media (max-width: 767px) {
-    .home-slider-item {
-        height: 520px;
-    }
-
-    .home-slider-item-inner {
-        bottom: 50px;
-        gap: 24px;
-    }
-
-    .home-slider-item-inner h2 {
-        font-size: 42px;
-    }
-}
-</style>
-
-<style>
-.products-gallery {
-    overflow: hidden;
-}
-
-.padding-header-shop {
-    padding-top: 108px;
-
-    @media (max-width: 576.98px) {
-        padding-top: 80px;
-    }
-}
-
-.products-gallery .ssr-carousel-dots {
-    position: absolute;
-    bottom: 15px;
-    left: 50%;
-    transform: translateX(-50%);
-    margin: 0 !important;
-    padding: 0 !important;
-    display: flex;
-    gap: 8px;
-    z-index: 10;
-}
-
-.products-gallery [aria-disabled] > .ssr-carousel-dot-icon {
-    background-color: white !important;
-}
-
-.products-gallery .ssr-carousel-dot-icon {
-    background-color: transparent !important;
-    border: 2px solid white !important;
-}
-
-.products-gallery .btn-cta {
-    background: white !important;
-    color: black !important;
-    font-weight: 500;
-}
-
-.home-slider-item {
-    width: 100%;
-    height: 720px;
-    position: relative;
-    background: linear-gradient(
-        90deg,
-        #dd0024,
-        #fb6228
-    );
-    overflow: hidden;
-}
-
-.vertical-swiper {
-    height: 720px;
-    overflow: hidden;
-}
-
-.vertical-swiper:nth-child(1) {
-    flex: 1.5;
-}
-
-.vertical-swiper:nth-child(2) {
-    flex: 1;
-}
-
-.vertical-swiper:nth-child(3) {
-    flex: 1.3;
-}
-
-.vertical-swiper .swiper-wrapper {
-    transition-timing-function: linear !important;
-}
-
-.vertical-swiper .swiper-slide {
-    height: auto !important;
-}
-
-.image-wrapper {
-    overflow: hidden;
-}
-
-.image-wrapper.small {
-    height: 220px;
-}
-
-.image-wrapper.medium {
-    height: 320px;
-}
-
-.image-wrapper.large {
-    height: 560px;
-}
-
-.image-wrapper img {
-    width: 100%;
-    height: 100%;
-    display: block;
-    object-fit: cover;
 }
 
 .home-slider-item-inner {
@@ -532,34 +356,32 @@ export default {
     font-size: 120px;
     line-height: 1;
     font-weight: 500;
-    text-transform: uppercase;
-    color: white;
     text-align: center;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+.products-gallery .swiper-container,
+.products-gallery .swiper-wrapper,
+.products-gallery .swiper-slide {
+    height: auto !important;
+}
+
+.products-gallery .swiper-slide {
+    display: flex;
+}
+
+.products-gallery .swiper-slide > * {
+    width: 100%;
 }
 
 @media (max-width: 1024px) {
-    .home-slider-item {
-        height: 620px;
-    }
-
-    .vertical-swiper {
-        height: 620px;
-    }
-
     .home-slider-item-inner h2 {
         font-size: 72px;
     }
 }
 
 @media (max-width: 767px) {
-    .home-slider-item {
-        height: 520px;
-    }
-
-    .vertical-swiper {
-        height: 520px;
-    }
-
     .home-slider-item-inner {
         bottom: 50px;
         gap: 24px;
@@ -568,78 +390,111 @@ export default {
     .home-slider-item-inner h2 {
         font-size: 42px;
     }
+}
+</style>
 
-    .image-wrapper {
-        height: 220px;
+<style>
+.products-gallery {
+    overflow: hidden;
+}
+
+.padding-header-shop {
+    padding-top: 108px;
+}
+
+@media (max-width: 576.98px) {
+    .padding-header-shop {
+        padding-top: 80px;
     }
 }
 
-.marquee-columns {
+.products-gallery .ssr-carousel-dots {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    z-index: 10;
     display: flex;
-    gap: 16px;
-    height: 720px;
+    gap: 8px;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: translateX(-50%);
+}
+
+.products-gallery .ssr-carousel-dot-icon {
+    background-color: transparent !important;
+    border: 2px solid white !important;
+}
+
+.products-gallery [aria-disabled] > .ssr-carousel-dot-icon {
+    background-color: white !important;
+}
+
+.products-gallery .btn-cta {
+    background: white !important;
+    color: black !important;
+    font-weight: 500;
+}
+
+.merch-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    background: white;
+}
+
+.merch-grid > div {
+    aspect-ratio: 1 / 1;
     overflow: hidden;
 }
 
-.marquee-column {
-    flex: 1;
-    overflow: hidden;
-    position: relative;
-}
-
-.marquee-track {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-
-    animation: scrollUp 18s linear infinite;
-    will-change: transform;
-}
-
-.marquee-column.reverse .marquee-track {
-    animation: scrollDown 18s linear infinite;
-}
-
-@keyframes scrollUp {
-    from {
-        transform: translateY(0);
-    }
-    to {
-        transform: translateY(-50%);
-    }
-}
-
-@keyframes scrollDown {
-    from {
-        transform: translateY(-50%);
-    }
-    to {
-        transform: translateY(0);
-    }
-}
-
-.marquee-item {
-    overflow: hidden;
-}
-
-.marquee-item.small {
-    height: 180px;
-}
-
-.marquee-item.medium {
-    height: 280px;
-}
-
-.marquee-item.large {
-    height: 420px;
-}
-
-.marquee-item img {
+.merch-grid img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
     display: block;
+    object-fit: cover;
+}
 
-    transform: translateZ(0);
+@media (min-width: 560px) and (max-width: 991.98px) {
+    .merch-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .merch-grid > div:nth-last-child(-n + 2) {
+        display: none;
+    }
+}
+
+.mobile-merch-swiper {
+    width: 100%;
+}
+
+.mobile-merch-image {
+    width: 100%;
+    height: auto;
+    background: white;
+}
+
+.mobile-merch-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+}
+
+@media (max-width: 559.98px) {
+    .merch-grid {
+        display: none;
+    }
+
+    .home-slider-item {
+        height: auto;
+        min-height: 0;
+    }
+
+    .mobile-merch-swiper .swiper-wrapper,
+    .mobile-merch-swiper .swiper-slide {
+        height: auto !important;
+    }
 }
 </style>

@@ -34,41 +34,13 @@
         },
         {
             "idSuffix": "4",
-            "platformName": "Dzen",
-            "imageUrl": "/img/socials/promo-dzen.png",
-            "url": "https://dzen.ru/put_club",
-            "template": "RELEASES"
-        },
-        {
-            "idSuffix": "5",
             "platformName": "YouTube",
             "imageUrl": "/img/socials/promo-youtube.png",
             "url": "https://www.youtube.com/@put_club",
             "template": "RELEASES"
         },
         {
-            "idSuffix": "6",
-            "platformName": "TikTok",
-            "imageUrl": "/img/socials/promo-tiktok.png",
-            "url": "https://www.tiktok.com/@put_club",
-            "template": "SALES"
-        },
-        {
-            "idSuffix": "7",
-            "platformName": "Yappi",
-            "imageUrl": "/img/socials/promo-yappi.png",
-            "url": "https://yappy.media/n/put_club",
-            "template": "SALES"
-        },
-        {
-            "idSuffix": "8",
-            "platformName": "Одноклассники",
-            "imageUrl": "/img/socials/promo-ok.png",
-            "url": "https://ok.ru/group/70000033103318",
-            "template": "SALES"
-        },
-        {
-            "idSuffix": "9",
+            "idSuffix": "5",
             "platformName": "Max",
             "imageUrl": "/img/socials/promo-max.png",
             "url": "https://t.me/put_club",
