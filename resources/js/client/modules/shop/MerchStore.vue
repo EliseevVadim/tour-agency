@@ -144,11 +144,12 @@ export default {
             mobileSwiperProductOptions: {
                 direction: "vertical",
                 slidesPerView: 1,
-                loop: false,
-                speed: 600,
+                loop: true,
+                speed: 1600,
                 autoplay: {
-                    delay: 3500,
+                    delay: 3000,
                     disableOnInteraction: false,
+                    waitForTransition: true,
                 },
                 observer: true,
                 observeParents: true,
@@ -411,11 +412,6 @@ export default {
 }
 
 @media (max-width: 559.98px) {
-    .home-slider-item {
-        height: auto;
-        min-height: 0;
-    }
-
     .mobile-merch-swiper {
         width: 100%;
         height: calc(100vw * 588 / 466);
@@ -428,6 +424,10 @@ export default {
     .mobile-merch-swiper .swiper-slide {
         width: 100%;
         height: 100% !important;
+    }
+
+    .mobile-merch-swiper .swiper-wrapper {
+        transition-timing-function: ease-in-out !important;
     }
 
     .mobile-merch-swiper .swiper-slide {
