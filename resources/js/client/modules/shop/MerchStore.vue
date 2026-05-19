@@ -14,13 +14,22 @@
             @close="closePaymentResultModal"
         />
 
-        <app-header class="hero-section-absolute hero-section_dark" :is-shop="true"></app-header>
+        <app-header
+            class="hero-section-absolute hero-section_dark"
+            :is-shop="true"
+        />
 
-        <ssr-carousel class="products-gallery position-relative padding-header-shop" :slides-per-page="1" show-dots>
-            <div class="home-slider-item d-flex gap-3">
-                <swiper :options="swiperProductOptions" v-if="!isMobileVersion">
+        <section class="products-hero padding-header-shop">
+            <div class="home-slider-item">
+                <!-- Desktop / tablet slider -->
+                <swiper
+                    v-if="!isMobileVersion"
+                    key="desktop-merch-swiper"
+                    :options="swiperProductOptions"
+                    class="desktop-merch-swiper"
+                >
                     <swiper-slide>
-                        <div class="d-grid merch-grid">
+                        <div class="merch-grid">
                             <div><img src="/img/merch/pc/1.jpg" alt=""></div>
                             <div><img src="/img/merch/pc/2.jpg" alt=""></div>
                             <div><img src="/img/merch/pc/3.jpg" alt=""></div>
@@ -34,8 +43,8 @@
                         </div>
                     </swiper-slide>
 
-                     <swiper-slide>
-                        <div class="d-grid merch-grid">
+                    <swiper-slide>
+                        <div class="merch-grid">
                             <div><img src="/img/merch/pc/12.jpg" alt=""></div>
                             <div><img src="/img/merch/pc/11.jpg" alt=""></div>
                             <div><img src="/img/merch/pc/13.jpg" alt=""></div>
@@ -50,7 +59,7 @@
                     </swiper-slide>
 
                     <swiper-slide>
-                        <div class="d-grid merch-grid">
+                        <div class="merch-grid">
                             <div><img src="/img/merch/pc/20.jpg" alt=""></div>
                             <div><img src="/img/merch/pc/27.jpg" alt=""></div>
                             <div><img src="/img/merch/pc/21.jpg" alt=""></div>
@@ -64,30 +73,25 @@
                         </div>
                     </swiper-slide>
                 </swiper>
-                <swiper :options="mobileSwiperProductOptions" v-else class="mobile-merch-swiper">
-                    <swiper-slide v-for="(image, idx) in productImages" :key="'thumbnail-' + idx">
-                        <div class="slide image-wrapper mobile-merch-image">
-                            <img :src="image" :alt="'Вид-' + idx"/>
+
+                <!-- Mobile full-image slider -->
+                <swiper
+                    v-else
+                    key="mobile-merch-swiper"
+                    :options="mobileSwiperProductOptions"
+                    class="mobile-merch-swiper"
+                >
+                    <swiper-slide
+                        v-for="(image, idx) in productImages"
+                        :key="'mobile-merch-image-' + idx"
+                    >
+                        <div class="mobile-merch-image">
+                            <img :src="image" :alt="'Вид-' + idx">
                         </div>
                     </swiper-slide>
                 </swiper>
             </div>
-
-            <div v-for="(slide, index) in slides" :key="index"
-                 class="home-slider-item" tabindex="-1">
-                <div v-if="slide.image" class="home-slider-item-img-desc">
-                    <img :src="slide.image" :alt="slide.title" class="home-slider-image">
-                </div>
-
-                <div class="home-slider-item-inner">
-                    <h2>{{ slide.title }}</h2>
-
-                    <button class="btn btn-cta home-slider-btn" type="button" @click="goToCatalog">
-                        {{ slide.buttonText }}
-                    </button>
-                </div>
-            </div>
-        </ssr-carousel>
+        </section>
 
         <main ref="catalogSection" class="content-wrapper container-xl">
             <section class="category-filters">
@@ -97,7 +101,7 @@
             <ProductList/>
         </main>
 
-        <app-footer></app-footer>
+        <app-footer/>
     </div>
 </template>
 
@@ -107,7 +111,6 @@ import NavigationTabs from "./components/NavigationTabs.vue";
 import PaymentResultModal from "../../modals/ProductNotificationModal.vue";
 
 import eventBus from "../../../event-bus";
-
 
 const CART_STORAGE_KEY = "shoppingCart";
 const PENDING_PAYMENT_ORDER_ID_KEY = "pendingPaymentOrderId";
@@ -132,20 +135,6 @@ export default {
                 text: "",
             },
 
-            slides: [
-                {
-                    title: "Наша атрибутика",
-                    buttonText: "Перейти в каталог",
-                },
-                {
-                    title: "Новинки",
-                    buttonText: "Перейти в каталог",
-                },
-                {
-                    title: "Хиты продаж",
-                    buttonText: "Перейти в каталог",
-                },
-            ],
             swiperProductOptions: {
                 direction: "vertical",
                 slidesPerView: 1,
@@ -155,12 +144,17 @@ export default {
                 autoHeight: true,
                 observer: true,
                 observeParents: true,
-                autoplay:{ delay: 3500, disableOnInteraction: false },
+                autoplay: {
+                    delay: 3500,
+                    disableOnInteraction: false,
+                },
             },
+
             mobileSwiperProductOptions: {
+                direction: "vertical",
                 slidesPerView: 1,
-                speed: 600,
                 loop: true,
+                speed: 600,
                 autoplay: {
                     delay: 3500,
                     disableOnInteraction: false,
@@ -168,6 +162,7 @@ export default {
                 observer: true,
                 observeParents: true,
             },
+
             productImages: [
                 "/img/merch/1.png",
                 "/img/merch/2.png",
@@ -175,14 +170,15 @@ export default {
                 "/img/merch/4.png",
                 "/img/merch/5.png",
             ],
-            screenWidth: window.innerWidth
+
+            screenWidth: window.innerWidth,
         };
     },
 
     computed: {
         isMobileVersion() {
             return this.screenWidth <= 559.98;
-        }
+        },
     },
 
     methods: {
@@ -242,10 +238,7 @@ export default {
                     this.openPaymentErrorModal();
                 }
             } catch (e) {
-                console.error(
-                    "Failed to check payment status",
-                    e
-                );
+                console.error("Failed to check payment status", e);
 
                 if (isPaymentReturn) {
                     this.openPaymentErrorModal();
@@ -292,7 +285,9 @@ export default {
             if (!url.searchParams.has("payment_return")) {
                 return;
             }
+
             url.searchParams.delete("payment_return");
+
             window.history.replaceState(
                 {},
                 document.title,
@@ -326,6 +321,10 @@ export default {
 </script>
 
 <style scoped>
+.products-hero {
+    overflow: hidden;
+}
+
 .home-slider-item {
     width: 100%;
     min-height: 0;
@@ -335,67 +334,40 @@ export default {
     overflow: hidden;
 }
 
-.home-slider-item-img-desc {
-    display: block;
-}
-
-.home-slider-item-inner {
+.desktop-merch-swiper {
     width: 100%;
-    position: absolute;
-    left: 50%;
-    bottom: 70px;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 40px;
-    z-index: 5;
 }
 
-.home-slider-item-inner h2 {
-    font-size: 120px;
-    line-height: 1;
-    font-weight: 500;
-    text-align: center;
-    text-transform: uppercase;
-    color: #fff;
-}
-
-.products-gallery .swiper-container,
-.products-gallery .swiper-wrapper,
-.products-gallery .swiper-slide {
+.desktop-merch-swiper .swiper-container,
+.desktop-merch-swiper .swiper-wrapper,
+.desktop-merch-swiper .swiper-slide {
     height: auto !important;
 }
 
-.products-gallery .swiper-slide {
+.desktop-merch-swiper .swiper-slide {
     display: flex;
 }
 
-.products-gallery .swiper-slide > * {
+.desktop-merch-swiper .swiper-slide > * {
     width: 100%;
 }
 
-@media (max-width: 1024px) {
-    .home-slider-item-inner h2 {
-        font-size: 72px;
-    }
+.mobile-merch-swiper {
+    width: 100%;
 }
 
-@media (max-width: 767px) {
-    .home-slider-item-inner {
-        bottom: 50px;
-        gap: 24px;
-    }
-
-    .home-slider-item-inner h2 {
-        font-size: 42px;
-    }
+.mobile-merch-swiper .swiper-container,
+.mobile-merch-swiper .swiper-wrapper,
+.mobile-merch-swiper .swiper-slide {
+    height: auto !important;
 }
-</style>
 
-<style>
-.products-gallery {
-    overflow: hidden;
+.mobile-merch-swiper .swiper-slide {
+    display: flex;
+}
+
+.mobile-merch-swiper .swiper-slide > * {
+    width: 100%;
 }
 
 .padding-header-shop {
@@ -406,33 +378,6 @@ export default {
     .padding-header-shop {
         padding-top: 80px;
     }
-}
-
-.products-gallery .ssr-carousel-dots {
-    position: absolute;
-    bottom: 15px;
-    left: 50%;
-    z-index: 10;
-    display: flex;
-    gap: 8px;
-    margin: 0 !important;
-    padding: 0 !important;
-    transform: translateX(-50%);
-}
-
-.products-gallery .ssr-carousel-dot-icon {
-    background-color: transparent !important;
-    border: 2px solid white !important;
-}
-
-.products-gallery [aria-disabled] > .ssr-carousel-dot-icon {
-    background-color: white !important;
-}
-
-.products-gallery .btn-cta {
-    background: white !important;
-    color: black !important;
-    font-weight: 500;
 }
 
 .merch-grid {
@@ -465,10 +410,6 @@ export default {
     }
 }
 
-.mobile-merch-swiper {
-    width: 100%;
-}
-
 .mobile-merch-image {
     width: 100%;
     height: auto;
@@ -483,18 +424,27 @@ export default {
 }
 
 @media (max-width: 559.98px) {
-    .merch-grid {
-        display: none;
+    .mobile-merch-swiper {
+        width: 100%;
+        aspect-ratio: 466 / 588;
+        overflow: hidden;
     }
 
-    .home-slider-item {
-        height: auto;
-        min-height: 0;
-    }
-
+    .mobile-merch-swiper .swiper-container,
     .mobile-merch-swiper .swiper-wrapper,
     .mobile-merch-swiper .swiper-slide {
-        height: auto !important;
+        height: 100% !important;
+    }
+
+    .mobile-merch-image,
+    .mobile-merch-image img {
+        width: 100%;
+        height: 100%;
+    }
+
+    .mobile-merch-image img {
+        display: block;
+        object-fit: contain;
     }
 }
 </style>
