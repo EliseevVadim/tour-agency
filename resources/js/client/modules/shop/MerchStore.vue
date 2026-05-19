@@ -21,13 +21,8 @@
 
         <section class="products-hero padding-header-shop">
             <div class="home-slider-item">
-                <!-- Desktop / tablet slider -->
-                <swiper
-                    v-if="!isMobileVersion"
-                    key="desktop-merch-swiper"
-                    :options="swiperProductOptions"
-                    class="desktop-merch-swiper"
-                >
+                <swiper v-if="!isMobileVersion" key="desktop-merch-swiper"
+                    :options="swiperProductOptions" class="desktop-merch-swiper" @wheel.native.prevent>
                     <swiper-slide>
                         <div class="merch-grid">
                             <div><img src="/img/merch/pc/1.jpg" alt=""></div>
@@ -74,13 +69,8 @@
                     </swiper-slide>
                 </swiper>
 
-                <!-- Mobile full-image slider -->
-                <swiper
-                    v-else
-                    key="mobile-merch-swiper"
-                    :options="mobileSwiperProductOptions"
-                    class="mobile-merch-swiper"
-                >
+                <swiper v-else key="mobile-merch-swiper" @wheel.native.prevent
+                    :options="mobileSwiperProductOptions" class="mobile-merch-swiper">
                     <swiper-slide
                         v-for="(image, idx) in productImages"
                         :key="'mobile-merch-image-' + idx"
@@ -148,12 +138,13 @@ export default {
                     delay: 3500,
                     disableOnInteraction: false,
                 },
+                simulateTouch: false,
             },
 
             mobileSwiperProductOptions: {
                 direction: "vertical",
                 slidesPerView: 1,
-                loop: true,
+                loop: false,
                 speed: 600,
                 autoplay: {
                     delay: 3500,
@@ -161,6 +152,9 @@ export default {
                 },
                 observer: true,
                 observeParents: true,
+                mousewheel: false,
+                allowTouchMove: false,
+                simulateTouch: false,
             },
 
             productImages: [
@@ -294,13 +288,6 @@ export default {
                 url.pathname + url.search
             );
         },
-
-        goToCatalog() {
-            this.$refs.catalogSection?.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-            });
-        },
     },
 
     async mounted() {
@@ -424,27 +411,44 @@ export default {
 }
 
 @media (max-width: 559.98px) {
+    .home-slider-item {
+        height: auto;
+        min-height: 0;
+    }
+
     .mobile-merch-swiper {
         width: 100%;
-        aspect-ratio: 466 / 588;
+        height: calc(100vw * 588 / 466);
         overflow: hidden;
+        background: white;
     }
 
     .mobile-merch-swiper .swiper-container,
     .mobile-merch-swiper .swiper-wrapper,
     .mobile-merch-swiper .swiper-slide {
+        width: 100%;
         height: 100% !important;
     }
 
-    .mobile-merch-image,
-    .mobile-merch-image img {
+    .mobile-merch-swiper .swiper-slide {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+    }
+
+    .mobile-merch-image {
         width: 100%;
         height: 100%;
+        background: white;
+        overflow: hidden;
     }
 
     .mobile-merch-image img {
+        width: 100%;
+        height: 100%;
         display: block;
         object-fit: contain;
+        object-position: top center;
     }
 }
 </style>
