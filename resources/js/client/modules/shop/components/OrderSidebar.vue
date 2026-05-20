@@ -427,7 +427,11 @@ export default {
                 if (this.undoCountdown <= 0) {
                     clearInterval(this.undoTimer);
                     this.saveCurrentStateToStorage();
-                    eventBus.$emit("cart:updated");
+
+                    eventBus.$emit("cart:updated", {
+                        shouldOpenSidebar: false
+                    });
+
                     this.removedItem = null;
                 }
             }, 1000);
@@ -448,7 +452,9 @@ export default {
 
             clearInterval(this.undoTimer);
             this.saveCurrentStateToStorage();
-            eventBus.$emit("cart:updated");
+            eventBus.$emit("cart:updated", {
+                shouldOpenSidebar: false
+            });
             this.removedItem = null;
         },
 
@@ -477,7 +483,9 @@ export default {
                 this.removingSku = null;
 
                 this.startUndoTimer();
-                eventBus.$emit("cart:updated");
+                eventBus.$emit("cart:updated", {
+                    shouldOpenSidebar: false
+                });
             }, 300);
         },
 
@@ -526,7 +534,9 @@ export default {
                         }
 
                         this.saveCurrentStateToStorage();
-                        eventBus.$emit("cart:updated");
+                        eventBus.$emit("cart:updated", {
+                            shouldOpenSidebar: false
+                        });
                     }
 
                     return;
@@ -543,7 +553,9 @@ export default {
                     if (index !== -1) {
                         this.items.splice(index, 1, this.buildMergedItem(item, serverItem, Number(serverItem.stock_qty || 0)));
                         this.saveCurrentStateToStorage();
-                        eventBus.$emit("cart:updated");
+                        eventBus.$emit("cart:updated", {
+                            shouldOpenSidebar: false
+                        });
                     }
 
                     return;
@@ -554,7 +566,9 @@ export default {
                 if (index !== -1) {
                     this.items.splice(index, 1, this.buildMergedItem(item, serverItem, newQuantity));
                     this.saveCurrentStateToStorage();
-                    eventBus.$emit("cart:updated");
+                    eventBus.$emit("cart:updated", {
+                        shouldOpenSidebar: false
+                    });
                 }
             } catch (error) {
                 console.error("Ошибка при изменении количества:", error);

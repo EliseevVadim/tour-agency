@@ -31,9 +31,12 @@ class ProductController extends Controller
         }
 
         if ($request->filled('category')) {
-            $query->whereHas('category', function ($q) use ($request) {
-                $q->where('slug', $request->category);
-            });
+            if ($request->category !== 'all'){
+                $query->whereHas('category', function ($q) use ($request) {
+                    $q->where('slug', $request->category);
+                });
+
+            }
         }
 
         $perPage = $request->get('per_page', 12);

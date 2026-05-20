@@ -151,8 +151,8 @@
             </div>
         </div>
 
-        <FavoritesSidebar :isActive="isFavoritesOpen" @close="closeFavorites"/>
-        <OrderSidebar :is-active="isOrderOpen" @close="closeOrder"/>
+        <FavoritesSidebar v-if="isInHeader" :isActive="isFavoritesOpen" @close="closeFavorites"/>
+        <OrderSidebar v-if="isInHeader" :is-active="isOrderOpen" @close="closeOrder"/>
     </div>
 </template>
 
@@ -182,11 +182,12 @@ export default {
     data() {
         return {
             tabs: [
+                { id: "all", name: "Полный каталог" },
                 { id: "clothing", name: "Одежда" },
                 { id: "accessories", name: "Аксессуары" },
                 { id: "travelGoods", name: "Для путешествий" }
             ],
-            activeTab: "clothing",
+            activeTab: "all",
 
             sortOptions: [
                 { value: "default", text: "Сортировать: по умолчанию" },
@@ -522,8 +523,15 @@ export default {
 
         openSidebarOrder() {
             this.isOrderOpen = true;
-
             this.checkIsActiveCart();
+        },
+
+        handleCartUpdated(payload = {}) {
+            this.checkIsActiveCart();
+
+            if (payload.shouldOpenSidebar) {
+                this.openSidebarOrder();
+            }
         },
 
         debounce(fn, delay) {
@@ -551,18 +559,23 @@ export default {
             if (cartCount > 0 || cartSoldOutCount > 0) {
                 this.isActiveCart = true;
             } else this.isActiveCart = false;
+        },
+
+        handleUpdateFavoritesProducts(fullData) {
+            this.wishlistIds = fullData.map(p => p.id);
         }
     },
 
     created() {
         this.debouncedSearch = this.debounce(this.fetchProducts, 400);
 
-        eventBus.$on("update-favorites-products", (fullData) => {
-            this.wishlistIds = fullData.map(p => p.id);
-        });
+        if (this.isInHeader) {
+            eventBus.$on("cart:updated", this.handleCartUpdated);
+            eventBus.$on("cart:open", this.openSidebarOrder);
+            eventBus.$on("update-favorites", this.getWishListCount);
+        }
 
-        eventBus.$on("cart:updated", this.openSidebarOrder);
-        eventBus.$on('update-favorites', this.getWishListCount);
+        eventBus.$on("update-favorites-products", this.handleUpdateFavoritesProducts);
     },
 
     mounted() {

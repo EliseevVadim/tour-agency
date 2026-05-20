@@ -417,7 +417,9 @@ export default {
             }
 
             this.saveCartToStorage(cart);
-            eventBus.$emit("cart:updated");
+            eventBus.$emit("cart:updated", {
+                shouldOpenSidebar: true
+            });
             this.isNotificationVisible = false;
         },
 
@@ -507,7 +509,8 @@ export default {
     img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
+        background-color: #F2F2F2;
     }
 
     &::after {
@@ -747,7 +750,8 @@ export default {
     }
 
     .main-image img {
-        object-fit: cover;
+        object-fit: contain;
+        background-color: #F2F2F2;
     }
 
     .image-list .swiper-wrapper {
@@ -775,5 +779,9 @@ export default {
 
 .gallery .swiper-slide {
     max-height: fit-content;
+}
+
+.bg-product {
+    background-color: #F2F2F2;
 }
 </style>

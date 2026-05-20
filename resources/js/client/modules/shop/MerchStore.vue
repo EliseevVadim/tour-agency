@@ -22,61 +22,26 @@
         <section class="products-hero padding-header-shop">
             <div class="home-slider-item">
                 <swiper v-if="!isMobileVersion" key="desktop-merch-swiper"
-                    :options="swiperProductOptions" class="desktop-merch-swiper" @wheel.native.prevent>
-                    <swiper-slide>
+                    :options="swiperProductOptions" class="desktop-merch-swiper">
+                    <swiper-slide v-for="(slide, slideIndex) in desktopSlides" :key="'desktop-slide-' + slideIndex">
                         <div class="merch-grid">
-                            <div><img src="/img/merch/pc/1.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/2.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/3.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/8.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/7.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/4.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/5.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/6.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/9.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/10.jpg" alt=""></div>
-                        </div>
-                    </swiper-slide>
-
-                    <swiper-slide>
-                        <div class="merch-grid">
-                            <div><img src="/img/merch/pc/12.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/11.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/13.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/9.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/15.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/3.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/16.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/2.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/17.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/18.jpg" alt=""></div>
-                        </div>
-                    </swiper-slide>
-
-                    <swiper-slide>
-                        <div class="merch-grid">
-                            <div><img src="/img/merch/pc/20.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/27.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/21.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/28.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/22.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/23.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/29.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/24.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/30.jpg" alt=""></div>
-                            <div><img src="/img/merch/pc/25.jpg" alt=""></div>
+                            <div v-for="(image, imageIndex) in slide" :key="image">
+                                <img :src="image" alt=""
+                                    :loading="slideIndex === 0 ? 'eager' : 'lazy'"
+                                    :fetchpriority="slideIndex === 0 && imageIndex === 0 ? 'high' : 'auto'"
+                                    decoding="async">
+                            </div>
                         </div>
                     </swiper-slide>
                 </swiper>
 
-                <swiper v-else key="mobile-merch-swiper" @wheel.native.prevent
+                <swiper v-else key="mobile-merch-swiper"
                     :options="mobileSwiperProductOptions" class="mobile-merch-swiper">
-                    <swiper-slide
-                        v-for="(image, idx) in productImages"
-                        :key="'mobile-merch-image-' + idx"
-                    >
+                    <swiper-slide v-for="(image, idx) in productImages" :key="'mobile-merch-image-' + idx">
                         <div class="mobile-merch-image">
-                            <img :src="image" :alt="'Вид-' + idx">
+                            <img :src="image" :alt="'Вид-' + idx" loading="eager"
+                                 :fetchpriority="idx === 0 ? 'high' : 'auto'"
+                                 decoding="async">
                         </div>
                     </swiper-slide>
                 </swiper>
@@ -131,6 +96,7 @@ export default {
                 mousewheel: false,
                 allowTouchMove: false,
                 loop: true,
+                speed: 1200,
                 autoHeight: true,
                 observer: true,
                 observeParents: true,
@@ -147,7 +113,7 @@ export default {
                 loop: true,
                 speed: 1600,
                 autoplay: {
-                    delay: 3000,
+                    delay: 4000,
                     disableOnInteraction: false,
                     waitForTransition: true,
                 },
@@ -157,6 +123,45 @@ export default {
                 allowTouchMove: false,
                 simulateTouch: false,
             },
+
+            desktopSlides: [
+                [
+                    "/img/merch/pc/1.jpg",
+                    "/img/merch/pc/2.jpg",
+                    "/img/merch/pc/3.jpg",
+                    "/img/merch/pc/8.jpg",
+                    "/img/merch/pc/7.jpg",
+                    "/img/merch/pc/4.jpg",
+                    "/img/merch/pc/5.jpg",
+                    "/img/merch/pc/6.jpg",
+                    "/img/merch/pc/9.jpg",
+                    "/img/merch/pc/10.jpg",
+                ],
+                [
+                    "/img/merch/pc/12.jpg",
+                    "/img/merch/pc/11.jpg",
+                    "/img/merch/pc/13.jpg",
+                    "/img/merch/pc/9.jpg",
+                    "/img/merch/pc/15.jpg",
+                    "/img/merch/pc/3.jpg",
+                    "/img/merch/pc/16.jpg",
+                    "/img/merch/pc/2.jpg",
+                    "/img/merch/pc/17.jpg",
+                    "/img/merch/pc/18.jpg",
+                ],
+                [
+                    "/img/merch/pc/20.jpg",
+                    "/img/merch/pc/27.jpg",
+                    "/img/merch/pc/21.jpg",
+                    "/img/merch/pc/28.jpg",
+                    "/img/merch/pc/22.jpg",
+                    "/img/merch/pc/23.jpg",
+                    "/img/merch/pc/29.jpg",
+                    "/img/merch/pc/24.jpg",
+                    "/img/merch/pc/30.jpg",
+                    "/img/merch/pc/25.jpg",
+                ],
+            ],
 
             productImages: [
                 "/img/merch/1.png",
@@ -309,6 +314,26 @@ export default {
 </script>
 
 <style scoped>
+.merch-image {
+    opacity: 0;
+    transform: scale(1.03);
+    transition:
+        opacity 0.8s ease,
+        transform 1.2s ease;
+    will-change: opacity, transform;
+}
+
+.swiper-slide-active .merch-image {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.swiper-slide-prev .merch-image,
+.swiper-slide-next .merch-image {
+    opacity: 0;
+    transform: scale(1.03);
+}
+
 .products-hero {
     overflow: hidden;
 }
@@ -320,6 +345,11 @@ export default {
     position: relative;
     background: linear-gradient(90deg, #dd0024, #fb6228);
     overflow: hidden;
+}
+
+.desktop-merch-swiper,
+.mobile-merch-swiper {
+    pointer-events: none;
 }
 
 .desktop-merch-swiper {

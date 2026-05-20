@@ -1,5 +1,6 @@
 <template>
-    <div class="product-card position-relative" @click="$emit('click', product)">
+    <div class="product-card-shadow" @click="$emit('click', product)">
+    <div class="product-card position-relative">
         <div class="product-image-container">
             <img :src="primaryImageUrl" :alt="product.name" class="product-img">
 
@@ -68,6 +69,7 @@
             </div>
         </div>
     </div>
+    </div>
 </template>
 
 <script>
@@ -122,15 +124,37 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.product-card-shadow {
+    border-radius: 28px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.4);
+    overflow: visible;
+    cursor: pointer;
+    transition: transform 0.3s;
+    margin-bottom: 30px;
+
+    &:hover {
+        transform: translateY(-5px);
+    }
+}
+
+.products-slider,
+.swiper,
+.swiper-container,
+.swiper-wrapper {
+    overflow: visible;
+}
+
+.swiper-slide {
+    padding: 16px 8px 24px;
+}
+
 .product-card {
     position: relative;
     height: 443px;
     background: white;
     border-radius: 28px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    cursor: pointer;
-    transition: transform 0.3s;
+    box-shadow: none;
 
     &:after {
         content: "";
@@ -140,10 +164,6 @@ export default {
         bottom: 0;
         left: 0;
         background-color: #eb2d26;
-    }
-
-    &:hover {
-        transform: translateY(-5px);
     }
 
     .product-image-container {
