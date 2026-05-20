@@ -645,35 +645,46 @@ export default {
 .another-products {
     padding-top: 115px;
     margin-bottom: 50px;
+    overflow-x: clip;
+    overflow-y: visible;
+    padding-left: 10px;
+    padding-right: 10px;
 
     h2 {
         padding-bottom: 35px;
     }
 }
 
+@supports not (overflow: clip) {
+    .another-products {
+        overflow-x: hidden;
+        overflow-y: visible;
+    }
+}
+
 .another-products-slider {
+    width: 100%;
+    max-width: 100%;
     overflow: visible;
     padding: 0 0 30px;
 }
 
 .another-products-slider ::v-deep(.ssr-carousel),
+.another-products-slider ::v-deep(.ssr-carousel-mask),
 .another-products-slider ::v-deep(.ssr-carousel-track),
 .another-products-slider ::v-deep(.ssr-carousel-slides),
 .another-products-slider ::v-deep(.ssr-carousel-slide) {
     overflow: visible !important;
 }
 
+.another-products-slider ::v-deep(.ssr-carousel-track),
+.another-products-slider ::v-deep(.ssr-carousel-slides) {
+    justify-content: flex-start !important;
+}
+
 .another-products-slider ::v-deep(.ssr-carousel-slide) {
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
-}
-
-.another-products-slider ::v-deep(.ssr-carousel-mask:not(.no-mask)) {
-    overflow: visible;
-}
-
-.another-products-slider ::v-deep(.ssr-carousel-track) {
-    justify-content: start;
 }
 
 @media (max-width: 767.98px) {
