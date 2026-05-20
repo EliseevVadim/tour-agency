@@ -460,10 +460,6 @@ export default {
 
             if (!stored) return;
 
-            if (stored.tag) {
-                this.activeTab = stored.tag;
-            }
-
             if (stored.sort) {
                 this.currentSortValue = stored.sort;
             }
@@ -475,7 +471,6 @@ export default {
             localStorage.setItem(
                 FILTERS_SORT_STORAGE_KEY,
                 JSON.stringify({
-                    tag: this.activeTab,
                     sort: this.currentSortValue
                 })
             );

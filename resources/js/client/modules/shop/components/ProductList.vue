@@ -284,9 +284,9 @@ export default {
         },
 
         loadFiltersAndSortFromStorage() {
+            this.currentFilterTag = 'all';
             const stored = this.loadFromStorage(FILTERS_SORT_STORAGE_KEY);
             if (stored) {
-                if (stored.tag) this.currentFilterTag = stored.tag;
                 if (stored.sort) this.currentSort = stored.sort;
                 if (stored.perPage) this.perPage = stored.perPage;
             }
@@ -307,7 +307,6 @@ export default {
         saveFiltersAndSort() {
             try {
                 localStorage.setItem(FILTERS_SORT_STORAGE_KEY, JSON.stringify({
-                    tag: this.currentFilterTag,
                     sort: this.currentSort,
                     perPage: ITEMS_PER_PAGE
                 }));

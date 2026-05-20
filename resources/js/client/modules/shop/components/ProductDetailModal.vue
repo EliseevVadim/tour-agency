@@ -169,7 +169,7 @@ export default {
             carouselResponsive: [{
                 minWidth: 270,
                 slidesPerPage: 2,
-                center: true,
+                center: false,
                 peek: 0,
                 gutter: 20,
                 showDots: false
@@ -649,6 +649,31 @@ export default {
     h2 {
         padding-bottom: 35px;
     }
+}
+
+.another-products-slider {
+    overflow: visible;
+    padding: 0 0 30px;
+}
+
+.another-products-slider ::v-deep(.ssr-carousel),
+.another-products-slider ::v-deep(.ssr-carousel-track),
+.another-products-slider ::v-deep(.ssr-carousel-slides),
+.another-products-slider ::v-deep(.ssr-carousel-slide) {
+    overflow: visible !important;
+}
+
+.another-products-slider ::v-deep(.ssr-carousel-slide) {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+.another-products-slider ::v-deep(.ssr-carousel-mask:not(.no-mask)) {
+    overflow: visible;
+}
+
+.another-products-slider ::v-deep(.ssr-carousel-track) {
+    justify-content: start;
 }
 
 @media (max-width: 767.98px) {
