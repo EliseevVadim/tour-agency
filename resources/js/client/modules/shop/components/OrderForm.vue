@@ -1487,8 +1487,9 @@ body.modal-open {
 .product-image {
     width: clamp(160px, 17vw, 250px);
     height: clamp(170px, 18vw, 300px);
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 4px;
+    background-color: #F2F2F2;
 }
 
 .product-details {

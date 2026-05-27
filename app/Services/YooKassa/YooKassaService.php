@@ -48,8 +48,8 @@ class YooKassaService
     {
         $request = Http::baseUrl(rtrim(config('services.yookassa.base_url'), '/'))
             ->withBasicAuth(
-                (string)config('services.yookassa.shop_id'),
-                (string)config('services.yookassa.secret_key')
+                (string)config('services.yookassa_shop.shop_id'),
+                (string)config('services.yookassa_shop.secret_key')
             )
             ->acceptJson()
             ->contentType('application/json')
