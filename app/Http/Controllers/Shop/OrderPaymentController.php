@@ -118,12 +118,37 @@ class OrderPaymentController extends Controller
                 'delivery_meta' => [],
             ]);
 
+            $receiptItems = collect($items)->map(function ($item) {
+                $quantity = (float) ($item['quantity'] ?? $item['amount'] ?? 1);
+                $unitPrice = (float) ($item['cost'] ?? $item['price'] ?? $item['payment_value'] ?? 0);
+
+                return [
+                    'description' => mb_substr((string) ($item['name'] ?? 'Товар'), 0, 128),
+                    'quantity' => $quantity,
+                    'amount' => [
+                        'value' => number_format($unitPrice, 2, '.', ''),
+                        'currency' => 'RUB',
+                    ],
+                    'vat_code' => 7,
+                    'payment_subject' => 'commodity',
+                    'payment_mode' => 'full_payment',
+                    'measure' => 'piece',
+                ];
+            })->values()->all();
+
             $paymentPayload = $yooKassa->buildPaymentPayload([
                 'amount' => $itemsPrice,
                 'description' => 'Оплата заказа ' . $order->number,
                 'metadata' => [
                     'order_id' => (string) $order->id,
                     'order_number' => (string) $order->number,
+                ],
+                'receipt' => [
+                    'items' => $receiptItems,
+                    'tax_system_code' => 2,
+                    'customer' => [
+                        'email' => $request->input('recipient_email'),
+                    ],
                 ],
             ]);
 
