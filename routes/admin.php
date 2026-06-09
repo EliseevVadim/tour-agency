@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminFranchisorController;
+use App\Http\Controllers\Admin\AdminHotelController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminShopPromoCodesController;
 use App\Http\Controllers\Admin\ReferralController;
@@ -23,6 +25,7 @@ Route::middleware(['admin.auth.hash'])->prefix('admin')->name('admin.')->group(f
     Route::view('/courses', 'admin.courses')->name('courses');
     Route::view('/products', 'admin.products')->name('products');
     Route::view('/orders', 'admin.orders')->name('orders');
+    Route::view('/franchisors', 'admin.franchisors')->name('franchisors');
 
     Route::view('/shop-promo-codes', 'admin.shop-promo-codes')->name('admin.promo-codes.index');
 
@@ -75,5 +78,21 @@ Route::middleware(['admin.auth.hash'])->prefix('admin')->name('admin.')->group(f
             Route::get('/', [AdminOrderController::class, 'index']);
             Route::post('/{order}/close', [AdminOrderController::class, 'close']);
         });
+
+        Route::prefix('franchisors')->group(function () {
+            Route::get('/', [AdminFranchisorController::class, 'index']);
+            Route::post('/', [AdminFranchisorController::class, 'store']);
+            Route::post('/{franchisor}', [AdminFranchisorController::class, 'update']);
+            Route::patch('/{franchisor}/toggle', [AdminFranchisorController::class, 'toggle']);
+            Route::delete('/{franchisor}', [AdminFranchisorController::class, 'destroy']);
+        });
+
+         Route::prefix('hotels')->group(function () {
+             Route::get('/', [AdminHotelController::class, 'index']);
+             Route::post('/', [AdminHotelController::class, 'store']);
+             Route::post('/{hotel}', [AdminHotelController::class, 'update']);
+             Route::patch('/{hotel}/toggle', [AdminHotelController::class, 'toggle']);
+             Route::delete('/{hotel}', [AdminHotelController::class, 'destroy']);
+         });
     });
 });

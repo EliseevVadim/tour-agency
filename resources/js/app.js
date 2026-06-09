@@ -23,6 +23,8 @@ const SocialPageContent = () => import('./client/SocialsPage.vue');
 const MainShopContent = () => import('./client/modules/shop/MerchStore.vue');
 const CoursePageContent = () => import('./client/modules/course/CoursePage.vue');
 
+const FranchisorsPageContent = () => import('./client/modules/franchisors/FranchisorsPage.vue');
+
 const SvedeniyaContent = () => import('./client/Svedeniya.vue');
 const TemporaryMerch = () => import('./client/modules/shop/TemplateMerch.vue');
 
@@ -32,17 +34,21 @@ Vue.component('socials-page', SocialPageContent);
 Vue.component('main-shop-content', MainShopContent);
 Vue.component('main-courses-content', CoursePageContent);
 
+Vue.component('franchisors-page', FranchisorsPageContent);
+
 Vue.component('temporary-merch-page', TemporaryMerch);
 Vue.component('svedeniya-component', SvedeniyaContent);
 
 
 const AdminProductsContent = () => import('./admin/AdminProductsContent.vue');
+const AdminFranchisorsPage = () => import('./admin/AdminFranchisorsPage.vue');
 
 Vue.component('admin-team-component', require('./admin/TeamComponent.vue').default);
 Vue.component('admin-reviews-component', require('./admin/ReviewsComponent.vue').default);
 Vue.component('admin-contacts-component', require('./admin/ContactsComponent.vue').default);
 Vue.component('admin-courses-component', require('./admin/AdminCoursesComponent.vue').default);
 Vue.component('admin-products-component', AdminProductsContent);
+Vue.component('admin-franchisors-page', AdminFranchisorsPage);
 
 const AdminOrdersComponent = () => import('./admin/AdminOrdersComponent.vue');
 Vue.component('admin-orders-component', AdminOrdersComponent);

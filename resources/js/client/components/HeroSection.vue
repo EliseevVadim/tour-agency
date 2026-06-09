@@ -40,7 +40,9 @@ export default {
                 {link: '#team', text: 'Команда'},
                 {link: '#merch', text: 'Мерч'},
                 {link: 'contacts', text: 'Контакты'},
-                { link: 'socials', text: 'Социальные сети' }
+                {link: 'franchisee', text: 'Франчайзинг'},
+                {link: 'hotels', text: 'Отели'},
+                {link: 'socials', text: 'Социальные сети' }
             ],
         }
     },
@@ -61,18 +63,6 @@ export default {
                     bsCollapse.hide();
                 }
             });
-        },
-        handleOutsideClick(event) {
-           /* const mobileMenu = this.mobileMenu;
-            const isMenuShown = mobileMenu && mobileMenu.classList.contains('show');
-            const isClickInsideMenu = mobileMenu && mobileMenu.contains(event.target);
-
-            const hamburgerButton = document.querySelector('.navbar-toggler[data-bs-target="#mobileMenuContent"]');
-            const isClickOnHamburger = hamburgerButton && hamburgerButton.contains(event.target);
-
-            if (isMenuShown && !isClickInsideMenu && !isClickOnHamburger) {
-                this.closeMobileMenu();
-            }*/
         }
     },
     mounted() {
@@ -82,11 +72,7 @@ export default {
             if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
                 this.bsCollapse = new bootstrap.Collapse(this.mobileMenu, {toggle: false});
             }
-            document.addEventListener('click', this.handleOutsideClick);
         }
-    },
-    beforeDestroy() {
-        document.removeEventListener('click', this.handleOutsideClick);
     },
 }
 </script>

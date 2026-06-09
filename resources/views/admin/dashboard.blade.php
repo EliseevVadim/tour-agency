@@ -93,6 +93,8 @@
                    class="nav-link {{ request()->routeIs('admin.orders') ? 'active' : '' }}">Магазин: Заказы</a>
                 <a href="{{ route('admin.products') }}"
                    class="nav-link {{ request()->routeIs('admin.products') ? 'active' : '' }}">Товары</a>
+                <a href="{{ route('admin.franchisors') }}"
+                   class="nav-link {{ request()->routeIs('admin.franchisors') ? 'active' : '' }}">Франчайзинг</a>
             </nav>
         </div>
         <form method="POST" action="{{ route('admin.logout') }}" style="display:inline;">

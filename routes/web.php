@@ -7,6 +7,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClipController;
 use App\Http\Controllers\DataController;
+use App\Http\Controllers\FranchisorController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PromoCodeController;
 use App\Http\Controllers\ReviewsController;
@@ -43,6 +44,8 @@ Route::view('/contacts', 'contacts')->name('contacts');
 Route::view('/shop', 'shop');
 Route::view('/courses', 'courses')->name('courses');
 Route::view('/socials', 'socials')->name('socials');
+Route::view('/franchisee', 'franchisors')->name('franchisors');
+Route::view('/hotels', 'partner-hotels')->name('partner-hotels');
 
 Route::prefix('api')->name('api.')->group(function () {
     Route::get("/contacts", [DataController::class, 'getContacts'])->name('contacts.index');
@@ -87,6 +90,9 @@ Route::prefix('api')->name('api.')->group(function () {
     Route::prefix('shop')->group(function () {
         Route::post('/check-promo-code', [PromoCodeController::class, 'check']);
     });
+
+    Route::get('/franchisors', [FranchisorController::class, 'index']);
+    Route::get('/hotels', [\App\Http\Controllers\PartnerHotelsController::class, 'index']);
 });
 
 Route::post('/telegram/webhook', [TelegramController::class, 'handleWebhook'])->name('telegram.webhook');
