@@ -6,7 +6,7 @@
             <div class="loader__dot"></div>
         </div>
 
-        <app-header class="hero-section-absolute hero-section_dark"/>
+        <app-header :isPageHotels="isHotelsPage" class="hero-section-absolute hero-section_dark"/>
 
         <div class="hero-content-wrapper">
             <div class="hero-background-image">
