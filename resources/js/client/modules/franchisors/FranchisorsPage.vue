@@ -9,8 +9,10 @@
         <app-header :isPageHotels="isHotelsPage" class="hero-section-absolute hero-section_dark"/>
 
         <div class="hero-content-wrapper">
-            <div class="hero-background-image">
-                <img :src="pageConfig.heroImage" :alt="pageConfig.heroAlt">
+            <div class="hero-background-video">
+                <video class="h-100 w-100" autoplay muted loop playsinline>
+                    <source :src="pageConfig.heroImage" type="video/mp4">
+                </video>
             </div>
 
             <div class="hero-main-text">
@@ -135,7 +137,7 @@ export default {
             if (this.isHotelsPage) {
                 return {
                     apiUrl: '/api/hotels',
-                    heroImage: '/img/hero-franchisors-section.png',
+                    heroImage: '/videos/3.mp4',
                     searchPlaceholder: 'Введите название страны',
                     filterField: 'country',
                 };
@@ -143,7 +145,7 @@ export default {
 
             return {
                 apiUrl: '/api/franchisors',
-                heroImage: '/img/hero-franchisors-section.png',
+                heroImage: '/videos/1.mp4',
                 heroAlt: 'hero franchisors section',
                 searchPlaceholder: 'Введите название города',
                 filterField: 'city',
@@ -212,38 +214,6 @@ export default {
 </script>
 
 <style scoped>
-.hero-content-wrapper {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    background-size: cover;
-    background-position: bottom;
-    padding-top: 205px;
-    padding-bottom: 10px;
-    overflow: hidden;
-    color: white;
-}
-
-.hero-background-image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    z-index: -2;
-}
-
-.hero-background-image img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-}
-
 .hero-content-wrapper::after {
     content: "";
     position: absolute;
@@ -255,43 +225,10 @@ export default {
     z-index: -1;
 }
 
-.hero-main-text {
-    position: relative;
-    z-index: 1;
-    margin-bottom: 125px;
-}
-
 .hero-main-title {
     color: white;
     font-weight: 700;
     text-transform: uppercase;
-}
-
-.scroll-indicator {
-    display: block;
-    text-decoration: none;
-    position: relative;
-    z-index: 1;
-    margin-top: auto;
-    margin-bottom: 20px;
-}
-
-.scroll-arrow-container {
-    width: 50px;
-    height: 50px;
-    background: rgba(235, 45, 38, 0.4);
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: auto !important;
-    transition: background 0.3s;
-}
-
-.scroll-arrow {
-    width: 74px;
-    height: 74px;
-    color: white;
 }
 
 .mobile-br {

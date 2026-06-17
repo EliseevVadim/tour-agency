@@ -3,7 +3,7 @@
         <div class="hero-content-wrapper">
             <div class="hero-background-video">
                 <video class="h-100 w-100" autoplay muted loop playsinline>
-                    <source src="/videos/movie.mp4" type="video/mp4">
+                    <source src="/videos/2.mp4" type="video/mp4">
                 </video>
             </div>
             <div class="hero-main-text">

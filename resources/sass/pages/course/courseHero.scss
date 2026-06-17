@@ -1,64 +1,111 @@
-.course-hero {
-    margin-top: 25px;
-    margin-bottom: 88px;
+.hero-content-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background-size: cover;
+    background-position: bottom;
+    padding: 205px 80px 10px;
+    margin-bottom: 50px;
+    overflow: hidden;
+    color: white;
+}
 
+.hero-content-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
+    z-index: -1;
+}
+
+.hero-background-video,
+.hero-background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -2;
+}
+
+.hero-background-video video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.hero-background-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.hero-main-text {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 125px;
+}
+
+.scroll-indicator {
+    display: block;
+    text-decoration: none;
+    position: relative;
+    z-index: 1;
+    margin-top: auto;
+    margin-bottom: 20px;
+}
+
+.scroll-arrow-container {
+    width: 50px;
+    height: 50px;
+    background: rgba(235, 45, 38, 0.4);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: auto !important;
+    transition: background 0.3s;
+}
+
+.scroll-arrow {
+    width: 74px;
+    height: 74px;
+    color: white;
+}
+
+@media (max-width: 768px) {
     .hero-content-wrapper {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        background-size: cover;
-        background-position: bottom;
-        padding: 205px 80px 10px;
-        margin-bottom: 50px;
-        overflow: hidden;
-        color: white;
+        padding: 50px 25px 10px;
+        margin-bottom: 25px;
     }
 
-    .hero-background-video,
-    .hero-background-image {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        z-index: -2;
-    }
-
-    .hero-background-video video {
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center;
-    }
-
-    .hero-background-image img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center;
-    }
-
-    .hero-content-wrapper::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
-        z-index: -1;
+    .scroll-arrow-container {
+        width: 30px;
+        height: 30px;
     }
 
     .hero-main-text {
-        position: relative;
-        z-index: 1;
-        margin-bottom: 125px;
+        margin-bottom: 30px !important;
     }
+
+    .hero-main-title {
+        font-size: 18px;
+    }
+}
+
+.course-hero {
+    margin-top: 25px;
+    margin-bottom: 88px;
 
     .hero-main-title {
         color: white;
@@ -78,33 +125,6 @@
         line-height: 1;
         padding-left: 80px;
         padding-right: 80px;
-    }
-
-    .scroll-indicator {
-        display: block;
-        text-decoration: none;
-        position: relative;
-        z-index: 1;
-        margin-top: auto;
-        margin-bottom: 20px;
-    }
-
-    .scroll-arrow-container {
-        width: 50px;
-        height: 50px;
-        background: rgba(235, 45, 38, 0.4);
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: auto !important;
-        transition: background 0.3s;
-    }
-
-    .scroll-arrow {
-        width: 74px;
-        height: 74px;
-        color: white;
     }
 
     @keyframes bounce {
@@ -142,24 +162,11 @@
 
     @media (max-width: 768px) {
         margin-bottom: 44px;
-        .hero-content-wrapper {
-            padding: 50px 25px 10px;
-            margin-bottom: 25px;
-        }
-        .hero-main-title {
-            font-size: 18px;
-        }
+
         .hero-subtitle {
             font-size: 15px;
             padding-left: 40px;
             padding-right: 40px;
-        }
-        .hero-main-text {
-            margin-bottom: 30px;
-        }
-        .scroll-arrow-container {
-            width: 30px;
-            height: 30px;
         }
         .lower-description {
             font-size: 15px;
