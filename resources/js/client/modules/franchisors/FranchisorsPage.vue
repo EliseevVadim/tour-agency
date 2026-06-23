@@ -17,17 +17,13 @@
 
             <div class="hero-main-text">
                 <h1 v-if="isHotelsPage" class="hero-main-title">
-                    Наши
-                    <br class="mobile-br">
-                    фирменные
+                    Лучшие
                     <br class="desktop-br">
                     отели
                 </h1>
 
                 <h1 v-else class="hero-main-title">
-                    Наши
-                    <br class="mobile-br">
-                    фирменные
+                    Фирменные
                     <br class="desktop-br">
                     медиа
                     <br class="mobile-br">
@@ -49,10 +45,10 @@
                 <div class="franchisors-section__intro">
                     <template v-if="isHotelsPage">
                         <p>
-                            На этой странице вы найдете информацию о наших <br class="mobile-br desktop-br">
-                            <strong>фирменных отелях,</strong>
-                            созданных специально<br class="mobile-br desktop-br">
-                            для того, чтобы ваш отдых был комфортным и незабываемым.
+                            На этой странице вы найдете информацию о <br class="mobile-br desktop-br">
+                            <strong>о лучших отелях,</strong>
+                            которые команда туристической компании "В Путь"<br class="mobile-br desktop-br">
+                            посетила лично и рекомендует для наших туристов.
                         </p>
 
                         <p>
@@ -82,7 +78,7 @@
 
                 <form class="franchisors-section__search" @submit.prevent>
                     <input v-model="searchQuery" class="franchisors-section__input" type="text"
-                        :placeholder="pageConfig.searchPlaceholder">
+                           :placeholder="pageConfig.searchPlaceholder">
 
                     <button class="franchisors-section__button" type="submit">
                         Найти
@@ -91,9 +87,9 @@
 
                 <div class="franchisors-section__cards">
                     <FranchisorCard v-for="item in filteredItems" :key="item.id"
-                        :type="pageType" :name="item.name" :city="item.city" :country="item.country"
-                        :phone="item.phone" :stars="item.stars" :socials="item.socials" :text="item.text"
-                        :image="item.image" :link="item.link"/>
+                                    :type="pageType" :name="item.name" :city="item.city" :country="item.country"
+                                    :phone="item.phone" :stars="item.stars" :socials="item.socials" :text="item.text"
+                                    :image="item.image" :link="item.link"/>
                 </div>
             </div>
         </section>
@@ -250,12 +246,13 @@ export default {
         display: block !important;
     }
 
-    .franchisors-section__intro .mobile-br.br-small{
+    .franchisors-section__intro .mobile-br.br-small {
         display: block;
     }
 }
+
 @media (min-width: 399.98px) {
-    .franchisors-section__intro .mobile-br.br-small{
+    .franchisors-section__intro .mobile-br.br-small {
         display: none;
     }
 }

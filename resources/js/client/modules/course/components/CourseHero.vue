@@ -4,12 +4,13 @@
             <div class="hero-background-video">
                 <video class="h-100 w-100" autoplay muted loop playsinline>
                     <source src="/videos/2.mp4" type="video/mp4">
+                    Ваш браузер не поддерживает видео.
                 </video>
             </div>
             <div class="hero-main-text">
                 <h2 class="hero-main-title">Авторский курс</h2>
                 <h1 class="hero-highlight-title">«ПУТЬ В ТУРИЗМ»</h1>
-                <p class="hero-subtitle">от медийной туристической компании "В ПУТЬ"</p>
+                <p class="hero-subtitle">от туристической компании "В ПУТЬ"</p>
             </div>
             <div class="scroll-indicator">
                 <div class="scroll-arrow-container">
