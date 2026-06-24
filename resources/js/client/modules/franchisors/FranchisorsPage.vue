@@ -45,7 +45,7 @@
                 <div class="franchisors-section__intro">
                     <template v-if="isHotelsPage">
                         <p>
-                            На этой странице вы найдете информацию о <br class="mobile-br desktop-br">
+                            На этой странице вы найдете информацию <br class="mobile-br desktop-br">
                             <strong>о лучших отелях,</strong>
                             которые команда туристической компании "В Путь"<br class="mobile-br desktop-br">
                             посетила лично и рекомендует для наших туристов.
@@ -268,7 +268,6 @@ export default {
 }
 
 .franchisors-section {
-    padding-top: 120px;
     padding-bottom: 100px;
 }
 
