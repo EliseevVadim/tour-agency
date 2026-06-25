@@ -340,10 +340,6 @@ export default {
 }
 
 @media (max-width: 767px) {
-    .franchisors-section {
-        padding-top: 48px;
-    }
-
     .franchisors-section__container {
         max-width: 100%;
     }
