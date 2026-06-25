@@ -311,7 +311,7 @@ export default {
 </script>
  <style lang="scss">
  .franchisors-content .hero-top-bar {
-     gap: 50px;
+     gap: 30px;
  }
 
  .icons-flex {

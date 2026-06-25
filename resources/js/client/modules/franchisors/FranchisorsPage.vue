@@ -47,7 +47,7 @@
                         <p>
                             На этой странице вы найдете информацию <br class="mobile-br desktop-br">
                             <strong>о лучших отелях,</strong>
-                            которые команда туристической компании "В Путь"<br class="mobile-br desktop-br">
+                            которые команда туристической компании "В ПУТЬ"<br class="mobile-br desktop-br">
                             посетила лично и рекомендует для наших туристов.
                         </p>
 
@@ -221,6 +221,10 @@ export default {
     z-index: -1;
 }
 
+.hero-background-video video {
+    object-position: 60%;
+}
+
 .hero-main-title {
     color: white;
     font-weight: 700;
@@ -366,7 +370,7 @@ export default {
 
     .franchisors-section__input {
         padding: 0 16px;
-        font-size: 14px;
+        font-size: 16px;
     }
 
     .franchisors-section__button {
