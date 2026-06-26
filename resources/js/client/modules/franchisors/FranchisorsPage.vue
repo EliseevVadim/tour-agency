@@ -221,7 +221,7 @@ export default {
     z-index: -1;
 }
 
-.hero-background-video video {
+.franchisors-content_franchisors .hero-background-video video {
     object-position: 60%;
 }
 
