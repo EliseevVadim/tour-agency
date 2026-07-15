@@ -129,8 +129,11 @@
                         <span class="flare"></span>
                         {{ pkg.id !== 'maxi' ? pkg.details.buttonText : 'ПОЛУЧИТЬ ПРЕЗЕНТАЦИЮ' }}
                     </button>
-                    <div v-if="pkg.id !== 'maxi'" class="mark-price fw-800">
-                        и наличие мест
+                    <div v-if="pkg.id !== 'maxi'" class="mark-price">
+                        <span class="price-old text-decoration-line-through fw-medium">{{
+                                pkg.details.priceOld
+                            }} р</span>
+                        <span class="price-new">{{ pkg.details.priceNew }} р</span>
                     </div>
                     <button v-if="pkg.id === 'maxi'" data-bs-toggle="modal" data-bs-target="#orderModal"
                             class="btn btn-cta btn-price"
