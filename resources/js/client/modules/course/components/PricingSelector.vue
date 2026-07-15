@@ -420,7 +420,7 @@ export default {
 
                         this.packageData[index].details.priceOld = pkgData.priceOld;
                         this.packageData[index].details.priceNew = pkgData.priceNew;
-                        this.packageData[index].details.buttonText = pkgData.buttonText || 'УТОЧНИТЬ СТОИМОСТЬ';
+                        this.packageData[index].details.buttonText = pkgData.buttonText || 'ПОЛУЧИТЬ ДОСТУП';
                     }
                 });
 
