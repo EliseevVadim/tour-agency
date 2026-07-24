@@ -19,6 +19,8 @@
                                class="text-white">Сведения об образовательной организации</a>
                             <a href="/documents/education-program.pdf"
                                class="text-white">Образовательная программа</a>
+                            <a href="/documents/license_notification.pdf" class="text-white">Лицензия на осуществление
+                                образовательной деятельности № Л035-01714-93/04550651, выданная Министерством образования и науки Донецкой Народной Республики</a>
                         </li>
                     </ul>
                 </div>

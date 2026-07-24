@@ -42,6 +42,13 @@
                         года №
                         273-ФЗ «Об образовании в Российской Федерации».
                     </dd>
+
+                    <dt class="col-sm-4">Лицензия:</dt>
+                    <dd class="col-sm-8">
+                        Лицензия на осуществление
+                        образовательной деятельности № Л035-01714-93/04550651, выданная Министерством образования и
+                        науки Донецкой Народной Республики
+                    </dd>
                 </dl>
             </div>
 
@@ -72,7 +79,15 @@
                     <h2 class="h5 mb-0">Документы</h2>
                 </div>
                 <div class="card-body">
-                    <p>Раздел находится в разработке.</p>
+                    <dl class="row">
+                        <dt class="col-sm-4">Уведомление о предоставлении образовательной лицезии:</dt>
+                        <dd class="col-sm-8"><a href="https://putclub.ru/documents/license_notification.pdf"
+                                                target="_blank">Лицензия</a></dd>
+
+                        <dt class="col-sm-4">Выписка из реестра лицензий:</dt>
+                        <dd class="col-sm-8"><a href="https://putclub.ru/documents/registry_discharge.pdf"
+                                                target="_blank">Выписка из реестра</a></dd>
+                    </dl>
                 </div>
             </div>
 
